@@ -1,0 +1,46 @@
+@prefix ns1: <http://localhost:5000/pub/002617> .
+@prefix ns2: <http://purl.org/dc/terms/> .
+@prefix ns3: <http://purl.org/vocab/frbr/core#> .
+@prefix ns4: <http://www.nanopub.org/nschema#> .
+@prefix ns5: <http://semanticscience.org/resource/> .
+@prefix ns6: <http://vocab.rpi.edu/whyis/> .
+@prefix ns7: <http://open.vocab.org/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:a0-ad66-11e9-b097-3af9d3cf1ae5_pubinfo {
+    ns1:a0-ad66-11e9-b097-3af9d3cf1ae5 a ns3:Expression ;
+        ns3:realizationOf <http://localhost:5000/pub/MTMwMTMwLjM3NzI0MzY3NTAy> .
+
+    ns1:a0-ad66-11e9-b097-3af9d3cf1ae5_assertion ns2:contributor <http://localhost:5000/user/identifier> ;
+        ns2:created "2019-07-23T16:22:01.242002"^^xsd:dateTime .
+
+    <http://localhost:5000/pub/MTMwMTMwLjM3NzI0MzY3NTAy> a ns3:Work .
+}
+
+ns1:a0-ad66-11e9-b097-3af9d3cf1ae5 {
+    ns1:a0-ad66-11e9-b097-3af9d3cf1ae5 a ns4:Nanopublication ;
+        ns5:isAbout <http://example.com/testdatab64> ;
+        ns4:hasAssertion ns1:a0-ad66-11e9-b097-3af9d3cf1ae5_assertion ;
+        ns4:hasProvenance ns1:a0-ad66-11e9-b097-3af9d3cf1ae5_provenance ;
+        ns4:hasPublicationInfo ns1:a0-ad66-11e9-b097-3af9d3cf1ae5_pubinfo .
+
+    ns1:a0-ad66-11e9-b097-3af9d3cf1ae5_assertion a ns4:Assertion .
+
+    ns1:a0-ad66-11e9-b097-3af9d3cf1ae5_provenance a ns4:Provenance .
+
+    ns1:a0-ad66-11e9-b097-3af9d3cf1ae5_pubinfo a ns4:PublicationInfo .
+}
+
+ns1:a0-ad66-11e9-b097-3af9d3cf1ae5_assertion {
+    <http://example.com/testdatab64> a <http://purl.org/net/provenance/ns#File>,
+            <https://www.iana.org/assignments/media-types/text>,
+            <https://www.iana.org/assignments/media-types/text/plain> ;
+        ns7:hasContentType "text/plain" ;
+        ns2:contributor <http://localhost:5000/user/identifier> ;
+        ns2:created "2019-07-23T16:22:01.241373"^^xsd:dateTime ;
+        ns6:hasFileID "0027f0b6-ad66-11e9-b097-3af9d3cf1ae5" .
+
+    <https://www.iana.org/assignments/media-types/text> a ns2:FileFormat .
+
+    <https://www.iana.org/assignments/media-types/text/plain> a ns2:FileFormat .
+}
