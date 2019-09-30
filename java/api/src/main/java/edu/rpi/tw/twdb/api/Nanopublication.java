@@ -1,14 +1,11 @@
 package edu.rpi.tw.twdb.api;
 
-import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.Model;
-
 public interface Nanopublication {
-    Model getAssertion();
+    NamedModel getAssertion();
 
-    Model getProvenance();
+    NamedModel getProvenance();
 
-    Model getPublicationInfo();
+    NamedModel getPublicationInfo();
 
     String getUri();
 }
