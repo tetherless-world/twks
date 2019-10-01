@@ -11,10 +11,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public final class TestData {
+    public final File assertionOnlyFilePath;
     public final File specNanopublicationFilePath;
     public final Dataset specNanopublicationDataset = DatasetFactory.create();
 
     public TestData() throws IOException {
+        assertionOnlyFilePath = getResourceFilePath("assertion_only.ttl");
         specNanopublicationFilePath = getResourceFilePath("spec_nanopublication.trig");
         parseDatasetFromResource(specNanopublicationDataset, "spec_nanopublication.trig");
     }
