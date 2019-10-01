@@ -8,6 +8,7 @@ import edu.rpi.tw.twdb.lib.vocabulary.NANOPUB;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;
+import org.dmfs.rfc3986.Uri;
 
 import java.util.HashSet;
 import java.util.List;
@@ -56,7 +57,9 @@ final class NanopublicationFactoryImpl implements NanopublicationFactory {
             throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to an empty named graph (%s)", nanopublicationResource, partProperty, partResource));
         }
 
-        return new NamedModel(partModel, partModelName);
+        final Uri partModelUri = Uris.parse(partModelName);
+
+        return new NamedModel(partModel, partModelUri);
     }
 
     @Override
@@ -86,7 +89,7 @@ final class NanopublicationFactoryImpl implements NanopublicationFactory {
         // Find the head graph.
         for (final String modelName : datasetModelNames) {
             final Model head;
-            final String headUri;
+            final Uri headUri;
             final Resource nanopublicationResource;
             {
                 final Model model = dataset.getNamedModel(modelName);
@@ -102,7 +105,7 @@ final class NanopublicationFactoryImpl implements NanopublicationFactory {
                         throw new MalformedNanopublicationException(String.format("nanopublication head graph %s has more than one rdf:type Nanopublication", modelName));
                 }
                 head = model;
-                headUri = modelName;
+                headUri = Uris.parse(modelName);
                 nanopublicationResource = nanopublicationResources.get(0);
                 if (nanopublicationResource.getURI() == null) {
                     throw new MalformedNanopublicationException("nanopublication resource is a blank node");
@@ -115,21 +118,21 @@ final class NanopublicationFactoryImpl implements NanopublicationFactory {
             // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
             final NamedModel publicationInfo = getNanopublicationPartFromDataset(dataset, head, nanopublicationResource, NANOPUB.hasPublicationInfo);
 
-            return createNanopublicationFromParts(assertion, Optional.of(headUri), provenance, publicationInfo, nanopublicationResource.getURI());
+            return createNanopublicationFromParts(assertion, Optional.of(headUri), provenance, publicationInfo, Uris.parse(nanopublicationResource.getURI()));
         }
 
         throw new MalformedNanopublicationException("unable to locate head graph by rdf:type Nanopublication statement");
     }
 
     @Override
-    public Nanopublication createNanopublicationFromParts(final NamedModel assertion, final NamedModel provenance, final NamedModel publicationInfo, final String uri) throws MalformedNanopublicationException {
+    public Nanopublication createNanopublicationFromParts(final NamedModel assertion, final NamedModel provenance, final NamedModel publicationInfo, final Uri uri) throws MalformedNanopublicationException {
         return createNanopublicationFromParts(assertion, Optional.empty(), provenance, publicationInfo, uri);
     }
 
-    private Nanopublication createNanopublicationFromParts(final NamedModel assertion, final Optional<String> headUri, final NamedModel provenance, final NamedModel publicationInfo, final String uri) throws MalformedNanopublicationException {
+    private Nanopublication createNanopublicationFromParts(final NamedModel assertion, final Optional<Uri> headUri, final NamedModel provenance, final NamedModel publicationInfo, final Uri uri) throws MalformedNanopublicationException {
         // The URIs for [N], [H], [A], [P], [I] must all be different
-        final Set<String> partUris = new HashSet<>(5);
-        for (final String partUri : new String[]{uri, headUri.orElse(null), assertion.getName(), provenance.getName(), publicationInfo.getName()}) {
+        final Set<Uri> partUris = new HashSet<>(5);
+        for (final Uri partUri : new Uri[]{uri, headUri.orElse(null), assertion.getName(), provenance.getName(), publicationInfo.getName()}) {
             if (partUri == null) {
                 continue;
             }
@@ -140,16 +143,15 @@ final class NanopublicationFactoryImpl implements NanopublicationFactory {
         }
 
         // Triples in [P] have at least one reference to [A]
-        if (!provenance.getModel().listStatements(ResourceFactory.createResource(assertion.getName()), null, (String) null).hasNext()) {
+        if (!provenance.getModel().listStatements(ResourceFactory.createResource(assertion.getName().toString()), null, (String) null).hasNext()) {
             throw new MalformedNanopublicationException("provenance does not reference assertion graph");
         }
 
         // Triples in [I] have at least one reference to [N]
-        if (!publicationInfo.getModel().listStatements(ResourceFactory.createResource(uri), null, (String) null).hasNext()) {
+        if (!publicationInfo.getModel().listStatements(ResourceFactory.createResource(uri.toString()), null, (String) null).hasNext()) {
             throw new MalformedNanopublicationException("publication info does not reference nanopublication");
         }
 
         return new NanopublicationImpl(assertion, provenance, publicationInfo, uri);
     }
-
 }

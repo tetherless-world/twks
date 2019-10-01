@@ -11,10 +11,10 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFParserBuilder;
+import org.dmfs.rfc3986.Uri;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Calendar;
 
 final class NanopublicationParserImpl implements NanopublicationParser {
@@ -33,17 +33,18 @@ final class NanopublicationParserImpl implements NanopublicationParser {
 
     @Override
     public Nanopublication parse(final File filePath) throws MalformedNanopublicationException, IOException {
-        final String nanopublicationUri = filePath.toURI().toString();
+        final Uri nanopublicationUri = Uris.parse(filePath.toURI().toString());
         rdfParserBuilder.source(filePath.getPath());
-        return parse(nanopublicationUri);
+        return parseDelegate(nanopublicationUri);
     }
 
     @Override
-    public Nanopublication parse(final URL url) throws MalformedNanopublicationException, IOException {
-        return null;
+    public Nanopublication parse(final Uri url) throws MalformedNanopublicationException, IOException {
+        rdfParserBuilder.source(url.toString());
+        return parseDelegate(url);
     }
 
-    private Nanopublication parse(final String nanopublicationUri) throws IOException, MalformedNanopublicationException {
+    private Nanopublication parseDelegate(final Uri nanopublicationUri) throws IOException, MalformedNanopublicationException {
         final Dataset dataset = DatasetFactory.create();
         rdfParserBuilder.parse(dataset);
 
@@ -54,16 +55,20 @@ final class NanopublicationParserImpl implements NanopublicationParser {
 
         final Literal generatedAtTime = ResourceFactory.createTypedLiteral(new XSDDateTime(Calendar.getInstance()));
 
+        final String nanopublicationUriString = Uris.toString(nanopublicationUri);
+
         final Model assertion = dataset.getDefaultModel();
-        final String assertionUri = nanopublicationUri + "#assertion";
+        final String assertionUriString = nanopublicationUriString + "#assertion";
+        final Uri assertionUri = Uris.parse(assertionUriString);
 
         final Model provenance = ModelFactory.createDefaultModel();
-        provenance.add(provenance.createResource(assertionUri), PROV.generatedAtTime, generatedAtTime);
-        final String provenanceUri = nanopublicationUri + "#provenance";
+        provenance.add(provenance.createResource(assertionUriString), PROV.generatedAtTime, generatedAtTime);
+        final Uri provenanceUri = Uris.parse(nanopublicationUriString + "#provenance");
 
         final Model publicationInfo = ModelFactory.createDefaultModel();
-        final String publicationInfoUri = nanopublicationUri + "#publicationInfo";
-        publicationInfo.add(publicationInfo.createResource(publicationInfoUri), PROV.generatedAtTime, generatedAtTime);
+        final String publicationInfoUriString = nanopublicationUriString + "#publicationInfo";
+        final Uri publicationInfoUri = Uris.parse(publicationInfoUriString);
+        publicationInfo.add(publicationInfo.createResource(publicationInfoUriString), PROV.generatedAtTime, generatedAtTime);
 
         return new NanopublicationImpl(new NamedModel(assertion, assertionUri), new NamedModel(provenance, provenanceUri), new NamedModel(publicationInfo, publicationInfoUri), nanopublicationUri);
     }

@@ -5,14 +5,15 @@ import edu.rpi.tw.twdb.api.MalformedNanopublicationException;
 import edu.rpi.tw.twdb.api.Nanopublication;
 import edu.rpi.tw.twdb.api.NanopublicationParser;
 import edu.rpi.tw.twdb.api.Twdb;
+import edu.rpi.tw.twdb.lib.Uris;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
+import org.dmfs.rfc3986.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 public final class PutNanopublicationCommand extends Command {
     private final static String NAME = "put-nanopublication";
@@ -49,12 +50,16 @@ public final class PutNanopublicationCommand extends Command {
             if (sourceFilePath.isFile()) {
                 nanopublication = parser.parse(sourceFilePath);
             } else {
-                final URL sourceFileUrl = new URL(args.source);
-                nanopublication = parser.parse(sourceFileUrl);
+                final Uri sourceUrl = Uris.parse(args.source);
+                sourceUrl.fragment(); // Force parse
+                nanopublication = parser.parse(sourceUrl);
             }
         } catch (final IOException | MalformedNanopublicationException e) {
             logger.error("error parsing {}:", args.source, e);
+            return;
         }
+
+        db.putNanopublication(nanopublication);
     }
 
     @Override

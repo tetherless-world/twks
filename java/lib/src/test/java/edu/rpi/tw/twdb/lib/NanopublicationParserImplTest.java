@@ -25,7 +25,7 @@ public final class NanopublicationParserImplTest {
     @Test
     public void testParseNanopublicationFile() throws IOException, MalformedNanopublicationException {
         final Nanopublication nanopublication = sut.parse(testData.specNanopublicationFilePath);
-        assertEquals("http://example.org/pub1", nanopublication.getUri());
+        assertEquals("http://example.org/pub1", nanopublication.getUri().toString());
         assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
         assertEquals(3, nanopublication.getProvenance().getModel().listStatements().toList().size());
         assertEquals(2, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
@@ -34,7 +34,7 @@ public final class NanopublicationParserImplTest {
     @Test
     public void testParseAssertionFile() throws IOException, MalformedNanopublicationException {
         final Nanopublication nanopublication = sut.parse(testData.assertionOnlyFilePath);
-        assertEquals(testData.assertionOnlyFilePath.toURI().toString(), nanopublication.getUri());
+        assertEquals(testData.assertionOnlyFilePath.toURI().toString(), nanopublication.getUri().toString());
         assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
         assertEquals(1, nanopublication.getProvenance().getModel().listStatements().toList().size());
         assertEquals(1, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());

@@ -5,6 +5,7 @@ import edu.rpi.tw.twdb.api.NanopublicationFactory;
 import edu.rpi.tw.twdb.api.NanopublicationParser;
 import edu.rpi.tw.twdb.api.Twdb;
 import org.apache.jena.query.Dataset;
+import org.dmfs.rfc3986.Uri;
 
 import java.util.Optional;
 
@@ -12,7 +13,7 @@ public final class TwdbImpl implements Twdb {
     private final NanopublicationFactory nanopublicationFactory = new NanopublicationFactoryImpl();
 
     @Override
-    public boolean deleteNanopublication(final String uri) {
+    public boolean deleteNanopublication(final Uri uri) {
         return false;
     }
 
@@ -22,7 +23,7 @@ public final class TwdbImpl implements Twdb {
     }
 
     @Override
-    public Optional<Nanopublication> getNanopublication(final String uri) {
+    public Optional<Nanopublication> getNanopublication(final Uri uri) {
         return Optional.empty();
     }
 
