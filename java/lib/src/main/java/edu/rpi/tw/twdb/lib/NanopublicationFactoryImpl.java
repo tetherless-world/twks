@@ -5,7 +5,6 @@ import edu.rpi.tw.twdb.api.NamedModel;
 import edu.rpi.tw.twdb.api.Nanopublication;
 import edu.rpi.tw.twdb.api.NanopublicationFactory;
 import edu.rpi.tw.twdb.lib.vocabulary.NANOPUB;
-import jdk.internal.jline.internal.Nullable;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;

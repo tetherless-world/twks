@@ -1,11 +1,11 @@
 package edu.rpi.tw.twdb.lib;
 
+import edu.rpi.tw.twdb.api.InvalidNanopublicationException;
 import edu.rpi.tw.twdb.api.Nanopublication;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,12 +20,10 @@ public final class NanopublicationFactoryImplTest {
     }
 
     @Test
-    public void testCreateNanopublicationWithoutProvenanceFromDataset() {
-        final List<Nanopublication> nanopublications = sut.createNanopublicationsFromDataset(testData.specNanopublicationDataset);
-        assertEquals(1, nanopublications.size());
-        final Nanopublication nanopublication = nanopublications.get(0);
-        assertEquals(1, nanopublication.getAssertion().listStatements().toList().size());
-        assertEquals(0, nanopublication.getProvenance().listStatements().toList().size());
-        assertEquals(5, nanopublication.getPublicationInfo().listNameSpaces().toList().size());
+    public void testCreateNanopublicationWithoutProvenanceFromDataset() throws InvalidNanopublicationException {
+        final Nanopublication nanopublication = sut.createNanopublicationFromDataset(testData.specNanopublicationDataset);
+        assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
+        assertEquals(3, nanopublication.getProvenance().getModel().listStatements().toList().size());
+        assertEquals(2, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
     }
 }
