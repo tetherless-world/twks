@@ -16,10 +16,14 @@ jobs:
           path: java/lib/target/surefire-reports
 #      - store_artifacts:
 #          path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
+      - setup_remote_docker
       - run:
-          name: Build and push Docker image
+          name: Build Docker image
+          command: cd docker && docker-compose build twdb-server
+      - run:
+          name: Push Docker image
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
-              cd docker && docker-compose build twdb
+              cd docker && docker-compose push twdb-server
             fi
