@@ -1,6 +1,7 @@
 package edu.rpi.tw.twdb.api;
 
 import org.apache.jena.query.Dataset;
+import org.dmfs.rfc3986.Uri;
 
 /**
  * Factory for nanopublications.
@@ -17,5 +18,5 @@ public interface NanopublicationFactory {
      * Create a well-formed nanopublication from its parts.
      * The parts are expected to conform to the nanopublication specification (http://nanopub.org/guidelines/working_draft/).
      */
-    Nanopublication createNanopublicationFromParts(NamedModel assertion, NamedModel provenance, NamedModel publicationInfo, String uri) throws MalformedNanopublicationException;
+    Nanopublication createNanopublicationFromParts(NamedModel assertion, NamedModel provenance, NamedModel publicationInfo, Uri uri) throws MalformedNanopublicationException;
 }

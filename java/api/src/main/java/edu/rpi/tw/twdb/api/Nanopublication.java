@@ -1,5 +1,7 @@
 package edu.rpi.tw.twdb.api;
 
+import org.dmfs.rfc3986.Uri;
+
 public interface Nanopublication {
     NamedModel getAssertion();
 
@@ -7,5 +9,5 @@ public interface Nanopublication {
 
     NamedModel getPublicationInfo();
 
-    String getUri();
+    Uri getUri();
 }
