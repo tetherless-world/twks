@@ -14,17 +14,17 @@ public final class TwdbImpl implements Twdb {
 
     @Override
     public boolean deleteNanopublication(final Uri uri) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Dataset getAssertionsDataset() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Optional<Nanopublication> getNanopublication(final Uri uri) {
-        return Optional.empty();
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -34,7 +34,7 @@ public final class TwdbImpl implements Twdb {
 
     @Override
     public Dataset getNanopublicationsDataset() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -44,6 +44,6 @@ public final class TwdbImpl implements Twdb {
 
     @Override
     public void putNanopublication(final Nanopublication nanopublication) {
-
+        throw new UnsupportedOperationException();
     }
 }
