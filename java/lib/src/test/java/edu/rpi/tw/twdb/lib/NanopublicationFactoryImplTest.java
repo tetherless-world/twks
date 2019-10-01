@@ -26,4 +26,12 @@ public final class NanopublicationFactoryImplTest {
         assertEquals(3, nanopublication.getProvenance().getModel().listStatements().toList().size());
         assertEquals(2, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
     }
+
+    @Test
+    public void testCreateNanopublicationFromFile() throws IOException, MalformedNanopublicationException {
+        final Nanopublication nanopublication = sut.createNanopublicationFromFile(testData.specNanopublicationFilePath);
+        assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
+        assertEquals(3, nanopublication.getProvenance().getModel().listStatements().toList().size());
+        assertEquals(2, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
+    }
 }

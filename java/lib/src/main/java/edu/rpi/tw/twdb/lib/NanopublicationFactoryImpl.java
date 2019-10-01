@@ -9,12 +9,58 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 final class NanopublicationFactoryImpl implements NanopublicationFactory {
+    /**
+     * Get the named model in a dataset that correspond to part of a nanopublication e.g., the named assertion graph.
+     * The dataset contains
+     * <nanopublication URI> nanopub:hasAssertion <assertion graph URI> .
+     * The same goes for nanopub:hasProvenance and nanopub:hasPublicationInfo.
+     */
+    private static NamedModel getNanopublicationPartFromDataset(final Dataset dataset, final Model head, final Resource nanopublicationResource, final Property partProperty) throws MalformedNanopublicationException {
+        final List<RDFNode> partRdfNodes = head.listObjectsOfProperty(nanopublicationResource, partProperty).toList();
+
+        switch (partRdfNodes.size()) {
+            case 0:
+                throw new MalformedNanopublicationException(String.format("nanopublication %s has no %s", nanopublicationResource, partProperty));
+            case 1:
+                break;
+            default:
+                throw new MalformedNanopublicationException(String.format("nanopublication %s has more than one %s", nanopublicationResource, partProperty));
+        }
+
+        final RDFNode partRdfNode = partRdfNodes.get(0);
+
+        if (!(partRdfNode instanceof Resource)) {
+            throw new MalformedNanopublicationException(String.format("nanopublication %s %s is not a resource", nanopublicationResource, partProperty));
+        }
+
+        final Resource partResource = (Resource) partRdfNode;
+
+        if (partResource.getURI() == null) {
+            throw new MalformedNanopublicationException(String.format("nanopublication %s %s is a blank node", nanopublicationResource, partProperty));
+        }
+
+
+        final String partModelName = partResource.toString();
+        final Model partModel = dataset.getNamedModel(partModelName);
+        if (partModel == null) {
+            throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to a missing named graph (%s)", nanopublicationResource, partProperty, partResource));
+        }
+
+        if (partModel.isEmpty()) {
+            throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to an empty named graph (%s)", nanopublicationResource, partProperty, partResource));
+        }
+
+        return new NamedModel(partModel, partModelName);
+    }
+
     @Override
     public Nanopublication createNanopublicationFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
         if (dataset == null) {
@@ -78,6 +124,11 @@ final class NanopublicationFactoryImpl implements NanopublicationFactory {
     }
 
     @Override
+    public Nanopublication createNanopublicationFromFile(final File nanopublicationFilePath) throws IOException, MalformedNanopublicationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Nanopublication createNanopublicationFromParts(final NamedModel assertion, final NamedModel provenance, final NamedModel publicationInfo, final String uri) throws MalformedNanopublicationException {
         return createNanopublicationFromParts(assertion, Optional.empty(), provenance, publicationInfo, uri);
     }
@@ -106,50 +157,6 @@ final class NanopublicationFactoryImpl implements NanopublicationFactory {
         }
 
         return new NanopublicationImpl(assertion, provenance, publicationInfo, uri);
-    }
-
-    /**
-     * Get the named model in a dataset that correspond to part of a nanopublication e.g., the named assertion graph.
-     * The dataset contains
-     * <nanopublication URI> nanopub:hasAssertion <assertion graph URI> .
-     * The same goes for nanopub:hasProvenance and nanopub:hasPublicationInfo.
-     */
-    private static NamedModel getNanopublicationPartFromDataset(final Dataset dataset, final Model head, final Resource nanopublicationResource, final Property partProperty) throws MalformedNanopublicationException {
-        final List<RDFNode> partRdfNodes = head.listObjectsOfProperty(nanopublicationResource, partProperty).toList();
-
-        switch (partRdfNodes.size()) {
-            case 0:
-                throw new MalformedNanopublicationException(String.format("nanopublication %s has no %s", nanopublicationResource, partProperty));
-            case 1:
-                break;
-            default:
-                throw new MalformedNanopublicationException(String.format("nanopublication %s has more than one %s", nanopublicationResource, partProperty));
-        }
-
-        final RDFNode partRdfNode = partRdfNodes.get(0);
-
-        if (!(partRdfNode instanceof Resource)) {
-            throw new MalformedNanopublicationException(String.format("nanopublication %s %s is not a resource", nanopublicationResource, partProperty));
-        }
-
-        final Resource partResource = (Resource) partRdfNode;
-
-        if (partResource.getURI() == null) {
-            throw new MalformedNanopublicationException(String.format("nanopublication %s %s is a blank node", nanopublicationResource, partProperty));
-        }
-
-
-        final String partModelName = partResource.toString();
-        final Model partModel = dataset.getNamedModel(partModelName);
-        if (partModel == null) {
-            throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to a missing named graph (%s)", nanopublicationResource, partProperty, partResource));
-        }
-
-        if (partModel.isEmpty()) {
-            throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to an empty named graph (%s)", nanopublicationResource, partProperty, partResource));
-        }
-
-        return new NamedModel(partModel, partModelName);
     }
 
 }
