@@ -1,0 +1,10 @@
+version: '3'
+services:
+  twdb-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: "twdb-server"
+    image: tetherlessworld/twdb-server
+    ports:
+      - "127.0.0.1:8080:8080"
