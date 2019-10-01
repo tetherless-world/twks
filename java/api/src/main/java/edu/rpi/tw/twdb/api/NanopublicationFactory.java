@@ -12,5 +12,5 @@ public interface NanopublicationFactory {
      * The Dataset is expected to contain only one nanopublication, and conform to the nanopublication
      * specification (http://nanopub.org/guidelines/working_draft/).
      */
-    Nanopublication createNanopublicationFromDataset(Dataset dataset) throws InvalidNanopublicationException;
+    Nanopublication createNanopublicationFromDataset(Dataset dataset) throws MalformedNanopublicationException;
 }
