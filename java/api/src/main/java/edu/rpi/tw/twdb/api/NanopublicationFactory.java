@@ -1,12 +1,16 @@
 package edu.rpi.tw.twdb.api;
 
 import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.Model;
 
-import java.util.List;
-
+/**
+ * Factory for nanopublications.
+ */
 public interface NanopublicationFactory {
-    Nanopublication createNanopublicationFromAssertion(Model assertion) throws InvalidNanopublicationException;
-
-    List<Nanopublication> createNanopublicationsFromDataset(Dataset dataset) throws InvalidNanopublicationException;
+    /**
+     * Parse a well-formed nanopublication from a Dataset.
+     * <p>
+     * The Dataset is expected to contain only one nanopublication, and conform to the nanopublication
+     * specification (http://nanopub.org/guidelines/working_draft/).
+     */
+    Nanopublication createNanopublicationFromDataset(Dataset dataset) throws InvalidNanopublicationException;
 }

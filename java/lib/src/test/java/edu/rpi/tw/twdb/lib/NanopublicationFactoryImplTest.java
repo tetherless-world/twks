@@ -21,7 +21,7 @@ public final class NanopublicationFactoryImplTest {
 
     @Test
     public void testCreateNanopublicationWithoutProvenanceFromDataset() {
-        final List<Nanopublication> nanopublications = sut.createNanopublicationsFromDataset(testData.nanopublicationWithoutProvenanceDataset);
+        final List<Nanopublication> nanopublications = sut.createNanopublicationsFromDataset(testData.specNanopublicationDataset);
         assertEquals(1, nanopublications.size());
         final Nanopublication nanopublication = nanopublications.get(0);
         assertEquals(1, nanopublication.getAssertion().listStatements().toList().size());

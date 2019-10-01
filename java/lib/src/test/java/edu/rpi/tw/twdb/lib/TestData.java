@@ -10,16 +10,15 @@ import java.net.URL;
 
 public final class TestData {
     public TestData() throws IOException {
-        parseDatasetFromResource(nanopublicationWithoutProvenanceDataset, "nanopublication_without_provenance.trig");
+        parseDatasetFromResource(specNanopublicationDataset, "spec_nanopublication.trig");
     }
 
     private void parseDatasetFromResource(final Dataset dataset, final String fileName) throws IOException {
-//        final String resourceName = "/" + getClass().getPackage().getName().replace(".", "/") + "/" + fileName;
         final URL url = getClass().getResource("./" + fileName);
         try (final InputStream inputStream = url.openStream()) {
             RDFParserBuilder.create().base(url.toString()).source(inputStream).parse(dataset);
         }
     }
 
-    public final Dataset nanopublicationWithoutProvenanceDataset = DatasetFactory.create();
+    public final Dataset specNanopublicationDataset = DatasetFactory.create();
 }

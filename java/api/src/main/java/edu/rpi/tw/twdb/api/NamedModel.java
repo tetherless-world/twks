@@ -10,4 +10,12 @@ public final class NamedModel {
         this.model = model;
         this.name = name;
     }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public String getName() {
+        return name;
+    }
 }
