@@ -15,5 +15,7 @@ public interface Twdb {
 
     Dataset getNanopublicationsDataset();
 
+    NanopublicationParser newNanopublicationParser();
+
     void putNanopublication(Nanopublication nanopublication);
 }
