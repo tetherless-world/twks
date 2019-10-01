@@ -14,6 +14,7 @@ import org.apache.jena.riot.RDFParserBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Calendar;
 
 final class NanopublicationParserImpl implements NanopublicationParser {
@@ -35,6 +36,11 @@ final class NanopublicationParserImpl implements NanopublicationParser {
         final String nanopublicationUri = filePath.toURI().toString();
         rdfParserBuilder.source(filePath.getPath());
         return parse(nanopublicationUri);
+    }
+
+    @Override
+    public Nanopublication parse(final URL url) throws MalformedNanopublicationException, IOException {
+        return null;
     }
 
     private Nanopublication parse(final String nanopublicationUri) throws IOException, MalformedNanopublicationException {
