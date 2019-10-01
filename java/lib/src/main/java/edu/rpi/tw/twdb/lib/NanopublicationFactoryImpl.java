@@ -131,8 +131,8 @@ final class NanopublicationFactoryImpl implements NanopublicationFactory {
 
     private Nanopublication createNanopublicationFromParts(final NamedModel assertion, final Optional<Uri> headUri, final NamedModel provenance, final NamedModel publicationInfo, final Uri uri) throws MalformedNanopublicationException {
         // The URIs for [N], [H], [A], [P], [I] must all be different
-        final Set<Uri> partUris = new HashSet<>(5);
-        for (final Uri partUri : new Uri[]{uri, headUri.orElse(null), assertion.getName(), provenance.getName(), publicationInfo.getName()}) {
+        final Set<String> partUris = new HashSet<>(5);
+        for (final String partUri : new String[]{Uris.toString(uri), headUri != null ? Uris.toString(headUri.get()) : null, Uris.toString(assertion.getName()), Uris.toString(provenance.getName()), Uris.toString(publicationInfo.getName())}) {
             if (partUri == null) {
                 continue;
             }
@@ -143,12 +143,12 @@ final class NanopublicationFactoryImpl implements NanopublicationFactory {
         }
 
         // Triples in [P] have at least one reference to [A]
-        if (!provenance.getModel().listStatements(ResourceFactory.createResource(assertion.getName().toString()), null, (String) null).hasNext()) {
+        if (!provenance.getModel().listStatements(ResourceFactory.createResource(Uris.toString(assertion.getName())), null, (String) null).hasNext()) {
             throw new MalformedNanopublicationException("provenance does not reference assertion graph");
         }
 
         // Triples in [I] have at least one reference to [N]
-        if (!publicationInfo.getModel().listStatements(ResourceFactory.createResource(uri.toString()), null, (String) null).hasNext()) {
+        if (!publicationInfo.getModel().listStatements(ResourceFactory.createResource(Uris.toString(uri)), null, (String) null).hasNext()) {
             throw new MalformedNanopublicationException("publication info does not reference nanopublication");
         }
 
