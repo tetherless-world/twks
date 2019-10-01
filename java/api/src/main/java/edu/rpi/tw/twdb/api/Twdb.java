@@ -1,7 +1,7 @@
 package edu.rpi.tw.twdb.api;
 
 import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.Model;
+
 import java.util.Optional;
 
 public interface Twdb {
@@ -11,7 +11,7 @@ public interface Twdb {
 
     Optional<Nanopublication> getNanopublication(String uri);
 
-    NanopublicationParser getNanopublicationParser();
+    NanopublicationFactory getNanopublicationFactory();
 
     Dataset getNanopublicationsDataset();
 
