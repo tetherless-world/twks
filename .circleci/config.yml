@@ -7,13 +7,12 @@ jobs:
       - checkout
       - restore_cache:
           key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
-      - run: mvn dependency:go-offline
+      - run: cd java && mvn package
       - save_cache:
           key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
           paths:
             - ~/.m2
-      - run: mvn package
       - store_test_results:
-          path: target/surefire-reports
+          path: java/lib/target/surefire-reports
 #      - store_artifacts:
 #          path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
