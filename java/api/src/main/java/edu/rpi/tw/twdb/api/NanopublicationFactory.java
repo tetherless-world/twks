@@ -6,7 +6,7 @@ import org.apache.jena.rdf.model.Model;
 import java.util.List;
 
 public interface NanopublicationFactory {
-    Nanopublication createNanopublicationFromAssertion(Model assertion);
+    Nanopublication createNanopublicationFromAssertion(Model assertion) throws InvalidNanopublicationException;
 
-    List<Nanopublication> createNanopublicationsFromDataset(Dataset dataset);
+    List<Nanopublication> createNanopublicationsFromDataset(Dataset dataset) throws InvalidNanopublicationException;
 }
