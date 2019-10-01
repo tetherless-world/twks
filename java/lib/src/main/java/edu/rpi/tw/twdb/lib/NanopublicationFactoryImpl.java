@@ -9,8 +9,6 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -121,11 +119,6 @@ final class NanopublicationFactoryImpl implements NanopublicationFactory {
         }
 
         throw new MalformedNanopublicationException("unable to locate head graph by rdf:type Nanopublication statement");
-    }
-
-    @Override
-    public Nanopublication createNanopublicationFromFile(final File nanopublicationFilePath) throws IOException, MalformedNanopublicationException {
-        throw new UnsupportedOperationException();
     }
 
     @Override

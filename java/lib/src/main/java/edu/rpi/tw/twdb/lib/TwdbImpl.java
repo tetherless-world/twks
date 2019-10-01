@@ -10,7 +10,7 @@ import java.util.Optional;
 public final class TwdbImpl implements Twdb {
 
     @Override
-    public boolean deleteNanopublication(String uri) {
+    public boolean deleteNanopublication(final String uri) {
         return false;
     }
 
@@ -20,7 +20,7 @@ public final class TwdbImpl implements Twdb {
     }
 
     @Override
-    public Optional<Nanopublication> getNanopublication(String uri) {
+    public Optional<Nanopublication> getNanopublication(final String uri) {
         return Optional.empty();
     }
 
@@ -35,7 +35,7 @@ public final class TwdbImpl implements Twdb {
     }
 
     @Override
-    public void putNanopublication(Nanopublication nanopublication) {
+    public void putNanopublication(final Nanopublication nanopublication) {
 
     }
 }

@@ -2,9 +2,6 @@ package edu.rpi.tw.twdb.api;
 
 import org.apache.jena.query.Dataset;
 
-import java.io.File;
-import java.io.IOException;
-
 /**
  * Factory for nanopublications.
  */
@@ -15,13 +12,6 @@ public interface NanopublicationFactory {
      * specification (http://nanopub.org/guidelines/working_draft/).
      */
     Nanopublication createNanopublicationFromDataset(Dataset dataset) throws MalformedNanopublicationException;
-
-    /**
-     * Parse a nanopublication from a file.
-     * <p>
-     * Infers provenance and publication information if the file does not contain a nanopublication, but only assertions.
-     */
-    Nanopublication createNanopublicationFromFile(File nanopublicationFilePath) throws IOException, MalformedNanopublicationException;
 
     /**
      * Create a well-formed nanopublication from its parts.
