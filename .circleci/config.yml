@@ -4,12 +4,21 @@ jobs:
     docker:
       - image: circleci/openjdk:8-jdk-stretch
     steps:
+      - working_directory: ~/twdb
       - checkout
+      - run:
+          name: Checkout tw-nanopub
+          command: git clone git@github.com:tetherless-world/tw-nanopub.git ~/tw-nanopub
       - restore_cache:
-          key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
-      - run: cd java && mvn package
+          key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
+      - run:
+          name: Build and install tw-nanopub
+          command: cd ~/tw-nanopub/java && mvn package install -Dmaven.test.skip=true
+      - run:
+          name: Build and test twdb
+          command: cd java && mvn package
       - save_cache:
-          key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
+          key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
           paths:
             - ~/.m2
       - store_test_results:
