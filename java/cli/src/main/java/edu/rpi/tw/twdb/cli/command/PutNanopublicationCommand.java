@@ -1,11 +1,11 @@
 package edu.rpi.tw.twdb.cli.command;
 
 import com.beust.jcommander.Parameter;
-import edu.rpi.tw.twdb.api.MalformedNanopublicationException;
-import edu.rpi.tw.twdb.api.Nanopublication;
-import edu.rpi.tw.twdb.api.NanopublicationParser;
+import edu.rpi.tw.nanopub.MalformedNanopublicationException;
+import edu.rpi.tw.nanopub.Nanopublication;
+import edu.rpi.tw.nanopub.NanopublicationParser;
+import edu.rpi.tw.nanopub.Uris;
 import edu.rpi.tw.twdb.api.Twdb;
-import edu.rpi.tw.twdb.lib.Uris;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.dmfs.rfc3986.Uri;
@@ -33,7 +33,7 @@ public final class PutNanopublicationCommand extends Command {
 
     @Override
     public void run(final Twdb db) {
-        final NanopublicationParser parser = db.newNanopublicationParser();
+        final NanopublicationParser parser = new NanopublicationParser();
 
         if (args.lang != null) {
             final Lang lang = RDFLanguages.shortnameToLang(args.lang);
