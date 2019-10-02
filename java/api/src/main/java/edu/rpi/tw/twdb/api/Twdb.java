@@ -1,5 +1,6 @@
 package edu.rpi.tw.twdb.api;
 
+import edu.rpi.tw.nanopub.Nanopublication;
 import org.apache.jena.query.Dataset;
 import org.dmfs.rfc3986.Uri;
 
@@ -12,11 +13,7 @@ public interface Twdb {
 
     Optional<Nanopublication> getNanopublication(Uri uri);
 
-    NanopublicationFactory getNanopublicationFactory();
-
     Dataset getNanopublicationsDataset();
-
-    NanopublicationParser newNanopublicationParser();
 
     void putNanopublication(Nanopublication nanopublication);
 }

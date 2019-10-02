@@ -1,7 +1,0 @@
-@prefix : <http://example.org/pub1#> .
-@prefix ex: <http://example.org/> .
-@prefix np:  <http://www.nanopub.org/nschema#> .
-@prefix prov: <http://www.w3.org/ns/prov#> .
-@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
-
-ex:trastuzumab ex:is-indicated-for ex:breast-cancer .
