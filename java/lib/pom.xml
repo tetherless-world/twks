@@ -24,6 +24,11 @@
         <!--            <version>28.1-jre</version>-->
         <!--        </dependency>-->
         <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-tdb2</artifactId>
+            <version>${jena.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>

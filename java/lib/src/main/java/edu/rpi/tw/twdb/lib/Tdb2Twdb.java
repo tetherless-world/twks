@@ -3,11 +3,18 @@ package edu.rpi.tw.twdb.lib;
 import edu.rpi.tw.nanopub.Nanopublication;
 import edu.rpi.tw.twdb.api.Twdb;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.tdb2.TDB2Factory;
 import org.dmfs.rfc3986.Uri;
 
 import java.util.Optional;
 
-public final class TwdbImpl implements Twdb {
+public final class Tdb2Twdb implements Twdb {
+    private final Dataset tdbDataset;
+
+    public Tdb2Twdb() {
+        this.tdbDataset = TDB2Factory.createDataset();
+    }
+
     @Override
     public boolean deleteNanopublication(final Uri uri) {
         throw new UnsupportedOperationException();
@@ -30,6 +37,7 @@ public final class TwdbImpl implements Twdb {
 
     @Override
     public void putNanopublication(final Nanopublication nanopublication) {
-        throw new UnsupportedOperationException();
+        tdbDataset.begin();
+        nanopublication.toDataset(tdbDataset);
     }
 }
