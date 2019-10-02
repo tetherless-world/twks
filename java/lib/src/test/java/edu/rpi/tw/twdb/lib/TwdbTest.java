@@ -3,13 +3,15 @@ package edu.rpi.tw.twdb.lib;
 import edu.rpi.tw.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.nanopub.Nanopublication;
 import edu.rpi.tw.twdb.api.Twdb;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Optional;
 
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public abstract class TwdbTest {
     private Twdb sut;
@@ -22,11 +24,18 @@ public abstract class TwdbTest {
     }
 
     @Test
-    public void testGetNanopublication() {
+    public void testGetNanopublicationAbsent() throws MalformedNanopublicationException {
+        final Optional<Nanopublication> actual = sut.getNanopublication(testData.specNanopublication.getUri());
+        assertFalse(actual.isPresent());
+    }
+
+    @Test
+    public void testGetNanopublicationPresent() throws MalformedNanopublicationException {
         final Nanopublication expected = testData.specNanopublication;
         sut.putNanopublication(expected);
         final Nanopublication actual = sut.getNanopublication(expected.getUri()).get();
         assertNotSame(expected, actual);
+        RDFDataMgr.write(System.out, actual.toDataset(), Lang.TRIG);
         assertTrue(actual.isIsomorphicWith(expected));
     }
 

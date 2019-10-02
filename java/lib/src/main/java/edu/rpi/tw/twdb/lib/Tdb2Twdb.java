@@ -1,9 +1,13 @@
 package edu.rpi.tw.twdb.lib;
 
+import edu.rpi.tw.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.nanopub.Nanopublication;
+import edu.rpi.tw.nanopub.NanopublicationFactory;
 import edu.rpi.tw.nanopub.Uris;
+import edu.rpi.tw.nanopub.vocabulary.Vocabularies;
 import edu.rpi.tw.twdb.api.Twdb;
 import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.tdb2.TDB2;
 import org.apache.jena.tdb2.TDB2Factory;
 import org.dmfs.rfc3986.Uri;
@@ -15,10 +19,12 @@ public final class Tdb2Twdb implements Twdb {
     private final Dataset tdbDataset;
 
     public Tdb2Twdb() {
+        // http://nanopub.org/guidelines/working_draft/
         getNanopublicationQueryString = "prefix np: <http://www.nanopub.org/nschema#>\n" +
+                "prefix : <%s>\n" +
                 "select ?G ?S ?P ?O where {\n" +
-                "  {graph ?G {<%s> a np:Nanopublication}} union\n" +
-                "  {graph ?H {<%s> a np:Nanopublication {<%s> np:hasAssertion ?G} union {<%s> np:hasProvenance ?G} union {<%s> np:hasPublicationInfo ?G}}}\n" +
+                "  {graph ?G {: a np:Nanopublication}} union\n" +
+                "  {graph ?H {: a np:Nanopublication {: np:hasAssertion ?G} union {: np:hasProvenance ?G} union {: np:hasPublicationInfo ?G}}}\n" +
                 "  graph ?G {?S ?P ?O}\n" +
                 "}";
         this.tdbDataset = TDB2Factory.createDataset();
@@ -35,23 +41,36 @@ public final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public Optional<Nanopublication> getNanopublication(final Uri uri) {
+    public Optional<Nanopublication> getNanopublication(final Uri uri) throws MalformedNanopublicationException {
         final String uriString = Uris.toString(uri);
-        final String queryString = String.format(getNanopublicationQueryString, uriString, uriString, uriString, uriString, uriString);
+        final String queryString = String.format(getNanopublicationQueryString, uriString);
         final Query query = QueryFactory.create(queryString);
         tdbDataset.begin(ReadWrite.READ);
+        final Dataset nanopublicationDataset = DatasetFactory.create();
         try (final QueryExecution queryExecution = QueryExecutionFactory.create(query, tdbDataset)) {
             queryExecution.getContext().set(TDB2.symUnionDefaultGraph, true);
             for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
                 final QuerySolution querySolution = resultSet.nextSolution();
-                System.out.println(querySolution.toString());
-//                final RDFNode x = querySolution.get("varName");       // Get a result variable by name.
-//                final Resource r = querySolution.getResource("VarR"); // Get a result variable - must be a resource
-//                final Literal l = querySolution.getLiteral("VarL");   // Get a result variable - must be a literal
+                final Resource g = querySolution.getResource("G");
+                final RDFNode o = querySolution.get("O");
+                final Property p = ResourceFactory.createProperty(querySolution.getResource("P").getURI());
+                final Resource s = querySolution.getResource("S");
+
+                Model model = nanopublicationDataset.getNamedModel(g.getURI());
+                if (model == null) {
+                    model = ModelFactory.createDefaultModel();
+                    Vocabularies.setNsPrefixes(model);
+                    nanopublicationDataset.addNamedModel(g.getURI(), model);
+                }
+                model.add(s, p, o);
             }
         }
         tdbDataset.end();
-        return Optional.empty();
+        if (!nanopublicationDataset.isEmpty()) {
+            return Optional.of(NanopublicationFactory.getInstance().createNanopublicationFromDataset(nanopublicationDataset));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
