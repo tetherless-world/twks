@@ -1,12 +1,10 @@
 package edu.rpi.tw.twdb.lib;
 
-import org.junit.Before;
+import edu.rpi.tw.twdb.api.Twdb;
 
-public final class TwdbImplTest {
-    private TwdbImpl sut;
-
-    @Before
-    public void setUp() {
-        this.sut = new TwdbImpl();
+public final class TwdbImplTest extends TwdbTest {
+    @Override
+    protected Twdb newTdb() {
+        return new TwdbImpl();
     }
 }
