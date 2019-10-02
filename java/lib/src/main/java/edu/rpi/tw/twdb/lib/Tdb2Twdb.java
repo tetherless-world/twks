@@ -50,7 +50,7 @@ public final class Tdb2Twdb implements Twdb {
             tdbDataset.abort();
         }
         tdbDataset.end();
-        return true;
+        return result;
     }
 
     private boolean deleteNanopublicationInTransaction(final Uri uri) {
