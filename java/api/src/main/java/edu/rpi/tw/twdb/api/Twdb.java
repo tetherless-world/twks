@@ -1,5 +1,6 @@
 package edu.rpi.tw.twdb.api;
 
+import edu.rpi.tw.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.nanopub.Nanopublication;
 import org.apache.jena.query.Dataset;
 import org.dmfs.rfc3986.Uri;
@@ -11,7 +12,7 @@ public interface Twdb {
 
     Dataset getAssertionsDataset();
 
-    Optional<Nanopublication> getNanopublication(Uri uri);
+    Optional<Nanopublication> getNanopublication(Uri uri) throws MalformedNanopublicationException;
 
     Dataset getNanopublicationsDataset();
 

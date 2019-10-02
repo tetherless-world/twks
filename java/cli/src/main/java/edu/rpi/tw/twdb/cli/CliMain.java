@@ -4,7 +4,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twdb.cli.command.Command;
 import edu.rpi.tw.twdb.cli.command.PutNanopublicationCommand;
-import edu.rpi.tw.twdb.lib.TwdbImpl;
+import edu.rpi.tw.twdb.lib.Tdb2Twdb;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ public final class CliMain {
 
         final Command command = commandsByName.get(jCommander.getParsedCommand());
 
-        command.run(new TwdbImpl());
+        command.run(new Tdb2Twdb());
     }
 
     private final static class GlobalArgs {
