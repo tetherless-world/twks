@@ -3,8 +3,8 @@ jobs:
   build:
     docker:
       - image: circleci/openjdk:8-jdk-stretch
+    working_directory: ~/twdb
     steps:
-      - working_directory: ~/twdb
       - checkout
       - run:
           name: Checkout tw-nanopub
