@@ -24,6 +24,18 @@ public abstract class TwdbTest {
     }
 
     @Test
+    public void testDeleteNanopublicationAbsent() {
+        assertFalse(sut.deleteNanopublication(testData.specNanopublication.getUri()));
+    }
+
+    @Test
+    public void testDeleteNanopublicationPresent() {
+        sut.putNanopublication(testData.specNanopublication);
+        assertTrue(sut.deleteNanopublication(testData.specNanopublication.getUri()));
+        assertFalse(sut.deleteNanopublication(testData.specNanopublication.getUri()));
+    }
+
+    @Test
     public void testGetNanopublicationAbsent() throws MalformedNanopublicationException {
         final Optional<Nanopublication> actual = sut.getNanopublication(testData.specNanopublication.getUri());
         assertFalse(actual.isPresent());
