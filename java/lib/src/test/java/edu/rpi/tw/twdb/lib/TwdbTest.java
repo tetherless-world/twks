@@ -27,6 +27,16 @@ public abstract class TwdbTest {
     }
 
     @Test
+    public void testGetAssertionsDataset() {
+        {
+            final Dataset assertionsDataset = sut.getAssertionsDataset();
+            try (final DatasetTransaction transaction = new DatasetTransaction(assertionsDataset, ReadWrite.READ)) {
+                assertTrue(assertionsDataset.isEmpty());
+            }
+        }
+    }
+
+    @Test
     public void testDeleteNanopublicationAbsent() {
         assertFalse(sut.deleteNanopublication(testData.specNanopublication.getUri()));
     }
