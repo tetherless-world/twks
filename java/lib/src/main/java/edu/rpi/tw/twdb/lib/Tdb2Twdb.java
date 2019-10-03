@@ -182,13 +182,13 @@ public final class Tdb2Twdb implements Twdb {
 
     @Override
     public QueryExecution queryAssertions(final Query query, final TwdbTransaction transaction) {
+        // https://jena.apache.org/documentation/tdb/dynamic_datasets.html
+        // Using one or more FROM clauses, causes the default graph of the dataset to be the union of those graphs.
         final Set<String> assertionGraphNames = getAssertionGraphNames(((DatasetTwdbTransaction) transaction).getDatasetTransaction());
         for (final String assertionGraphName : assertionGraphNames) {
-            query.addNamedGraphURI(assertionGraphName);
+            query.addGraphURI(assertionGraphName);
         }
-        final QueryExecution queryExecution = QueryExecutionFactory.create(query, tdbDataset);
-//        queryExecution.getContext().set(TDB2.symUnionDefaultGraph, true);
-        return queryExecution;
+        return QueryExecutionFactory.create(query, tdbDataset);
     }
 
     @Override

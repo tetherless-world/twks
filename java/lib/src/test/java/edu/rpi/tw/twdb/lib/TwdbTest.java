@@ -78,11 +78,12 @@ public abstract class TwdbTest {
                 }
             }
 
+//            sutAssertionsModel.write(System.out, "TURTLE");
             assertEquals(2, sutAssertionsModel.listStatements().toList().size());
             final Statement statement1 = testData.specNanopublication.getAssertion().getModel().listStatements().toList().get(0);
             assertEquals(1, sutAssertionsModel.listStatements(statement1.getSubject(), statement1.getPredicate(), statement1.getObject()).toList().size());
             final Statement statement2 = testData.secondNanopublication.getAssertion().getModel().listStatements().toList().get(0);
-            assertEquals(2, sutAssertionsModel.listStatements(statement2.getSubject(), statement2.getPredicate(), statement2.getObject()).toList().size());
+            assertEquals(1, sutAssertionsModel.listStatements(statement2.getSubject(), statement2.getPredicate(), statement2.getObject()).toList().size());
 
             transaction.commit();
         }
