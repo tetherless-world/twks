@@ -114,7 +114,6 @@ public abstract class TwdbTest {
             }
 
             assertTrue(sutUnionModel.isIsomorphicWith(testData.specNanopublication.toDataset().getUnionModel()));
-            assertEquals(1, sutUnionModel.listStatements().toList().size());
 
             transaction.commit();
         }
