@@ -4,6 +4,7 @@ import edu.rpi.tw.nanopub.*;
 import edu.rpi.tw.nanopub.vocabulary.Vocabularies;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.api.TwdbTransaction;
+import org.apache.jena.dboe.base.file.Location;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.tdb2.TDB2;
@@ -41,7 +42,11 @@ public final class Tdb2Twdb implements Twdb {
     private final Dataset tdbDataset;
 
     public Tdb2Twdb() {
-        this.tdbDataset = TDB2Factory.createDataset();
+        this(Location.mem());
+    }
+
+    public Tdb2Twdb(final Location location) {
+        this.tdbDataset = TDB2Factory.connectDataset(location);
     }
 
     @Override
