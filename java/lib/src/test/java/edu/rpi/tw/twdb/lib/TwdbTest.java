@@ -4,8 +4,12 @@ import edu.rpi.tw.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.nanopub.Nanopublication;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.api.TwdbTransaction;
-import org.apache.jena.query.*;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.ReadWrite;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.junit.Before;
@@ -65,17 +69,10 @@ public abstract class TwdbTest {
             sut.putNanopublication(testData.specNanopublication, transaction);
             sut.putNanopublication(testData.secondNanopublication, transaction);
 
-            final Query query = QueryFactory.create("SELECT ?S ?P ?O WHERE { ?S ?P ?O }");
-            final Model sutAssertionsModel = ModelFactory.createDefaultModel();
+            final Query query = QueryFactory.create("CONSTRUCT WHERE { ?S ?P ?O }");
+            final Model sutAssertionsModel;
             try (final QueryExecution queryExecution = sut.queryAssertions(query, transaction)) {
-                for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
-                    final QuerySolution querySolution = resultSet.nextSolution();
-                    final RDFNode o = querySolution.get("O");
-                    final Property p = ResourceFactory.createProperty(querySolution.getResource("P").getURI());
-                    final Resource s = querySolution.getResource("S");
-
-                    sutAssertionsModel.add(s, p, o);
-                }
+                sutAssertionsModel = queryExecution.execConstruct();
             }
 
 //            sutAssertionsModel.write(System.out, "TURTLE");
@@ -91,26 +88,19 @@ public abstract class TwdbTest {
 
     @Test
     public void testQueryNanopublications() {
-        final Query query = QueryFactory.create("SELECT ?S ?P ?O WHERE { ?S ?P ?O }");
+        final Query query = QueryFactory.create("CONSTRUCT WHERE { ?S ?P ?O }");
         try (final TwdbTransaction transaction = sut.beginTransaction(ReadWrite.WRITE)) {
             try (final QueryExecution queryExecution = sut.queryNanopublications(query, transaction)) {
-                for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
+                if (!queryExecution.execConstruct().isEmpty()) {
                     fail();
                 }
             }
 
             sut.putNanopublication(testData.specNanopublication, transaction);
 
-            final Model sutUnionModel = ModelFactory.createDefaultModel();
+            final Model sutUnionModel;
             try (final QueryExecution queryExecution = sut.queryNanopublications(query, transaction)) {
-                for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
-                    final QuerySolution querySolution = resultSet.nextSolution();
-                    final RDFNode o = querySolution.get("O");
-                    final Property p = ResourceFactory.createProperty(querySolution.getResource("P").getURI());
-                    final Resource s = querySolution.getResource("S");
-
-                    sutUnionModel.add(s, p, o);
-                }
+                sutUnionModel = queryExecution.execConstruct();
             }
 
             assertTrue(sutUnionModel.isIsomorphicWith(testData.specNanopublication.toDataset().getUnionModel()));
@@ -118,7 +108,6 @@ public abstract class TwdbTest {
             transaction.commit();
         }
     }
-
 
     protected abstract Twdb newTdb();
 }
