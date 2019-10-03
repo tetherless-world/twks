@@ -1,8 +1,11 @@
 package edu.rpi.tw.twdb.lib;
 
+import edu.rpi.tw.nanopub.DatasetTransaction;
 import edu.rpi.tw.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.nanopub.Nanopublication;
 import edu.rpi.tw.twdb.api.Twdb;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.ReadWrite;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.junit.Before;
@@ -21,6 +24,16 @@ public abstract class TwdbTest {
     public final void setUp() throws IOException, MalformedNanopublicationException {
         this.sut = newTdb();
         this.testData = new TestData();
+    }
+
+    @Test
+    public void testGetAssertionsDataset() {
+        {
+            final Dataset assertionsDataset = sut.getAssertionsDataset();
+            try (final DatasetTransaction transaction = new DatasetTransaction(assertionsDataset, ReadWrite.READ)) {
+                assertTrue(assertionsDataset.isEmpty());
+            }
+        }
     }
 
     @Test
@@ -49,6 +62,24 @@ public abstract class TwdbTest {
         assertNotSame(expected, actual);
         RDFDataMgr.write(System.out, actual.toDataset(), Lang.TRIG);
         assertTrue(actual.isIsomorphicWith(expected));
+    }
+
+    @Test
+    public void testGetNanopublicationsDataset() {
+        final Dataset nanopublicationDataset = testData.specNanopublication.toDataset();
+        {
+            final Dataset nanopublicationsDataset = sut.getNanopublicationsDataset();
+            try (final DatasetTransaction nanopublicationsDatasetTransaction = new DatasetTransaction(nanopublicationsDataset, ReadWrite.READ)) {
+                assertFalse(nanopublicationDataset.getUnionModel().isIsomorphicWith(nanopublicationsDataset.getUnionModel()));
+            }
+        }
+        sut.putNanopublication(testData.specNanopublication);
+        {
+            final Dataset nanopublicationsDataset = sut.getNanopublicationsDataset();
+            try (final DatasetTransaction nanopublicationsDatasetTransaction = new DatasetTransaction(nanopublicationsDataset, ReadWrite.READ)) {
+                assertTrue(nanopublicationDataset.getUnionModel().isIsomorphicWith(nanopublicationsDataset.getUnionModel()));
+            }
+        }
     }
 
     @Test

@@ -1,11 +1,9 @@
 package edu.rpi.tw.twdb.lib;
 
-import edu.rpi.tw.nanopub.MalformedNanopublicationException;
-import edu.rpi.tw.nanopub.Nanopublication;
-import edu.rpi.tw.nanopub.NanopublicationFactory;
-import edu.rpi.tw.nanopub.Uris;
+import edu.rpi.tw.nanopub.*;
 import edu.rpi.tw.nanopub.vocabulary.Vocabularies;
 import edu.rpi.tw.twdb.api.Twdb;
+import edu.rpi.tw.twdb.api.TwdbTransaction;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.tdb2.TDB2;
@@ -41,20 +39,30 @@ public final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public final boolean deleteNanopublication(final Uri uri) {
-        tdbDataset.begin(ReadWrite.WRITE);
-        final boolean result = deleteNanopublicationInTransaction(uri);
-        if (result) {
-            tdbDataset.commit();
-        } else {
-            tdbDataset.abort();
-        }
-        tdbDataset.end();
-        return result;
+    public final TwdbTransaction beginTransaction(final ReadWrite readWrite) {
+        return new DatasetTwdbTransaction(tdbDataset, readWrite);
     }
 
-    private boolean deleteNanopublicationInTransaction(final Uri uri) {
-        final Set<String> nanopublicationGraphNames = getNanopublicationGraphNamesInTransaction(uri);
+    @Override
+    public final boolean deleteNanopublication(final Uri uri) {
+        try (final DatasetTransaction transaction = new DatasetTransaction(tdbDataset, ReadWrite.WRITE)) {
+            final boolean result = deleteNanopublication(uri, transaction);
+            if (result) {
+                transaction.commit();
+            } else {
+                transaction.abort();
+            }
+            return result;
+        }
+    }
+
+    @Override
+    public final boolean deleteNanopublication(final Uri uri, final TwdbTransaction transaction) {
+        return deleteNanopublication(uri, ((DatasetTwdbTransaction) transaction).getDatasetTransaction());
+    }
+
+    private final boolean deleteNanopublication(final Uri uri, final DatasetTransaction transaction) {
+        final Set<String> nanopublicationGraphNames = getNanopublicationGraphNames(uri, transaction);
         if (nanopublicationGraphNames.isEmpty()) {
             return false;
         }
@@ -73,20 +81,34 @@ public final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public final Optional<Nanopublication> getNanopublication(final Uri uri) throws MalformedNanopublicationException {
-        final Dataset nanopublicationDataset = getNanopublicationDataset(uri);
+    public final Optional<Nanopublication> getNanopublication(final Uri uri) {
+        try (final DatasetTransaction transaction = new DatasetTransaction(tdbDataset, ReadWrite.READ)) {
+            return getNanopublication(uri, transaction);
+        }
+    }
+
+    @Override
+    public Optional<Nanopublication> getNanopublication(final Uri uri, final TwdbTransaction transaction) {
+        return getNanopublication(uri, ((DatasetTwdbTransaction) transaction).getDatasetTransaction());
+    }
+
+    private Optional<Nanopublication> getNanopublication(final Uri uri, final DatasetTransaction transaction) {
+        final Dataset nanopublicationDataset = getNanopublicationDataset(uri, transaction);
         if (!nanopublicationDataset.isEmpty()) {
-            return Optional.of(NanopublicationFactory.getInstance().createNanopublicationFromDataset(nanopublicationDataset));
+            try {
+                return Optional.of(NanopublicationFactory.getInstance().createNanopublicationFromDataset(nanopublicationDataset));
+            } catch (final MalformedNanopublicationException e) {
+                throw new IllegalStateException(e);
+            }
         } else {
             return Optional.empty();
         }
     }
 
-    private Dataset getNanopublicationDataset(final Uri uri) {
+    private Dataset getNanopublicationDataset(final Uri uri, final DatasetTransaction transaction) {
         final String uriString = Uris.toString(uri);
         final String queryString = String.format(GET_NANOPUBLICATION_DATASET_QUERY_STRING, uriString);
         final Query query = QueryFactory.create(queryString);
-        tdbDataset.begin(ReadWrite.READ);
         final Dataset nanopublicationDataset = DatasetFactory.create();
         try (final QueryExecution queryExecution = QueryExecutionFactory.create(query, tdbDataset)) {
             queryExecution.getContext().set(TDB2.symUnionDefaultGraph, true);
@@ -106,11 +128,10 @@ public final class Tdb2Twdb implements Twdb {
                 model.add(s, p, o);
             }
         }
-        tdbDataset.end();
         return nanopublicationDataset;
     }
 
-    private Set<String> getNanopublicationGraphNamesInTransaction(final Uri uri) {
+    private Set<String> getNanopublicationGraphNames(final Uri uri, final DatasetTransaction transaction) {
         final String uriString = Uris.toString(uri);
         final String queryString = String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, uriString);
         final Query query = QueryFactory.create(queryString);
@@ -128,15 +149,24 @@ public final class Tdb2Twdb implements Twdb {
 
     @Override
     public final Dataset getNanopublicationsDataset() {
-        throw new UnsupportedOperationException();
+        return tdbDataset;
     }
 
     @Override
     public final void putNanopublication(final Nanopublication nanopublication) {
-        tdbDataset.begin(ReadWrite.WRITE);
-        deleteNanopublicationInTransaction(nanopublication.getUri());
-        nanopublication.toDataset(tdbDataset);
-        tdbDataset.commit();
-        tdbDataset.end();
+        try (final DatasetTransaction transaction = new DatasetTransaction(tdbDataset, ReadWrite.WRITE)) {
+            putNanopublication(nanopublication, transaction);
+            transaction.commit();
+        }
+    }
+
+    @Override
+    public void putNanopublication(final Nanopublication nanopublication, final TwdbTransaction transaction) {
+        putNanopublication(nanopublication, ((DatasetTwdbTransaction) transaction).getDatasetTransaction());
+    }
+
+    private final void putNanopublication(final Nanopublication nanopublication, final DatasetTransaction transaction) {
+        deleteNanopublication(nanopublication.getUri(), transaction);
+        nanopublication.toDataset(tdbDataset, transaction);
     }
 }
