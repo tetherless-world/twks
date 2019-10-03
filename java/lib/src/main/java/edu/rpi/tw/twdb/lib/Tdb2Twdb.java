@@ -169,4 +169,16 @@ public final class Tdb2Twdb implements Twdb {
         deleteNanopublication(nanopublication.getUri(), transaction);
         nanopublication.toDataset(tdbDataset, transaction);
     }
+
+    @Override
+    public QueryExecution queryAssertions(final Query query, final TwdbTransaction transaction) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public final QueryExecution queryNanopublications(final Query query, final TwdbTransaction transaction) {
+        final QueryExecution queryExecution = QueryExecutionFactory.create(query, tdbDataset);
+        queryExecution.getContext().set(TDB2.symUnionDefaultGraph, true);
+        return queryExecution;
+    }
 }
