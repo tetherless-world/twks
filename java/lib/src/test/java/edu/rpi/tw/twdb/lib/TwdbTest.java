@@ -1,8 +1,11 @@
 package edu.rpi.tw.twdb.lib;
 
+import edu.rpi.tw.nanopub.DatasetTransaction;
 import edu.rpi.tw.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.nanopub.Nanopublication;
 import edu.rpi.tw.twdb.api.Twdb;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.ReadWrite;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.junit.Before;
@@ -53,9 +56,20 @@ public abstract class TwdbTest {
 
     @Test
     public void testGetNanopublicationsDataset() {
-        final Nanopublication expected = testData.specNanopublication;
-        assertFalse(sut.getNanopublicationsDataset().getUnionModel().isIsomorphicWith(testData.specNanopublication.toDataset().getUnionModel()));
-        assertTrue(sut.getNanopublicationsDataset().getUnionModel().isIsomorphicWith(testData.specNanopublication.toDataset().getUnionModel()));
+        final Dataset nanopublicationDataset = testData.specNanopublication.toDataset();
+        {
+            final Dataset nanopublicationsDataset = sut.getNanopublicationsDataset();
+            try (final DatasetTransaction nanopublicationsDatasetTransaction = new DatasetTransaction(nanopublicationsDataset, ReadWrite.READ)) {
+                assertFalse(nanopublicationDataset.getUnionModel().isIsomorphicWith(nanopublicationsDataset.getUnionModel()));
+            }
+        }
+        sut.putNanopublication(testData.specNanopublication);
+        {
+            final Dataset nanopublicationsDataset = sut.getNanopublicationsDataset();
+            try (final DatasetTransaction nanopublicationsDatasetTransaction = new DatasetTransaction(nanopublicationsDataset, ReadWrite.READ)) {
+                assertTrue(nanopublicationDataset.getUnionModel().isIsomorphicWith(nanopublicationsDataset.getUnionModel()));
+            }
+        }
     }
 
     @Test

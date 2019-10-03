@@ -1,9 +1,6 @@
 package edu.rpi.tw.twdb.lib;
 
-import edu.rpi.tw.nanopub.MalformedNanopublicationException;
-import edu.rpi.tw.nanopub.Nanopublication;
-import edu.rpi.tw.nanopub.NanopublicationFactory;
-import edu.rpi.tw.nanopub.Uris;
+import edu.rpi.tw.nanopub.*;
 import edu.rpi.tw.nanopub.vocabulary.Vocabularies;
 import edu.rpi.tw.twdb.api.Twdb;
 import org.apache.jena.query.*;
@@ -42,19 +39,19 @@ public final class Tdb2Twdb implements Twdb {
 
     @Override
     public final boolean deleteNanopublication(final Uri uri) {
-        tdbDataset.begin(ReadWrite.WRITE);
-        final boolean result = deleteNanopublicationInTransaction(uri);
-        if (result) {
-            tdbDataset.commit();
-        } else {
-            tdbDataset.abort();
+        try (final DatasetTransaction transaction = new DatasetTransaction(tdbDataset, ReadWrite.WRITE)) {
+            final boolean result = deleteNanopublication(uri, transaction);
+            if (result) {
+                transaction.commit();
+            } else {
+                transaction.abort();
+            }
+            return result;
         }
-        tdbDataset.end();
-        return result;
     }
 
-    private boolean deleteNanopublicationInTransaction(final Uri uri) {
-        final Set<String> nanopublicationGraphNames = getNanopublicationGraphNamesInTransaction(uri);
+    public final boolean deleteNanopublication(final Uri uri, final DatasetTransaction transaction) {
+        final Set<String> nanopublicationGraphNames = getNanopublicationGraphNames(uri, transaction);
         if (nanopublicationGraphNames.isEmpty()) {
             return false;
         }
@@ -110,7 +107,7 @@ public final class Tdb2Twdb implements Twdb {
         return nanopublicationDataset;
     }
 
-    private Set<String> getNanopublicationGraphNamesInTransaction(final Uri uri) {
+    private Set<String> getNanopublicationGraphNames(final Uri uri, final DatasetTransaction transaction) {
         final String uriString = Uris.toString(uri);
         final String queryString = String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, uriString);
         final Query query = QueryFactory.create(queryString);
@@ -133,10 +130,14 @@ public final class Tdb2Twdb implements Twdb {
 
     @Override
     public final void putNanopublication(final Nanopublication nanopublication) {
-        tdbDataset.begin(ReadWrite.WRITE);
-        deleteNanopublicationInTransaction(nanopublication.getUri());
-        nanopublication.toDataset(tdbDataset);
-        tdbDataset.commit();
-        tdbDataset.end();
+        try (final DatasetTransaction transaction = new DatasetTransaction(tdbDataset, ReadWrite.WRITE)) {
+            putNanopublication(nanopublication, transaction);
+            transaction.commit();
+        }
+    }
+
+    public final void putNanopublication(final Nanopublication nanopublication, final DatasetTransaction transaction) {
+        deleteNanopublication(nanopublication.getUri(), transaction);
+        nanopublication.toDataset(tdbDataset, transaction);
     }
 }
