@@ -128,7 +128,7 @@ public final class Tdb2Twdb implements Twdb {
 
     @Override
     public final Dataset getNanopublicationsDataset() {
-        throw new UnsupportedOperationException();
+        return tdbDataset;
     }
 
     @Override

@@ -52,6 +52,13 @@ public abstract class TwdbTest {
     }
 
     @Test
+    public void testGetNanopublicationsDataset() {
+        final Nanopublication expected = testData.specNanopublication;
+        assertFalse(sut.getNanopublicationsDataset().getUnionModel().isIsomorphicWith(testData.specNanopublication.toDataset().getUnionModel()));
+        assertTrue(sut.getNanopublicationsDataset().getUnionModel().isIsomorphicWith(testData.specNanopublication.toDataset().getUnionModel()));
+    }
+
+    @Test
     public void testPutNanopublication() {
         sut.putNanopublication(testData.specNanopublication);
     }
