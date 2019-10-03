@@ -1,0 +1,27 @@
+@prefix : <http://example.org/pub2#> .
+@prefix ex: <http://example.org/> .
+@prefix np:  <http://www.nanopub.org/nschema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+:head {
+    ex:pub2 a np:Nanopublication .
+    ex:pub2 np:hasAssertion :assertion .
+    ex:pub2 np:hasProvenance :provenance .
+    ex:pub2 np:hasPublicationInfo :pubInfo .
+}
+
+:assertion {
+    ex:aspirin ex:is-indicated-for ex:pain .
+}
+
+:provenance {
+    :assertion prov:generatedAtTime "2012-02-03T14:38:00Z"^^xsd:dateTime .
+    :assertion prov:wasDerivedFrom :experiment .
+    :assertion prov:wasAttributedTo :experimentScientist .
+}
+
+:pubInfo {
+    ex:pub2 prov:wasAttributedTo ex:paul .
+    ex:pub2 prov:generatedAtTime "2012-10-26T12:45:00Z"^^xsd:dateTime .
+}

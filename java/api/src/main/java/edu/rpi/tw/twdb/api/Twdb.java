@@ -1,7 +1,8 @@
 package edu.rpi.tw.twdb.api;
 
 import edu.rpi.tw.nanopub.Nanopublication;
-import org.apache.jena.query.Dataset;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.ReadWrite;
 import org.dmfs.rfc3986.Uri;
 
@@ -40,17 +41,6 @@ public interface Twdb {
     boolean deleteNanopublication(Uri uri, final TwdbTransaction transaction);
 
     /**
-     * Get a Dataset (set of named graphs) that only refers to assertion graphs. A query over the union of this Dataset will query only assertions.
-     * <p>
-     * You must check whether this Dataset supportsTransactions() and use transactions accordingly.
-     * <p>
-     * EXPERIMENTAL: This method may be removed to hide Datasets.
-     *
-     * @return assertions Dataset.
-     */
-    Dataset getAssertionsDataset();
-
-    /**
      * Get a nanopublication.
      * <p>
      * Starts a new transaction and delegates to getNanopublication(Uri, TwdbTransaction).
@@ -70,17 +60,6 @@ public interface Twdb {
     Optional<Nanopublication> getNanopublication(Uri uri, TwdbTransaction transaction);
 
     /**
-     * Get a Dataset (set of named graphs) that refers to all nanopublications in the database.
-     * <p>
-     * You must check whether this Dataset supportsTransactions() and use transactions accordingly.
-     * <p>
-     * EXPERIMENTAL: This method may be removed to hide Datasets.
-     *
-     * @return nanopublications Dataset.
-     */
-    Dataset getNanopublicationsDataset();
-
-    /**
      * Put a new nanopublication, overwriting an existing nanopublication with the same URI if necessary.
      * <p>
      * Starts a new transaction and delegates to putNanopublication(Nanopublication, TwdbTransaction).
@@ -96,4 +75,24 @@ public interface Twdb {
      * @param transaction     existing transaction to use
      */
     void putNanopublication(Nanopublication nanopublication, TwdbTransaction transaction);
+
+    /**
+     * Query assertion parts of stored nanopublications.
+     * <p>
+     * See TwdbTest for examples on how to use this.
+     *
+     * @param query       query to execute. This will be augmented by the implementation as needed.
+     * @param transaction transaction this query will execute under
+     * @return QueryExecution that is ready to execute. Must be executed within the given transaction.
+     */
+    QueryExecution queryAssertions(Query query, TwdbTransaction transaction);
+
+    /**
+     * Query all parts of stored nanopublications (head, assertion, provenance, publication info).
+     *
+     * @param query       query to execute. This will be augmented by the implementation as needed.
+     * @param transaction transaction this query will execute under
+     * @return QueryExecution that is ready to execute. Must be executed within the given transaction.
+     */
+    QueryExecution queryNanopublications(Query query, TwdbTransaction transaction);
 }
