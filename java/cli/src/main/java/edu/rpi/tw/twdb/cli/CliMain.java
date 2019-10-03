@@ -3,7 +3,7 @@ package edu.rpi.tw.twdb.cli;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twdb.cli.command.Command;
-import edu.rpi.tw.twdb.cli.command.PutNanopublicationCommand;
+import edu.rpi.tw.twdb.cli.command.PutNanopublicationsCommand;
 import edu.rpi.tw.twdb.lib.Tdb2Twdb;
 
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import java.util.Map;
 
 public final class CliMain {
     private final static Command[] commands = {
-            new PutNanopublicationCommand()
+            new PutNanopublicationsCommand()
     };
 
     public static void main(final String[] argv) {
