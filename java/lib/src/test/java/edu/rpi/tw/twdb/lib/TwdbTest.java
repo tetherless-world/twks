@@ -60,6 +60,35 @@ public abstract class TwdbTest {
     }
 
     @Test
+    public void testQueryAssertions() {
+        try (final TwdbTransaction transaction = sut.beginTransaction(ReadWrite.WRITE)) {
+            sut.putNanopublication(testData.specNanopublication, transaction);
+            sut.putNanopublication(testData.secondNanopublication, transaction);
+
+            final Query query = QueryFactory.create("SELECT ?S ?P ?O WHERE { ?S ?P ?O }");
+            final Model sutAssertionsModel = ModelFactory.createDefaultModel();
+            try (final QueryExecution queryExecution = sut.queryAssertions(query, transaction)) {
+                for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
+                    final QuerySolution querySolution = resultSet.nextSolution();
+                    final RDFNode o = querySolution.get("O");
+                    final Property p = ResourceFactory.createProperty(querySolution.getResource("P").getURI());
+                    final Resource s = querySolution.getResource("S");
+
+                    sutAssertionsModel.add(s, p, o);
+                }
+            }
+
+            assertEquals(2, sutAssertionsModel.listStatements().toList().size());
+            final Statement statement1 = testData.specNanopublication.getAssertion().getModel().listStatements().toList().get(0);
+            assertEquals(1, sutAssertionsModel.listStatements(statement1.getSubject(), statement1.getPredicate(), statement1.getObject()).toList().size());
+            final Statement statement2 = testData.secondNanopublication.getAssertion().getModel().listStatements().toList().get(0);
+            assertEquals(2, sutAssertionsModel.listStatements(statement2.getSubject(), statement2.getPredicate(), statement2.getObject()).toList().size());
+
+            transaction.commit();
+        }
+    }
+
+    @Test
     public void testQueryNanopublications() {
         final Query query = QueryFactory.create("SELECT ?S ?P ?O WHERE { ?S ?P ?O }");
         try (final TwdbTransaction transaction = sut.beginTransaction(ReadWrite.WRITE)) {
@@ -84,25 +113,10 @@ public abstract class TwdbTest {
             }
 
             assertTrue(sutUnionModel.isIsomorphicWith(testData.specNanopublication.toDataset().getUnionModel()));
+            assertEquals(1, sutUnionModel.listStatements().toList().size());
 
             transaction.commit();
         }
-
-
-//        final Dataset nanopublicationDataset = testData.specNanopublication.toDataset();
-//        {
-//            final Dataset nanopublicationsDataset = sut.getNanopublicationsDataset();
-//            try (final DatasetTransaction nanopublicationsDatasetTransaction = new DatasetTransaction(nanopublicationsDataset, ReadWrite.READ)) {
-//                assertFalse(nanopublicationDataset.getUnionModel().isIsomorphicWith(nanopublicationsDataset.getUnionModel()));
-//            }
-//        }
-//        sut.putNanopublication(testData.specNanopublication);
-//        {
-//            final Dataset nanopublicationsDataset = sut.getNanopublicationsDataset();
-//            try (final DatasetTransaction nanopublicationsDatasetTransaction = new DatasetTransaction(nanopublicationsDataset, ReadWrite.READ)) {
-//                assertTrue(nanopublicationDataset.getUnionModel().isIsomorphicWith(nanopublicationsDataset.getUnionModel()));
-//            }
-//        }
     }
 
 

@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.net.URL;
 
 public final class TestData {
+    public final Nanopublication secondNanopublication;
     public final Nanopublication specNanopublication;
 
     public TestData() throws MalformedNanopublicationException, IOException {
+        secondNanopublication = parseNanopublicationFromResource("second_nanopublication.trig");
         specNanopublication = parseNanopublicationFromResource("spec_nanopublication.trig");
     }
 

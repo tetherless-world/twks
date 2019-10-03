@@ -15,6 +15,12 @@ import java.util.Optional;
 import java.util.Set;
 
 public final class Tdb2Twdb implements Twdb {
+    private final static String GET_ASSERTION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
+            "select ?A where {\n" +
+            "  ?NP np:hasAssertion ?A\n" +
+            "  graph ?A {?S ?P ?O}\n" +
+            "}";
+
     // http://nanopub.org/guidelines/working_draft/
     private final static String GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "prefix : <%s>\n" +
@@ -75,10 +81,19 @@ public final class Tdb2Twdb implements Twdb {
         return true;
     }
 
-    @Override
-    public final Dataset getAssertionsDataset() {
-        throw new UnsupportedOperationException();
+    private Set<String> getAssertionGraphNames(final DatasetTransaction transaction) {
+        final Set<String> assertionGraphNames = new HashSet<>();
+        try (final QueryExecution queryExecution = QueryExecutionFactory.create(GET_ASSERTION_GRAPH_NAMES_QUERY_STRING, tdbDataset)) {
+            queryExecution.getContext().set(TDB2.symUnionDefaultGraph, true);
+            for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
+                final QuerySolution querySolution = resultSet.nextSolution();
+                final Resource g = querySolution.getResource("A");
+                assertionGraphNames.add(g.getURI());
+            }
+        }
+        return assertionGraphNames;
     }
+
 
     @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
@@ -148,11 +163,6 @@ public final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public final Dataset getNanopublicationsDataset() {
-        return tdbDataset;
-    }
-
-    @Override
     public final void putNanopublication(final Nanopublication nanopublication) {
         try (final DatasetTransaction transaction = new DatasetTransaction(tdbDataset, ReadWrite.WRITE)) {
             putNanopublication(nanopublication, transaction);
@@ -172,7 +182,13 @@ public final class Tdb2Twdb implements Twdb {
 
     @Override
     public QueryExecution queryAssertions(final Query query, final TwdbTransaction transaction) {
-        throw new UnsupportedOperationException();
+        final Set<String> assertionGraphNames = getAssertionGraphNames(((DatasetTwdbTransaction) transaction).getDatasetTransaction());
+        for (final String assertionGraphName : assertionGraphNames) {
+            query.addNamedGraphURI(assertionGraphName);
+        }
+        final QueryExecution queryExecution = QueryExecutionFactory.create(query, tdbDataset);
+//        queryExecution.getContext().set(TDB2.symUnionDefaultGraph, true);
+        return queryExecution;
     }
 
     @Override

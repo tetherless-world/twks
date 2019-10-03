@@ -1,7 +1,6 @@
 package edu.rpi.tw.twdb.api;
 
 import edu.rpi.tw.nanopub.Nanopublication;
-import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.ReadWrite;
@@ -42,17 +41,6 @@ public interface Twdb {
     boolean deleteNanopublication(Uri uri, final TwdbTransaction transaction);
 
     /**
-     * Get a Dataset (set of named graphs) that only refers to assertion graphs. A query over the union of this Dataset will query only assertions.
-     * <p>
-     * You must check whether this Dataset supportsTransactions() and use transactions accordingly.
-     * <p>
-     * EXPERIMENTAL: This method may be removed to hide Datasets.
-     *
-     * @return assertions Dataset.
-     */
-    Dataset getAssertionsDataset();
-
-    /**
      * Get a nanopublication.
      * <p>
      * Starts a new transaction and delegates to getNanopublication(Uri, TwdbTransaction).
@@ -70,17 +58,6 @@ public interface Twdb {
      * @return Optional.of(the nanopublication) if it exists in the database, otherwise Optional.empty
      */
     Optional<Nanopublication> getNanopublication(Uri uri, TwdbTransaction transaction);
-
-    /**
-     * Get a Dataset (set of named graphs) that refers to all nanopublications in the database.
-     * <p>
-     * You must check whether this Dataset supportsTransactions() and use transactions accordingly.
-     * <p>
-     * EXPERIMENTAL: This method may be removed to hide Datasets.
-     *
-     * @return nanopublications Dataset.
-     */
-    Dataset getNanopublicationsDataset();
 
     /**
      * Put a new nanopublication, overwriting an existing nanopublication with the same URI if necessary.
