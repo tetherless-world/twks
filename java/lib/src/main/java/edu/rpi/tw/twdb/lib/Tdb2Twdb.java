@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-public final class Tdb2Twdb implements Twdb {
+final class Tdb2Twdb implements Twdb {
     private final static String GET_ASSERTION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "select ?A where {\n" +
             "  ?NP np:hasAssertion ?A\n" +
