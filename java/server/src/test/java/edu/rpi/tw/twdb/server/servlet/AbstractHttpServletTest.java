@@ -20,6 +20,12 @@ public abstract class AbstractHttpServletTest {
         return new String(respBytes, respOffset, respLen);
     }
 
+    protected final int getMockHttpServletErrorResponseCode(final HttpServletResponse resp) throws IOException {
+        final ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
+        verify(resp).sendError(captor.capture());
+        return captor.getValue();
+    }
+
     protected final HttpServletResponse newMockHttpServletResponse() throws IOException {
         final HttpServletResponse resp = mock(HttpServletResponse.class);
         final ServletOutputStream respOutputStream = mock(ServletOutputStream.class);

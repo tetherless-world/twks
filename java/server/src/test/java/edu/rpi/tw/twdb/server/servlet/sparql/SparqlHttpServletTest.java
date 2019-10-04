@@ -49,6 +49,16 @@ public class SparqlHttpServletTest extends AbstractHttpServletTest {
     }
 
     @Test
+    public void testGetMissingQuery() throws Exception {
+        final HttpServletRequest req = mock(HttpServletRequest.class);
+        final HttpServletResponse resp = newMockHttpServletResponse();
+
+        sut.doGet(req, resp);
+
+        assertEquals(400, getMockHttpServletErrorResponseCode(resp));
+    }
+
+    @Test
     public void testGetSelectNoAccept() throws Exception {
         final String queryString = "SELECT ?s ?p ?o WHERE { ?s ?p ?o }";
         final HttpServletRequest req = newMockHttpServletRequest(Optional.empty(), queryString);
