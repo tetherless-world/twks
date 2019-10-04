@@ -22,10 +22,14 @@ public final class TwdbConfiguration {
     }
 
     public final TwdbConfiguration setFromProperties(final Properties properties) {
-        final String tdb2Location = System.getProperty("edu.rpi.tw.twdb.tdb2.location");
+        final String tdb2Location = properties.getProperty(PropertyKeys.TDB2_LOCATION);
         if (tdb2Location != null) {
             this.tdb2Location = Optional.of(tdb2Location);
         }
         return this;
+    }
+
+    public final static class PropertyKeys {
+        public final static String TDB2_LOCATION = "edu.rpi.tw.twdb.tdb2.location";
     }
 }

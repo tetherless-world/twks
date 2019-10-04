@@ -7,4 +7,13 @@ RUN cd /twdb/java && mvn -q package -Dmaven.test.skip=true
 # Deployment image
 FROM jetty:9.4.18-jre11
 
-COPY --from=build-java /twdb/java/dist/twdb-server-current.war /var/lib/jetty/webapps/ROOT.war
+USER jetty
+RUN mkdir /var/lib/jetty/tw-webapps
+COPY --from=build-java /twdb/java/dist/twdb-server-current.war /var/lib/jetty/tw-webapps
+COPY /docker/twdb-server.xml /var/lib/jetty/webapps
+
+USER root
+RUN mkdir /data
+RUN chown jetty.jetty /data
+
+USER jetty
