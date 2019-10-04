@@ -8,3 +8,8 @@ services:
     image: tetherlessworld/twdb-server
     ports:
       - "127.0.0.1:8080:8080"
+    volumes:
+      - twdb-data:/data
+
+volumes:
+  twdb-data:
