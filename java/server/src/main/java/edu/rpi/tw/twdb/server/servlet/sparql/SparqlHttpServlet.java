@@ -1,9 +1,9 @@
 package edu.rpi.tw.twdb.server.servlet.sparql;
 
+import com.google.common.io.CharStreams;
 import edu.rpi.tw.nanopub.Uris;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.api.TwdbTransaction;
-import org.apache.commons.io.IOUtils;
 import org.apache.jena.atlas.web.AcceptList;
 import org.apache.jena.atlas.web.MediaRange;
 import org.apache.jena.atlas.web.MediaType;
@@ -69,7 +69,7 @@ abstract class SparqlHttpServlet extends HttpServlet {
         }
 
         // POST directly, query is the body
-        final String queryString = IOUtils.toString(req.getReader());
+        final String queryString = CharStreams.toString(req.getReader());
 
         service(Collections.emptyList(), Collections.emptyList(), queryString, req, resp);
     }
