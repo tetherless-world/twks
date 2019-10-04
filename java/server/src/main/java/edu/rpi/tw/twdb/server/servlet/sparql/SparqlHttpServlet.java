@@ -61,8 +61,12 @@ abstract class SparqlHttpServlet extends HttpServlet {
         return uris;
     }
 
+    protected final Twdb getDb() {
+        return db;
+    }
+
     @Override
-    protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+    protected final void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         if (req.getContentType() == null || !req.getContentType().equalsIgnoreCase("application/sparql-query")) {
             doGetPostWithParameters(req, resp);
             return;
@@ -75,7 +79,7 @@ abstract class SparqlHttpServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+    protected final void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         doGetPostWithParameters(req, resp);
     }
 
