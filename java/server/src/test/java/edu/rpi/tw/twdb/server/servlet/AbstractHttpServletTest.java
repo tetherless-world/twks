@@ -3,12 +3,24 @@ package edu.rpi.tw.twdb.server.servlet;
 import org.mockito.ArgumentCaptor;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractHttpServletTest {
+    protected final void setMockHttpServletRequestBody(final HttpServletRequest req, final String reqBody) throws IOException {
+        final BufferedReader reqReader = mock(BufferedReader.class);
+        when(req.getReader()).thenReturn(reqReader);
+        when(reqReader.read(any(char[].class))).thenAnswer(invocation -> {
+            final char[] dst = ((char[]) invocation.getArgument(0));
+            System.arraycopy(reqBody.toCharArray(), 0, dst, 0, reqBody.length());
+            return reqBody.length();
+        }).thenReturn(-1);
+    }
+
     protected final String getMockHttpServletResponseBody(final HttpServletResponse resp) throws IOException {
         final ArgumentCaptor<byte[]> respBytesCaptor = ArgumentCaptor.forClass(byte[].class);
         final ArgumentCaptor<Integer> respOffsetCaptor = ArgumentCaptor.forClass(int.class);

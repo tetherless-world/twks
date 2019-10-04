@@ -49,6 +49,70 @@ public class SparqlHttpServletTest extends AbstractHttpServletTest {
     }
 
     @Test
+    public void testGetConstruct() throws Exception {
+        final String queryString = "CONSTRUCT WHERE { ?s ?p ?o }";
+        final HttpServletRequest req = newMockHttpServletRequest(Optional.of("text/turtle"), queryString);
+        final HttpServletResponse resp = newMockHttpServletResponse();
+
+        sut.doGet(req, resp);
+
+        verifyRequest(req);
+        final String respBody = getMockHttpServletResponseBody(resp);
+        assertEquals("CONSTRUCT \n" +
+                "  { \n" +
+                "    ?s ?p ?o .\n" +
+                "  }\n" +
+                "FROM <http://example.org/pub1#assertion>\n" +
+                "WHERE\n" +
+                "  { ?s  ?p  ?o }\n", sut.query.toString());
+        assertThat(respBody, containsString("<http://example.org/trastuzumab>"));
+    }
+
+    @Test
+    public void testGetConstructWithDefaultGraph() throws Exception {
+        final String queryString = "CONSTRUCT WHERE { ?s ?p ?o }";
+        final HttpServletRequest req = newMockHttpServletRequest(Optional.of("text/turtle"), queryString);
+        when(req.getParameterValues("default-graph-uri")).thenReturn(new String[]{"http://example.org/pubX#assertion"});
+        final HttpServletResponse resp = newMockHttpServletResponse();
+
+        sut.doGet(req, resp);
+
+        verifyRequest(req);
+        final String respBody = getMockHttpServletResponseBody(resp);
+        assertEquals("CONSTRUCT \n" +
+                "  { \n" +
+                "    ?s ?p ?o .\n" +
+                "  }\n" +
+                "FROM <http://example.org/pubX#assertion>\n" +
+                "FROM <http://example.org/pub1#assertion>\n" +
+                "WHERE\n" +
+                "  { ?s  ?p  ?o }\n", sut.query.toString());
+        assertThat(respBody, containsString("<http://example.org/trastuzumab>"));
+    }
+
+    @Test
+    public void testGetConstructWithNamedGraph() throws Exception {
+        final String queryString = "CONSTRUCT WHERE { ?s ?p ?o }";
+        final HttpServletRequest req = newMockHttpServletRequest(Optional.of("text/turtle"), queryString);
+        when(req.getParameterValues("named-graph-uri")).thenReturn(new String[]{"http://example.org/pubX#assertion"});
+        final HttpServletResponse resp = newMockHttpServletResponse();
+
+        sut.doGet(req, resp);
+
+        verifyRequest(req);
+        final String respBody = getMockHttpServletResponseBody(resp);
+        assertEquals("CONSTRUCT \n" +
+                "  { \n" +
+                "    ?s ?p ?o .\n" +
+                "  }\n" +
+                "FROM <http://example.org/pub1#assertion>\n" +
+                "FROM NAMED <http://example.org/pubX#assertion>\n" +
+                "WHERE\n" +
+                "  { ?s  ?p  ?o }\n", sut.query.toString());
+        assertThat(respBody, containsString("<http://example.org/trastuzumab>"));
+    }
+
+    @Test
     public void testGetMissingQuery() throws Exception {
         final HttpServletRequest req = mock(HttpServletRequest.class);
         final HttpServletResponse resp = newMockHttpServletResponse();
@@ -73,6 +137,52 @@ public class SparqlHttpServletTest extends AbstractHttpServletTest {
                 "WHERE\n" +
                 "  { ?s  ?p  ?o }\n", sut.query.toString());
         assertThat(respBody, containsString("<uri>http://example.org/trastuzumab</uri>"));
+    }
+
+    @Test
+    public void testPostDirect() throws Exception {
+        final String queryString = "CONSTRUCT WHERE { ?s ?p ?o }";
+
+        final HttpServletRequest req = mock(HttpServletRequest.class);
+        when(req.getHeader("Accept")).thenReturn("text/turtle");
+        when(req.getContentType()).thenReturn("application/sparql-query");
+        setMockHttpServletRequestBody(req, queryString);
+
+        final HttpServletResponse resp = newMockHttpServletResponse();
+
+        sut.doPost(req, resp);
+
+        verify(req).getHeader("Accept");
+
+        final String respBody = getMockHttpServletResponseBody(resp);
+        assertEquals("CONSTRUCT \n" +
+                "  { \n" +
+                "    ?s ?p ?o .\n" +
+                "  }\n" +
+                "FROM <http://example.org/pub1#assertion>\n" +
+                "WHERE\n" +
+                "  { ?s  ?p  ?o }\n", sut.query.toString());
+        assertThat(respBody, containsString("<http://example.org/trastuzumab>"));
+    }
+
+    @Test
+    public void testPostWithParameters() throws Exception {
+        final String queryString = "CONSTRUCT WHERE { ?s ?p ?o }";
+        final HttpServletRequest req = newMockHttpServletRequest(Optional.of("text/turtle"), queryString);
+        final HttpServletResponse resp = newMockHttpServletResponse();
+
+        sut.doPost(req, resp);
+
+        verifyRequest(req);
+        final String respBody = getMockHttpServletResponseBody(resp);
+        assertEquals("CONSTRUCT \n" +
+                "  { \n" +
+                "    ?s ?p ?o .\n" +
+                "  }\n" +
+                "FROM <http://example.org/pub1#assertion>\n" +
+                "WHERE\n" +
+                "  { ?s  ?p  ?o }\n", sut.query.toString());
+        assertThat(respBody, containsString("<http://example.org/trastuzumab>"));
     }
 
     private HttpServletRequest newMockHttpServletRequest(final Optional<String> accept, final String query) {
