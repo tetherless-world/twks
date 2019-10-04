@@ -3,7 +3,7 @@ package edu.rpi.tw.twdb.server.servlet.sparql;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.api.TwdbTransaction;
 import edu.rpi.tw.twdb.lib.Tdb2Twdb;
-import edu.rpi.tw.twdb.lib.TestData;
+import edu.rpi.tw.twdb.server.TestData;
 import edu.rpi.tw.twdb.server.servlet.AbstractHttpServletTest;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
