@@ -2,7 +2,7 @@ package edu.rpi.tw.twdb.server.servlet.sparql;
 
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.api.TwdbTransaction;
-import edu.rpi.tw.twdb.lib.Tdb2Twdb;
+import edu.rpi.tw.twdb.lib.TwdbFactory;
 import edu.rpi.tw.twdb.server.TestData;
 import edu.rpi.tw.twdb.server.servlet.AbstractHttpServletTest;
 import org.apache.jena.query.Query;
@@ -25,7 +25,7 @@ public class SparqlHttpServletTest extends AbstractHttpServletTest {
 
     @Before
     public void setUp() throws Exception {
-        this.db = new Tdb2Twdb();
+        this.db = TwdbFactory.getInstance().createTwdb();
         this.testData = new TestData();
         db.putNanopublication(testData.specNanopublication);
         this.sut = new MockSparqlHttpServlet();
