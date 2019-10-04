@@ -42,7 +42,8 @@ abstract class SparqlHttpServlet extends HttpServlet {
     private static AcceptList toAcceptList(final Lang... languages) {
         final List<MediaRange> mediaRanges = new ArrayList<>();
         for (final Lang lang : languages) {
-            mediaRanges.add(new MediaRange(lang.getContentType().toString()));
+            final String contentType = lang.getContentType().getContentType();
+            mediaRanges.add(new MediaRange(contentType));
         }
         return new AcceptList(mediaRanges);
     }
@@ -122,11 +123,14 @@ abstract class SparqlHttpServlet extends HttpServlet {
                 switch (query.getQueryType()) {
                     case Query.QueryTypeAsk:
                     case Query.QueryTypeSelect: {
-                        final Lang respLang;
+                        Lang respLang = null;
                         if (proposeAcceptList != null) {
                             final MediaType respMediaType = AcceptList.match(proposeAcceptList, offerResultsAcceptList);
-                            respLang = RDFLanguages.contentTypeToLang(respMediaType.getContentType());
-                        } else {
+                            if (respMediaType != null) {
+                                respLang = RDFLanguages.contentTypeToLang(respMediaType.getContentType());
+                            }
+                        }
+                        if (respLang == null) {
                             respLang = ResultSetLang.SPARQLResultSetXML;
                         }
 
@@ -143,11 +147,14 @@ abstract class SparqlHttpServlet extends HttpServlet {
                     }
                     case Query.QueryTypeConstruct:
                     case Query.QueryTypeDescribe: {
-                        final Lang respLang;
+                        Lang respLang = null;
                         if (proposeAcceptList != null) {
                             final MediaType respMediaType = AcceptList.match(proposeAcceptList, offerGraphAcceptList);
-                            respLang = RDFLanguages.contentTypeToLang(respMediaType.getContentType());
-                        } else {
+                            if (respMediaType != null) {
+                                respLang = RDFLanguages.contentTypeToLang(respMediaType.getContentType());
+                            }
+                        }
+                        if (respLang == null) {
                             respLang = Lang.TRIG;
                         }
 

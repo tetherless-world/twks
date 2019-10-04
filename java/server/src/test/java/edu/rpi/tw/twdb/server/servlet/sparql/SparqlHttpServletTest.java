@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.*;
@@ -31,9 +32,26 @@ public class SparqlHttpServletTest extends AbstractHttpServletTest {
     }
 
     @Test
-    public void testGetSelect() throws Exception {
+    public void testGetSelectCsv() throws Exception {
         final String queryString = "SELECT ?s ?p ?o WHERE { ?s ?p ?o }";
-        final HttpServletRequest req = newMockHttpServletRequest("text/csv", queryString);
+        final HttpServletRequest req = newMockHttpServletRequest(Optional.of("text/csv"), queryString);
+        final HttpServletResponse resp = newMockHttpServletResponse();
+
+        sut.doGet(req, resp);
+
+        verifyRequest(req);
+        final String respBody = getMockHttpServletResponseBody(resp);
+        assertEquals("SELECT  ?s ?p ?o\n" +
+                "FROM <http://example.org/pub1#assertion>\n" +
+                "WHERE\n" +
+                "  { ?s  ?p  ?o }\n", sut.query.toString());
+        assertThat(respBody, containsString("http://example.org/trastuzumab,http://example.org/is-indicated-for,http://example.org/breast-cancer"));
+    }
+
+    @Test
+    public void testGetSelectNoAccept() throws Exception {
+        final String queryString = "SELECT ?s ?p ?o WHERE { ?s ?p ?o }";
+        final HttpServletRequest req = newMockHttpServletRequest(Optional.empty(), queryString);
         final HttpServletResponse resp = newMockHttpServletResponse();
 
         sut.doGet(req, resp);
@@ -47,9 +65,11 @@ public class SparqlHttpServletTest extends AbstractHttpServletTest {
         assertThat(respBody, containsString("<uri>http://example.org/trastuzumab</uri>"));
     }
 
-    private HttpServletRequest newMockHttpServletRequest(final String accept, final String query) {
+    private HttpServletRequest newMockHttpServletRequest(final Optional<String> accept, final String query) {
         final HttpServletRequest req = mock(HttpServletRequest.class);
-        when(req.getHeader("accept")).thenReturn(accept);
+        if (accept.isPresent()) {
+            when(req.getHeader("Accept")).thenReturn(accept.get());
+        }
         when(req.getParameter("query")).thenReturn(query);
         return req;
     }
