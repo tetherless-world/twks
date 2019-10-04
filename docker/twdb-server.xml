@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_9_3.dtd">
+
+<Configure class="org.eclipse.jetty.webapp.WebAppContext">
+    <Set name="contextPath">/</Set>
+    <Set name="war">/var/lib/jetty/tw-webapps/twdb-server-current.war</Set>
+    <Call name="setInitParameter">
+        <Arg>edu.rpi.tw.twdb.tdb2.location</Arg>
+        <Arg>/data</Arg>
+    </Call>
+</Configure>
