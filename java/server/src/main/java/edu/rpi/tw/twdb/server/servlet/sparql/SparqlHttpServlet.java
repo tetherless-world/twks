@@ -122,8 +122,14 @@ abstract class SparqlHttpServlet extends HttpServlet {
                 switch (query.getQueryType()) {
                     case Query.QueryTypeAsk:
                     case Query.QueryTypeSelect: {
-                        final MediaType respMediaType = AcceptList.match(proposeAcceptList, offerResultsAcceptList);
-                        final Lang respLang = RDFLanguages.contentTypeToLang(respMediaType.getContentType());
+                        final Lang respLang;
+                        if (proposeAcceptList != null) {
+                            final MediaType respMediaType = AcceptList.match(proposeAcceptList, offerResultsAcceptList);
+                            respLang = RDFLanguages.contentTypeToLang(respMediaType.getContentType());
+                        } else {
+                            respLang = ResultSetLang.SPARQLResultSetXML;
+                        }
+
                         try (final OutputStream respOutputStream = resp.getOutputStream()) {
                             if (query.getQueryType() == Query.QueryTypeAsk) {
                                 final boolean result = queryExecution.execAsk();
@@ -137,8 +143,14 @@ abstract class SparqlHttpServlet extends HttpServlet {
                     }
                     case Query.QueryTypeConstruct:
                     case Query.QueryTypeDescribe: {
-                        final MediaType respMediaType = AcceptList.match(proposeAcceptList, offerGraphAcceptList);
-                        final Lang respLang = RDFLanguages.contentTypeToLang(respMediaType.getContentType());
+                        final Lang respLang;
+                        if (proposeAcceptList != null) {
+                            final MediaType respMediaType = AcceptList.match(proposeAcceptList, offerGraphAcceptList);
+                            respLang = RDFLanguages.contentTypeToLang(respMediaType.getContentType());
+                        } else {
+                            respLang = Lang.TRIG;
+                        }
+
                         final Model respModel = query.getQueryType() == Query.QueryTypeConstruct ? queryExecution.execConstruct() : queryExecution.execDescribe();
                         try (final OutputStream respOutputStream = resp.getOutputStream()) {
                             respModel.write(respOutputStream, respLang.getName());
