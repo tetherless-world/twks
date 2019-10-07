@@ -1,7 +1,7 @@
 # Tetherless World Database (TWDB)
 
-# Use
+## Use
 
-## From Java
+### From Java
 
 See the [Java documentation](java/README.md).
