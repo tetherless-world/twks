@@ -30,14 +30,14 @@ public abstract class TwdbTest {
 
     @Test
     public void testDeleteNanopublicationAbsent() {
-        assertFalse(sut.deleteNanopublication(testData.specNanopublication.getUri()));
+        assertEquals(Twdb.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
     }
 
     @Test
     public void testDeleteNanopublicationPresent() {
         sut.putNanopublication(testData.specNanopublication);
-        assertTrue(sut.deleteNanopublication(testData.specNanopublication.getUri()));
-        assertFalse(sut.deleteNanopublication(testData.specNanopublication.getUri()));
+        assertEquals(Twdb.DeleteNanopublicationResult.DELETED, sut.deleteNanopublication(testData.specNanopublication.getUri()));
+        assertEquals(Twdb.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
     }
 
     @Test

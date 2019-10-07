@@ -55,10 +55,10 @@ final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public final boolean deleteNanopublication(final Uri uri) {
+    public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
         try (final DatasetTransaction transaction = new DatasetTransaction(tdbDataset, ReadWrite.WRITE)) {
-            final boolean result = deleteNanopublication(uri, transaction);
-            if (result) {
+            final DeleteNanopublicationResult result = deleteNanopublication(uri, transaction);
+            if (result == DeleteNanopublicationResult.DELETED) {
                 transaction.commit();
             } else {
                 transaction.abort();
@@ -68,14 +68,14 @@ final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public final boolean deleteNanopublication(final Uri uri, final TwdbTransaction transaction) {
+    public final DeleteNanopublicationResult deleteNanopublication(final Uri uri, final TwdbTransaction transaction) {
         return deleteNanopublication(uri, ((DatasetTwdbTransaction) transaction).getDatasetTransaction());
     }
 
-    private final boolean deleteNanopublication(final Uri uri, final DatasetTransaction transaction) {
+    private final DeleteNanopublicationResult deleteNanopublication(final Uri uri, final DatasetTransaction transaction) {
         final Set<String> nanopublicationGraphNames = getNanopublicationGraphNames(uri, transaction);
         if (nanopublicationGraphNames.isEmpty()) {
-            return false;
+            return DeleteNanopublicationResult.NOT_FOUND;
         }
         if (nanopublicationGraphNames.size() != 4) {
             throw new IllegalStateException();
@@ -83,7 +83,7 @@ final class Tdb2Twdb implements Twdb {
         for (final String nanopublicationGraphName : nanopublicationGraphNames) {
             tdbDataset.removeNamedModel(nanopublicationGraphName);
         }
-        return true;
+        return DeleteNanopublicationResult.DELETED;
     }
 
     private Set<String> getAssertionGraphNames(final DatasetTransaction transaction) {
@@ -98,7 +98,6 @@ final class Tdb2Twdb implements Twdb {
         }
         return assertionGraphNames;
     }
-
 
     @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
@@ -168,21 +167,23 @@ final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public final void putNanopublication(final Nanopublication nanopublication) {
+    public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
         try (final DatasetTransaction transaction = new DatasetTransaction(tdbDataset, ReadWrite.WRITE)) {
-            putNanopublication(nanopublication, transaction);
+            final PutNanopublicationResult result = putNanopublication(nanopublication, transaction);
             transaction.commit();
+            return result;
         }
     }
 
     @Override
-    public void putNanopublication(final Nanopublication nanopublication, final TwdbTransaction transaction) {
-        putNanopublication(nanopublication, ((DatasetTwdbTransaction) transaction).getDatasetTransaction());
+    public PutNanopublicationResult putNanopublication(final Nanopublication nanopublication, final TwdbTransaction transaction) {
+        return putNanopublication(nanopublication, ((DatasetTwdbTransaction) transaction).getDatasetTransaction());
     }
 
-    private final void putNanopublication(final Nanopublication nanopublication, final DatasetTransaction transaction) {
-        deleteNanopublication(nanopublication.getUri(), transaction);
+    private final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication, final DatasetTransaction transaction) {
+        final DeleteNanopublicationResult deleteResult = deleteNanopublication(nanopublication.getUri(), transaction);
         nanopublication.toDataset(tdbDataset, transaction);
+        return deleteResult == DeleteNanopublicationResult.DELETED ? PutNanopublicationResult.OVERWROTE : PutNanopublicationResult.CREATED;
     }
 
     @Override

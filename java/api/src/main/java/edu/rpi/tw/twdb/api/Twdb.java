@@ -29,7 +29,7 @@ public interface Twdb {
      * @param uri URI of the nanopublication
      * @return true if the nanopublication was present, otherwise false
      */
-    boolean deleteNanopublication(Uri uri);
+    DeleteNanopublicationResult deleteNanopublication(Uri uri);
 
     /**
      * Delete a nanopublication with an existing transaction.
@@ -38,7 +38,7 @@ public interface Twdb {
      * @param transaction existing transaction
      * @return true of the nanopublication was presented, otherwise false
      */
-    boolean deleteNanopublication(Uri uri, final TwdbTransaction transaction);
+    DeleteNanopublicationResult deleteNanopublication(Uri uri, final TwdbTransaction transaction);
 
     /**
      * Get a nanopublication.
@@ -66,7 +66,7 @@ public interface Twdb {
      *
      * @param nanopublication nanopublication to put.
      */
-    void putNanopublication(Nanopublication nanopublication);
+    PutNanopublicationResult putNanopublication(Nanopublication nanopublication);
 
     /**
      * Put a new nanopublication, overwriting an existing nanopublication with the same URI if necessary.
@@ -74,7 +74,7 @@ public interface Twdb {
      * @param nanopublication nanopublication to put
      * @param transaction     existing transaction to use
      */
-    void putNanopublication(Nanopublication nanopublication, TwdbTransaction transaction);
+    PutNanopublicationResult putNanopublication(Nanopublication nanopublication, TwdbTransaction transaction);
 
     /**
      * Query assertion parts of stored nanopublications.
@@ -95,4 +95,12 @@ public interface Twdb {
      * @return QueryExecution that is ready to execute. Must be executed within the given transaction.
      */
     QueryExecution queryNanopublications(Query query, TwdbTransaction transaction);
+
+    enum DeleteNanopublicationResult {
+        DELETED, NOT_FOUND
+    }
+
+    enum PutNanopublicationResult {
+        CREATED, OVERWROTE
+    }
 }
