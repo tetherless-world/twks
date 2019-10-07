@@ -1,8 +1,13 @@
 package edu.rpi.tw.twdb.server.servlet;
 
+import edu.rpi.tw.twdb.api.Twdb;
+import edu.rpi.tw.twdb.lib.TwdbFactory;
+import edu.rpi.tw.twdb.server.TestData;
+import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
@@ -10,7 +15,20 @@ import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
-public abstract class AbstractHttpServletTest {
+public abstract class AbstractHttpServletTest<HttpServletT extends HttpServlet> {
+    protected TestData testData;
+    protected Twdb db;
+    protected HttpServletT sut;
+
+    @Before
+    public final void setUp() throws Exception {
+        this.db = TwdbFactory.getInstance().createTwdb();
+        this.testData = new TestData();
+        sut = _setUp(db, testData);
+    }
+
+    protected abstract HttpServletT _setUp(Twdb db, TestData testData);
+
     protected final void setMockHttpServletRequestBody(final HttpServletRequest req, final String reqBody) throws IOException {
         final BufferedReader reqReader = mock(BufferedReader.class);
         when(req.getReader()).thenReturn(reqReader);

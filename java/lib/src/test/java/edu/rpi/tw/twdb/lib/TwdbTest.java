@@ -10,8 +10,6 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,14 +30,14 @@ public abstract class TwdbTest {
 
     @Test
     public void testDeleteNanopublicationAbsent() {
-        assertFalse(sut.deleteNanopublication(testData.specNanopublication.getUri()));
+        assertEquals(Twdb.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
     }
 
     @Test
     public void testDeleteNanopublicationPresent() {
         sut.putNanopublication(testData.specNanopublication);
-        assertTrue(sut.deleteNanopublication(testData.specNanopublication.getUri()));
-        assertFalse(sut.deleteNanopublication(testData.specNanopublication.getUri()));
+        assertEquals(Twdb.DeleteNanopublicationResult.DELETED, sut.deleteNanopublication(testData.specNanopublication.getUri()));
+        assertEquals(Twdb.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
     }
 
     @Test
@@ -54,7 +52,7 @@ public abstract class TwdbTest {
         sut.putNanopublication(expected);
         final Nanopublication actual = sut.getNanopublication(expected.getUri()).get();
         assertNotSame(expected, actual);
-        RDFDataMgr.write(System.out, actual.toDataset(), Lang.TRIG);
+//        RDFDataMgr.write(System.out, actual.toDataset(), Lang.TRIG);
         assertTrue(actual.isIsomorphicWith(expected));
     }
 
