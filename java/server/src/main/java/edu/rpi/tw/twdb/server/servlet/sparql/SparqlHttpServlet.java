@@ -14,6 +14,7 @@ import org.dmfs.rfc3986.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,7 +34,7 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
         offerResultsAcceptList = toAcceptList(ResultSetLang.SPARQLResultSetCSV, ResultSetLang.SPARQLResultSetJSON, ResultSetLang.SPARQLResultSetTSV, ResultSetLang.SPARQLResultSetXML);
     }
 
-    private static List<Uri> parseUriList(final String[] uriStrings) {
+    private static List<Uri> parseUriList(final @Nullable String[] uriStrings) {
         if (uriStrings == null || uriStrings.length == 0) {
             return Collections.emptyList();
         }

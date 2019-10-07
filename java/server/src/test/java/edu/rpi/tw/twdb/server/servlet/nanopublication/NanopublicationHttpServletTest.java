@@ -1,6 +1,7 @@
 package edu.rpi.tw.twdb.server.servlet.nanopublication;
 
 import edu.rpi.tw.nanopub.Nanopublication;
+import edu.rpi.tw.nanopub.Uris;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.server.TestData;
 import edu.rpi.tw.twdb.server.servlet.AbstractHttpServletTest;
@@ -43,6 +44,7 @@ public final class NanopublicationHttpServletTest extends AbstractHttpServletTes
         db.putNanopublication(testData.specNanopublication);
 
         final HttpServletRequest req = newMockHttpServletRequest(Optional.of(Lang.TRIG.getContentType().getContentType()));
+        when(req.getPathInfo()).thenReturn("/" + Uris.toString(testData.specNanopublication.getUri()));
         final HttpServletResponse resp = newMockHttpServletResponse();
 
         sut.doGet(req, resp);
