@@ -2,12 +2,10 @@ package edu.rpi.tw.twdb.server.servlet.sparql;
 
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.api.TwdbTransaction;
-import edu.rpi.tw.twdb.lib.TwdbFactory;
 import edu.rpi.tw.twdb.server.TestData;
 import edu.rpi.tw.twdb.server.servlet.AbstractHttpServletTest;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,17 +16,11 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class SparqlHttpServletTest extends AbstractHttpServletTest {
-    private Twdb db;
-    private MockSparqlHttpServlet sut;
-    private TestData testData;
-
-    @Before
-    public void setUp() throws Exception {
-        this.db = TwdbFactory.getInstance().createTwdb();
-        this.testData = new TestData();
+public final class SparqlHttpServletTest extends AbstractHttpServletTest<SparqlHttpServletTest.MockSparqlHttpServlet> {
+    @Override
+    protected MockSparqlHttpServlet _setUp(final Twdb db, final TestData testData) {
         db.putNanopublication(testData.specNanopublication);
-        this.sut = new MockSparqlHttpServlet();
+        return new MockSparqlHttpServlet();
     }
 
     @Test
@@ -201,7 +193,7 @@ public class SparqlHttpServletTest extends AbstractHttpServletTest {
         verify(req).getHeader("Accept");
     }
 
-    private final class MockSparqlHttpServlet extends SparqlHttpServlet {
+    public final class MockSparqlHttpServlet extends SparqlHttpServlet {
         private Query query;
 
         MockSparqlHttpServlet() {
