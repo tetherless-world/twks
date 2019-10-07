@@ -32,7 +32,7 @@ Add the library to your Maven/SBT/Gradle/etc. dependencies:
 
 The TWDB Java library consists of two modules, `twdb-api` and `twdb-lib`. The former contains the public-facing API (the class `Twdb`), while the latter contains implementations of the API.
 
-You instantiate an instance of the database using `TwbdFactory` from `twdb-lib`. The factory takes a `TwdbConfiguration`, which specifies the backing database and other options. The default configuration (`new TwdbConfiguration`) is an in-memory [TDB2](https://jena.apache.org/documentation/tdb2/) database. You can currently (20191007) configure TDB2 persistence to disk with `TwdbConfiguration`. Other implementations of the `Twdb` interface will follow.
+You instantiate an instance of the database using `TwdbFactory` from `twdb-lib`. The factory takes a `TwdbConfiguration`, which specifies the backing database and other options. The default configuration (`new TwdbConfiguration`) is an in-memory [TDB2](https://jena.apache.org/documentation/tdb2/) database. You can currently (20191007) configure TDB2 persistence to disk with `TwdbConfiguration`. Other implementations of the `Twdb` interface will follow.
 
 See the `Twdb` class Javadoc and `TwdbTest.java` for examples of Java API use.
 
