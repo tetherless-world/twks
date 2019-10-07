@@ -4,6 +4,7 @@ import com.google.common.io.CharStreams;
 import edu.rpi.tw.nanopub.Uris;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.api.TwdbTransaction;
+import edu.rpi.tw.twdb.server.ServletContextTwdb;
 import edu.rpi.tw.twdb.server.servlet.TwdbHttpServlet;
 import org.apache.jena.atlas.web.AcceptList;
 import org.apache.jena.query.*;
@@ -28,6 +29,10 @@ import java.util.Optional;
 abstract class SparqlHttpServlet extends TwdbHttpServlet {
     private final static Logger logger = LoggerFactory.getLogger(SparqlHttpServlet.class);
     private final AcceptList offerResultsAcceptList;
+
+    protected SparqlHttpServlet() {
+        this(ServletContextTwdb.getInstance());
+    }
 
     protected SparqlHttpServlet(final Twdb db) {
         super(db);

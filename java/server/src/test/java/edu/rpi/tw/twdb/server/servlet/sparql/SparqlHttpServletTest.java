@@ -20,7 +20,7 @@ public final class SparqlHttpServletTest extends AbstractHttpServletTest<SparqlH
     @Override
     protected MockSparqlHttpServlet _setUp(final Twdb db, final TestData testData) {
         db.putNanopublication(testData.specNanopublication);
-        return new MockSparqlHttpServlet();
+        return new MockSparqlHttpServlet(db);
     }
 
     @Test
@@ -196,7 +196,7 @@ public final class SparqlHttpServletTest extends AbstractHttpServletTest<SparqlH
     public final class MockSparqlHttpServlet extends SparqlHttpServlet {
         private Query query;
 
-        MockSparqlHttpServlet() {
+        MockSparqlHttpServlet(final Twdb db) {
             super(db);
         }
 

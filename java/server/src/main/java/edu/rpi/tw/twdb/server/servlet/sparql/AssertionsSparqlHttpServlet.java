@@ -1,16 +1,16 @@
 package edu.rpi.tw.twdb.server.servlet.sparql;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.api.TwdbTransaction;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 
-@Singleton
-class AssertionsSparqlHttpServlet extends SparqlHttpServlet {
-    @Inject
-    AssertionsSparqlHttpServlet(final Twdb db) {
+public final class AssertionsSparqlHttpServlet extends SparqlHttpServlet {
+    public AssertionsSparqlHttpServlet() {
+        super();
+    }
+
+    public AssertionsSparqlHttpServlet(final Twdb db) {
         super(db);
     }
 

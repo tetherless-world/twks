@@ -1,8 +1,6 @@
 package edu.rpi.tw.twdb.server.servlet.nanopublication;
 
 import com.google.common.io.CharStreams;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import edu.rpi.tw.nanopub.*;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.server.servlet.TwdbHttpServlet;
@@ -23,11 +21,12 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Optional;
 
-@Singleton
-class NanopublicationHttpServlet extends TwdbHttpServlet {
+public final class NanopublicationHttpServlet extends TwdbHttpServlet {
     private final static Logger logger = LoggerFactory.getLogger(NanopublicationHttpServlet.class);
 
-    @Inject
+    public NanopublicationHttpServlet() {
+    }
+
     public NanopublicationHttpServlet(final Twdb db) {
         super(db);
     }

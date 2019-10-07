@@ -1,6 +1,6 @@
 # TWDB Java
 
-## Prerequsites
+## Prerequisites
 
 * [Install tw-nanopub](https://github.com/tetherless-world/tw-nanopub)
 

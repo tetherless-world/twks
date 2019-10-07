@@ -1,6 +1,5 @@
 package edu.rpi.tw.twdb.server;
 
-import com.google.inject.AbstractModule;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.lib.TwdbConfiguration;
 import edu.rpi.tw.twdb.lib.TwdbFactory;
@@ -11,23 +10,27 @@ import java.util.Properties;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
-final class TwdbModule extends AbstractModule {
-    private final ServletContext servletContext;
+public final class ServletContextTwdb {
+    private static Twdb instance = null;
 
-    TwdbModule(final ServletContext servletContext) {
-        this.servletContext = checkNotNull(servletContext);
+    private ServletContextTwdb() {
     }
 
-    @Override
-    protected void configure() {
+    synchronized static void initInstance(final ServletContext servletContext) {
+        checkState(instance == null);
         final Properties attributeProperties = toProperties(servletContext.getAttributeNames(), name -> servletContext.getAttribute(name));
         final Properties initParameterProperties = toProperties(servletContext.getInitParameterNames(), name -> servletContext.getInitParameter(name));
 
-        bind(Twdb.class).toInstance(TwdbFactory.getInstance().createTwdb(new TwdbConfiguration().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties)));
+        instance = TwdbFactory.getInstance().createTwdb(new TwdbConfiguration().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties));
     }
 
-    private Properties toProperties(final Enumeration<String> names, final Function<String, Object> valueGetter) {
+    public final synchronized static Twdb getInstance() {
+        return checkNotNull(instance);
+    }
+
+    private static Properties toProperties(final Enumeration<String> names, final Function<String, Object> valueGetter) {
         final Properties properties = new Properties();
         while (names.hasMoreElements()) {
             final String name = names.nextElement();

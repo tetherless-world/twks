@@ -3,15 +3,25 @@
          xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
-    <filter>
-        <filter-name>guiceFilter</filter-name>
-        <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>guiceFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
     <listener>
         <listener-class>edu.rpi.tw.twdb.server.ServletContextListener</listener-class>
     </listener>
+
+    <servlet>
+        <servlet-name>AssertionsSparqlHttpServlet</servlet-name>
+        <servlet-class>edu.rpi.tw.twdb.server.servlet.sparql.AssertionsSparqlHttpServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>NanopublicationsSparqlHttpServlet</servlet-name>
+        <servlet-class>edu.rpi.tw.twdb.server.servlet.sparql.NanopublicationsSparqlHttpServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>AssertionsSparqlHttpServlet</servlet-name>
+        <url-pattern>/sparql/assertions</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>NanopublicationsSparqlHttpServlet</servlet-name>
+        <url-pattern>/sparql/nanopublications</url-pattern>
+    </servlet-mapping>
 </web-app>
