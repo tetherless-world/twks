@@ -4,6 +4,8 @@ import com.google.common.io.CharStreams;
 import edu.rpi.tw.nanopub.Uris;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.api.TwdbTransaction;
+import edu.rpi.tw.twdb.server.AcceptLists;
+import edu.rpi.tw.twdb.server.ServletContextTwdb;
 import edu.rpi.tw.twdb.server.servlet.TwdbHttpServlet;
 import org.apache.jena.atlas.web.AcceptList;
 import org.apache.jena.query.*;
@@ -29,9 +31,13 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
     private final static Logger logger = LoggerFactory.getLogger(SparqlHttpServlet.class);
     private final AcceptList offerResultsAcceptList;
 
+    protected SparqlHttpServlet() {
+        this(ServletContextTwdb.getInstance());
+    }
+
     protected SparqlHttpServlet(final Twdb db) {
         super(db);
-        offerResultsAcceptList = toAcceptList(ResultSetLang.SPARQLResultSetCSV, ResultSetLang.SPARQLResultSetJSON, ResultSetLang.SPARQLResultSetTSV, ResultSetLang.SPARQLResultSetXML);
+        offerResultsAcceptList = AcceptLists.toAcceptList(ResultSetLang.SPARQLResultSetCSV, ResultSetLang.SPARQLResultSetJSON, ResultSetLang.SPARQLResultSetTSV, ResultSetLang.SPARQLResultSetXML);
     }
 
     private static List<Uri> parseUriList(final @Nullable String[] uriStrings) {
@@ -103,7 +109,7 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
                 switch (query.getQueryType()) {
                     case Query.QueryTypeAsk:
                     case Query.QueryTypeSelect: {
-                        final Lang respLang = calculateResponseLang(ResultSetLang.SPARQLResultSetXML, offerResultsAcceptList, proposeAcceptList);
+                        final Lang respLang = AcceptLists.calculateResponseLang(ResultSetLang.SPARQLResultSetXML, offerResultsAcceptList, proposeAcceptList);
 
                         try (final OutputStream respOutputStream = resp.getOutputStream()) {
                             if (query.getQueryType() == Query.QueryTypeAsk) {
@@ -118,7 +124,7 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
                     }
                     case Query.QueryTypeConstruct:
                     case Query.QueryTypeDescribe: {
-                        final Lang respLang = calculateResponseLang(Lang.TRIG, getOfferGraphAcceptList(), proposeAcceptList);
+                        final Lang respLang = AcceptLists.calculateResponseLang(Lang.TRIG, AcceptLists.OFFER_GRAPH, proposeAcceptList);
 
                         final Model respModel = query.getQueryType() == Query.QueryTypeConstruct ? queryExecution.execConstruct() : queryExecution.execDescribe();
                         try (final OutputStream respOutputStream = resp.getOutputStream()) {
