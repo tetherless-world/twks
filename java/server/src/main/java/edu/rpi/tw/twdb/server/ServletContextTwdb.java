@@ -10,7 +10,6 @@ import java.util.Properties;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 public final class ServletContextTwdb {
     private static Twdb instance = null;
@@ -19,7 +18,6 @@ public final class ServletContextTwdb {
     }
 
     synchronized static void initInstance(final ServletContext servletContext) {
-        checkState(instance == null);
         final Properties attributeProperties = toProperties(servletContext.getAttributeNames(), name -> servletContext.getAttribute(name));
         final Properties initParameterProperties = toProperties(servletContext.getInitParameterNames(), name -> servletContext.getInitParameter(name));
 

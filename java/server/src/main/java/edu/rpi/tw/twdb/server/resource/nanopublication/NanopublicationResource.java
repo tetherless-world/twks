@@ -3,7 +3,7 @@ package edu.rpi.tw.twdb.server.resource.nanopublication;
 import edu.rpi.tw.nanopub.*;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.server.AcceptLists;
-import edu.rpi.tw.twdb.server.ServletContextTwdb;
+import edu.rpi.tw.twdb.server.resource.AbstractResource;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -13,19 +13,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Optional;
 
 @Path("nanopublication")
-public class NanopublicationResource {
+public class NanopublicationResource extends AbstractResource {
     private final static Logger logger = LoggerFactory.getLogger(NanopublicationResource.class);
-    private final Twdb db;
 
     public NanopublicationResource() {
-        this.db = ServletContextTwdb.getInstance();
+    }
+
+    public NanopublicationResource(final Twdb db) {
+        super(db);
     }
 
     @GET
@@ -33,14 +37,11 @@ public class NanopublicationResource {
     public Response
     getNanopublication(
             @HeaderParam("Accept") @Nullable final String accept,
-            @HeaderParam("Content-Type") @Nullable final String contentType,
             @PathParam("nanopublicationUri") final String nanopublicationUriString
     ) {
         final Uri nanopublicationUri = Uris.parse(nanopublicationUriString);
 
-        final Lang requestLang = parseLang(contentType);
-
-        final Optional<Nanopublication> nanopublication = db.getNanopublication(nanopublicationUri);
+        final Optional<Nanopublication> nanopublication = getDb().getNanopublication(nanopublicationUri);
         if (!nanopublication.isPresent()) {
             logger.info("nanopublication not found: {}", Uris.toString(nanopublicationUri));
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -62,9 +63,10 @@ public class NanopublicationResource {
     putNanopublication(
             @HeaderParam("Content-Type") @Nullable final String contentType,
             @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
-            final String requestBody
+            final String requestBody,
+            @Context final UriInfo uriInfo
     ) {
-        return putNanopublication(contentType, nanopublicationDialectString, Optional.empty(), requestBody);
+        return putNanopublication(contentType, nanopublicationDialectString, Optional.empty(), requestBody, uriInfo);
     }
 
     @PUT
@@ -74,10 +76,11 @@ public class NanopublicationResource {
             @HeaderParam("Content-Type") @Nullable final String contentType,
             @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
             @PathParam("nanopublicationUri") final String nanopublicationUriString,
-            final String requestBody
+            final String requestBody,
+            @Context final UriInfo uriInfo
     ) {
         final Uri nanopublicationUri = Uris.parse(nanopublicationUriString);
-        return putNanopublication(contentType, nanopublicationDialectString, Optional.of(nanopublicationUri), requestBody);
+        return putNanopublication(contentType, nanopublicationDialectString, Optional.of(nanopublicationUri), requestBody, uriInfo);
     }
 
     private Response
@@ -85,14 +88,19 @@ public class NanopublicationResource {
             @Nullable final String contentType,
             @Nullable final String nanopublicationDialectString,
             final Optional<Uri> nanopublicationUri,
-            final String requestBody
+            final String requestBody,
+            final UriInfo uriInfo
     ) {
         final Nanopublication nanopublication = parseNanopublication(contentType, nanopublicationDialectString, nanopublicationUri, requestBody);
 
-        final Twdb.PutNanopublicationResult result = db.putNanopublication(nanopublication);
+        final Twdb.PutNanopublicationResult result = getDb().putNanopublication(nanopublication);
         switch (result) {
             case CREATED:
-                return Response.created()
+                return Response.created(uriInfo.getAbsolutePathBuilder().path(NanopublicationResource.class).path(Uris.toString(nanopublication.getUri())).build()).build();
+            case OVERWROTE:
+                return Response.noContent().build();
+            default:
+                throw new IllegalStateException();
         }
     }
 

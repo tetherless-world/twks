@@ -124,7 +124,7 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
                     }
                     case Query.QueryTypeConstruct:
                     case Query.QueryTypeDescribe: {
-                        final Lang respLang = AcceptLists.calculateResponseLang(Lang.TRIG, getOfferGraphAcceptList(), proposeAcceptList);
+                        final Lang respLang = AcceptLists.calculateResponseLang(Lang.TRIG, AcceptLists.OFFER_GRAPH, proposeAcceptList);
 
                         final Model respModel = query.getQueryType() == Query.QueryTypeConstruct ? queryExecution.execConstruct() : queryExecution.execDescribe();
                         try (final OutputStream respOutputStream = resp.getOutputStream()) {
