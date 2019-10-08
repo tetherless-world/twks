@@ -32,6 +32,26 @@ public class NanopublicationResource extends AbstractResource {
         super(db);
     }
 
+    @DELETE
+    @Path("{nanopublicationUri}")
+    public Response
+    deleteNanopublication(
+            @PathParam("nanopublicationUri") final String nanopublicationUriString
+    ) {
+        final Uri nanopublicationUri = Uris.parse(nanopublicationUriString);
+
+        final Twdb.DeleteNanopublicationResult result = getDb().deleteNanopublication(nanopublicationUri);
+
+        switch (result) {
+            case DELETED:
+                return Response.noContent().build();
+            case NOT_FOUND:
+                return Response.status(Response.Status.NOT_FOUND).build();
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
     @GET
     @Path("{nanopublicationUri}")
     public Response

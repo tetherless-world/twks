@@ -11,7 +11,6 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Response;
 import java.io.StringWriter;
 import java.net.URLEncoder;
@@ -43,10 +42,33 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    public void testDeleteNanopublicationPresent() throws Exception {
+        getDb().putNanopublication(getTestData().specNanopublication);
+        final Response response =
+                target()
+                        .path("/nanopublication/")
+                        .path(URLEncoder.encode(Uris.toString(getTestData().specNanopublication.getUri()), "UTF-8"))
+                        .request(Lang.TRIG.getContentType().getContentType())
+                        .delete();
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertFalse(getDb().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+    }
+
+    @Test
+    public void testDeleteNanopublicationAbsent() throws Exception {
+        final Response response =
+                target()
+                        .path("/nanopublication/")
+                        .path(URLEncoder.encode(Uris.toString(getTestData().specNanopublication.getUri()), "UTF-8"))
+                        .request(Lang.TRIG.getContentType().getContentType())
+                        .delete();
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+    }
+
+    @Test
     public void testGetNanopublicationPresent() throws Exception {
         getDb().putNanopublication(getTestData().specNanopublication);
-        final Invocation.Builder invocationBuilder = target().path("/nanopublication/").path(URLEncoder.encode(Uris.toString(getTestData().specNanopublication.getUri()), "UTF-8")).request(Lang.TRIG.getContentType().getContentType());
-        final String responseBody = invocationBuilder.get(String.class);
+        final String responseBody = target().path("/nanopublication/").path(URLEncoder.encode(Uris.toString(getTestData().specNanopublication.getUri()), "UTF-8")).request(Lang.TRIG.getContentType().getContentType()).get(String.class);
         assertEquals(toTrigString(getTestData().specNanopublication), responseBody);
     }
 
