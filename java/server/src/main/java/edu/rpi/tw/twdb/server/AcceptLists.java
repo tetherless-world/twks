@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Optional;
 
 public final class AcceptLists {
+    public final static AcceptList OFFER_GRAPH = toAcceptList(Lang.RDFXML, Lang.NTRIPLES, Lang.NT, Lang.N3, Lang.TURTLE, Lang.TTL, Lang.JSONLD, Lang.RDFJSON, Lang.NQUADS, Lang.NQ, Lang.TRIG, Lang.TRIG);
+
     private AcceptLists() {
     }
 

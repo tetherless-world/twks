@@ -103,7 +103,7 @@ public final class NanopublicationHttpServlet extends TwdbHttpServlet {
         resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
-    private Nanopublication parseRequestNanopublication(final HttpServletRequest req, final HttpServletResponse resp) throws MalformedNanopublicationException, IOException {
+    private Nanopublication parseRequestNanopublication(final HttpServletRequest req) throws MalformedNanopublicationException, IOException {
         final Lang reqLang = getRequestLang(req);
 
         final NanopublicationParser parser = new NanopublicationParser();
