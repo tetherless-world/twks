@@ -67,7 +67,7 @@ public class NanopublicationResource extends AbstractResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        final Lang responseLang = AcceptLists.calculateResponseLang(Lang.TRIG, AcceptLists.OFFER_GRAPH, AcceptLists.getProposeAcceptList(accept));
+        final Lang responseLang = AcceptLists.calculateResponseLang(Lang.TRIG, AcceptLists.OFFER_DATASET, AcceptLists.getProposeAcceptList(accept));
 
         final Response.ResponseBuilder responseBuilder = Response.ok();
         responseBuilder.header("Content-Type", responseLang.getContentType().getContentType());
