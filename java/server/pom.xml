@@ -57,11 +57,11 @@
             <version>${jersey.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Jersey's injection framework HK2 is required even though we don't use it -->
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
             <version>${jersey.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
