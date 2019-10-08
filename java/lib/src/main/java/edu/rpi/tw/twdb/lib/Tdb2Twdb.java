@@ -9,7 +9,6 @@ import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.tdb2.TDB2;
 import org.apache.jena.tdb2.TDB2Factory;
-import org.dmfs.rfc3986.Uri;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -125,8 +124,7 @@ final class Tdb2Twdb implements Twdb {
     }
 
     private Dataset getNanopublicationDataset(final Uri uri, final DatasetTransaction transaction) {
-        final String uriString = Uris.toString(uri);
-        final String queryString = String.format(GET_NANOPUBLICATION_DATASET_QUERY_STRING, uriString);
+        final String queryString = String.format(GET_NANOPUBLICATION_DATASET_QUERY_STRING, uri);
         final Query query = QueryFactory.create(queryString);
         final Dataset nanopublicationDataset = DatasetFactory.create();
         try (final QueryExecution queryExecution = QueryExecutionFactory.create(query, tdbDataset)) {
@@ -151,8 +149,7 @@ final class Tdb2Twdb implements Twdb {
     }
 
     private Set<String> getNanopublicationGraphNames(final Uri uri, final DatasetTransaction transaction) {
-        final String uriString = Uris.toString(uri);
-        final String queryString = String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, uriString);
+        final String queryString = String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, uri);
         final Query query = QueryFactory.create(queryString);
         final Set<String> nanopublicationGraphNames = new HashSet<>();
         try (final QueryExecution queryExecution = QueryExecutionFactory.create(query, tdbDataset)) {

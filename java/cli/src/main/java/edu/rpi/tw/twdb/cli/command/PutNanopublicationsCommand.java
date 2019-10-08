@@ -7,7 +7,6 @@ import edu.rpi.tw.twdb.api.TwdbTransaction;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
-import org.dmfs.rfc3986.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,9 +109,7 @@ public final class PutNanopublicationsCommand extends Command {
                     }
                 }
             } else {
-                final Uri sourceUrl = Uris.parse(args.source);
-                sourceUrl.fragment(); // Force parse
-                nanopublications.add(newParser(dialect, lang).parse(sourceUrl));
+                nanopublications.add(newParser(dialect, lang).parse(Uri.parse(args.source)));
             }
         } catch (final IOException | MalformedNanopublicationException e) {
             logger.error("error parsing {}:", args.source, e);

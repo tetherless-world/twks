@@ -1,10 +1,10 @@
 package edu.rpi.tw.twdb.api;
 
 import edu.rpi.tw.nanopub.Nanopublication;
+import edu.rpi.tw.nanopub.Uri;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.ReadWrite;
-import org.dmfs.rfc3986.Uri;
 
 import java.util.Optional;
 
