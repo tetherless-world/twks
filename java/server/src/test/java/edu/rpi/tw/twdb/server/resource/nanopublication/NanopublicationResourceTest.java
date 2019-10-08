@@ -57,7 +57,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
                 .path(URLEncoder.encode(Uris.toString(getTestData().specNanopublication.getUri()), "UTF-8"))
                 .request(Lang.TRIG.getContentType().getContentType())
                 .get();
-        assertEquals(Response.Status.NOT_FOUND, response.getStatus());
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     @Override
