@@ -3,6 +3,7 @@ package edu.rpi.tw.twdb.server.servlet.nanopublication;
 import com.google.common.io.CharStreams;
 import edu.rpi.tw.nanopub.*;
 import edu.rpi.tw.twdb.api.Twdb;
+import edu.rpi.tw.twdb.server.AcceptLists;
 import edu.rpi.tw.twdb.server.servlet.TwdbHttpServlet;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.riot.Lang;
@@ -47,7 +48,7 @@ public final class NanopublicationHttpServlet extends TwdbHttpServlet {
             return;
         }
 
-        final Lang respLang = calculateResponseLang(Lang.TRIG, getOfferGraphAcceptList(), getProposeAcceptList(req));
+        final Lang respLang = AcceptLists.calculateResponseLang(Lang.TRIG, getOfferGraphAcceptList(), getProposeAcceptList(req));
         resp.setContentType(respLang.getContentType().getContentType());
         try (final OutputStream respOutputStream = resp.getOutputStream()) {
             RDFDataMgr.write(respOutputStream, nanopublication.get().toDataset(), respLang);
