@@ -1,7 +1,6 @@
 package edu.rpi.tw.twdb.server.resource.nanopublication;
 
 import edu.rpi.tw.nanopub.Nanopublication;
-import edu.rpi.tw.nanopub.Uris;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.server.AbstractResourceTest;
 import org.apache.jena.query.Dataset;
@@ -47,7 +46,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
         final Response response =
                 target()
                         .path("/nanopublication/")
-                        .path(URLEncoder.encode(Uris.toString(getTestData().specNanopublication.getUri()), "UTF-8"))
+                        .path(URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8"))
                         .request(Lang.TRIG.getContentType().getContentType())
                         .delete();
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
@@ -59,7 +58,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
         final Response response =
                 target()
                         .path("/nanopublication/")
-                        .path(URLEncoder.encode(Uris.toString(getTestData().specNanopublication.getUri()), "UTF-8"))
+                        .path(URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8"))
                         .request(Lang.TRIG.getContentType().getContentType())
                         .delete();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
@@ -68,7 +67,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
     @Test
     public void testGetNanopublicationPresent() throws Exception {
         getDb().putNanopublication(getTestData().specNanopublication);
-        final String responseBody = target().path("/nanopublication/").path(URLEncoder.encode(Uris.toString(getTestData().specNanopublication.getUri()), "UTF-8")).request(Lang.TRIG.getContentType().getContentType()).get(String.class);
+        final String responseBody = target().path("/nanopublication/").path(URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8")).request(Lang.TRIG.getContentType().getContentType()).get(String.class);
         assertEquals(toTrigString(getTestData().specNanopublication), responseBody);
     }
 
@@ -76,7 +75,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
     public void testGetNanopublicationAbsent() throws Exception {
         final Response response = target()
                 .path("/nanopublication/")
-                .path(URLEncoder.encode(Uris.toString(getTestData().specNanopublication.getUri()), "UTF-8"))
+                .path(URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8"))
                 .request(Lang.TRIG.getContentType().getContentType())
                 .get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
@@ -92,7 +91,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
         final Response response =
                 target()
                         .path("/nanopublication/")
-                        .path(URLEncoder.encode(Uris.toString(getTestData().specNanopublication.getUri()), "UTF-8"))
+                        .path(URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8"))
                         .request()
                         .put(toTrigEntity(getTestData().specNanopublication));
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
@@ -126,7 +125,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
         final Response response =
                 target()
                         .path("/nanopublication/")
-                        .path(URLEncoder.encode(Uris.toString(getTestData().specNanopublication.getUri()), "UTF-8"))
+                        .path(URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8"))
                         .request()
                         .put(toTrigEntity(getTestData().specNanopublication.getAssertion().getModel()));
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());

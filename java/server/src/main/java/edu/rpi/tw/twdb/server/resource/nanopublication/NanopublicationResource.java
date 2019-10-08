@@ -8,7 +8,6 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
-import org.dmfs.rfc3986.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,7 @@ public class NanopublicationResource extends AbstractResource {
     deleteNanopublication(
             @PathParam("nanopublicationUri") final String nanopublicationUriString
     ) {
-        final Uri nanopublicationUri = Uris.parse(nanopublicationUriString);
+        final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
 
         final Twdb.DeleteNanopublicationResult result = getDb().deleteNanopublication(nanopublicationUri);
 
@@ -59,11 +58,11 @@ public class NanopublicationResource extends AbstractResource {
             @HeaderParam("Accept") @Nullable final String accept,
             @PathParam("nanopublicationUri") final String nanopublicationUriString
     ) {
-        final Uri nanopublicationUri = Uris.parse(nanopublicationUriString);
+        final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
 
         final Optional<Nanopublication> nanopublication = getDb().getNanopublication(nanopublicationUri);
         if (!nanopublication.isPresent()) {
-            logger.info("nanopublication not found: {}", Uris.toString(nanopublicationUri));
+            logger.info("nanopublication not found: {}", nanopublicationUri);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
@@ -99,7 +98,7 @@ public class NanopublicationResource extends AbstractResource {
             final String requestBody,
             @Context final UriInfo uriInfo
     ) {
-        final Uri nanopublicationUri = Uris.parse(nanopublicationUriString);
+        final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
         return putNanopublication(contentType, nanopublicationDialectString, Optional.of(nanopublicationUri), requestBody, uriInfo);
     }
 
@@ -116,7 +115,7 @@ public class NanopublicationResource extends AbstractResource {
         final Twdb.PutNanopublicationResult result = getDb().putNanopublication(nanopublication);
         switch (result) {
             case CREATED:
-                return Response.created(uriInfo.getAbsolutePathBuilder().path(NanopublicationResource.class).path(Uris.toString(nanopublication.getUri())).build()).build();
+                return Response.created(uriInfo.getAbsolutePathBuilder().path(NanopublicationResource.class).path(nanopublicationUri.toString()).build()).build();
             case OVERWROTE:
                 return Response.noContent().build();
             default:

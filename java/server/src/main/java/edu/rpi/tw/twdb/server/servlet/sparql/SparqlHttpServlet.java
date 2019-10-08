@@ -1,7 +1,7 @@
 package edu.rpi.tw.twdb.server.servlet.sparql;
 
 import com.google.common.io.CharStreams;
-import edu.rpi.tw.nanopub.Uris;
+import edu.rpi.tw.nanopub.Uri;
 import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.api.TwdbTransaction;
 import edu.rpi.tw.twdb.server.AcceptLists;
@@ -12,7 +12,6 @@ import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.resultset.ResultSetLang;
-import org.dmfs.rfc3986.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,9 +45,7 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
         }
         final List<Uri> uris = new ArrayList<>(uriStrings.length);
         for (final String uriString : uriStrings) {
-            final Uri uri = Uris.parse(uriString);
-            uri.fragment(); // Force parse
-            uris.add(uri);
+            uris.add(Uri.parse(uriString));
         }
         return uris;
     }
@@ -96,10 +93,10 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
         }
 
         for (final Uri defaultGraphUri : defaultGraphUris) {
-            query.addGraphURI(Uris.toString(defaultGraphUri));
+            query.addGraphURI(defaultGraphUri.toString());
         }
         for (final Uri namedGraphUri : namedGraphUris) {
-            query.addNamedGraphURI(Uris.toString(namedGraphUri));
+            query.addNamedGraphURI(namedGraphUri.toString());
         }
 
         final Optional<AcceptList> proposeAcceptList = getProposeAcceptList(req);
