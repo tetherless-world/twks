@@ -47,6 +47,7 @@ jobs:
           command: |
             mkdir -p test-results/py
             docker exec twdb-py bash -c "mkdir -p ../test-results/py && cd tests && TWDB_BASE_URL=\"http://twdb-server:8080\" pytest --junitxml=../../test-results/py/junit.xml"
+            docker cp twdb-py test-results/py/junit.xml test-results/py
 
       - store_test_results:
           path: test-results
