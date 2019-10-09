@@ -14,7 +14,7 @@ class TwdbClient:
         Construct a TWDB client.
         :param base_url: base URL of the server, excluding path
         """
-        if base_url is None:
+        if not base_url:
             base_url = "http://localhost:8080"
         self.__base_url = base_url
         self.assertions_sparql_store = SPARQLStore(endpoint=base_url + "/sparql/assertions")
