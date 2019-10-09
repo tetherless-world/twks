@@ -34,7 +34,7 @@ public abstract class AbstractResourceTest extends JerseyTest {
     @Override
     protected final Application configure() {
         final ResourceConfig config = new ResourceConfig();
-        this.db = TwksFactory.getInstance().createTwdb();
+        this.db = TwksFactory.getInstance().createTwks();
         config.registerInstances(newResource(db));
         return config;
     }

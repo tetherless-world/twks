@@ -5,7 +5,7 @@ import javax.servlet.ServletContextEvent;
 public final class ServletContextListener implements javax.servlet.ServletContextListener {
     @Override
     public void contextInitialized(final ServletContextEvent servletContextEvent) {
-        ServletContextTwdb.initInstance(servletContextEvent.getServletContext());
+        ServletContextTwks.initInstance(servletContextEvent.getServletContext());
     }
 
     @Override

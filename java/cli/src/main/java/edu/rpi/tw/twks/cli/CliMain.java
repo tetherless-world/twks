@@ -63,7 +63,7 @@ public final class CliMain {
                 dbConfiguration.setFromProperties(properties);
             }
 
-            db = TwksFactory.getInstance().createTwdb(dbConfiguration);
+            db = TwksFactory.getInstance().createTwks(dbConfiguration);
         }
 
         command.run(db);

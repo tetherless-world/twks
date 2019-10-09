@@ -8,7 +8,7 @@ from rdflib.plugins.stores.sparqlstore import SPARQLStore
 from tw_nanopub.nanopublication import Nanopublication
 
 
-class TwdbClient:
+class TwksClient:
     def __init__(self, *, base_url=None):
         """
         Construct a TWKS client.

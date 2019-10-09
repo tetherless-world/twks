@@ -11,17 +11,17 @@ import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class ServletContextTwdb {
+public final class ServletContextTwks {
     private static Twks instance = null;
 
-    private ServletContextTwdb() {
+    private ServletContextTwks() {
     }
 
     synchronized static void initInstance(final ServletContext servletContext) {
         final Properties attributeProperties = toProperties(servletContext.getAttributeNames(), name -> servletContext.getAttribute(name));
         final Properties initParameterProperties = toProperties(servletContext.getInitParameterNames(), name -> servletContext.getInitParameter(name));
 
-        instance = TwksFactory.getInstance().createTwdb(new TwksConfiguration().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties));
+        instance = TwksFactory.getInstance().createTwks(new TwksConfiguration().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties));
     }
 
     public final synchronized static Twks getInstance() {

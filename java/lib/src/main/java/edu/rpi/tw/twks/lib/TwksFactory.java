@@ -16,11 +16,11 @@ public final class TwksFactory {
         return instance;
     }
 
-    public final Twks createTwdb() {
-        return createTwdb(new TwksConfiguration());
+    public final Twks createTwks() {
+        return createTwks(new TwksConfiguration());
     }
 
-    public final Twks createTwdb(final TwksConfiguration configuration) {
+    public final Twks createTwks(final TwksConfiguration configuration) {
         if (configuration.getTdb2Location().isPresent()) {
             logger.info("using TDB2 at {}", configuration.getTdb2Location().get());
             return new Tdb2Twks(Location.create(configuration.getTdb2Location().get()));

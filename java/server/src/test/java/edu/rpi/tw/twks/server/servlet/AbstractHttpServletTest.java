@@ -22,7 +22,7 @@ public abstract class AbstractHttpServletTest<HttpServletT extends HttpServlet> 
 
     @Before
     public final void setUp() throws Exception {
-        this.db = TwksFactory.getInstance().createTwdb();
+        this.db = TwksFactory.getInstance().createTwks();
         this.testData = new TestData();
         sut = _setUp(db, testData);
     }
