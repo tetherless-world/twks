@@ -5,7 +5,7 @@ setup(
     version="1.0.0",
     author="Tetherless World Constellation",
     license="Apache License 2.0",
-    packages=['twdb'],
+    packages=['twdb', 'twdb.client'],
     install_requires=[
         'rdflib>=4',
         'SPARQLWrapper>=1,<2',
