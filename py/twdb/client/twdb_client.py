@@ -11,7 +11,7 @@ from tw_nanopub.nanopublication import Nanopublication
 class TwdbClient:
     def __init__(self, *, base_url=None):
         """
-        Construct a TWDB client.
+        Construct a TWKS client.
         :param base_url: base URL of the server, excluding path
         """
         if not base_url:

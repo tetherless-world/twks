@@ -7,7 +7,7 @@ from twks.client.twks_client import TwdbClient
 
 @pytest.fixture
 def client():
-    return TwdbClient(base_url=os.environ.get("TWDB_BASE_URL", None))
+    return TwdbClient(base_url=os.environ.get("TWKS_BASE_URL", None))
 
 
 def test_delete_nanopublication_absent(client, spec_nanopublication):

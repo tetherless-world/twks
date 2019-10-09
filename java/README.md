@@ -1,4 +1,4 @@
-# TWDB Java
+# TWKS Java
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ Add the library to your Maven/SBT/Gradle/etc. dependencies:
 
 ### Development
 
-The TWDB Java library consists of two modules, `twks-api` and `twks-lib`. The former contains the public-facing API (the class `Twdb`), while the latter contains implementations of the API.
+The TWKS Java library consists of two modules, `twks-api` and `twks-lib`. The former contains the public-facing API (the class `Twdb`), while the latter contains implementations of the API.
 
 You instantiate an instance of the store using `TwdbFactory` from `twks-lib`. The factory takes a `TwdbConfiguration`, which specifies the backing store and other options. The default configuration (`new TwdbConfiguration`) is an in-memory [TDB2](https://jena.apache.org/documentation/tdb2/) store. You can currently (20191007) configure TDB2 persistence to disk with `TwdbConfiguration`. Other implementations of the `Twdb` interface will follow.
 
@@ -38,7 +38,7 @@ See the `Twdb` class Javadoc and `TwdbTest.java` for examples of Java API use.
 
 ## Command line use
 
-A command-line interface provides various sub-commands for manipulating TWDBs. After building, run:
+A command-line interface provides various sub-commands for manipulating TWKSs. After building, run:
 
     java -jar java/dist/twks-cli-current.jar --help
 
