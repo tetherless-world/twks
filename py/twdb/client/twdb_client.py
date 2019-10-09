@@ -9,11 +9,13 @@ from tw_nanopub.nanopublication import Nanopublication
 
 
 class TwdbClient:
-    def __init__(self, *, base_url="http://localhost:8080"):
+    def __init__(self, *, base_url=None):
         """
         Construct a TWDB client.
         :param base_url: base URL of the server, excluding path
         """
+        if base_url is None:
+            base_url = "http://localhost:8080"
         self.__base_url = base_url
         self.assertions_sparql_store = SPARQLStore(endpoint=base_url + "/sparql/assertions")
         self.nanopublications_sparql_store = SPARQLStore(endpoint=base_url + "/sparql/nanopublications")

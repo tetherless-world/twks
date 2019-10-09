@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from rdflib import URIRef
 
@@ -6,7 +8,7 @@ from twdb.client.twdb_client import TwdbClient
 
 @pytest.fixture
 def client():
-    return TwdbClient()
+    return TwdbClient(base_url=os.environ.get("TWDB_BASE_URL", None))
 
 
 def test_delete_nanopublication_absent(client, spec_nanopublication):

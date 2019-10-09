@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  build-java:
     docker:
       - image: circleci/openjdk:8-jdk-stretch
     working_directory: ~/twdb
@@ -12,10 +12,10 @@ jobs:
       - restore_cache:
           key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
       - run:
-          name: Build and install tw-nanopub
+          name: Build and install tw-nanopub Java
           command: cd ~/tw-nanopub/java && mvn package install -Dmaven.test.skip=true
       - run:
-          name: Build and test twdb
+          name: Build and test the Java library
           command: cd java && mvn package
       - save_cache:
           key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
@@ -36,3 +36,41 @@ jobs:
               docker login -u $DOCKER_USER -p $DOCKER_PASS
               cd docker && docker-compose push twdb-server
             fi
+  build-py:
+    docker:
+      - image: circleci/python:3.7.2-stretch
+    working_directory: ~/twdb
+    steps:
+      - checkout
+      - run:
+          name: Checkout tw-nanopub
+          command: git clone git@github.com:tetherless-world/tw-nanopub.git ~/tw-nanopub
+      - run:
+          name: Install tw-nanopub Python
+          command: cd ~/tw-nanopub/py && python3 setup.py install
+      - run:
+          name: Install Python client dependencies
+          command: pip3 install -r py/requirements.txt
+      - run:
+          name: Build and test the Python client
+          command: cd java && mvn package
+      - setup_remote_docker
+      - run:
+          name: Run the server
+          command: cd docker && docker-compose up
+          background: true
+      - run:
+          name: Curl the server until it comes up
+          command: bash -c 'for i in 1 2 3 4 5; do curl -s http://twdb-server:8080 &>/dev/null && break || sleep 1; done'
+      - run:
+          name: Run Python tests
+          command: mkdir -p test-results/py && cd py && TWDB_BASE_URL="http://twdb-server:8080" pytest --junitxml=../test-results/py/junit.xml
+      - store_test_results:
+          path: test-results
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build-java
+      - build-py
