@@ -14,6 +14,24 @@ class TwdbClient:
         """
         self.__base_url = base_url + "/nanopublication"
 
+    def delete_nanopublication(self, nanopublication_uri: str) -> bool:
+        """
+        Delete a nanopublication by its URI
+        :param nanopublication_uri: nanopublication URI
+        :return: True if the nanopublication was deleted, else False
+        """
+
+        request = urllib.request.Request(url=self.__nanopublication_url(nanopublication_uri), method="DELETE")
+
+        try:
+            with urllib.request.urlopen(request) as _:
+                return True
+        except HTTPError as e:
+            if e.code == 404:
+                return False
+            else:
+                raise
+
     def get_nanopublication(self, nanopublication_uri: str) -> Optional[Nanopublication]:
         """
         Get a nanopublication by its URI.
