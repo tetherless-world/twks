@@ -17,3 +17,4 @@ See the [Docker documentation](docker/README.md) for server setup.
 
 See the language-specific documentation:
 * [Java](java/README.md)
+* [Python](py/README.md)
