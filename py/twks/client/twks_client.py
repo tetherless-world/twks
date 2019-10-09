@@ -9,10 +9,16 @@ from tw_nanopub.nanopublication import Nanopublication
 
 
 class TwksClient:
+    """
+    Client for the TWKS server.
+
+    The client mirrors the primary TWKS API: CRUD operations on nanopublications, querying assertions and nanopublications via SPARQL.
+    """
+
     def __init__(self, *, base_url=None):
         """
         Construct a TWKS client.
-        :param base_url: base URL of the server, excluding path
+        :param base_url: base URL of the server, excluding path e.g., http://localhost:8080"
         """
         if not base_url:
             base_url = "http://localhost:8080"
