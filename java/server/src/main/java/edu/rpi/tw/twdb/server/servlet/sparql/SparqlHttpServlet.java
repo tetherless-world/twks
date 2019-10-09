@@ -108,6 +108,8 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
                     case Query.QueryTypeSelect: {
                         final Lang respLang = AcceptLists.calculateResponseLang(ResultSetLang.SPARQLResultSetXML, offerResultsAcceptList, proposeAcceptList);
 
+                        resp.setContentType(respLang.getContentType().getContentType());
+
                         try (final OutputStream respOutputStream = resp.getOutputStream()) {
                             if (query.getQueryType() == Query.QueryTypeAsk) {
                                 final boolean result = queryExecution.execAsk();
@@ -122,6 +124,8 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
                     case Query.QueryTypeConstruct:
                     case Query.QueryTypeDescribe: {
                         final Lang respLang = AcceptLists.calculateResponseLang(Lang.TRIG, AcceptLists.OFFER_GRAPH, proposeAcceptList);
+
+                        resp.setContentType(respLang.getContentType().getContentType());
 
                         final Model respModel = query.getQueryType() == Query.QueryTypeConstruct ? queryExecution.execConstruct() : queryExecution.execDescribe();
                         try (final OutputStream respOutputStream = resp.getOutputStream()) {

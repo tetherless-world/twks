@@ -5,6 +5,7 @@ import edu.rpi.tw.twdb.api.Twdb;
 import edu.rpi.tw.twdb.server.AcceptLists;
 import edu.rpi.tw.twdb.server.resource.AbstractResource;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
@@ -152,7 +153,9 @@ public class NanopublicationResource extends AbstractResource {
             throw new WebApplicationException("Missing Content-Type", Response.Status.BAD_REQUEST);
         }
 
-        @Nullable final Lang lang = RDFLanguages.contentTypeToLang(contentType);
+        final ContentType contentTypeParsed = ContentType.create(contentType);
+
+        @Nullable final Lang lang = RDFLanguages.contentTypeToLang(contentTypeParsed);
         if (lang == null) {
             logger.error("non-RDF Content-Type: {}", contentType);
             throw new WebApplicationException("non-RDF Content-Type: " + contentType, Response.Status.BAD_REQUEST);

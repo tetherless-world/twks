@@ -8,31 +8,46 @@ jobs:
       - checkout
       - run:
           name: Checkout tw-nanopub
-          command: git clone git@github.com:tetherless-world/tw-nanopub.git ~/tw-nanopub
+          command: git clone --depth 1 git@github.com:tetherless-world/tw-nanopub.git ~/tw-nanopub
       - restore_cache:
           key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
       - run:
-          name: Build and install tw-nanopub
+          name: Build and install tw-nanopub Java
           command: cd ~/tw-nanopub/java && mvn package install -Dmaven.test.skip=true
       - run:
-          name: Build and test twdb
+          name: Build and test the Java library
           command: cd java && mvn package
       - save_cache:
           key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
           paths:
             - ~/.m2
-      - store_test_results:
-          path: java/lib/target/surefire-reports
-#      - store_artifacts:
-#          path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
+      - run: mkdir test-results
+      - run: mv java/lib/target/surefire-reports test-results/java
+      #      - store_artifacts:
+      #          path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
       - setup_remote_docker
       - run:
-          name: Build Docker image
-          command: cd docker && docker-compose build twdb-server
+          name: Build Docker images
+          command: cd .circleci && docker-compose -f docker-compose-ci.yml build
       - run:
-          name: Push Docker image
+          name: Push server Docker image
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
-              cd docker && docker-compose push twdb-server
+              cd .circleci && docker-compose -f docker-compose-ci push twdb-server
             fi
+      - run:
+          name: Run the server
+          command: cd .circleci && docker-compose -f docker-compose-ci.yml up -d
+      - run:
+          name: Curl the server until it comes up
+          command: docker exec twdb-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twdb-server:8080"
+      - run:
+          name: Run Python tests
+          command: |
+            mkdir -p test-results/py
+            docker exec twdb-py bash -c "mkdir -p ../test-results/py && cd tests && TWDB_BASE_URL=\"http://twdb-server:8080\" pytest --junitxml=../../test-results/py/junit.xml"
+            docker cp twdb-py:/twdb/test-results/py/junit.xml test-results/py
+
+      - store_test_results:
+          path: test-results
