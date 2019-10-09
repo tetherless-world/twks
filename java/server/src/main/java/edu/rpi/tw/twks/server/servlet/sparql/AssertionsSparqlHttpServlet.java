@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.server.servlet.sparql;
 
-import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.TwksTransaction;
+import edu.rpi.tw.twks.lib.Twks;
+import edu.rpi.tw.twks.lib.TwksTransaction;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 

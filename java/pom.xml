@@ -40,7 +40,6 @@
     </build>
 
     <modules>
-        <module>api</module>
         <module>cli</module>
         <module>lib</module>
         <module>server</module>
