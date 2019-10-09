@@ -32,7 +32,7 @@ Add the library to your Maven/SBT/Gradle/etc. dependencies:
 
 The TWDB Java library consists of two modules, `twdb-api` and `twdb-lib`. The former contains the public-facing API (the class `Twdb`), while the latter contains implementations of the API.
 
-You instantiate an instance of the database using `TwdbFactory` from `twdb-lib`. The factory takes a `TwdbConfiguration`, which specifies the backing database and other options. The default configuration (`new TwdbConfiguration`) is an in-memory [TDB2](https://jena.apache.org/documentation/tdb2/) database. You can currently (20191007) configure TDB2 persistence to disk with `TwdbConfiguration`. Other implementations of the `Twdb` interface will follow.
+You instantiate an instance of the store using `TwdbFactory` from `twdb-lib`. The factory takes a `TwdbConfiguration`, which specifies the backing store and other options. The default configuration (`new TwdbConfiguration`) is an in-memory [TDB2](https://jena.apache.org/documentation/tdb2/) store. You can currently (20191007) configure TDB2 persistence to disk with `TwdbConfiguration`. Other implementations of the `Twdb` interface will follow.
 
 See the `Twdb` class Javadoc and `TwdbTest.java` for examples of Java API use.
 
@@ -44,4 +44,4 @@ A command-line interface provides various sub-commands for manipulating TWDBs. A
 
 To see the available sub-commands and their options.
    
-Note that TDB2 is a single process database, so you will not be able to access it separate library-using, command line, and/or server processes concurrently. 
+Note that TDB2 is a single process store, so you will not be able to access it separate library-using, command line, and/or server processes concurrently. 

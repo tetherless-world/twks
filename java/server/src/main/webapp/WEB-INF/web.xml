@@ -4,23 +4,23 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
     <listener>
-        <listener-class>edu.rpi.tw.twdb.server.ServletContextListener</listener-class>
+        <listener-class>edu.rpi.tw.twks.server.ServletContextListener</listener-class>
     </listener>
 
     <servlet>
         <servlet-name>AssertionsSparqlHttpServlet</servlet-name>
-        <servlet-class>edu.rpi.tw.twdb.server.servlet.sparql.AssertionsSparqlHttpServlet</servlet-class>
+        <servlet-class>edu.rpi.tw.twks.server.servlet.sparql.AssertionsSparqlHttpServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>NanopublicationsSparqlHttpServlet</servlet-name>
-        <servlet-class>edu.rpi.tw.twdb.server.servlet.sparql.NanopublicationsSparqlHttpServlet</servlet-class>
+        <servlet-class>edu.rpi.tw.twks.server.servlet.sparql.NanopublicationsSparqlHttpServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>JerseyServlet</servlet-name>
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>edu.rpi.tw.twdb.server.resource.nanopublication</param-value>
+            <param-value>edu.rpi.tw.twks.server.resource.nanopublication</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
