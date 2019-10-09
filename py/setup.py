@@ -7,8 +7,10 @@ setup(
     license="Apache License 2.0",
     packages=['twdb'],
     install_requires=[
-        'rdflib',
-        'tw-nanopub'
+        'rdflib>=4',
+        'SPARQLWrapper>=1,<2',
+        'requests>=2,<3',
+        'tw-nanopub>=1'
     ],
     classifiers=[
         "License :: OSI Approved :: Apache Software License",

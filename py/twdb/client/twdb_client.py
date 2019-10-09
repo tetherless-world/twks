@@ -3,6 +3,8 @@ from typing import Optional
 from urllib.error import HTTPError
 from urllib.parse import quote
 
+from rdflib.plugins.stores.sparqlstore import SPARQLStore
+
 from tw_nanopub.nanopublication import Nanopublication
 
 
@@ -12,7 +14,9 @@ class TwdbClient:
         Construct a TWDB client.
         :param base_url: base URL of the server, excluding path
         """
-        self.__base_url = base_url + "/nanopublication"
+        self.__base_url = base_url
+        self.assertions_sparql_store = SPARQLStore(endpoint=base_url + "/sparql/assertions")
+        self.nanopublications_sparql_store = SPARQLStore(endpoint=base_url + "/sparql/nanopublications")
 
     def delete_nanopublication(self, nanopublication_uri: str) -> bool:
         """
@@ -54,7 +58,7 @@ class TwdbClient:
                 raise
 
     def __nanopublication_url(self, nanopublication_uri: str) -> str:
-        return self.__base_url + "/" + quote(str(nanopublication_uri), safe="")
+        return self.__base_url + "/nanopublication/" + quote(str(nanopublication_uri), safe="")
 
     def put_nanopublication(self, nanopublication: Nanopublication) -> None:
         """
@@ -63,8 +67,26 @@ class TwdbClient:
         :param nanopublication: the nanopublication
         """
 
-        request = urllib.request.Request(url=self.__base_url,
+        request = urllib.request.Request(url=self.__base_url + "/nanopublication",
                                          data=nanopublication.serialize(format="trig").encode("utf-8"),
                                          headers={"Content-Type": "text/trig; charset=utf-8"}, method="PUT")
         with urllib.request.urlopen(request) as _:
             pass
+
+    def query_assertions(self, query: str, **kwds):
+        """
+        Query (only) the assertions in the store.
+        :param query: SPARQL query string
+        :param kwds: see rdflib.SPARQLStore.query
+        :return: depends on query type
+        """
+        return self.assertions_sparql_store.query(query=query, **kwds)
+
+    def query_nanopublications(self, query: str, **kwds):
+        """
+        Query all nanopublications in the store.
+        :param query: SPARQL query string
+        :param kwds: see rdflib.SPARQLStore.query
+        :return: depends on query type
+        """
+        return self.nanopublications_sparql_store.query(query=query, **kwds)
