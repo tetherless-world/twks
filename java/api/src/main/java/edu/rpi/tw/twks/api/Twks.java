@@ -24,7 +24,7 @@ public interface Twks {
     /**
      * Delete a nanopublication.
      * <p>
-     * Starts a new transaction and delegates to deleteNanopublication(Uri, TwdbTransaction).
+     * Starts a new transaction and delegates to deleteNanopublication(Uri, TwksTransaction).
      *
      * @param uri URI of the nanopublication
      * @return true if the nanopublication was present, otherwise false
@@ -43,7 +43,7 @@ public interface Twks {
     /**
      * Get a nanopublication.
      * <p>
-     * Starts a new transaction and delegates to getNanopublication(Uri, TwdbTransaction).
+     * Starts a new transaction and delegates to getNanopublication(Uri, TwksTransaction).
      *
      * @param uri URI of the nanopublication.
      * @return Optional.of(the nanopublication) if it exists in the store, otherwise Optional.empty
@@ -62,7 +62,7 @@ public interface Twks {
     /**
      * Put a new nanopublication, overwriting an existing nanopublication with the same URI if necessary.
      * <p>
-     * Starts a new transaction and delegates to putNanopublication(Nanopublication, TwdbTransaction).
+     * Starts a new transaction and delegates to putNanopublication(Nanopublication, TwksTransaction).
      *
      * @param nanopublication nanopublication to put.
      */
@@ -79,7 +79,7 @@ public interface Twks {
     /**
      * Query assertion parts of stored nanopublications.
      * <p>
-     * See TwdbTest for examples on how to use this.
+     * See TwksTest for examples on how to use this.
      *
      * @param query       query to execute. This will be augmented by the implementation as needed.
      * @param transaction transaction this query will execute under

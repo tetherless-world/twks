@@ -1,15 +1,15 @@
 package edu.rpi.tw.twks.api;
 
 /**
- * Largely opaque interface to Twdb transactions.
+ * Largely opaque interface to Twks transactions.
  * <p>
  * Should be used with try-with-resources. For example:
  * <code>
- * try (final TwdbTransaction transaction = db.newTransaction(ReadWrite.WRITE)) {
+ * try (final TwksTransaction transaction = db.newTransaction(ReadWrite.WRITE)) {
  * transaction.commit();
  * }
  * </code>
- * Creating the TwdbTransaction automatically begins the transaction, and the close of the block ends it.
+ * Creating the TwksTransaction automatically begins the transaction, and the close of the block ends it.
  * You should call .commit() or .abort() before exiting of the block. If you do not call one, .abort() is implied.
  *
  * @see <a href="https://jena.apache.org/documentation/txn/">transactions in Jena</a> for the semantics.

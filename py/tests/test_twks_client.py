@@ -2,12 +2,13 @@ import os
 
 import pytest
 from rdflib import URIRef
-from twks.client.twks_client import TwdbClient
+
+from twks.client.twks_client import TwksClient
 
 
 @pytest.fixture
 def client():
-    return TwdbClient(base_url=os.environ.get("TWKS_BASE_URL", None))
+    return TwksClient(base_url=os.environ.get("TWKS_BASE_URL", None))
 
 
 def test_delete_nanopublication_absent(client, spec_nanopublication):
