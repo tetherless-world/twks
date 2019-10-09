@@ -1,0 +1,15 @@
+version: '3'
+services:
+  twdb-py:
+    build:
+      context: ..
+      dockerfile: .circleci/Dockerfile-twdb-py
+    container_name: "twdb-py"
+  twdb-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: "twdb-server"
+    image: tetherlessworld/twdb-server
+    ports:
+      - "8080:8080"

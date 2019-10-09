@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build-java:
+  build:
     docker:
       - image: circleci/openjdk:8-jdk-stretch
     working_directory: ~/twdb
@@ -23,8 +23,8 @@ jobs:
             - ~/.m2
       - store_test_results:
           path: java/lib/target/surefire-reports
-#      - store_artifacts:
-#          path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
+      #      - store_artifacts:
+      #          path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
       - setup_remote_docker
       - run:
           name: Build Docker image
