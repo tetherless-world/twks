@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.server;
 
-import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.lib.Twks;
 import edu.rpi.tw.twks.lib.TwksConfiguration;
 import edu.rpi.tw.twks.lib.TwksFactory;
 

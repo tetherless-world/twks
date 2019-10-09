@@ -2,8 +2,6 @@ package edu.rpi.tw.twks.lib;
 
 import edu.rpi.tw.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.nanopub.Nanopublication;
-import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.TwksTransaction;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryFactory;

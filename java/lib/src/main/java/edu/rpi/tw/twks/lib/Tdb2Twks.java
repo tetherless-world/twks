@@ -2,8 +2,6 @@ package edu.rpi.tw.twks.lib;
 
 import edu.rpi.tw.nanopub.*;
 import edu.rpi.tw.nanopub.vocabulary.Vocabularies;
-import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.TwksTransaction;
 import org.apache.jena.dboe.base.file.Location;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;

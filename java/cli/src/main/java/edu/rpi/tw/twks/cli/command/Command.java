@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.cli.command;
 
-import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.lib.Twks;
 
 public abstract class Command {
     public abstract Object getArgs();

@@ -2,9 +2,9 @@ package edu.rpi.tw.twks.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.cli.command.Command;
 import edu.rpi.tw.twks.cli.command.PutNanopublicationsCommand;
+import edu.rpi.tw.twks.lib.Twks;
 import edu.rpi.tw.twks.lib.TwksConfiguration;
 import edu.rpi.tw.twks.lib.TwksFactory;
 

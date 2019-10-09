@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.api;
+package edu.rpi.tw.twks.lib;
 
 import edu.rpi.tw.nanopub.Nanopublication;
 import edu.rpi.tw.nanopub.Uri;

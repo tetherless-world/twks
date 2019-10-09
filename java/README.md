@@ -30,9 +30,9 @@ Add the library to your Maven/SBT/Gradle/etc. dependencies:
 
 ### Development
 
-The TWKS Java library consists of two modules, `twks-api` and `twks-lib`. The former contains the public-facing API (the class `Twks`), while the latter contains implementations of the API.
+The TWKS Java library is in the module `twks-lib`. The public-facing API is in the class [`Twks`](lib/src/main/java/edu/rpi/tw/twks/lib/Twks.java).
 
-You instantiate an instance of the store using `TwksFactory` from `twks-lib`. The factory takes a `TwksConfiguration`, which specifies the backing store and other options. The default configuration (`new TwksConfiguration`) is an in-memory [TDB2](https://jena.apache.org/documentation/tdb2/) store. You can currently (20191007) configure TDB2 persistence to disk with `TwksConfiguration`. Other implementations of the `Twks` interface will follow.
+You instantiate a `Twks` using `TwksFactory`. The factory takes a `TwksConfiguration`, which specifies the backing store and other options. The default configuration (`new TwksConfiguration`) is an in-memory [TDB2](https://jena.apache.org/documentation/tdb2/) store. You can currently (20191007) configure TDB2 persistence to disk with `TwksConfiguration`. Other implementations of the `Twks` interface will follow.
 
 See the `Twks` class Javadoc and `TwksTest.java` for examples of Java API use.
 

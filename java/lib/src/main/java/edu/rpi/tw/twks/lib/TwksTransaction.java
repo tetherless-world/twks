@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.api;
+package edu.rpi.tw.twks.lib;
 
 /**
  * Largely opaque interface to Twks transactions.
