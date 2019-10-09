@@ -5,23 +5,23 @@ import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class TwdbConfiguration {
+public final class TwksConfiguration {
     private Optional<String> tdb2Location = Optional.empty();
 
     public final Optional<String> getTdb2Location() {
         return tdb2Location;
     }
 
-    public final TwdbConfiguration setTdb2Location(final Optional<String> tdb2Location) {
+    public final TwksConfiguration setTdb2Location(final Optional<String> tdb2Location) {
         this.tdb2Location = checkNotNull(tdb2Location);
         return this;
     }
 
-    public final TwdbConfiguration setFromSystemProperties() {
+    public final TwksConfiguration setFromSystemProperties() {
         return setFromProperties(System.getProperties());
     }
 
-    public final TwdbConfiguration setFromProperties(final Properties properties) {
+    public final TwksConfiguration setFromProperties(final Properties properties) {
         final String tdb2Location = properties.getProperty(PropertyKeys.TDB2_LOCATION);
         if (tdb2Location != null) {
             this.tdb2Location = Optional.of(tdb2Location);

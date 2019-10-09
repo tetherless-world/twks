@@ -5,8 +5,8 @@ import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.cli.command.Command;
 import edu.rpi.tw.twks.cli.command.PutNanopublicationsCommand;
-import edu.rpi.tw.twks.lib.TwdbConfiguration;
-import edu.rpi.tw.twks.lib.TwdbFactory;
+import edu.rpi.tw.twks.lib.TwksConfiguration;
+import edu.rpi.tw.twks.lib.TwksFactory;
 
 import java.io.File;
 import java.io.FileReader;
@@ -51,7 +51,7 @@ public final class CliMain {
 
         final Twks db;
         {
-            final TwdbConfiguration dbConfiguration = new TwdbConfiguration();
+            final TwksConfiguration dbConfiguration = new TwksConfiguration();
             dbConfiguration.setFromSystemProperties();
             if (globalArgs.configurationFilePath != null) {
                 final Properties properties = new Properties();
@@ -63,7 +63,7 @@ public final class CliMain {
                 dbConfiguration.setFromProperties(properties);
             }
 
-            db = TwdbFactory.getInstance().createTwdb(dbConfiguration);
+            db = TwksFactory.getInstance().createTwdb(dbConfiguration);
         }
 
         command.run(db);

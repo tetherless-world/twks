@@ -1,8 +1,8 @@
 package edu.rpi.tw.twks.server;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.lib.TwdbConfiguration;
-import edu.rpi.tw.twks.lib.TwdbFactory;
+import edu.rpi.tw.twks.lib.TwksConfiguration;
+import edu.rpi.tw.twks.lib.TwksFactory;
 
 import javax.servlet.ServletContext;
 import java.util.Enumeration;
@@ -21,7 +21,7 @@ public final class ServletContextTwdb {
         final Properties attributeProperties = toProperties(servletContext.getAttributeNames(), name -> servletContext.getAttribute(name));
         final Properties initParameterProperties = toProperties(servletContext.getInitParameterNames(), name -> servletContext.getInitParameter(name));
 
-        instance = TwdbFactory.getInstance().createTwdb(new TwdbConfiguration().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties));
+        instance = TwksFactory.getInstance().createTwdb(new TwksConfiguration().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties));
     }
 
     public final synchronized static Twks getInstance() {

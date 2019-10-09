@@ -11,14 +11,14 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class TwdbHttpServlet extends HttpServlet {
+public abstract class TwksHttpServlet extends HttpServlet {
     private final Twks db;
 
-    protected TwdbHttpServlet() {
+    protected TwksHttpServlet() {
         this(ServletContextTwdb.getInstance());
     }
 
-    protected TwdbHttpServlet(final Twks db) {
+    protected TwksHttpServlet(final Twks db) {
         this.db = checkNotNull(db);
     }
 

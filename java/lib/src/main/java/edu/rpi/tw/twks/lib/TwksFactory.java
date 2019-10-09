@@ -5,22 +5,22 @@ import org.apache.jena.dboe.base.file.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class TwdbFactory {
-    private final static Logger logger = LoggerFactory.getLogger(TwdbFactory.class);
-    private final static TwdbFactory instance = new TwdbFactory();
+public final class TwksFactory {
+    private final static Logger logger = LoggerFactory.getLogger(TwksFactory.class);
+    private final static TwksFactory instance = new TwksFactory();
 
-    private TwdbFactory() {
+    private TwksFactory() {
     }
 
-    public static TwdbFactory getInstance() {
+    public static TwksFactory getInstance() {
         return instance;
     }
 
     public final Twks createTwdb() {
-        return createTwdb(new TwdbConfiguration());
+        return createTwdb(new TwksConfiguration());
     }
 
-    public final Twks createTwdb(final TwdbConfiguration configuration) {
+    public final Twks createTwdb(final TwksConfiguration configuration) {
         if (configuration.getTdb2Location().isPresent()) {
             logger.info("using TDB2 at {}", configuration.getTdb2Location().get());
             return new Tdb2Twks(Location.create(configuration.getTdb2Location().get()));

@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.server.servlet;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.lib.TwdbFactory;
+import edu.rpi.tw.twks.lib.TwksFactory;
 import edu.rpi.tw.twks.server.TestData;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
@@ -22,7 +22,7 @@ public abstract class AbstractHttpServletTest<HttpServletT extends HttpServlet> 
 
     @Before
     public final void setUp() throws Exception {
-        this.db = TwdbFactory.getInstance().createTwdb();
+        this.db = TwksFactory.getInstance().createTwdb();
         this.testData = new TestData();
         sut = _setUp(db, testData);
     }

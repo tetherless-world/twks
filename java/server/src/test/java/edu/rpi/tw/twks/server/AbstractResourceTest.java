@@ -2,7 +2,7 @@ package edu.rpi.tw.twks.server;
 
 import edu.rpi.tw.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.lib.TwdbFactory;
+import edu.rpi.tw.twks.lib.TwksFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 
@@ -34,7 +34,7 @@ public abstract class AbstractResourceTest extends JerseyTest {
     @Override
     protected final Application configure() {
         final ResourceConfig config = new ResourceConfig();
-        this.db = TwdbFactory.getInstance().createTwdb();
+        this.db = TwksFactory.getInstance().createTwdb();
         config.registerInstances(newResource(db));
         return config;
     }

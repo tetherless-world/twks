@@ -6,7 +6,7 @@ import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.server.AcceptLists;
 import edu.rpi.tw.twks.server.ServletContextTwdb;
-import edu.rpi.tw.twks.server.servlet.TwdbHttpServlet;
+import edu.rpi.tw.twks.server.servlet.TwksHttpServlet;
 import org.apache.jena.atlas.web.AcceptList;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-abstract class SparqlHttpServlet extends TwdbHttpServlet {
+abstract class SparqlHttpServlet extends TwksHttpServlet {
     private final static Logger logger = LoggerFactory.getLogger(SparqlHttpServlet.class);
     private final AcceptList offerResultsAcceptList;
 
