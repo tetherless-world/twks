@@ -38,7 +38,7 @@ jobs:
             fi
       - run:
           name: Run the server
-          command: cd .circleci && docker-compose -f docker-compose-ci.yml up --abort-on-container-exit
+          command: cd .circleci && docker-compose -f docker-compose-ci.yml up -d
           background: true
       - run:
           name: Curl the server until it comes up
