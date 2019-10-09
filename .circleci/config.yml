@@ -50,7 +50,7 @@ jobs:
           command: cd ~/tw-nanopub/py && sudo python3 setup.py install
       - run:
           name: Install Python client dependencies
-          command: pip3 install -r py/requirements.txt
+          command: sudo pip3 install -r py/requirements.txt
       - run:
           name: Build and test the Python client
           command: cd java && mvn package
