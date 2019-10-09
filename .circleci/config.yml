@@ -41,12 +41,12 @@ jobs:
           command: cd .circleci && docker-compose -f docker-compose-ci.yml up -d
       - run:
           name: Curl the server until it comes up
-          command: docker exec twdb-py 'curl --retry-connrefused --retry 90 --retry-delay 1 http://twdb-server:8080'
+          command: docker exec twdb-py curl --retry-connrefused --retry 90 --retry-delay 1 http://twdb-server:8080
       - run:
           name: Run Python tests
           command: |
             mkdir -p test-results/py
-            docker exec twdb-py 'mkdir -p ../test-results/py && cd tests && TWDB_BASE_URL="http://twdb-server:8080" pytest --junitxml=../../test-results/py/junit.xml'
+            docker exec twdb-py mkdir -p ../test-results/py && cd tests && TWDB_BASE_URL="http://twdb-server:8080" pytest --junitxml=../../test-results/py/junit.xml
 
       - store_test_results:
           path: test-results
