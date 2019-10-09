@@ -1,11 +1,11 @@
 from setuptools import setup
 
 setup(
-    name="twdb-client",
+    name="twks-client",
     version="1.0.0",
     author="Tetherless World Constellation",
     license="Apache License 2.0",
-    packages=['twdb', 'twdb.client'],
+    packages=['twks', 'twks.client'],
     install_requires=[
         'rdflib>=4',
         'SPARQLWrapper>=1,<2',

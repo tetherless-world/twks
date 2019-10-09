@@ -3,14 +3,14 @@ jobs:
   build:
     docker:
       - image: circleci/openjdk:8-jdk-stretch
-    working_directory: ~/twdb
+    working_directory: ~/twks
     steps:
       - checkout
       - run:
           name: Checkout tw-nanopub
           command: git clone --depth 1 git@github.com:tetherless-world/tw-nanopub.git ~/tw-nanopub
       - restore_cache:
-          key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
       - run:
           name: Build and install tw-nanopub Java
           command: cd ~/tw-nanopub/java && mvn package install -Dmaven.test.skip=true
@@ -18,7 +18,7 @@ jobs:
           name: Build and test the Java library
           command: cd java && mvn package
       - save_cache:
-          key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
           paths:
             - ~/.m2
       - run: mkdir test-results
@@ -34,20 +34,20 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
-              cd .circleci && docker-compose -f docker-compose-ci.yml push twdb-server
+              cd .circleci && docker-compose -f docker-compose-ci.yml push twks-server
             fi
       - run:
           name: Run the server
           command: cd .circleci && docker-compose -f docker-compose-ci.yml up -d
       - run:
           name: Curl the server until it comes up
-          command: docker exec twdb-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twdb-server:8080"
+          command: docker exec twks-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twks-server:8080"
       - run:
           name: Run Python tests
           command: |
             mkdir -p test-results/py
-            docker exec twdb-py bash -c "mkdir -p ../test-results/py && cd tests && TWDB_BASE_URL=\"http://twdb-server:8080\" pytest --junitxml=../../test-results/py/junit.xml"
-            docker cp twdb-py:/twdb/test-results/py/junit.xml test-results/py
+            docker exec twks-py bash -c "mkdir -p ../test-results/py && cd tests && TWKS_BASE_URL=\"http://twks-server:8080\" pytest --junitxml=../../test-results/py/junit.xml"
+            docker cp twks-py:/twks/test-results/py/junit.xml test-results/py
 
       - store_test_results:
           path: test-results

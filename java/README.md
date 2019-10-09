@@ -1,4 +1,4 @@
-# TWDB Java
+# TWKS Java
 
 ## Prerequisites
 
@@ -23,25 +23,25 @@ Install the library to your local Maven repository:
 Add the library to your Maven/SBT/Gradle/etc. dependencies:
         
         <dependency>
-            <groupId>edu.rpi.tw.twdb</groupId>
-            <artifactId>twdb-lib</artifactId>
+            <groupId>edu.rpi.tw.twks</groupId>
+            <artifactId>twks-lib</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
 ### Development
 
-The TWDB Java library consists of two modules, `twdb-api` and `twdb-lib`. The former contains the public-facing API (the class `Twdb`), while the latter contains implementations of the API.
+The TWKS Java library consists of two modules, `twks-api` and `twks-lib`. The former contains the public-facing API (the class `Twks`), while the latter contains implementations of the API.
 
-You instantiate an instance of the database using `TwdbFactory` from `twdb-lib`. The factory takes a `TwdbConfiguration`, which specifies the backing database and other options. The default configuration (`new TwdbConfiguration`) is an in-memory [TDB2](https://jena.apache.org/documentation/tdb2/) database. You can currently (20191007) configure TDB2 persistence to disk with `TwdbConfiguration`. Other implementations of the `Twdb` interface will follow.
+You instantiate an instance of the store using `TwksFactory` from `twks-lib`. The factory takes a `TwksConfiguration`, which specifies the backing store and other options. The default configuration (`new TwksConfiguration`) is an in-memory [TDB2](https://jena.apache.org/documentation/tdb2/) store. You can currently (20191007) configure TDB2 persistence to disk with `TwksConfiguration`. Other implementations of the `Twks` interface will follow.
 
-See the `Twdb` class Javadoc and `TwdbTest.java` for examples of Java API use.
+See the `Twks` class Javadoc and `TwksTest.java` for examples of Java API use.
 
 ## Command line use
 
-A command-line interface provides various sub-commands for manipulating TWDBs. After building, run:
+A command-line interface provides various sub-commands for manipulating TWKSs. After building, run:
 
-    java -jar java/dist/twdb-cli-current.jar --help
+    java -jar java/dist/twks-cli-current.jar --help
 
 To see the available sub-commands and their options.
    
-Note that TDB2 is a single process database, so you will not be able to access it separate library-using, command line, and/or server processes concurrently. 
+Note that TDB2 is a single process store, so you will not be able to access it separate library-using, command line, and/or server processes concurrently. 
