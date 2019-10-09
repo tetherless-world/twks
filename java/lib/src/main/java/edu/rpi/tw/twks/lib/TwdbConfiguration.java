@@ -30,6 +30,6 @@ public final class TwdbConfiguration {
     }
 
     public final static class PropertyKeys {
-        public final static String TDB2_LOCATION = "edu.rpi.tw.twdb.tdb2.location";
+        public final static String TDB2_LOCATION = "edu.rpi.tw.twks.tdb2.location";
     }
 }

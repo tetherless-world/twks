@@ -2,8 +2,7 @@ import os
 
 import pytest
 from rdflib import URIRef
-
-from twdb.client.twdb_client import TwdbClient
+from twks.client.twks_client import TwdbClient
 
 
 @pytest.fixture

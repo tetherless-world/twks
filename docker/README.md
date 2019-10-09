@@ -17,4 +17,4 @@
 
 The Docker container exposes the server's REST and SPARQL APIs via HTTP on port 8080, which is bound to localhost.
 
-The server stores its data in a volume, `twdb-data`.
+The server stores its data in a volume, `twks-data`.

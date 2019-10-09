@@ -3,9 +3,9 @@
 
 <Configure class="org.eclipse.jetty.webapp.WebAppContext">
     <Set name="contextPath">/</Set>
-    <Set name="war">/var/lib/jetty/tw-webapps/twdb-server-current.war</Set>
+    <Set name="war">/var/lib/jetty/tw-webapps/twks-server-current.war</Set>
     <Call name="setInitParameter">
-        <Arg>edu.rpi.tw.twdb.tdb2.location</Arg>
+        <Arg>edu.rpi.tw.twks.tdb2.location</Arg>
         <Arg>/data</Arg>
     </Call>
 </Configure>

@@ -1,15 +1,15 @@
 version: '3'
 services:
-  twdb-server:
+  twks-server:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: "twdb-server"
-    image: tetherlessworld/twdb-server
+    container_name: "twks-server"
+    image: tetherlessworld/twks-server
     ports:
       - "8080:8080"
     volumes:
-      - twdb-data:/data
+      - twks-data:/data
 
 volumes:
-  twdb-data:
+  twks-data:
