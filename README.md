@@ -1,15 +1,13 @@
-# Tetherless World Database (TWDB)
+# Tetherless World Knowledge Store (TWKS)
 
-TWDB is a [provenance-aware](https://www.w3.org/TR/prov-o/) [RDF](https://www.w3.org/RDF/) store.
+TWKS is a [provenance-aware](https://www.w3.org/TR/prov-o/) [RDF](https://www.w3.org/RDF/) store.
 
-TWDB uses [nanopublications](http://nanopub.org) as its core abstraction.
-
-The database is implemented in Java, and exposes several interfaces:
-* a REST API for creating, reading, updating, and deleting nanopublications
+The store is implemented in Java, and exposes several interfaces:
+* a REST API for creating, reading, updating, and deleting [nanopublications](http://nanopub.org)
 * a [SPARQL 1.1](https://www.w3.org/TR/sparql11-protocol/) endpoint
 * a Java library for programmatic use
 
-The primary API is defined by [`Twdb.java`](java/api/src/main/java/edu/rpi/tw/twdb/api/Twdb.java).
+The primary API is defined by [`Twks.java`](java/lib/src/main/java/edu/rpi/tw/twks/lib/Twks.java).
 
 # Using the server
 
