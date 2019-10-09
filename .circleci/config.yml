@@ -62,6 +62,7 @@ jobs:
       - run:
           name: Curl the server until it comes up
           command: bash -c 'for i in 1 2 3 4 5; do curl -s http://twdb-server:8080 &>/dev/null && break || sleep 1; done'
+      - run: ps aux
       - run:
           name: Run Python tests
           command: mkdir -p test-results/py && cd py/tests && TWDB_BASE_URL="http://twdb-server:8080" pytest --junitxml=../../test-results/py/junit.xml
