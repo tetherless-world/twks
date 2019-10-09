@@ -51,9 +51,6 @@ jobs:
       - run:
           name: Install Python client dependencies
           command: sudo pip3 install -r py/requirements.txt
-      - run:
-          name: Build and test the Python client
-          command: cd java && mvn package
       - setup_remote_docker
       - run:
           name: Run the server
