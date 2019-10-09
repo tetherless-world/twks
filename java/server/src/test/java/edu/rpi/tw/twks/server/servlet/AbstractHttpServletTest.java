@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.server.servlet;
 
-import edu.rpi.tw.twks.api.Twdb;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.lib.TwdbFactory;
 import edu.rpi.tw.twks.server.TestData;
 import org.junit.Before;
@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 
 public abstract class AbstractHttpServletTest<HttpServletT extends HttpServlet> {
     protected TestData testData;
-    protected Twdb db;
+    protected Twks db;
     protected HttpServletT sut;
 
     @Before
@@ -27,7 +27,7 @@ public abstract class AbstractHttpServletTest<HttpServletT extends HttpServlet> 
         sut = _setUp(db, testData);
     }
 
-    protected abstract HttpServletT _setUp(Twdb db, TestData testData);
+    protected abstract HttpServletT _setUp(Twks db, TestData testData);
 
     protected final void setMockHttpServletRequestBody(final HttpServletRequest req, final String reqBody) throws IOException {
         final BufferedReader reqReader = mock(BufferedReader.class);

@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.server.resource.nanopublication;
 
 import edu.rpi.tw.nanopub.Nanopublication;
-import edu.rpi.tw.twks.api.Twdb;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.AbstractResourceTest;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
@@ -82,7 +82,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
     }
 
     @Override
-    protected Object newResource(final Twdb db) {
+    protected Object newResource(final Twks db) {
         return new NanopublicationResource(db);
     }
 

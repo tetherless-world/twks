@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.server.servlet.sparql;
 
-import edu.rpi.tw.twks.api.Twdb;
-import edu.rpi.tw.twks.api.TwdbTransaction;
+import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.server.TestData;
 import edu.rpi.tw.twks.server.servlet.AbstractHttpServletTest;
 import org.apache.jena.query.Query;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 
 public final class SparqlHttpServletTest extends AbstractHttpServletTest<SparqlHttpServletTest.MockSparqlHttpServlet> {
     @Override
-    protected MockSparqlHttpServlet _setUp(final Twdb db, final TestData testData) {
+    protected MockSparqlHttpServlet _setUp(final Twks db, final TestData testData) {
         db.putNanopublication(testData.specNanopublication);
         return new MockSparqlHttpServlet(db);
     }
@@ -196,12 +196,12 @@ public final class SparqlHttpServletTest extends AbstractHttpServletTest<SparqlH
     public final class MockSparqlHttpServlet extends SparqlHttpServlet {
         private Query query;
 
-        MockSparqlHttpServlet(final Twdb db) {
+        MockSparqlHttpServlet(final Twks db) {
             super(db);
         }
 
         @Override
-        protected QueryExecution query(final Query query, final TwdbTransaction transaction) {
+        protected QueryExecution query(final Query query, final TwksTransaction transaction) {
             assertSame(null, this.query);
             this.query = query;
             return db.queryAssertions(query, transaction);

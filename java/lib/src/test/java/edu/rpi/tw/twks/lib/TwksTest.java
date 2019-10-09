@@ -2,8 +2,8 @@ package edu.rpi.tw.twks.lib;
 
 import edu.rpi.tw.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.nanopub.Nanopublication;
-import edu.rpi.tw.twks.api.Twdb;
-import edu.rpi.tw.twks.api.TwdbTransaction;
+import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryFactory;
@@ -18,8 +18,8 @@ import java.util.Optional;
 
 import static org.junit.Assert.*;
 
-public abstract class TwdbTest {
-    private Twdb sut;
+public abstract class TwksTest {
+    private Twks sut;
     private TestData testData;
 
     @Before
@@ -30,14 +30,14 @@ public abstract class TwdbTest {
 
     @Test
     public void testDeleteNanopublicationAbsent() {
-        assertEquals(Twdb.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
+        assertEquals(Twks.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
     }
 
     @Test
     public void testDeleteNanopublicationPresent() {
         sut.putNanopublication(testData.specNanopublication);
-        assertEquals(Twdb.DeleteNanopublicationResult.DELETED, sut.deleteNanopublication(testData.specNanopublication.getUri()));
-        assertEquals(Twdb.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
+        assertEquals(Twks.DeleteNanopublicationResult.DELETED, sut.deleteNanopublication(testData.specNanopublication.getUri()));
+        assertEquals(Twks.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
     }
 
     @Test
@@ -63,7 +63,7 @@ public abstract class TwdbTest {
 
     @Test
     public void testQueryAssertions() {
-        try (final TwdbTransaction transaction = sut.beginTransaction(ReadWrite.WRITE)) {
+        try (final TwksTransaction transaction = sut.beginTransaction(ReadWrite.WRITE)) {
             sut.putNanopublication(testData.specNanopublication, transaction);
             sut.putNanopublication(testData.secondNanopublication, transaction);
 
@@ -87,7 +87,7 @@ public abstract class TwdbTest {
     @Test
     public void testQueryNanopublications() {
         final Query query = QueryFactory.create("CONSTRUCT WHERE { ?S ?P ?O }");
-        try (final TwdbTransaction transaction = sut.beginTransaction(ReadWrite.WRITE)) {
+        try (final TwksTransaction transaction = sut.beginTransaction(ReadWrite.WRITE)) {
             try (final QueryExecution queryExecution = sut.queryNanopublications(query, transaction)) {
                 if (!queryExecution.execConstruct().isEmpty()) {
                     fail();
@@ -107,5 +107,5 @@ public abstract class TwdbTest {
         }
     }
 
-    protected abstract Twdb newTdb();
+    protected abstract Twks newTdb();
 }

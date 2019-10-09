@@ -7,7 +7,7 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public final class TwdbConfigurationTest {
+public final class TwksConfigurationTest {
     @Test
     public void testSetFromProperties() {
         final TwdbConfiguration sut = new TwdbConfiguration();

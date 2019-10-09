@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.server;
 
 import edu.rpi.tw.nanopub.MalformedNanopublicationException;
-import edu.rpi.tw.twks.api.Twdb;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.lib.TwdbFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -13,7 +13,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractResourceTest extends JerseyTest {
     private final TestData testData;
-    private Twdb db;
+    private Twks db;
 
     protected AbstractResourceTest() {
         try {
@@ -23,7 +23,7 @@ public abstract class AbstractResourceTest extends JerseyTest {
         }
     }
 
-    protected final Twdb getDb() {
+    protected final Twks getDb() {
         return checkNotNull(db);
     }
 
@@ -39,5 +39,5 @@ public abstract class AbstractResourceTest extends JerseyTest {
         return config;
     }
 
-    protected abstract Object newResource(Twdb db);
+    protected abstract Object newResource(Twks db);
 }

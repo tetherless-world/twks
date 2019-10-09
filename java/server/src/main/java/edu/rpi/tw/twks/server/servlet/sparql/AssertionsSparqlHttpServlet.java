@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.server.servlet.sparql;
 
-import edu.rpi.tw.twks.api.Twdb;
-import edu.rpi.tw.twks.api.TwdbTransaction;
+import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 
@@ -10,12 +10,12 @@ public final class AssertionsSparqlHttpServlet extends SparqlHttpServlet {
         super();
     }
 
-    public AssertionsSparqlHttpServlet(final Twdb db) {
+    public AssertionsSparqlHttpServlet(final Twks db) {
         super(db);
     }
 
     @Override
-    protected final QueryExecution query(final Query query, final TwdbTransaction transaction) {
+    protected final QueryExecution query(final Query query, final TwksTransaction transaction) {
         return getDb().queryAssertions(query, transaction);
     }
 }

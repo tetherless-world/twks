@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.server;
 
-import edu.rpi.tw.twks.api.Twdb;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.lib.TwdbConfiguration;
 import edu.rpi.tw.twks.lib.TwdbFactory;
 
@@ -12,7 +12,7 @@ import java.util.function.Function;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class ServletContextTwdb {
-    private static Twdb instance = null;
+    private static Twks instance = null;
 
     private ServletContextTwdb() {
     }
@@ -24,7 +24,7 @@ public final class ServletContextTwdb {
         instance = TwdbFactory.getInstance().createTwdb(new TwdbConfiguration().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties));
     }
 
-    public final synchronized static Twdb getInstance() {
+    public final synchronized static Twks getInstance() {
         return checkNotNull(instance);
     }
 

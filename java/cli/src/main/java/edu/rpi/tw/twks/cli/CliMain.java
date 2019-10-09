@@ -2,7 +2,7 @@ package edu.rpi.tw.twks.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import edu.rpi.tw.twks.api.Twdb;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.cli.command.Command;
 import edu.rpi.tw.twks.cli.command.PutNanopublicationsCommand;
 import edu.rpi.tw.twks.lib.TwdbConfiguration;
@@ -49,7 +49,7 @@ public final class CliMain {
 
         final Command command = commandsByName.get(jCommander.getParsedCommand());
 
-        final Twdb db;
+        final Twks db;
         {
             final TwdbConfiguration dbConfiguration = new TwdbConfiguration();
             dbConfiguration.setFromSystemProperties();

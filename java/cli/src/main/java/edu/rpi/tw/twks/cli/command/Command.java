@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.cli.command;
 
-import edu.rpi.tw.twks.api.Twdb;
+import edu.rpi.tw.twks.api.Twks;
 
 public abstract class Command {
     public abstract Object getArgs();
@@ -11,5 +11,5 @@ public abstract class Command {
 
     public abstract String getName();
 
-    public abstract void run(Twdb db);
+    public abstract void run(Twks db);
 }

@@ -2,8 +2,8 @@ package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
 import edu.rpi.tw.nanopub.*;
-import edu.rpi.tw.twks.api.Twdb;
-import edu.rpi.tw.twks.api.TwdbTransaction;
+import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
@@ -46,7 +46,7 @@ public final class PutNanopublicationsCommand extends Command {
     }
 
     @Override
-    public void run(final Twdb db) {
+    public void run(final Twks db) {
         NanopublicationDialect dialect = NanopublicationDialect.SPECIFICATION;
         if (args.dialect != null) {
             dialect = NanopublicationDialect.valueOf(args.dialect.toUpperCase());
@@ -118,7 +118,7 @@ public final class PutNanopublicationsCommand extends Command {
 
         logger.info("parsed {} nanopublication(s) from {}", nanopublications.size(), args.source);
 
-        try (final TwdbTransaction transaction = db.beginTransaction(ReadWrite.WRITE)) {
+        try (final TwksTransaction transaction = db.beginTransaction(ReadWrite.WRITE)) {
             for (int nanopublicationI = 0; nanopublicationI < nanopublications.size(); nanopublicationI++) {
                 final Nanopublication nanopublication = nanopublications.get(nanopublicationI);
                 db.putNanopublication(nanopublication, transaction);

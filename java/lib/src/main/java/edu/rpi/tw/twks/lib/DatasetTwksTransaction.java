@@ -1,17 +1,17 @@
 package edu.rpi.tw.twks.lib;
 
 import edu.rpi.tw.nanopub.DatasetTransaction;
-import edu.rpi.tw.twks.api.TwdbTransaction;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 
 /**
  * A TwdbTransaction that wraps a DatasetTransaction.
  */
-final class DatasetTwdbTransaction implements TwdbTransaction {
+final class DatasetTwksTransaction implements TwksTransaction {
     private final DatasetTransaction datasetTransaction;
 
-    DatasetTwdbTransaction(final Dataset dataset, final ReadWrite readWrite) {
+    DatasetTwksTransaction(final Dataset dataset, final ReadWrite readWrite) {
         this.datasetTransaction = new DatasetTransaction(dataset, readWrite);
     }
 

@@ -13,13 +13,13 @@ import java.util.Optional;
  * <p>
  * This is the sole entry point to all store operations.
  */
-public interface Twdb {
+public interface Twks {
     /**
      * Begin a new transaction on the store.
      *
-     * @see TwdbTransaction for use information.
+     * @see TwksTransaction for use information.
      */
-    TwdbTransaction beginTransaction(ReadWrite readWrite);
+    TwksTransaction beginTransaction(ReadWrite readWrite);
 
     /**
      * Delete a nanopublication.
@@ -38,7 +38,7 @@ public interface Twdb {
      * @param transaction existing transaction
      * @return true of the nanopublication was presented, otherwise false
      */
-    DeleteNanopublicationResult deleteNanopublication(Uri uri, final TwdbTransaction transaction);
+    DeleteNanopublicationResult deleteNanopublication(Uri uri, final TwksTransaction transaction);
 
     /**
      * Get a nanopublication.
@@ -57,7 +57,7 @@ public interface Twdb {
      * @param transaction existing transaction to use
      * @return Optional.of(the nanopublication) if it exists in the store, otherwise Optional.empty
      */
-    Optional<Nanopublication> getNanopublication(Uri uri, TwdbTransaction transaction);
+    Optional<Nanopublication> getNanopublication(Uri uri, TwksTransaction transaction);
 
     /**
      * Put a new nanopublication, overwriting an existing nanopublication with the same URI if necessary.
@@ -74,7 +74,7 @@ public interface Twdb {
      * @param nanopublication nanopublication to put
      * @param transaction     existing transaction to use
      */
-    PutNanopublicationResult putNanopublication(Nanopublication nanopublication, TwdbTransaction transaction);
+    PutNanopublicationResult putNanopublication(Nanopublication nanopublication, TwksTransaction transaction);
 
     /**
      * Query assertion parts of stored nanopublications.
@@ -85,7 +85,7 @@ public interface Twdb {
      * @param transaction transaction this query will execute under
      * @return QueryExecution that is ready to execute. Must be executed within the given transaction.
      */
-    QueryExecution queryAssertions(Query query, TwdbTransaction transaction);
+    QueryExecution queryAssertions(Query query, TwksTransaction transaction);
 
     /**
      * Query all parts of stored nanopublications (head, assertion, provenance, publication info).
@@ -94,7 +94,7 @@ public interface Twdb {
      * @param transaction transaction this query will execute under
      * @return QueryExecution that is ready to execute. Must be executed within the given transaction.
      */
-    QueryExecution queryNanopublications(Query query, TwdbTransaction transaction);
+    QueryExecution queryNanopublications(Query query, TwksTransaction transaction);
 
     enum DeleteNanopublicationResult {
         DELETED, NOT_FOUND

@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertNotSame;
 
-public final class TwdbFactoryTest {
+public final class TwksFactoryTest {
     @Test
     public void testCreateTwdbDefault() {
         assertNotSame(null, TwdbFactory.getInstance().createTwdb());

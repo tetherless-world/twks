@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.server.resource.nanopublication;
 
 import edu.rpi.tw.nanopub.*;
-import edu.rpi.tw.twks.api.Twdb;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.AcceptLists;
 import edu.rpi.tw.twks.server.resource.AbstractResource;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -28,7 +28,7 @@ public class NanopublicationResource extends AbstractResource {
     public NanopublicationResource() {
     }
 
-    public NanopublicationResource(final Twdb db) {
+    public NanopublicationResource(final Twks db) {
         super(db);
     }
 
@@ -40,7 +40,7 @@ public class NanopublicationResource extends AbstractResource {
     ) {
         final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
 
-        final Twdb.DeleteNanopublicationResult result = getDb().deleteNanopublication(nanopublicationUri);
+        final Twks.DeleteNanopublicationResult result = getDb().deleteNanopublication(nanopublicationUri);
 
         switch (result) {
             case DELETED:
@@ -113,7 +113,7 @@ public class NanopublicationResource extends AbstractResource {
     ) {
         final Nanopublication nanopublication = parseNanopublication(contentType, nanopublicationDialectString, nanopublicationUri, requestBody);
 
-        final Twdb.PutNanopublicationResult result = getDb().putNanopublication(nanopublication);
+        final Twks.PutNanopublicationResult result = getDb().putNanopublication(nanopublication);
         switch (result) {
             case CREATED:
                 return Response.created(uriInfo.getAbsolutePathBuilder().path(NanopublicationResource.class).path(nanopublicationUri.toString()).build()).build();

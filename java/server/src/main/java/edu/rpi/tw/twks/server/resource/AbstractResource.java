@@ -1,20 +1,20 @@
 package edu.rpi.tw.twks.server.resource;
 
-import edu.rpi.tw.twks.api.Twdb;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.ServletContextTwdb;
 
 public abstract class AbstractResource {
-    private final Twdb db;
+    private final Twks db;
 
     public AbstractResource() {
         this(ServletContextTwdb.getInstance());
     }
 
-    public AbstractResource(final Twdb db) {
+    public AbstractResource(final Twks db) {
         this.db = db;
     }
 
-    protected final Twdb getDb() {
+    protected final Twks getDb() {
         return db;
     }
 }

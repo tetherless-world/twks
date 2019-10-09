@@ -2,8 +2,8 @@ package edu.rpi.tw.twks.lib;
 
 import edu.rpi.tw.nanopub.*;
 import edu.rpi.tw.nanopub.vocabulary.Vocabularies;
-import edu.rpi.tw.twks.api.Twdb;
-import edu.rpi.tw.twks.api.TwdbTransaction;
+import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import org.apache.jena.dboe.base.file.Location;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-final class Tdb2Twdb implements Twdb {
+final class Tdb2Twks implements Twks {
     private final static String GET_ASSERTION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "select ?A where {\n" +
             "  ?NP np:hasAssertion ?A\n" +
@@ -40,17 +40,17 @@ final class Tdb2Twdb implements Twdb {
 
     private final Dataset tdbDataset;
 
-    public Tdb2Twdb() {
+    public Tdb2Twks() {
         this(Location.mem());
     }
 
-    public Tdb2Twdb(final Location location) {
+    public Tdb2Twks(final Location location) {
         this.tdbDataset = TDB2Factory.connectDataset(location);
     }
 
     @Override
-    public final TwdbTransaction beginTransaction(final ReadWrite readWrite) {
-        return new DatasetTwdbTransaction(tdbDataset, readWrite);
+    public final TwksTransaction beginTransaction(final ReadWrite readWrite) {
+        return new DatasetTwksTransaction(tdbDataset, readWrite);
     }
 
     @Override
@@ -67,8 +67,8 @@ final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public final DeleteNanopublicationResult deleteNanopublication(final Uri uri, final TwdbTransaction transaction) {
-        return deleteNanopublication(uri, ((DatasetTwdbTransaction) transaction).getDatasetTransaction());
+    public final DeleteNanopublicationResult deleteNanopublication(final Uri uri, final TwksTransaction transaction) {
+        return deleteNanopublication(uri, ((DatasetTwksTransaction) transaction).getDatasetTransaction());
     }
 
     private final DeleteNanopublicationResult deleteNanopublication(final Uri uri, final DatasetTransaction transaction) {
@@ -106,8 +106,8 @@ final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public Optional<Nanopublication> getNanopublication(final Uri uri, final TwdbTransaction transaction) {
-        return getNanopublication(uri, ((DatasetTwdbTransaction) transaction).getDatasetTransaction());
+    public Optional<Nanopublication> getNanopublication(final Uri uri, final TwksTransaction transaction) {
+        return getNanopublication(uri, ((DatasetTwksTransaction) transaction).getDatasetTransaction());
     }
 
     private Optional<Nanopublication> getNanopublication(final Uri uri, final DatasetTransaction transaction) {
@@ -173,8 +173,8 @@ final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public PutNanopublicationResult putNanopublication(final Nanopublication nanopublication, final TwdbTransaction transaction) {
-        return putNanopublication(nanopublication, ((DatasetTwdbTransaction) transaction).getDatasetTransaction());
+    public PutNanopublicationResult putNanopublication(final Nanopublication nanopublication, final TwksTransaction transaction) {
+        return putNanopublication(nanopublication, ((DatasetTwksTransaction) transaction).getDatasetTransaction());
     }
 
     private final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication, final DatasetTransaction transaction) {
@@ -184,10 +184,10 @@ final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public QueryExecution queryAssertions(final Query query, final TwdbTransaction transaction) {
+    public QueryExecution queryAssertions(final Query query, final TwksTransaction transaction) {
         // https://jena.apache.org/documentation/tdb/dynamic_datasets.html
         // Using one or more FROM clauses, causes the default graph of the dataset to be the union of those graphs.
-        final Set<String> assertionGraphNames = getAssertionGraphNames(((DatasetTwdbTransaction) transaction).getDatasetTransaction());
+        final Set<String> assertionGraphNames = getAssertionGraphNames(((DatasetTwksTransaction) transaction).getDatasetTransaction());
         for (final String assertionGraphName : assertionGraphNames) {
             query.addGraphURI(assertionGraphName);
         }
@@ -195,7 +195,7 @@ final class Tdb2Twdb implements Twdb {
     }
 
     @Override
-    public final QueryExecution queryNanopublications(final Query query, final TwdbTransaction transaction) {
+    public final QueryExecution queryNanopublications(final Query query, final TwksTransaction transaction) {
         final QueryExecution queryExecution = QueryExecutionFactory.create(query, tdbDataset);
         queryExecution.getContext().set(TDB2.symUnionDefaultGraph, true);
         return queryExecution;

@@ -2,8 +2,8 @@ package edu.rpi.tw.twks.server.servlet.sparql;
 
 import com.google.common.io.CharStreams;
 import edu.rpi.tw.nanopub.Uri;
-import edu.rpi.tw.twks.api.Twdb;
-import edu.rpi.tw.twks.api.TwdbTransaction;
+import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.server.AcceptLists;
 import edu.rpi.tw.twks.server.ServletContextTwdb;
 import edu.rpi.tw.twks.server.servlet.TwdbHttpServlet;
@@ -34,7 +34,7 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
         this(ServletContextTwdb.getInstance());
     }
 
-    protected SparqlHttpServlet(final Twdb db) {
+    protected SparqlHttpServlet(final Twks db) {
         super(db);
         offerResultsAcceptList = AcceptLists.toAcceptList(ResultSetLang.SPARQLResultSetCSV, ResultSetLang.SPARQLResultSetJSON, ResultSetLang.SPARQLResultSetTSV, ResultSetLang.SPARQLResultSetXML);
     }
@@ -101,7 +101,7 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
 
         final Optional<AcceptList> proposeAcceptList = getProposeAcceptList(req);
 
-        try (final TwdbTransaction transaction = getDb().beginTransaction(ReadWrite.READ)) {
+        try (final TwksTransaction transaction = getDb().beginTransaction(ReadWrite.READ)) {
             try (final QueryExecution queryExecution = this.query(query, transaction)) {
                 switch (query.getQueryType()) {
                     case Query.QueryTypeAsk:
@@ -140,5 +140,5 @@ abstract class SparqlHttpServlet extends TwdbHttpServlet {
         }
     }
 
-    protected abstract QueryExecution query(Query query, TwdbTransaction transaction);
+    protected abstract QueryExecution query(Query query, TwksTransaction transaction);
 }
