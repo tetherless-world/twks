@@ -61,7 +61,7 @@ jobs:
           background: true
       - run:
           name: Curl the server until it comes up
-          command: curl --retry-connrefused --retry 5 --retry-delay 1 http://twdb-server:8080
+          command: curl --retry-connrefused --retry 10 --retry-delay 5 http://twdb-server:8080
       - run:
           name: Run Python tests
           command: mkdir -p test-results/py && cd py/tests && TWDB_BASE_URL="http://twdb-server:8080" pytest --junitxml=../../test-results/py/junit.xml
