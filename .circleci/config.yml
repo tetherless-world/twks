@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Checkout tw-nanopub
-          command: git clone git@github.com:tetherless-world/tw-nanopub.git ~/tw-nanopub
+          command: git clone --depth 1 git@github.com:tetherless-world/tw-nanopub.git ~/tw-nanopub
       - restore_cache:
           key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
       - run:
@@ -21,59 +21,33 @@ jobs:
           key: twdb-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
           paths:
             - ~/.m2
-      - store_test_results:
-          path: java/lib/target/surefire-reports
+      - run: mkdir test-results
+      - run: mv java/lib/target/surefire-reports test-results/java
       #      - store_artifacts:
       #          path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
       - setup_remote_docker
       - run:
           name: Build Docker image
-          command: cd docker && docker-compose build twdb-server
+          command: cd .circleci && docker-compose -f docker-compose-ci.yml build
       - run:
           name: Push Docker image
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
-              cd docker && docker-compose push twdb-server
+              cd .circleci && docker-compose -f docker-compose-ci push twdb-server
             fi
-  build-py:
-    docker:
-      - image: circleci/python:3.7.2-stretch
-    working_directory: ~/twdb
-    steps:
-      - checkout
-      - run:
-          name: Checkout tw-nanopub
-          command: git clone git@github.com:tetherless-world/tw-nanopub.git ~/tw-nanopub
-      - run:
-          name: Install tw-nanopub Python
-          command: cd ~/tw-nanopub/py && sudo python3 setup.py install
-      - run:
-          name: Install Python client dependencies
-          command: sudo pip3 install -r py/requirements.txt
-      - run:
-          name: Install Python client
-          command: cd py && sudo python3 setup.py install
-      - setup_remote_docker
-      - run:
-          name: Build the server
-          command: cd docker && docker-compose build
       - run:
           name: Run the server
-          command: cd docker && docker-compose up --abort-on-container-exit
+          command: cd .circleci && docker-compose -f docker-compose-ci.yml up --abort-on-container-exit
           background: true
       - run:
           name: Curl the server until it comes up
-          command: curl --retry-connrefused --retry 90 --retry-delay 1 http://twdb-server:8080
+          command: docker exec twdb-py 'curl --retry-connrefused --retry 90 --retry-delay 1 http://twdb-server:8080'
       - run:
           name: Run Python tests
-          command: mkdir -p test-results/py && cd py/tests && TWDB_BASE_URL="http://twdb-server:8080" pytest --junitxml=../../test-results/py/junit.xml
+          command: |
+            mkdir -p test-results/py
+            docker exec twdb-py 'mkdir -p ../test-results/py && cd tests && TWDB_BASE_URL="http://twdb-server:8080" pytest --junitxml=../../test-results/py/junit.xml'
+
       - store_test_results:
           path: test-results
-
-workflows:
-  version: 2
-  build:
-    jobs:
-      - build-java
-      - build-py
