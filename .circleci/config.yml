@@ -51,6 +51,9 @@ jobs:
       - run:
           name: Install Python client dependencies
           command: sudo pip3 install -r py/requirements.txt
+      - run:
+          name: Install Python client
+          command: cd py && sudo python3 setup.py install
       - setup_remote_docker
       - run:
           name: Run the server
