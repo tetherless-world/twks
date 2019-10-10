@@ -1,12 +1,12 @@
 package edu.rpi.tw.twks.server.servlet.sparql;
 
 import com.google.common.io.CharStreams;
-import edu.rpi.tw.nanopub.Uri;
 import edu.rpi.tw.twks.core.Twks;
 import edu.rpi.tw.twks.core.TwksTransaction;
 import edu.rpi.tw.twks.server.AcceptLists;
 import edu.rpi.tw.twks.server.ServletContextTwks;
 import edu.rpi.tw.twks.server.servlet.TwksHttpServlet;
+import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.atlas.web.AcceptList;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;

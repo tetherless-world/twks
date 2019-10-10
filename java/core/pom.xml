@@ -14,9 +14,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>edu.rpi.tw.nanopub</groupId>
-            <artifactId>tw-nanopub</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <groupId>edu.rpi.tw.twks</groupId>
+            <artifactId>twks-nanopub</artifactId>
+            <version>${parent.version}</version>
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>com.google.guava</groupId>-->

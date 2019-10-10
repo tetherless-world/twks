@@ -1,7 +1,11 @@
 package edu.rpi.tw.twks.core;
 
-import edu.rpi.tw.nanopub.*;
-import edu.rpi.tw.nanopub.vocabulary.Vocabularies;
+import edu.rpi.tw.twks.nanopub.DatasetTransaction;
+import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
+import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
+import edu.rpi.tw.twks.nanopub.vocabulary.Vocabularies;
+import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.dboe.base.file.Location;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;

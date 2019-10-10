@@ -1,0 +1,1 @@
+from .nanopublication import Nanopublication

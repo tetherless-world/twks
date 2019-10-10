@@ -1,6 +1,5 @@
 # Build image
 FROM maven:3.6-jdk-11 as build-java
-RUN git clone https://github.com/tetherless-world/tw-nanopub.git /tw-nanopub && cd /tw-nanopub/java && mvn -q package install -Dmaven.test.skip=true
 COPY /java /twks/java
 RUN cd /twks/java && mvn -q package -Dmaven.test.skip=true
 

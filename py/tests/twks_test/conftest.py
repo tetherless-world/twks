@@ -2,7 +2,7 @@ import os.path
 
 import pytest
 
-from tw_nanopub import Nanopublication
+from twks.nanopub.nanopublication import Nanopublication
 
 
 @pytest.fixture
