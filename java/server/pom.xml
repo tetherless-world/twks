@@ -37,7 +37,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>twks-lib</artifactId>
+            <artifactId>twks-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

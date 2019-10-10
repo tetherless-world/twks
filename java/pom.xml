@@ -41,7 +41,7 @@
 
     <modules>
         <module>cli</module>
-        <module>lib</module>
+        <module>core</module>
         <module>server</module>
     </modules>
 

@@ -7,7 +7,7 @@ The store is implemented in Java, and exposes several interfaces:
 * a [SPARQL 1.1](https://www.w3.org/TR/sparql11-protocol/) endpoint
 * a Java library for programmatic use
 
-The primary API is defined by [`Twks.java`](java/lib/src/main/java/edu/rpi/tw/twks/lib/Twks.java).
+The primary API is defined by [`Twks.java`](java/core/src/main/java/edu/rpi/tw/twks/core/Twks.java).
 
 # Using the server
 
