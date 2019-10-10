@@ -1,9 +1,9 @@
 package edu.rpi.tw.twks.core;
 
-import edu.rpi.tw.nanopub.MalformedNanopublicationException;
-import edu.rpi.tw.nanopub.Nanopublication;
-import edu.rpi.tw.nanopub.NanopublicationParser;
-import edu.rpi.tw.nanopub.Uri;
+import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
+import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationParser;
+import edu.rpi.tw.twks.uri.Uri;
 
 import java.io.IOException;
 import java.net.URL;

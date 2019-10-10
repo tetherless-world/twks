@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.nanopub;
 
 import edu.rpi.tw.twks.nanopub.vocabulary.PROV;
+import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;

@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
+import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ReadWrite;

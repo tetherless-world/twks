@@ -44,6 +44,7 @@
         <module>core</module>
         <module>nanopub</module>
         <module>server</module>
+        <module>uri</module>
     </modules>
 
     <properties>

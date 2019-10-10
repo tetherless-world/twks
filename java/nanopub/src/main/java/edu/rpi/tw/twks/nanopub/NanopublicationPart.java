@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
+import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.mem.GraphMem;
 import org.apache.jena.rdf.model.Model;

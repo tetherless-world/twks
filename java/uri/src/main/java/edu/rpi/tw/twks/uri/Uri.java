@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.nanopub;
+package edu.rpi.tw.twks.uri;
 
 import org.dmfs.rfc3986.encoding.Precoded;
 import org.dmfs.rfc3986.uris.LazyUri;

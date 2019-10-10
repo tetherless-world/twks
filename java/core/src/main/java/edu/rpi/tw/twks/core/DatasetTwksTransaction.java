@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.core;
 
-import edu.rpi.tw.nanopub.DatasetTransaction;
+import edu.rpi.tw.twks.nanopub.DatasetTransaction;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 
