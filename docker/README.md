@@ -1,4 +1,4 @@
-# TWKS server Docker deployment
+# TWKS Docker-based server
 
 ## Prerequisites
 
