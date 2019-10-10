@@ -5,11 +5,6 @@
 1. [Install Docker](https://docs.docker.com/v17.12/install/)
 1. [Install Docker Compose](https://docs.docker.com/compose/install/)
 
-## Building
-
-    cd docker
-    docker-compose build
-
 ## Running
 
     cd docker
