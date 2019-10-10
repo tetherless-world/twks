@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+script/update
+
+echo "Starting the server with Docker"
+cd ../docker
+docker-compose up -d
+
+echo "Curling the server until it comes up"
+for i in 1 2 3 4 5; do curl -s http://localhost:8080 &>/dev/null && break || sleep 5; done
+
+cd ../py
+echo "Activating Python virtual environment"
+source venv/bin/activate
+
+echo "Running tests"
+pytest || 1
+
+echo "Stopping the server"
+cd ../docker
+docker-compose down
