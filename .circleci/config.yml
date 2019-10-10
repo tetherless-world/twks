@@ -10,7 +10,17 @@ jobs:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/core/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
       - run:
           name: Build and test the Java library
-          command: cd java && script/test
+          command: cd java && mvn clean package site
+      - store_artifacts:
+          path: java/cli/target/site
+      - store_artifacts:
+          path: java/core/target/site
+      - store_artifacts:
+          path: java/nanopub/target/site
+      - store_artifacts:
+          path: java/server/target/site
+      - store_artifacts:
+          path: java/uri/target/site
       - save_cache:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/core/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
           paths:
@@ -40,6 +50,5 @@ jobs:
             mkdir -p test-results/py
             docker exec twks-py bash -c "mkdir -p ../test-results/py && cd tests && TWKS_BASE_URL=\"http://twks-server:8080\" pytest --junitxml=../../test-results/py/junit.xml"
             docker cp twks-py:/twks/test-results/py/junit.xml test-results/py
-
       - store_test_results:
           path: test-results
