@@ -9,11 +9,17 @@ The store is implemented in Java, and exposes several interfaces:
 
 The primary API is defined by [`Twks.java`](java/core/src/main/java/edu/rpi/tw/twks/core/Twks.java).
 
-# Using the server
+## Use
+
+### Start here: scripts
+
+[`script/`](script/README.md) contains scripts for building and running parts of the project.
+
+### Server use
 
 See the [Docker documentation](docker/README.md) for server setup.
 
-# Programmatic use
+### Programmatic use
 
 See the language-specific documentation:
 * [Java](java/README.md)
