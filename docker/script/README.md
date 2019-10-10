@@ -4,7 +4,4 @@ The scripts in this directory follow the responsibilities of [Scripts to Rule Th
 
 The scripts only run on Unix (Linux or OS X) currently.
 
-## Prerequisites
-
-* [Docker](https://docs.docker.com/v17.12/install/)
-* [Docker Compose](https://docs.docker.com/compose/install/)
+See [the parent README](../README.md) for script prerequisites.

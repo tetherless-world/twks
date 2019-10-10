@@ -1,5 +1,10 @@
 # TWKS Java
 
+## Prerequisites
+
+* Java 8 or 11 JDK
+* [Maven](https://maven.apache.org/)
+
 ## One-time setup
 
 Build the Java source:

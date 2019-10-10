@@ -1,5 +1,9 @@
 # TWKS Python client library
 
+## Prerequisites
+
+* [Python 3](https://www.python.org/)
+
 ## One-time setup
 
 Install the library:

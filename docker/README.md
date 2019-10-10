@@ -2,13 +2,13 @@
 
 ## Prerequisites
 
-1. [Install Docker](https://docs.docker.com/v17.12/install/)
-1. [Install Docker Compose](https://docs.docker.com/compose/install/)
+1. [Docker](https://docs.docker.com/v17.12/install/)
+1. [Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Running
 
     cd docker
-    docker-compose up
+    script/server
 
 The Docker container exposes the server's REST and SPARQL APIs via HTTP on port 8080, which is bound to localhost.
 
