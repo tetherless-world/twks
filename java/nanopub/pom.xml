@@ -15,7 +15,7 @@
         <dependency>
             <groupId>edu.rpi.tw.twks</groupId>
             <artifactId>twks-uri</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
