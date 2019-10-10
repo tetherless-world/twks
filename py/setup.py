@@ -10,7 +10,6 @@ setup(
         'rdflib>=4',
         'SPARQLWrapper>=1,<2',
         'requests>=2,<3',
-        'tw-nanopub>=1'
     ],
     classifiers=[
         "License :: OSI Approved :: Apache Software License",

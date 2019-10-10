@@ -5,7 +5,7 @@ from urllib.parse import quote
 
 from rdflib.plugins.stores.sparqlstore import SPARQLStore
 
-from tw_nanopub.nanopublication import Nanopublication
+from twks.nanopub.nanopublication import Nanopublication
 
 
 class TwksClient:
