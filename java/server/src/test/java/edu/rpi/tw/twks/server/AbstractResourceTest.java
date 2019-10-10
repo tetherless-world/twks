@@ -1,8 +1,8 @@
 package edu.rpi.tw.twks.server;
 
 import edu.rpi.tw.nanopub.MalformedNanopublicationException;
-import edu.rpi.tw.twks.lib.Twks;
-import edu.rpi.tw.twks.lib.TwksFactory;
+import edu.rpi.tw.twks.core.Twks;
+import edu.rpi.tw.twks.core.TwksFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 
