@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.lib;
+package edu.rpi.tw.twks.core;
 
 import org.apache.jena.dboe.base.file.Location;
 import org.slf4j.Logger;

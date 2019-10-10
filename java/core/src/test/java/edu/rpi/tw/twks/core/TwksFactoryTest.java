@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.lib;
+package edu.rpi.tw.twks.core;
 
 import org.junit.Test;
 

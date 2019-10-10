@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.lib.vocabulary;
+package edu.rpi.tw.twks.core.vocabulary;
 
 public final class TWKS {
     public final static String PREFIX = "twks";

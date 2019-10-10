@@ -2,8 +2,8 @@ package edu.rpi.tw.twks.server.servlet.sparql;
 
 import com.google.common.io.CharStreams;
 import edu.rpi.tw.nanopub.Uri;
-import edu.rpi.tw.twks.lib.Twks;
-import edu.rpi.tw.twks.lib.TwksTransaction;
+import edu.rpi.tw.twks.core.Twks;
+import edu.rpi.tw.twks.core.TwksTransaction;
 import edu.rpi.tw.twks.server.AcceptLists;
 import edu.rpi.tw.twks.server.ServletContextTwks;
 import edu.rpi.tw.twks.server.servlet.TwksHttpServlet;

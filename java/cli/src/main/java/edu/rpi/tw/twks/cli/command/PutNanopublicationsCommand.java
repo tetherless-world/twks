@@ -2,8 +2,8 @@ package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
 import edu.rpi.tw.nanopub.*;
-import edu.rpi.tw.twks.lib.Twks;
-import edu.rpi.tw.twks.lib.TwksTransaction;
+import edu.rpi.tw.twks.core.Twks;
+import edu.rpi.tw.twks.core.TwksTransaction;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;

@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.lib;
+package edu.rpi.tw.twks.core;
 
 import edu.rpi.tw.nanopub.DatasetTransaction;
 import org.apache.jena.query.Dataset;

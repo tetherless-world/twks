@@ -10,7 +10,7 @@ jobs:
           name: Checkout tw-nanopub
           command: git clone --depth 1 git@github.com:tetherless-world/tw-nanopub.git ~/tw-nanopub
       - restore_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/core/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
       - run:
           name: Build and install tw-nanopub Java
           command: cd ~/tw-nanopub/java && mvn package install -Dmaven.test.skip=true
@@ -18,11 +18,11 @@ jobs:
           name: Build and test the Java library
           command: cd java && mvn package
       - save_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/lib/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/core/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "~/tw-nanopub/java/pom.xml" }}
           paths:
             - ~/.m2
       - run: mkdir test-results
-      - run: mv java/lib/target/surefire-reports test-results/java
+      - run: mv java/core/target/surefire-reports test-results/java
       - setup_remote_docker
       - run:
           name: Build Docker images
