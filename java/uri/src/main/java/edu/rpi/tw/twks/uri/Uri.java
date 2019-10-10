@@ -3,8 +3,6 @@ package edu.rpi.tw.twks.uri;
 import org.dmfs.rfc3986.encoding.Precoded;
 import org.dmfs.rfc3986.uris.LazyUri;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * Tiny type for URIs.
  * <p>
@@ -19,8 +17,16 @@ public final class Uri {
     private final String input;
 
     private Uri(final org.dmfs.rfc3986.Uri delegate, final String input) {
-        this.delegate = checkNotNull(delegate);
-        this.input = checkNotNull(input);
+        if (delegate == null) {
+            // These null checks were the only place that used Guava, so I ditched them.
+            throw new NullPointerException();
+        }
+        this.delegate = delegate;
+
+        if (input == null) {
+            throw new NullPointerException();
+        }
+        this.input = input;
     }
 
     /**
