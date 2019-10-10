@@ -1,4 +1,4 @@
-package edu.rpi.tw.nanopub;
+package edu.rpi.tw.twks.nanopub;
 
 public enum NanopublicationDialect {
     // http://nanopub.org/guidelines/working_draft/

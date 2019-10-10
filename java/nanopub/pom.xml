@@ -50,8 +50,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <properties>
-        <jena.version>3.13.0</jena.version>
-    </properties>
 </project>

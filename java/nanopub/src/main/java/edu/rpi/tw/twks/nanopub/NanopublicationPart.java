@@ -1,4 +1,4 @@
-package edu.rpi.tw.nanopub;
+package edu.rpi.tw.twks.nanopub;
 
 import org.apache.jena.graph.Graph;
 import org.apache.jena.mem.GraphMem;

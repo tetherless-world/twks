@@ -1,4 +1,4 @@
-package edu.rpi.tw.nanopub;
+package edu.rpi.tw.twks.nanopub;
 
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;

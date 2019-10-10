@@ -1,6 +1,6 @@
-package edu.rpi.tw.nanopub;
+package edu.rpi.tw.twks.nanopub;
 
-import edu.rpi.tw.nanopub.vocabulary.NANOPUB;
+import edu.rpi.tw.twks.nanopub.vocabulary.NANOPUB;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static edu.rpi.tw.nanopub.vocabulary.Vocabularies.setNsPrefixes;
+import static edu.rpi.tw.twks.nanopub.vocabulary.Vocabularies.setNsPrefixes;
 
 public final class NanopublicationFactory {
     private final static NanopublicationFactory instance = new NanopublicationFactory();

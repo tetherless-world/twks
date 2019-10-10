@@ -1,4 +1,4 @@
-package edu.rpi.tw.nanopub.vocabulary;
+package edu.rpi.tw.twks.nanopub.vocabulary;
 
 import org.apache.jena.rdf.model.Model;
 

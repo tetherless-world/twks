@@ -1,4 +1,4 @@
-package edu.rpi.tw.nanopub;
+package edu.rpi.tw.twks.nanopub;
 
 import org.junit.Before;
 import org.junit.Test;

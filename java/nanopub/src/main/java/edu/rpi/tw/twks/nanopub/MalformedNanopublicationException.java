@@ -1,4 +1,4 @@
-package edu.rpi.tw.nanopub;
+package edu.rpi.tw.twks.nanopub;
 
 @SuppressWarnings("serializable")
 public final class MalformedNanopublicationException extends Exception {
