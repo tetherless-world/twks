@@ -42,6 +42,7 @@
     <modules>
         <module>cli</module>
         <module>core</module>
+        <module>nanopub</module>
         <module>server</module>
     </modules>
 

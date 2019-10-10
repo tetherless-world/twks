@@ -1,0 +1,38 @@
+@prefix ns1: <http://localhost:5000/pub/0> .
+@prefix ns2: <http://purl.org/vocab/frbr/core#> .
+@prefix ns3: <http://purl.org/dc/terms/> .
+@prefix ns4: <http://www.nanopub.org/nschema#> .
+@prefix ns5: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5_pubinfo {
+    ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5 a ns2:Expression ;
+        ns2:realizationOf <http://localhost:5000/pub/NTM5NzQ2LjQ5NDIzMjYzNzU> .
+
+    ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5_assertion ns3:contributor <http://localhost:5000/user/identifier> ;
+        ns3:created "2019-07-23T16:22:19.047590"^^xsd:dateTime .
+
+    <http://localhost:5000/pub/NTM5NzQ2LjQ5NDIzMjYzNzU> a ns2:Work .
+}
+
+ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5 {
+    ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5 a ns4:Nanopublication ;
+        ns4:hasAssertion ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5_assertion ;
+        ns4:hasProvenance ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5_provenance ;
+        ns4:hasPublicationInfo ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5_pubinfo .
+
+    ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5_assertion a ns4:Assertion .
+
+    ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5_provenance a ns4:Provenance .
+
+    ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5_pubinfo a ns4:PublicationInfo .
+}
+
+ns1:ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5_assertion {
+    <http://example.com/janedoe> a ns5:Person ;
+        ns5:jobTitle "Professor" ;
+        ns5:name "Jane Doe" ;
+        ns5:telephone "(425) 123-4567" ;
+        ns5:url <http://www.janedoe.com> .
+}
+
