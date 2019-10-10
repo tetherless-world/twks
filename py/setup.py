@@ -5,7 +5,7 @@ setup(
     version="1.0.0",
     author="Tetherless World Constellation",
     license="Apache License 2.0",
-    packages=['twks', 'twks.client'],
+    packages=['twks', 'twks.client', 'twks.nanopub'],
     install_requires=[
         'rdflib>=4',
         'SPARQLWrapper>=1,<2',

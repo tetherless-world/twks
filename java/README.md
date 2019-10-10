@@ -1,9 +1,5 @@
 # TWKS Java
 
-## Prerequisites
-
-* [Install tw-nanopub](https://github.com/tetherless-world/tw-nanopub)
-
 ## One-time setup
 
 Build the Java source:
