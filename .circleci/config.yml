@@ -10,7 +10,7 @@ jobs:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/core/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
       - run:
           name: Build and test the Java library
-          command: cd java && mvn package
+          command: cd java && script/test
       - save_cache:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/core/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
           paths:
