@@ -4,4 +4,4 @@ The scripts in this directory follow the responsibilities of [Scripts to Rule Th
 
 The scripts only run on Unix (Linux or OS X) currently.
 
-See [the parent README](../README.md) for script prerequisites.
+See [the parent README](../) for script prerequisites.
