@@ -25,8 +25,13 @@ jobs:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/core/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
           paths:
             - ~/.m2
-      - run: mkdir test-results
-      - run: mv java/core/target/surefire-reports test-results/java
+      - run:
+          name: Move Java test results to right directory
+          command: |
+            mkdir -p test-results/java
+            mv java/core/target/surefire-reports/* test-results/java
+            mv java/nanopub/target/surefire-reports/* test-results/java
+            mv java/server/target/surefire-reports/* test-results/java
       - setup_remote_docker
       - run:
           name: Build Docker images
@@ -45,7 +50,12 @@ jobs:
           name: Curl the server until it comes up
           command: docker exec twks-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twks-server:8080"
       - run:
-          name: Run Python tests
+          name: Run Java client tests
+          command: |
+            docker exec twks-java bash -c "TWKS_BASE_URL=\"http://twks-server:8080\" mvn -Dtest=TwksClientTest -DfailIfNoTests=false test"
+            docker cp twks-java:/twks/java/client/target/surefire-reports/*.xml test-results/java
+      - run:
+          name: Run Python client tests
           command: |
             mkdir -p test-results/py
             docker exec twks-py bash -c "mkdir -p ../test-results/py && cd tests && TWKS_BASE_URL=\"http://twks-server:8080\" pytest --junitxml=../../test-results/py/junit.xml"
