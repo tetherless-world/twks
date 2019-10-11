@@ -9,6 +9,8 @@ public final class TwksClientTest extends ApisTest<TwksClient> {
 
     @Override
     protected TwksClient openSystemUnderTest() throws Exception {
-        return new TwksClient();
+        final String baseUrlPropertyName = getClass().getPackage().getName() + "." + getClass().getSimpleName() + ".baseUrl";
+        final String baseUrl = System.getProperty(baseUrlPropertyName);
+        return baseUrl != null && !baseUrl.isEmpty() ? new TwksClient(baseUrl) : new TwksClient();
     }
 }
