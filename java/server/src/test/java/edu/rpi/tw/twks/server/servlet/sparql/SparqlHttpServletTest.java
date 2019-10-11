@@ -204,7 +204,7 @@ public final class SparqlHttpServletTest extends AbstractHttpServletTest<SparqlH
         protected QueryExecution query(final Query query, final TwksTransaction transaction) {
             assertSame(null, this.query);
             this.query = query;
-            return db.queryAssertions(query, transaction);
+            return transaction.queryAssertions(query);
         }
     }
 }

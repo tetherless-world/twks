@@ -16,6 +16,6 @@ public final class AssertionsSparqlHttpServlet extends SparqlHttpServlet {
 
     @Override
     protected final QueryExecution query(final Query query, final TwksTransaction transaction) {
-        return getDb().queryAssertions(query, transaction);
+        return transaction.queryAssertions(query);
     }
 }

@@ -62,12 +62,12 @@ public abstract class TwksTest {
     @Test
     public void testQueryAssertions() {
         try (final TwksTransaction transaction = sut.beginTransaction(ReadWrite.WRITE)) {
-            sut.putNanopublication(testData.specNanopublication, transaction);
-            sut.putNanopublication(testData.secondNanopublication, transaction);
+            transaction.putNanopublication(testData.specNanopublication);
+            transaction.putNanopublication(testData.secondNanopublication);
 
             final Query query = QueryFactory.create("CONSTRUCT WHERE { ?S ?P ?O }");
             final Model sutAssertionsModel;
-            try (final QueryExecution queryExecution = sut.queryAssertions(query, transaction)) {
+            try (final QueryExecution queryExecution = transaction.queryAssertions(query)) {
                 sutAssertionsModel = queryExecution.execConstruct();
             }
 
@@ -86,16 +86,16 @@ public abstract class TwksTest {
     public void testQueryNanopublications() {
         final Query query = QueryFactory.create("CONSTRUCT WHERE { ?S ?P ?O }");
         try (final TwksTransaction transaction = sut.beginTransaction(ReadWrite.WRITE)) {
-            try (final QueryExecution queryExecution = sut.queryNanopublications(query, transaction)) {
+            try (final QueryExecution queryExecution = transaction.queryNanopublications(query)) {
                 if (!queryExecution.execConstruct().isEmpty()) {
                     fail();
                 }
             }
 
-            sut.putNanopublication(testData.specNanopublication, transaction);
+            transaction.putNanopublication(testData.specNanopublication);
 
             final Model sutUnionModel;
-            try (final QueryExecution queryExecution = sut.queryNanopublications(query, transaction)) {
+            try (final QueryExecution queryExecution = transaction.queryNanopublications(query)) {
                 sutUnionModel = queryExecution.execConstruct();
             }
 

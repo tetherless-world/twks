@@ -5,7 +5,7 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.tdb2.TDB2Factory;
 
-final class Tdb2Twks implements Twks {
+final class Tdb2Twks extends AbstractTwks {
     private final Dataset tdbDataset;
 
     public Tdb2Twks() {
