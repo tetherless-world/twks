@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>twks-nanopub</artifactId>
+            <artifactId>twks-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
