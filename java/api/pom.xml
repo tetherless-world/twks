@@ -1,7 +1,7 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <artifactId>twks-client</artifactId>
-    <description>${product} Java client</description>
+    <artifactId>twks-api</artifactId>
+    <description>${product} public-facing Java APIs</description>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
@@ -16,11 +16,6 @@
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>twks-nanopub</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.http-client</groupId>
-            <artifactId>google-http-client</artifactId>
-            <version>1.32.1</version>
         </dependency>
     </dependencies>
 </project>

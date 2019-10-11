@@ -22,16 +22,6 @@ public interface Twks {
     TwksTransaction beginTransaction(ReadWrite readWrite);
 
     /**
-     * Delete a nanopublication.
-     * <p>
-     * Starts a new transaction and delegates to deleteNanopublication(Uri, TwksTransaction).
-     *
-     * @param uri URI of the nanopublication
-     * @return true if the nanopublication was present, otherwise false
-     */
-    DeleteNanopublicationResult deleteNanopublication(Uri uri);
-
-    /**
      * Delete a nanopublication with an existing transaction.
      *
      * @param uri         URI of the nanopublication
@@ -42,31 +32,12 @@ public interface Twks {
 
     /**
      * Get a nanopublication.
-     * <p>
-     * Starts a new transaction and delegates to getNanopublication(Uri, TwksTransaction).
-     *
-     * @param uri URI of the nanopublication.
-     * @return Optional.of(the nanopublication) if it exists in the store, otherwise Optional.empty
-     */
-    Optional<Nanopublication> getNanopublication(Uri uri);
-
-    /**
-     * Get a nanopublication.
      *
      * @param uri         URI of the nanopublication
      * @param transaction existing transaction to use
      * @return Optional.of(the nanopublication) if it exists in the store, otherwise Optional.empty
      */
     Optional<Nanopublication> getNanopublication(Uri uri, TwksTransaction transaction);
-
-    /**
-     * Put a new nanopublication, overwriting an existing nanopublication with the same URI if necessary.
-     * <p>
-     * Starts a new transaction and delegates to putNanopublication(Nanopublication, TwksTransaction).
-     *
-     * @param nanopublication nanopublication to put.
-     */
-    PutNanopublicationResult putNanopublication(Nanopublication nanopublication);
 
     /**
      * Put a new nanopublication, overwriting an existing nanopublication with the same URI if necessary.
@@ -95,12 +66,4 @@ public interface Twks {
      * @return QueryExecution that is ready to execute. Must be executed within the given transaction.
      */
     QueryExecution queryNanopublications(Query query, TwksTransaction transaction);
-
-    enum DeleteNanopublicationResult {
-        DELETED, NOT_FOUND
-    }
-
-    enum PutNanopublicationResult {
-        CREATED, OVERWROTE
-    }
 }
