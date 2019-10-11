@@ -34,6 +34,8 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     @After
     public void tearDown() throws Exception {
+        sut.deleteNanopublication(testData.secondNanopublication.getUri());
+        sut.deleteNanopublication(testData.specNanopublication.getUri());
         closeSystemUnderTest(sut);
     }
 

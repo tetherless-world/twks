@@ -19,6 +19,7 @@ import java.net.URLEncoder;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Client for a TWKS server.
@@ -49,25 +50,21 @@ public final class TwksClient implements NanopublicationCrudApi {
         final HttpResponse response;
         try {
             response = httpRequestFactory.buildDeleteRequest(newNanopublicationUrl(uri)).execute();
+        } catch (final HttpResponseException e) {
+            if (e.getStatusCode() == 404) {
+                return DeleteNanopublicationResult.NOT_FOUND;
+            } else {
+                throw wrapException(e);
+            }
         } catch (final IOException e) {
             throw wrapException(e);
         }
-        switch (response.getStatusCode()) {
-            case 204:
-                return DeleteNanopublicationResult.DELETED;
-            case 404:
-                return DeleteNanopublicationResult.NOT_FOUND;
-            default:
-                throw toException(response);
-        }
+        checkState(response.getStatusCode() == 204);
+        return DeleteNanopublicationResult.DELETED;
     }
 
     private RuntimeException wrapException(final IOException e) {
         return new RuntimeException(e);
-    }
-
-    private RuntimeException toException(final HttpResponse errorResponse) {
-        return new RuntimeException(String.format("%d %s", errorResponse.getStatusCode(), errorResponse.getStatusMessage()));
     }
 
     private GenericUrl newNanopublicationUrl(final Uri nanopublicationUri) {
@@ -82,21 +79,21 @@ public final class TwksClient implements NanopublicationCrudApi {
     public Optional<Nanopublication> getNanopublication(final Uri uri) {
         try {
             final HttpResponse response = httpRequestFactory.buildGetRequest(newNanopublicationUrl(uri)).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
-            switch (response.getStatusCode()) {
-                case 200:
-                    try (final InputStream inputStream = response.getContent()) {
-                        final byte[] contentBytes = ByteStreams.toByteArray(inputStream);
-                        try {
-                            return Optional.of(new NanopublicationParser().setLang(Lang.TRIG).parse(new StringReader(new String(contentBytes, "UTF-8"))));
-                        } catch (final MalformedNanopublicationException e) {
-                            logger.error("malformed nanopublication from server: ", e);
-                            return Optional.empty();
-                        }
-                    }
-                case 404:
+            checkState(response.getStatusCode() == 200);
+            try (final InputStream inputStream = response.getContent()) {
+                final byte[] contentBytes = ByteStreams.toByteArray(inputStream);
+                try {
+                    return Optional.of(new NanopublicationParser().setLang(Lang.TRIG).parse(new StringReader(new String(contentBytes, "UTF-8"))));
+                } catch (final MalformedNanopublicationException e) {
+                    logger.error("malformed nanopublication from server: ", e);
                     return Optional.empty();
-                default:
-                    throw toException(response);
+                }
+            }
+        } catch (final HttpResponseException e) {
+            if (e.getStatusCode() == 404) {
+                return Optional.empty();
+            } else {
+                throw wrapException(e);
             }
         } catch (final IOException e) {
             throw wrapException(e);
@@ -123,7 +120,7 @@ public final class TwksClient implements NanopublicationCrudApi {
             case 204:
                 return PutNanopublicationResult.OVERWROTE;
             default:
-                throw toException(response);
+                throw new IllegalStateException();
         }
     }
 }
