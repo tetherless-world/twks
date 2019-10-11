@@ -11,6 +11,12 @@ public final class TwksClientTest extends ApisTest<TwksClient> {
     protected TwksClient openSystemUnderTest() throws Exception {
         final String baseUrlPropertyName = getClass().getPackage().getName() + "." + getClass().getSimpleName() + ".baseUrl";
         final String baseUrl = System.getProperty(baseUrlPropertyName);
-        return baseUrl != null && !baseUrl.isEmpty() ? new TwksClient(baseUrl) : new TwksClient();
+        if (baseUrl != null) {
+            System.out.println("Using baseUrl from property: " + baseUrl);
+            return new TwksClient(baseUrl);
+        } else {
+            System.out.println(baseUrlPropertyName + "not set, using default baseUrl");
+            return new TwksClient();
+        }
     }
 }
