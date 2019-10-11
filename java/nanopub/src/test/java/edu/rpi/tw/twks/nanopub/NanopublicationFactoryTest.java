@@ -1,6 +1,5 @@
 package edu.rpi.tw.twks.nanopub;
 
-import edu.rpi.tw.twks.test.TestData;
 import org.junit.Before;
 import org.junit.Test;
 

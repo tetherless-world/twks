@@ -1,6 +1,5 @@
 package edu.rpi.tw.twks.nanopub;
 
-import edu.rpi.tw.twks.test.TestData;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
