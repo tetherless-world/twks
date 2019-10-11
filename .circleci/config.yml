@@ -6,20 +6,11 @@ jobs:
     working_directory: ~/twks
     steps:
       - checkout
-      - setup_remote_docker
-      - run:
-          name: Build Docker images
-          command: cd .circleci && docker-compose -f docker-compose-ci.yml build
-      - run:
-          name: Run the server
-          command: |
-            cd .circleci && docker-compose -f docker-compose-ci.yml up -d
-            docker exec twks-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twks-server:8080"
       - restore_cache:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/core/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
       - run:
           name: Build and test Java
-          command: cd java && mvn clean package site -DargLine="-Dedu.rpi.tw.twks.client.TwksClientTest.baseUrl=http://twks-server:8080"
+          command: cd java && mvn clean package site
       - store_artifacts:
           path: java/cli/target/site
       - store_artifacts:
@@ -41,6 +32,28 @@ jobs:
             mv java/core/target/surefire-reports/* test-results/java
             mv java/nanopub/target/surefire-reports/* test-results/java
             mv java/server/target/surefire-reports/* test-results/java
+      - setup_remote_docker
+      - run:
+          name: Build Docker images
+          command: cd .circleci && docker-compose -f docker-compose-ci.yml build
+      - run:
+          name: Push server Docker image
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              cd .circleci && docker-compose -f docker-compose-ci.yml push twks-server
+            fi
+      - run:
+          name: Run the server
+          command: cd .circleci && docker-compose -f docker-compose-ci.yml up -d
+      - run:
+          name: Curl the server until it comes up
+          command: docker exec twks-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twks-server:8080"
+      - run:
+          name: Run Java client tests
+          command: |
+            docker exec twks-java bash -c "mvn -DargLine=\"-Dedu.rpi.tw.twks.client.TwksClientTest.baseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false test"
+            docker cp twks-java:/twks/java/client/target/surefire-reports/*.xml test-results/java
       - run:
           name: Run Python client tests
           command: |
@@ -49,10 +62,3 @@ jobs:
             docker cp twks-py:/twks/test-results/py/junit.xml test-results/py
       - store_test_results:
           path: test-results
-      - run:
-          name: Push server Docker image
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              docker login -u $DOCKER_USER -p $DOCKER_PASS
-              cd .circleci && docker-compose -f docker-compose-ci.yml push twks-server
-            fi

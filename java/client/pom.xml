@@ -11,6 +11,16 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
+    <!-- Adapted from https://stackoverflow.com/questions/9123075/maven-how-can-i-skip-test-in-some-projects-via-command-line-options/9138298 -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
@@ -29,4 +39,9 @@
             <version>1.32.1</version>
         </dependency>
     </dependencies>
+
+    <properties>
+        <twks-client.skipTests>true</twks-client.skipTests>
+        <skipTests>${twks-client.skipTests}</skipTests>
+    </properties>
 </project>
