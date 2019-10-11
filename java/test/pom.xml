@@ -1,8 +1,7 @@
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <artifactId>twks-core</artifactId>
-    <description>${product} core Java library</description>
+    <artifactId>twks-test</artifactId>
+    <description>${product} reusable test machinery</description>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
@@ -14,20 +13,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>edu.rpi.tw.twks</groupId>
+            <groupId>${project.parent.groupId}</groupId>
             <artifactId>twks-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>edu.rpi.tw.twks</groupId>
-            <artifactId>twks-test</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.jena</groupId>
-            <artifactId>jena-tdb2</artifactId>
-            <version>${jena.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.28</version>
         </dependency>
     </dependencies>
 </project>

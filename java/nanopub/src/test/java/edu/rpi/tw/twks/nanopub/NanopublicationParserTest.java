@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
+import edu.rpi.tw.twks.test.TestData;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,7 +13,7 @@ public final class NanopublicationParserTest {
     private TestData testData;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() throws Exception {
         this.sut = new NanopublicationParser();
         this.testData = new TestData();
     }

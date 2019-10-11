@@ -51,6 +51,7 @@
         <module>core</module>
         <module>nanopub</module>
         <module>server</module>
+        <module>test</module>
         <module>uri</module>
     </modules>
 

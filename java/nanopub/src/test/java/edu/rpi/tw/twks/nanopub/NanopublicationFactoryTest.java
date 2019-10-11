@@ -1,9 +1,8 @@
 package edu.rpi.tw.twks.nanopub;
 
+import edu.rpi.tw.twks.test.TestData;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -12,7 +11,7 @@ public final class NanopublicationFactoryTest {
     private TestData testData;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() throws Exception {
         this.sut = NanopublicationFactory.getInstance();
         this.testData = new TestData();
     }
