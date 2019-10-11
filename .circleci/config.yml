@@ -19,7 +19,7 @@ jobs:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/core/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
       - run:
           name: Build and test Java
-          command: cd java && mvn clean package site
+          command: cd java && mvn clean package site -DargLine="-Dedu.rpi.tw.twks.client.TwksClientTest.baseUrl=http://twks-server:8080"
       - store_artifacts:
           path: java/cli/target/site
       - store_artifacts:

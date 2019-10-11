@@ -15,7 +15,7 @@ public final class TwksClientTest extends ApisTest<TwksClient> {
             System.out.println("Using baseUrl from property: " + baseUrl);
             return new TwksClient(baseUrl);
         } else {
-            System.out.println(baseUrlPropertyName + "not set, using default baseUrl");
+            System.out.println(baseUrlPropertyName + " not set, using default baseUrl");
             return new TwksClient();
         }
     }
