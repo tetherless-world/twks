@@ -15,14 +15,9 @@
     <dependencies>
         <dependency>
             <groupId>edu.rpi.tw.twks</groupId>
-            <artifactId>twks-nanopub</artifactId>
+            <artifactId>twks-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>com.google.guava</groupId>-->
-        <!--            <artifactId>guava</artifactId>-->
-        <!--            <version>28.1-jre</version>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>jena-tdb2</artifactId>

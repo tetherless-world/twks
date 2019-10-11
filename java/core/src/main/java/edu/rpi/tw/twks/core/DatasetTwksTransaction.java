@@ -7,7 +7,7 @@ import org.apache.jena.query.ReadWrite;
 /**
  * A TwksTransaction that wraps a DatasetTransaction.
  */
-final class DatasetTwksTransaction implements TwksTransaction {
+abstract class DatasetTwksTransaction implements TwksTransaction {
     private final DatasetTransaction datasetTransaction;
 
     DatasetTwksTransaction(final Dataset dataset, final ReadWrite readWrite) {
