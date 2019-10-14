@@ -6,7 +6,7 @@ import org.apache.jena.query.QueryExecution;
 /**
  * SPARQL query interface.
  */
-public interface SparqlQueryApi {
+public interface QueryApi {
     /**
      * Query assertion parts of stored nanopublications.
      * <p>

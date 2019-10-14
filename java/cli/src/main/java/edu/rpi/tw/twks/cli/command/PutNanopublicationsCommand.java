@@ -4,7 +4,7 @@ import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
-import edu.rpi.tw.twks.api.SparqlQueryApi;
+import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
@@ -97,7 +97,7 @@ public final class PutNanopublicationsCommand extends Command {
     }
 
     @Override
-    public void run(final NanopublicationCrudApi nanopublicationCrudApi, final SparqlQueryApi sparqlQueryApi) {
+    public void run(final NanopublicationCrudApi nanopublicationCrudApi, final QueryApi queryApi) {
         NanopublicationDialect dialect = NanopublicationDialect.SPECIFICATION;
         if (args.dialect != null) {
             dialect = NanopublicationDialect.valueOf(args.dialect.toUpperCase());

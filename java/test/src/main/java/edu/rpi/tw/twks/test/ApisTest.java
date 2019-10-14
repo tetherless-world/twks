@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.test;
 
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
-import edu.rpi.tw.twks.api.SparqlQueryApi;
+import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import org.apache.jena.query.Query;
@@ -71,7 +71,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     @Test
     public void testQueryAssertions() {
-        if (!(sut instanceof SparqlQueryApi)) {
+        if (!(sut instanceof QueryApi)) {
             return;
         }
 
@@ -80,7 +80,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
         final Query query = QueryFactory.create("CONSTRUCT WHERE { ?S ?P ?O }");
         final Model sutAssertionsModel;
-        try (final QueryExecution queryExecution = ((SparqlQueryApi) sut).queryAssertions(query)) {
+        try (final QueryExecution queryExecution = ((QueryApi) sut).queryAssertions(query)) {
             sutAssertionsModel = queryExecution.execConstruct();
         }
 
@@ -94,12 +94,12 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     @Test
     public void testQueryNanopublications() {
-        if (!(sut instanceof SparqlQueryApi)) {
+        if (!(sut instanceof QueryApi)) {
             return;
         }
 
         final Query query = QueryFactory.create("CONSTRUCT WHERE { ?S ?P ?O }");
-        try (final QueryExecution queryExecution = ((SparqlQueryApi) sut).queryNanopublications(query)) {
+        try (final QueryExecution queryExecution = ((QueryApi) sut).queryNanopublications(query)) {
             if (!queryExecution.execConstruct().isEmpty()) {
                 fail();
             }
@@ -108,7 +108,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         sut.putNanopublication(testData.specNanopublication);
 
         final Model sutUnionModel;
-        try (final QueryExecution queryExecution = ((SparqlQueryApi) sut).queryNanopublications(query)) {
+        try (final QueryExecution queryExecution = ((QueryApi) sut).queryNanopublications(query)) {
             sutUnionModel = queryExecution.execConstruct();
         }
 
