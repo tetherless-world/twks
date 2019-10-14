@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.core;
+package edu.rpi.tw.twks.factory;
 
 import org.junit.Test;
 
@@ -11,7 +11,7 @@ public final class TwksConfigurationTest {
     @Test
     public void testSetFromProperties() {
         final TwksConfiguration sut = new TwksConfiguration();
-        assertFalse(sut.getTdb2Location().isPresent());
+        Assert.assertFalse(sut.getTdb2Location().isPresent());
         final Properties properties = new Properties();
         properties.setProperty(TwksConfiguration.PropertyKeys.TDB2_LOCATION, "test");
         sut.setFromProperties(properties);

@@ -1,5 +1,7 @@
-package edu.rpi.tw.twks.core;
+package edu.rpi.tw.twks.tdb;
 
+import edu.rpi.tw.twks.core.AbstractTwks;
+import edu.rpi.tw.twks.core.TwksTransaction;
 import org.apache.jena.dboe.base.file.Location;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;

@@ -6,7 +6,7 @@ import org.apache.jena.query.ReadWrite;
 
 import java.util.Optional;
 
-abstract class AbstractTwks implements Twks {
+public abstract class AbstractTwks implements Twks {
     @Override
     public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {

@@ -54,8 +54,10 @@
         <module>cli</module>
         <module>client</module>
         <module>core</module>
+        <module>factory</module>
         <module>nanopub</module>
         <module>server</module>
+        <module>tdb</module>
         <module>test</module>
         <module>uri</module>
     </modules>

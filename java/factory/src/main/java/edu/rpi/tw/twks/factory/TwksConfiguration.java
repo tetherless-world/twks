@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.core;
+package edu.rpi.tw.twks.factory;
 
 import java.util.Optional;
 import java.util.Properties;

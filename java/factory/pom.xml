@@ -1,8 +1,8 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <artifactId>twks-core</artifactId>
-    <description>${product} core Java library</description>
+    <artifactId>twks-factory</artifactId>
+    <description>${product} implementation factory</description>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
@@ -15,14 +15,16 @@
     <dependencies>
         <dependency>
             <groupId>edu.rpi.tw.twks</groupId>
-            <artifactId>twks-api</artifactId>
+            <artifactId>twks-tdb</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>edu.rpi.tw.twks</groupId>
-            <artifactId>twks-test</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
+        <!--
+                <dependency>
+                    <groupId>edu.rpi.tw.twks</groupId>
+                    <artifactId>twks-test</artifactId>
+                    <version>${project.parent.version}</version>
+                    <scope>test</scope>
+                </dependency>
+        -->
     </dependencies>
 </project>

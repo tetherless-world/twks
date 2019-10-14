@@ -9,11 +9,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * A TwksTransaction that wraps a DatasetTransaction.
  */
-abstract class DatasetTwksTransaction implements TwksTransaction {
+public abstract class DatasetTwksTransaction implements TwksTransaction {
     private final DatasetTransaction datasetTransaction;
     private final Dataset dataset;
 
-    DatasetTwksTransaction(final Dataset dataset, final ReadWrite readWrite) {
+    protected DatasetTwksTransaction(final Dataset dataset, final ReadWrite readWrite) {
         this.dataset = checkNotNull(dataset);
         this.datasetTransaction = new DatasetTransaction(dataset, readWrite);
     }
