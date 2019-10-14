@@ -1,8 +1,8 @@
 package edu.rpi.tw.twks.server;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.core.TwksConfiguration;
-import edu.rpi.tw.twks.core.TwksFactory;
+import edu.rpi.tw.twks.factory.TwksConfiguration;
+import edu.rpi.tw.twks.factory.TwksFactory;
 
 import javax.servlet.ServletContext;
 import java.util.Enumeration;

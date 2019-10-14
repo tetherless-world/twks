@@ -18,13 +18,11 @@
             <artifactId>twks-tdb</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <!--
-                <dependency>
-                    <groupId>edu.rpi.tw.twks</groupId>
-                    <artifactId>twks-test</artifactId>
-                    <version>${project.parent.version}</version>
-                    <scope>test</scope>
-                </dependency>
-        -->
+        <dependency>
+            <groupId>edu.rpi.tw.twks</groupId>
+            <artifactId>twks-test</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

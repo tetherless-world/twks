@@ -7,11 +7,11 @@ import static org.junit.Assert.assertNotSame;
 public final class TwksFactoryTest {
     @Test
     public void testCreateTwksDefault() {
-        Assert.assertNotSame(null, TwksFactory.getInstance().createTwks());
+        assertNotSame(null, TwksFactory.getInstance().createTwks());
     }
 
     @Test
     public void testCreateTwksWithConfiguration() {
-        Assert.assertNotSame(null, TwksFactory.getInstance().createTwks(new TwksConfiguration().setFromSystemProperties()));
+        assertNotSame(null, TwksFactory.getInstance().createTwks(new TwksConfiguration().setFromSystemProperties()));
     }
 }

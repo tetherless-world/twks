@@ -2,11 +2,11 @@ package edu.rpi.tw.twks.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.cli.command.Command;
 import edu.rpi.tw.twks.cli.command.PutNanopublicationsCommand;
-import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.core.TwksConfiguration;
-import edu.rpi.tw.twks.core.TwksFactory;
+import edu.rpi.tw.twks.factory.TwksConfiguration;
+import edu.rpi.tw.twks.factory.TwksFactory;
 
 import java.io.File;
 import java.io.FileReader;
