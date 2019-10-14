@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>edu.rpi.tw.twks</groupId>
-            <artifactId>twks-core</artifactId>
+            <artifactId>twks-abc</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

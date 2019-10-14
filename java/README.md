@@ -27,11 +27,11 @@ Install the library to your local Maven repository:
     cd java
     mvn install -Dmaven.test.skip=true
     
-Add the library to your Maven/SBT/Gradle/etc. dependencies:
+Add a `Twks` implementation to your Maven/SBT/Gradle/etc. dependencies:
         
         <dependency>
             <groupId>edu.rpi.tw.twks</groupId>
-            <artifactId>twks-core</artifactId>
+            <artifactId>twks-tdb</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
