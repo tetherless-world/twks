@@ -1,6 +1,8 @@
 package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.SparqlQueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +51,51 @@ public final class PutNanopublicationsCommand extends Command {
         return parser;
     }
 
+    private List<Nanopublication> parseSourceDirectory(final NanopublicationDialect dialect, final Lang lang, File sourceDirectoryPath) throws IOException, MalformedNanopublicationException {
+        final List<Nanopublication> nanopublications = new ArrayList<>();
+        switch (dialect) {
+            case SPECIFICATION: {
+                // Assume it's a directory where every .trig file is a nanopublication.
+                final File[] sourceFiles = sourceDirectoryPath.listFiles();
+                if (sourceFiles != null) {
+                    for (final File trigFile : sourceFiles) {
+                        if (!trigFile.isFile()) {
+                            continue;
+                        }
+                        if (!trigFile.getName().endsWith(".trig")) {
+                            continue;
+                        }
+                        nanopublications.add(newParser(dialect, lang).parse(trigFile));
+                    }
+                }
+
+                break;
+            }
+            case WHYIS: {
+                if (sourceDirectoryPath.getName().equals("data")) {
+                    sourceDirectoryPath = new File(sourceDirectoryPath, "nanopublications");
+                }
+                if (sourceDirectoryPath.getName().equals("nanopublications")) {
+                    // Trawl all of the subdirectories of /data/nanopublications
+                    final File[] nanopublicationSubdirectories = sourceDirectoryPath.listFiles();
+                    if (nanopublicationSubdirectories != null) {
+                        for (final File nanopublicationSubdirectory : nanopublicationSubdirectories) {
+                            if (!nanopublicationSubdirectory.isDirectory()) {
+                                continue;
+                            }
+                            nanopublications.add(newParser(dialect, lang).parse(new File(nanopublicationSubdirectory, "file")));
+                        }
+                    }
+                } else {
+                    // Assume the directory contains a single nanopublication
+                    nanopublications.add(newParser(dialect, lang).parse(new File(sourceDirectoryPath, "file")));
+                }
+                break;
+            }
+        }
+        return nanopublications;
+    }
+
     @Override
     public void run(final NanopublicationCrudApi nanopublicationCrudApi, final SparqlQueryApi sparqlQueryApi) {
         NanopublicationDialect dialect = NanopublicationDialect.SPECIFICATION;
@@ -63,56 +111,22 @@ public final class PutNanopublicationsCommand extends Command {
             }
         }
 
-        final List<Nanopublication> nanopublications = new ArrayList<>();
+        final List<Nanopublication> nanopublications;
 
         try {
-            final File sourceFile = new File(args.source);
-            if (sourceFile.isFile()) {
-                nanopublications.add(newParser(dialect, lang).parse(sourceFile));
-            } else if (sourceFile.isDirectory()) {
-                switch (dialect) {
-                    case SPECIFICATION: {
-                        // Assume it's a directory where every .trig file is a nanopublication.
-                        final File[] sourceFiles = sourceFile.listFiles();
-                        if (sourceFiles != null) {
-                            for (final File trigFile : sourceFiles) {
-                                if (!trigFile.isFile()) {
-                                    continue;
-                                }
-                                if (!trigFile.getName().endsWith(".trig")) {
-                                    continue;
-                                }
-                                nanopublications.add(newParser(dialect, lang).parse(trigFile));
-                            }
-                        }
-
-                        break;
-                    }
-                    case WHYIS: {
-                        File sourceDirectory = sourceFile;
-                        if (sourceDirectory.getName().equals("data")) {
-                            sourceDirectory = new File(sourceFile, "nanopublications");
-                        }
-                        if (sourceDirectory.getName().equals("nanopublications")) {
-                            // Trawl all of the subdirectories of /data/nanopublications
-                            final File[] nanopublicationSubdirectories = sourceDirectory.listFiles();
-                            if (nanopublicationSubdirectories != null) {
-                                for (final File nanopublicationSubdirectory : nanopublicationSubdirectories) {
-                                    if (!nanopublicationSubdirectory.isDirectory()) {
-                                        continue;
-                                    }
-                                    nanopublications.add(newParser(dialect, lang).parse(new File(nanopublicationSubdirectory, "file")));
-                                }
-                            }
-                        } else {
-                            // Assume the directory contains a single nanopublication
-                            nanopublications.add(newParser(dialect, lang).parse(new File(sourceDirectory, "file")));
-                        }
-                        break;
-                    }
+            if (args.source != null) {
+                final File sourceFile = new File(args.source);
+                if (sourceFile.isFile()) {
+                    nanopublications = ImmutableList.of(newParser(dialect, lang).parse(sourceFile));
+                } else if (sourceFile.isDirectory()) {
+                    nanopublications = parseSourceDirectory(dialect, lang, sourceFile);
+                } else {
+                    nanopublications = ImmutableList.of(newParser(dialect, lang).parse(Uri.parse(args.source)));
                 }
             } else {
-                nanopublications.add(newParser(dialect, lang).parse(Uri.parse(args.source)));
+                final byte[] trigBytes = ByteStreams.toByteArray(System.in);
+                final String trigString = new String(trigBytes);
+                nanopublications = ImmutableList.of(newParser(dialect, lang).parse(new StringReader(trigString)));
             }
         } catch (final IOException | MalformedNanopublicationException e) {
             logger.error("error parsing {}:", args.source, e);
@@ -144,7 +158,7 @@ public final class PutNanopublicationsCommand extends Command {
         @Parameter(names = {"-l", "--lang"}, description = "language/format of the nanopublication file e.g., TRIG")
         String lang = null;
 
-        @Parameter(required = true, description = "nanopublication or assertion file path or URI")
+        @Parameter(names = {"-f"}, description = "nanopublication or assertion file path or URI")
         String source = null;
     }
 }
