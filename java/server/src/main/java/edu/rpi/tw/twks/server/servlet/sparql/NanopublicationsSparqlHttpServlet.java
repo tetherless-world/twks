@@ -10,8 +10,8 @@ public final class NanopublicationsSparqlHttpServlet extends SparqlHttpServlet {
         super();
     }
 
-    public NanopublicationsSparqlHttpServlet(final Twks db) {
-        super(db);
+    public NanopublicationsSparqlHttpServlet(final Twks twks) {
+        super(twks);
     }
 
     @Override

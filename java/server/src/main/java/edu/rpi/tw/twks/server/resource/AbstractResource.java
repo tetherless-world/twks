@@ -4,17 +4,17 @@ import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.ServletContextTwks;
 
 public abstract class AbstractResource {
-    private final Twks db;
+    private final Twks twks;
 
     public AbstractResource() {
         this(ServletContextTwks.getInstance());
     }
 
-    public AbstractResource(final Twks db) {
-        this.db = db;
+    public AbstractResource(final Twks twks) {
+        this.twks = twks;
     }
 
-    protected final Twks getDb() {
-        return db;
+    protected final Twks getTwks() {
+        return twks;
     }
 }

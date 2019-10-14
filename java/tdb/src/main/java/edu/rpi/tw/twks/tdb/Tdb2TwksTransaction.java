@@ -71,6 +71,17 @@ final class Tdb2TwksTransaction extends DatasetTwksTransaction {
     }
 
     @Override
+    public final Model getAssertions() {
+        final Model assertions = ModelFactory.createDefaultModel();
+        final Set<String> assertionGraphNames = getAssertionGraphNames();
+        for (final String assertionGraphName : assertionGraphNames) {
+            final Model assertion = getDataset().getNamedModel(assertionGraphName);
+            assertions.add(assertion);
+        }
+        return assertions;
+    }
+
+    @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
         final Dataset nanopublicationDataset = getNanopublicationDataset(uri);
         if (!nanopublicationDataset.isEmpty()) {

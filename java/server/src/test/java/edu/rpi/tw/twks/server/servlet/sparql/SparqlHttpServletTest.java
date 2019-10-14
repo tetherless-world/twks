@@ -18,9 +18,9 @@ import static org.mockito.Mockito.*;
 
 public final class SparqlHttpServletTest extends AbstractHttpServletTest<SparqlHttpServletTest.MockSparqlHttpServlet> {
     @Override
-    protected MockSparqlHttpServlet _setUp(final Twks db, final TestData testData) {
-        db.putNanopublication(testData.specNanopublication);
-        return new MockSparqlHttpServlet(db);
+    protected MockSparqlHttpServlet _setUp(final Twks twks, final TestData testData) {
+        twks.putNanopublication(testData.specNanopublication);
+        return new MockSparqlHttpServlet(twks);
     }
 
     @Test
@@ -196,8 +196,8 @@ public final class SparqlHttpServletTest extends AbstractHttpServletTest<SparqlH
     public final class MockSparqlHttpServlet extends SparqlHttpServlet {
         private Query query;
 
-        MockSparqlHttpServlet(final Twks db) {
-            super(db);
+        MockSparqlHttpServlet(final Twks twks) {
+            super(twks);
         }
 
         @Override

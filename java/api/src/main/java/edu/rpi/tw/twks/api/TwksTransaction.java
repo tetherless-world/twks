@@ -1,8 +1,5 @@
 package edu.rpi.tw.twks.api;
 
-import edu.rpi.tw.twks.api.NanopublicationCrudApi;
-import edu.rpi.tw.twks.api.SparqlQueryApi;
-
 /**
  * High-level interface to Twks transactions.
  * <p>
@@ -10,7 +7,7 @@ import edu.rpi.tw.twks.api.SparqlQueryApi;
  * <p>
  * Should be used with try-with-resources. For example:
  * <code>
- * try (final TwksTransaction transaction = db.newTransaction(ReadWrite.WRITE)) {
+ * try (final TwksTransaction transaction = twks.newTransaction(ReadWrite.WRITE)) {
  * transaction.commit();
  * }
  * </code>
@@ -19,7 +16,7 @@ import edu.rpi.tw.twks.api.SparqlQueryApi;
  *
  * @see <a href="https://jena.apache.org/documentation/txn/">transactions in Jena</a> for the semantics.
  */
-public interface TwksTransaction extends AutoCloseable, NanopublicationCrudApi, SparqlQueryApi {
+public interface TwksTransaction extends AutoCloseable, BulkReadApi, NanopublicationCrudApi, QueryApi {
     /**
      * Abort the transaction.
      */

@@ -17,17 +17,17 @@ import static org.mockito.Mockito.*;
 
 public abstract class AbstractHttpServletTest<HttpServletT extends HttpServlet> {
     protected TestData testData;
-    protected Twks db;
+    protected Twks twks;
     protected HttpServletT sut;
 
     @Before
     public final void setUp() throws Exception {
-        this.db = TwksFactory.getInstance().createTwks();
+        this.twks = TwksFactory.getInstance().createTwks();
         this.testData = new TestData();
-        sut = _setUp(db, testData);
+        sut = _setUp(twks, testData);
     }
 
-    protected abstract HttpServletT _setUp(Twks db, TestData testData);
+    protected abstract HttpServletT _setUp(Twks twks, TestData testData);
 
     protected final void setMockHttpServletRequestBody(final HttpServletRequest req, final String reqBody) throws IOException {
         final BufferedReader reqReader = mock(BufferedReader.class);

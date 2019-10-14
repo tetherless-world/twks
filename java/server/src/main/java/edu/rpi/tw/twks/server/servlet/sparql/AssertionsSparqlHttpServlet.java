@@ -10,8 +10,8 @@ public final class AssertionsSparqlHttpServlet extends SparqlHttpServlet {
         super();
     }
 
-    public AssertionsSparqlHttpServlet(final Twks db) {
-        super(db);
+    public AssertionsSparqlHttpServlet(final Twks twks) {
+        super(twks);
     }
 
     @Override

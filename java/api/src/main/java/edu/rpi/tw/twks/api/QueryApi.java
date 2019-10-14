@@ -4,9 +4,9 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 
 /**
- * SPARQL query interface.
+ * Query interface.
  */
-public interface SparqlQueryApi {
+public interface QueryApi {
     /**
      * Query assertion parts of stored nanopublications.
      * <p>

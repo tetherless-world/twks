@@ -5,10 +5,18 @@ import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.ReadWrite;
+import org.apache.jena.rdf.model.Model;
 
 import java.util.Optional;
 
 public abstract class AbstractTwks implements Twks {
+    @Override
+    public final Model getAssertions() {
+        try (final TwksTransaction transaction = beginTransaction(ReadWrite.READ)) {
+            return transaction.getAssertions();
+        }
+    }
+
     @Override
     public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
