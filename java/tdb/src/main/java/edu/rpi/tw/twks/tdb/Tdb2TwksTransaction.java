@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.tdb;
 
-import edu.rpi.tw.twks.core.DatasetTwksTransaction;
+import edu.rpi.tw.twks.abc.DatasetTwksTransaction;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
