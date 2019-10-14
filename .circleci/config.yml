@@ -65,7 +65,7 @@ jobs:
       - run:
           name: Run Java client tests
           command: |
-            docker exec twks-java bash -c "mvn -q -DargLine=\"-Dedu.rpi.tw.twks.client.TwksClientTest.baseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false test"
+            docker exec twks-java bash -c "mvn -q -DargLine=\"-Dedu.rpi.tw.twks.client.baseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false test"
             docker cp twks-java:/twks/java/client/target/surefire-reports/TEST-edu.rpi.tw.twks.client.TwksClientTest.xml test-results/java
       - run:
           name: Run Python client tests
