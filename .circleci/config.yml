@@ -12,13 +12,21 @@ jobs:
           name: Build and test Java
           command: cd java && mvn -q clean package site
       - store_artifacts:
+          path: java/api/target/site
+      - store_artifacts:
           path: java/cli/target/site
       - store_artifacts:
+          path: java/client/target/site
+      - store_artifacts:
           path: java/core/target/site
+      - store_artifacts:
+          path: java/factory/target/site
       - store_artifacts:
           path: java/nanopub/target/site
       - store_artifacts:
           path: java/server/target/site
+      - store_artifacts:
+          path: java/tdb/target/site
       - store_artifacts:
           path: java/uri/target/site
       - save_cache:
