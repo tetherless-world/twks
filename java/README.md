@@ -12,6 +12,12 @@ Build the Java source:
     cd java
     mvn package -Dmaven.test.skip=true
 
+## Use as a client
+
+The preferred way to access the store is over the network, as a client of the TWKS server. This allows the server implementation to be isolated.
+
+A Java client library is provided, [`TwksClient`](client/src/main/java/edu/rpi/tw/twks/client/TwksClient.java).
+
 ## Use as a library
 
 ### Installation
@@ -31,11 +37,12 @@ Add the library to your Maven/SBT/Gradle/etc. dependencies:
 
 ### Development
 
-The TWKS Java library is in the module `twks-core`. The public-facing API is in the class [`Twks`](core/src/main/java/edu/rpi/tw/twks/core/Twks.java).
+The TWKS public-facing library API is in the class [`Twks`](api/src/main/java/edu/rpi/tw/twks/api/Twks.java).
 
-You instantiate a `Twks` using `TwksFactory`. The factory takes a `TwksConfiguration`, which specifies the backing store and other options. The default configuration (`new TwksConfiguration`) is an in-memory [TDB2](https://jena.apache.org/documentation/tdb2/) store. You can currently (20191007) configure TDB2 persistence to disk with `TwksConfiguration`. Other implementations of the `Twks` interface will follow.
+See [`TwksTest.java`](test/src/main/java/edu/rpi/tw/twks/test/TwksTest.java) for examples of Java library API use.
 
-See the `Twks` class Javadoc and `TwksTest.java` for examples of Java API use.
+Like Jena `Model` and `Dataset`, `Twks` has multiple implementations. For example, [`Tdb2Twks`](tdb/src/main/java/edu/rpi/tw/twks/tdb/Tdb2Twks.java).
+You can instantiate an implementation directly, or indirectly through [`TwksFactory`](factory/src/main/java/edu/rpi/tw/twks/factory/TwksFactory.java)), which is what the server and command line interfaces do.
 
 ## Command line use
 
