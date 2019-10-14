@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.test;
 
+import edu.rpi.tw.twks.api.BulkReadApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
@@ -55,15 +56,15 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     @Test
     public void testGetAssertions() {
-        if (!(sut instanceof QueryApi)) {
+        if (!(sut instanceof BulkReadApi)) {
             return;
         }
 
-        assertTrue(((QueryApi) sut).getAssertions().isEmpty());
+        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
         sut.putNanopublication(testData.specNanopublication);
-        assertTrue(((QueryApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
+        assertTrue(((BulkReadApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
         sut.putNanopublication(testData.secondNanopublication);
-        assertFalse(((QueryApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
+        assertFalse(((BulkReadApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
     }
 
     @Test

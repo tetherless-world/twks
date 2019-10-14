@@ -4,6 +4,7 @@ import com.google.api.client.http.*;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
+import edu.rpi.tw.twks.api.BulkReadApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
@@ -29,7 +30,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * Client for a TWKS server.
  */
-public final class TwksClient implements NanopublicationCrudApi, QueryApi {
+public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, QueryApi {
     private final static Logger logger = LoggerFactory.getLogger(TwksClient.class);
     private final String baseUrl;
     private final ApacheHttpTransport httpTransport;

@@ -13,7 +13,7 @@ import org.apache.jena.query.ReadWrite;
  * <p>
  * The SPARQL API can only be accessed within a transaction.
  */
-public interface Twks extends NanopublicationCrudApi {
+public interface Twks extends BulkReadApi, NanopublicationCrudApi {
     /**
      * Begin a new transaction on the store.
      *
