@@ -13,6 +13,7 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.slf4j.Logger;
@@ -45,6 +46,11 @@ public final class TwksClient implements NanopublicationCrudApi, QueryApi {
         this.baseUrl = checkNotNull(configuration.getBaseUrl());
         httpTransport = new ApacheHttpTransport();
         httpRequestFactory = httpTransport.createRequestFactory();
+    }
+
+    @Override
+    public Model getAssertions() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

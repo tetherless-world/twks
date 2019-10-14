@@ -54,6 +54,19 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     }
 
     @Test
+    public void testGetAssertions() {
+        if (!(sut instanceof QueryApi)) {
+            return;
+        }
+
+        assertTrue(((QueryApi) sut).getAssertions().isEmpty());
+        sut.putNanopublication(testData.specNanopublication);
+        assertTrue(((QueryApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
+        sut.putNanopublication(testData.secondNanopublication);
+        assertFalse(((QueryApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
+    }
+
+    @Test
     public void testGetNanopublicationAbsent() throws MalformedNanopublicationException {
         final Optional<Nanopublication> actual = sut.getNanopublication(testData.specNanopublication.getUri());
         assertFalse(actual.isPresent());
