@@ -1,5 +1,13 @@
 version: '3'
 services:
+  twks-cli:
+    build:
+      context: ..
+      dockerfile: docker/cli/Dockerfile
+    container_name: "twks-cli"
+    image: tetherlessworld/twks-cli
+    links:
+      - twks-server
   twks-server:
     build:
       context: ..
