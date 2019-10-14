@@ -14,12 +14,14 @@ services:
       dockerfile: docker/java/Dockerfile
     command: ["tail", "-f", "/dev/null"]
     container_name: "twks-java"
+    image: "twks-java"
   twks-py:
     build:
       context: ..
       dockerfile: docker/py/Dockerfile
     command: ["tail", "-f", "/dev/null"]
     container_name: "twks-py"
+    image: "twks-py"
   twks-server:
     build:
       context: ..
