@@ -15,7 +15,7 @@ Install the library:
 
 [`TwksClient`](twks/client/twks_client.py) is the entry point class. It is a client of the [TWKS server](../docker/README.md).
 
-The client API mirrors the primary TWKS API in [`Twks.java`](../java/core/src/main/java/edu/rpi/tw/twks/core/Twks.java):
+The client API mirrors the primary TWKS API in [`Twks.java`](../java/api/src/main/java/edu/rpi/tw/twks/api/Twks.java):
 * CRUD operations on nanopublications
 * querying assertions and nanopublications via SPARQL
 

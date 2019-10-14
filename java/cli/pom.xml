@@ -67,7 +67,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>twks-core</artifactId>
+            <artifactId>twks-factory</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

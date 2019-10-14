@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.server.resource.nanopublication;
 
-import edu.rpi.tw.twks.core.Twks;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.server.AbstractResourceTest;
 import org.apache.jena.query.Dataset;

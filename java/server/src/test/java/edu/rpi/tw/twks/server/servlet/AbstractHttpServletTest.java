@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.server.servlet;
 
-import edu.rpi.tw.twks.core.Twks;
-import edu.rpi.tw.twks.core.TwksFactory;
+import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.factory.TwksFactory;
 import edu.rpi.tw.twks.test.TestData;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
