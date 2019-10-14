@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.factory;
 
+import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.tdb.Tdb2Twks;
 
 import java.util.Optional;
@@ -33,6 +34,11 @@ public final class TwksConfiguration {
             this.tdb2Location = Optional.of(tdb2Location);
         }
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).omitNullValues().add("tdb2Location", tdb2Location.orElse(null)).toString();
     }
 
     public final static class PropertyKeys {

@@ -1,5 +1,7 @@
 package edu.rpi.tw.twks.client;
 
+import com.google.common.base.MoreObjects;
+
 import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -18,6 +20,11 @@ public final class TwksClientConfiguration {
 
     public final TwksClientConfiguration setFromSystemProperties() {
         return setFromProperties(System.getProperties());
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("baseUrl", baseUrl).toString();
     }
 
     public final TwksClientConfiguration setFromProperties(final Properties properties) {
