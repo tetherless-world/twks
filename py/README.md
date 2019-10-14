@@ -11,6 +11,8 @@ Install the library:
     cd py
     python3 setup.py install
 
+Or add a dependency from PyPI: [`twks-client`](https://pypi.org/project/twks-client/).
+
 ## Use
 
 [`TwksClient`](twks/client/twks_client.py) is the entry point class. It is a client of the [TWKS server](../docker/README.md).
