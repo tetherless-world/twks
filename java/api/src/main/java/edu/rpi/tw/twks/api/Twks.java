@@ -1,6 +1,5 @@
-package edu.rpi.tw.twks.core;
+package edu.rpi.tw.twks.api;
 
-import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import org.apache.jena.query.ReadWrite;
 
 /**

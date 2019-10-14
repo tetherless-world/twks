@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.core;
+package edu.rpi.tw.twks.api;
 
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.SparqlQueryApi;

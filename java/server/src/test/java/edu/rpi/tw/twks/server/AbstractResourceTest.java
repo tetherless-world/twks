@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.server;
 
-import edu.rpi.tw.twks.core.Twks;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.core.TwksFactory;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.test.TestData;

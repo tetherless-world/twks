@@ -1,5 +1,7 @@
 package edu.rpi.tw.twks.core;
 
+import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.ReadWrite;

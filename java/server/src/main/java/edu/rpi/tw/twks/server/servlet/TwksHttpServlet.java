@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.server.servlet;
 
-import edu.rpi.tw.twks.core.Twks;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.AcceptLists;
 import edu.rpi.tw.twks.server.ServletContextTwks;
 import org.apache.jena.atlas.web.AcceptList;

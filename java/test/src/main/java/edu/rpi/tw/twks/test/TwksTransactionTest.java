@@ -1,5 +1,7 @@
-package edu.rpi.tw.twks.core;
+package edu.rpi.tw.twks.test;
 
+import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.test.ApisTest;
 import org.apache.jena.query.ReadWrite;
 
