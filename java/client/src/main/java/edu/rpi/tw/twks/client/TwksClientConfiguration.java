@@ -7,7 +7,9 @@ import java.util.Properties;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class TwksClientConfiguration {
-    private String baseUrl = "http://localhost:8080";
+    public final static String BASE_URL_DEFAULT = "http://localhost:8080";
+
+    private String baseUrl = BASE_URL_DEFAULT;
 
     public final String getBaseUrl() {
         return baseUrl;
