@@ -125,7 +125,7 @@ public final class PutNanopublicationsCommand extends Command {
         try (final TwksTransaction transaction = db.beginTransaction(ReadWrite.WRITE)) {
             for (int nanopublicationI = 0; nanopublicationI < nanopublications.size(); nanopublicationI++) {
                 final Nanopublication nanopublication = nanopublications.get(nanopublicationI);
-                db.putNanopublication(nanopublication, transaction);
+                transaction.putNanopublication(nanopublication);
                 if (nanopublicationI > 0 && (nanopublicationI + 1) % 10 == 0) {
                     logger.info("put {} nanopublication(s) from {}", nanopublicationI + 1, args.source);
                 }

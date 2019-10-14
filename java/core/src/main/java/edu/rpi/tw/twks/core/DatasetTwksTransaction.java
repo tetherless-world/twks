@@ -4,14 +4,22 @@ import edu.rpi.tw.twks.nanopub.DatasetTransaction;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * A TwksTransaction that wraps a DatasetTransaction.
  */
-final class DatasetTwksTransaction implements TwksTransaction {
+abstract class DatasetTwksTransaction implements TwksTransaction {
     private final DatasetTransaction datasetTransaction;
+    private final Dataset dataset;
 
     DatasetTwksTransaction(final Dataset dataset, final ReadWrite readWrite) {
+        this.dataset = checkNotNull(dataset);
         this.datasetTransaction = new DatasetTransaction(dataset, readWrite);
+    }
+
+    protected final Dataset getDataset() {
+        return dataset;
     }
 
     public final DatasetTransaction getDatasetTransaction() {

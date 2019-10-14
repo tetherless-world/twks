@@ -9,8 +9,8 @@ jobs:
       - restore_cache:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/core/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
       - run:
-          name: Build and test the Java library
-          command: cd java && mvn clean package site
+          name: Build and test Java
+          command: cd java && mvn -q clean package site
       - store_artifacts:
           path: java/cli/target/site
       - store_artifacts:
@@ -25,9 +25,17 @@ jobs:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/core/pom.xml" }}-{{ checksum "java/server/pom.xml" }}
           paths:
             - ~/.m2
-      - run: mkdir test-results
-      - run: mv java/core/target/surefire-reports test-results/java
+      - run:
+          name: Move Java test results to right directory
+          command: |
+            mkdir -p test-results/java
+            mv java/core/target/surefire-reports/* test-results/java
+            mv java/nanopub/target/surefire-reports/* test-results/java
+            mv java/server/target/surefire-reports/* test-results/java
       - setup_remote_docker
+      - run:
+          name: Copy .m2 directory to java/ temporarily so that it will be speed up Docker image builds
+          command: cp -p -R ~/.m2 java/
       - run:
           name: Build Docker images
           command: cd .circleci && docker-compose -f docker-compose-ci.yml build
@@ -45,10 +53,17 @@ jobs:
           name: Curl the server until it comes up
           command: docker exec twks-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twks-server:8080"
       - run:
-          name: Run Python tests
+          name: Run Java client tests
+          command: |
+            docker exec twks-java bash -c "mvn -q -DargLine=\"-Dedu.rpi.tw.twks.client.TwksClientTest.baseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false test"
+            docker cp twks-java:/twks/java/client/target/surefire-reports/TEST-edu.rpi.tw.twks.client.TwksClientTest.xml test-results/java
+      - run:
+          name: Run Python client tests
           command: |
             mkdir -p test-results/py
             docker exec twks-py bash -c "mkdir -p ../test-results/py && cd tests && TWKS_BASE_URL=\"http://twks-server:8080\" pytest --junitxml=../../test-results/py/junit.xml"
             docker cp twks-py:/twks/test-results/py/junit.xml test-results/py
+      - store_artifacts:
+          path: test-results
       - store_test_results:
           path: test-results

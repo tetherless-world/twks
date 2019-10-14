@@ -10,13 +10,16 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+/**
+ * Nanopub-specific TestData. Has to copied from the twks-test project to avoid a circular dependency.
+ */
 public final class TestData {
     public final File assertionOnlyFilePath;
     public final File specNanopublicationFilePath;
     public final Dataset specNanopublicationDataset = DatasetFactory.create();
     public final File whyisNanopublicationFilePath;
 
-    public TestData() throws IOException {
+    public TestData() throws IOException, MalformedNanopublicationException {
         assertionOnlyFilePath = getResourceFilePath("assertion_only.ttl");
         specNanopublicationFilePath = getResourceFilePath("spec_nanopublication.trig");
         parseDatasetFromResource(specNanopublicationDataset, "spec_nanopublication.trig");
@@ -38,4 +41,5 @@ public final class TestData {
             RDFParserBuilder.create().base(url.toString()).source(inputStream).parse(dataset);
         }
     }
+
 }

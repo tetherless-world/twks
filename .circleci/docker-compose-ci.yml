@@ -1,5 +1,10 @@
 version: '3'
 services:
+  twks-java:
+    build:
+      context: ..
+      dockerfile: .circleci/Dockerfile-twks-java
+    container_name: "twks-java"
   twks-py:
     build:
       context: ..

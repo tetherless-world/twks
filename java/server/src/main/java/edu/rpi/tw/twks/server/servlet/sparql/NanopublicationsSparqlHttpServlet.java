@@ -16,6 +16,6 @@ public final class NanopublicationsSparqlHttpServlet extends SparqlHttpServlet {
 
     @Override
     protected final QueryExecution query(final Query query, final TwksTransaction transaction) {
-        return getDb().queryNanopublications(query, transaction);
+        return transaction.queryNanopublications(query);
     }
 }

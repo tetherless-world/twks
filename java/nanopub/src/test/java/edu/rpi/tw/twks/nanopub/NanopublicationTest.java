@@ -8,8 +8,6 @@ import org.apache.jena.vocabulary.RDF;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -17,7 +15,7 @@ public final class NanopublicationTest {
     private TestData testData;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() throws Exception {
         this.testData = new TestData();
     }
 

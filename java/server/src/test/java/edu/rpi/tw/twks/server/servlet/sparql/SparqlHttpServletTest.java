@@ -2,8 +2,8 @@ package edu.rpi.tw.twks.server.servlet.sparql;
 
 import edu.rpi.tw.twks.core.Twks;
 import edu.rpi.tw.twks.core.TwksTransaction;
-import edu.rpi.tw.twks.server.TestData;
 import edu.rpi.tw.twks.server.servlet.AbstractHttpServletTest;
+import edu.rpi.tw.twks.test.TestData;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.junit.Test;
@@ -204,7 +204,7 @@ public final class SparqlHttpServletTest extends AbstractHttpServletTest<SparqlH
         protected QueryExecution query(final Query query, final TwksTransaction transaction) {
             assertSame(null, this.query);
             this.query = query;
-            return db.queryAssertions(query, transaction);
+            return transaction.queryAssertions(query);
         }
     }
 }

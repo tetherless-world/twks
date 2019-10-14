@@ -1,7 +1,12 @@
 package edu.rpi.tw.twks.core;
 
+import edu.rpi.tw.twks.api.NanopublicationCrudApi;
+import edu.rpi.tw.twks.api.SparqlQueryApi;
+
 /**
- * Largely opaque interface to Twks transactions.
+ * High-level interface to Twks transactions.
+ * <p>
+ * Implements the public-facing APIs, whose operations can only be invoked within a transaction.
  * <p>
  * Should be used with try-with-resources. For example:
  * <code>
@@ -14,7 +19,7 @@ package edu.rpi.tw.twks.core;
  *
  * @see <a href="https://jena.apache.org/documentation/txn/">transactions in Jena</a> for the semantics.
  */
-public interface TwksTransaction extends AutoCloseable {
+public interface TwksTransaction extends AutoCloseable, NanopublicationCrudApi, SparqlQueryApi {
     /**
      * Abort the transaction.
      */
