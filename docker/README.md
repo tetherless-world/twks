@@ -19,7 +19,7 @@ The server stores its data in a volume, `twks-data`.
 Run the server as above, then:
 
     cd docker
-    cat nanopublication.trig | docker-compose run -T twks-cli put-nanopublication --lang trig
+    cat nanopublication.trig | docker-compose run -T twks-cli put-nanopublications --lang trig
 
 Explanation:
 * `docker-compose run twks-cli` runs the TWKS command line interface container and connects it to the server.
