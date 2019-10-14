@@ -34,8 +34,8 @@ abstract class SparqlHttpServlet extends TwksHttpServlet {
         this(ServletContextTwks.getInstance());
     }
 
-    protected SparqlHttpServlet(final Twks db) {
-        super(db);
+    protected SparqlHttpServlet(final Twks twks) {
+        super(twks);
         offerResultsAcceptList = AcceptLists.toAcceptList(ResultSetLang.SPARQLResultSetCSV, ResultSetLang.SPARQLResultSetJSON, ResultSetLang.SPARQLResultSetTSV, ResultSetLang.SPARQLResultSetXML);
     }
 

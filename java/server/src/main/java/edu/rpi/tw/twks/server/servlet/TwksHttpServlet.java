@@ -12,14 +12,14 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class TwksHttpServlet extends HttpServlet {
-    private final Twks db;
+    private final Twks twks;
 
     protected TwksHttpServlet() {
         this(ServletContextTwks.getInstance());
     }
 
-    protected TwksHttpServlet(final Twks db) {
-        this.db = checkNotNull(db);
+    protected TwksHttpServlet(final Twks twks) {
+        this.twks = checkNotNull(twks);
     }
 
     public final static Optional<AcceptList> getProposeAcceptList(final HttpServletRequest req) {
@@ -27,6 +27,6 @@ public abstract class TwksHttpServlet extends HttpServlet {
     }
 
     protected final Twks getDb() {
-        return db;
+        return twks;
     }
 }

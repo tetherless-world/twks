@@ -7,7 +7,7 @@ package edu.rpi.tw.twks.api;
  * <p>
  * Should be used with try-with-resources. For example:
  * <code>
- * try (final TwksTransaction transaction = db.newTransaction(ReadWrite.WRITE)) {
+ * try (final TwksTransaction transaction = twks.newTransaction(ReadWrite.WRITE)) {
  * transaction.commit();
  * }
  * </code>

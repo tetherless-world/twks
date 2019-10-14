@@ -32,8 +32,8 @@ public class NanopublicationResource extends AbstractResource {
     public NanopublicationResource() {
     }
 
-    public NanopublicationResource(final Twks db) {
-        super(db);
+    public NanopublicationResource(final Twks twks) {
+        super(twks);
     }
 
     @DELETE

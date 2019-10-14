@@ -82,8 +82,8 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
     }
 
     @Override
-    protected Object newResource(final Twks db) {
-        return new NanopublicationResource(db);
+    protected Object newResource(final Twks twks) {
+        return new NanopublicationResource(twks);
     }
 
     @Test

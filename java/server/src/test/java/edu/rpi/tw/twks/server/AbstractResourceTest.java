@@ -14,7 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractResourceTest extends JerseyTest {
     private final TestData testData;
-    private Twks db;
+    private Twks twks;
 
     protected AbstractResourceTest() {
         try {
@@ -25,7 +25,7 @@ public abstract class AbstractResourceTest extends JerseyTest {
     }
 
     protected final Twks getDb() {
-        return checkNotNull(db);
+        return checkNotNull(twks);
     }
 
     protected final TestData getTestData() {
@@ -35,10 +35,10 @@ public abstract class AbstractResourceTest extends JerseyTest {
     @Override
     protected final Application configure() {
         final ResourceConfig config = new ResourceConfig();
-        this.db = TwksFactory.getInstance().createTwks();
-        config.registerInstances(newResource(db));
+        this.twks = TwksFactory.getInstance().createTwks();
+        config.registerInstances(newResource(twks));
         return config;
     }
 
-    protected abstract Object newResource(Twks db);
+    protected abstract Object newResource(Twks twks);
 }
