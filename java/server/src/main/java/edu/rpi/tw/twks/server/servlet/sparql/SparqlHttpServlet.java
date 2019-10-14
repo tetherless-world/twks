@@ -101,7 +101,7 @@ abstract class SparqlHttpServlet extends TwksHttpServlet {
 
         final Optional<AcceptList> proposeAcceptList = getProposeAcceptList(req);
 
-        try (final TwksTransaction transaction = getDb().beginTransaction(ReadWrite.READ)) {
+        try (final TwksTransaction transaction = getTwks().beginTransaction(ReadWrite.READ)) {
             try (final QueryExecution queryExecution = this.query(query, transaction)) {
                 switch (query.getQueryType()) {
                     case Query.QueryTypeAsk:

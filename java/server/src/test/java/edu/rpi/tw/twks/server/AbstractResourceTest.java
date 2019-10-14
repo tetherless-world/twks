@@ -24,7 +24,7 @@ public abstract class AbstractResourceTest extends JerseyTest {
         }
     }
 
-    protected final Twks getDb() {
+    protected final Twks getTwks() {
         return checkNotNull(twks);
     }
 

@@ -42,7 +42,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
 
     @Test
     public void testDeleteNanopublicationPresent() throws Exception {
-        getDb().putNanopublication(getTestData().specNanopublication);
+        getTwks().putNanopublication(getTestData().specNanopublication);
         final Response response =
                 target()
                         .path("/nanopublication/")
@@ -50,7 +50,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
                         .request(Lang.TRIG.getContentType().getContentType())
                         .delete();
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        assertFalse(getDb().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+        assertFalse(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
     }
 
     @Test
@@ -66,7 +66,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
 
     @Test
     public void testGetNanopublicationPresent() throws Exception {
-        getDb().putNanopublication(getTestData().specNanopublication);
+        getTwks().putNanopublication(getTestData().specNanopublication);
         final String responseBody = target().path("/nanopublication/").path(URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8")).request(Lang.TRIG.getContentType().getContentType()).get(String.class);
         assertEquals(toTrigString(getTestData().specNanopublication), responseBody);
     }
@@ -95,7 +95,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
                         .request()
                         .put(toTrigEntity(getTestData().specNanopublication));
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        assertTrue(getDb().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+        assertTrue(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
     }
 
     @Test
@@ -106,7 +106,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
                         .request()
                         .put(toTrigEntity(getTestData().specNanopublication));
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        assertTrue(getDb().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+        assertTrue(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
     }
 
     @Test
@@ -117,7 +117,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
                         .request()
                         .put(toTrigEntity(getTestData().specNanopublication.getAssertion().getModel()));
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-        assertFalse(getDb().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+        assertFalse(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
     }
 
     @Test
@@ -129,6 +129,6 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
                         .request()
                         .put(toTrigEntity(getTestData().specNanopublication.getAssertion().getModel()));
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        assertTrue(getDb().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+        assertTrue(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
     }
 }

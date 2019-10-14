@@ -14,7 +14,7 @@ public abstract class AbstractResource {
         this.twks = twks;
     }
 
-    protected final Twks getDb() {
+    protected final Twks getTwks() {
         return twks;
     }
 }

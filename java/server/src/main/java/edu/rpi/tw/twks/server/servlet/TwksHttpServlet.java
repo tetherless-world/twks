@@ -26,7 +26,7 @@ public abstract class TwksHttpServlet extends HttpServlet {
         return AcceptLists.getProposeAcceptList(req.getHeader("Accept"));
     }
 
-    protected final Twks getDb() {
+    protected final Twks getTwks() {
         return twks;
     }
 }

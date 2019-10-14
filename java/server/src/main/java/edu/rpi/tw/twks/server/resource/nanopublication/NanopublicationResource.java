@@ -44,7 +44,7 @@ public class NanopublicationResource extends AbstractResource {
     ) {
         final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
 
-        final Twks.DeleteNanopublicationResult result = getDb().deleteNanopublication(nanopublicationUri);
+        final Twks.DeleteNanopublicationResult result = getTwks().deleteNanopublication(nanopublicationUri);
 
         switch (result) {
             case DELETED:
@@ -65,7 +65,7 @@ public class NanopublicationResource extends AbstractResource {
     ) {
         final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
 
-        final Optional<Nanopublication> nanopublication = getDb().getNanopublication(nanopublicationUri);
+        final Optional<Nanopublication> nanopublication = getTwks().getNanopublication(nanopublicationUri);
         if (!nanopublication.isPresent()) {
             logger.info("nanopublication not found: {}", nanopublicationUri);
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -117,7 +117,7 @@ public class NanopublicationResource extends AbstractResource {
     ) {
         final Nanopublication nanopublication = parseNanopublication(contentType, nanopublicationDialectString, nanopublicationUri, requestBody);
 
-        final Twks.PutNanopublicationResult result = getDb().putNanopublication(nanopublication);
+        final Twks.PutNanopublicationResult result = getTwks().putNanopublication(nanopublication);
         switch (result) {
             case CREATED:
                 return Response.created(uriInfo.getAbsolutePathBuilder().path(NanopublicationResource.class).path(nanopublicationUri.toString()).build()).build();
