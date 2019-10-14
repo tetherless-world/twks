@@ -50,11 +50,11 @@ jobs:
           name: Build Docker images
           command: cd .circleci && docker-compose -f docker-compose-ci.yml build
       - run:
-          name: Push server Docker image
+          name: Push Docker images
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
-              cd .circleci && docker-compose -f docker-compose-ci.yml push twks-server
+              cd .circleci && docker-compose -f docker-compose-ci.yml push twks-cli twks-server
             fi
       - run:
           name: Run the server
