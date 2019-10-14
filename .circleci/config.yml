@@ -58,7 +58,7 @@ jobs:
             fi
       - run:
           name: Run the server
-          command: cd docker && docker-compose up twks-java twks-py twks-server -d
+          command: cd docker && docker-compose up -d twks-java twks-py twks-server
       - run:
           name: Curl the server until it comes up
           command: docker exec twks-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twks-server:8080"
