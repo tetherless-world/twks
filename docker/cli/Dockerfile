@@ -3,10 +3,7 @@
 # docker run tetherlessworld/twks-cli put-nanopublication some_nanopublication.trig.
 
 # Build image
-FROM maven:3.6-jdk-11 as build-java
-COPY /java /twks/java
-RUN mv /twks/java/.m2 /root/
-RUN cd /twks/java && mvn -q package -Dmaven.test.skip=true
+FROM twks-java as build-java
 
 # Deployment image
 FROM openjdk:11-jre-slim-buster

@@ -8,11 +8,25 @@ services:
     image: tetherlessworld/twks-cli
     links:
       - twks-server
+  twks-java:
+    build:
+      context: ..
+      dockerfile: docker/java/Dockerfile
+    command: ["tail", "-f", "/dev/null"]
+    container_name: "twks-java"
+  twks-py:
+    build:
+      context: ..
+      dockerfile: docker/py/Dockerfile
+    command: ["tail", "-f", "/dev/null"]
+    container_name: "twks-py"
   twks-server:
     build:
       context: ..
       dockerfile: docker/server/Dockerfile
     container_name: "twks-server"
+    depends_on:
+      - twks-java
     image: tetherlessworld/twks-server
     ports:
       - "8080:8080"

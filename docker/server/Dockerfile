@@ -1,8 +1,5 @@
 # Build image
-FROM maven:3.6-jdk-11 as build-java
-COPY /java /twks/java
-RUN mv /twks/java/.m2 /root/
-RUN cd /twks/java && mvn -q package -Dmaven.test.skip=true
+FROM twks-java as build-java
 
 # Deployment image
 FROM jetty:9.4.18-jre11

@@ -4,5 +4,3 @@ COPY /py /twks/py
 WORKDIR /twks/py
 RUN pip3 install -r requirements.txt
 RUN python3 setup.py install
-
-CMD ["tail", "-f", "/dev/null"]

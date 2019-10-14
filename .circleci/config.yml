@@ -48,17 +48,17 @@ jobs:
           command: cp -p -R ~/.m2 java/
       - run:
           name: Build Docker images
-          command: cd .circleci && docker-compose -f docker-compose-ci.yml build
+          command: cd docker && docker-compose build
       - run:
           name: Push Docker images
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
-              cd .circleci && docker-compose -f docker-compose-ci.yml push twks-cli twks-server
+              cd docker && docker-compose push twks-cli twks-server
             fi
       - run:
           name: Run the server
-          command: cd .circleci && docker-compose -f docker-compose-ci.yml up -d
+          command: cd docker && docker-compose up twks-server -d
       - run:
           name: Curl the server until it comes up
           command: docker exec twks-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twks-server:8080"
