@@ -3,7 +3,7 @@ services:
   twks-server:
     build:
       context: ..
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/server/Dockerfile
     container_name: "twks-server"
     image: tetherlessworld/twks-server
     ports:
