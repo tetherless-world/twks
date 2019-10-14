@@ -3,6 +3,8 @@ package edu.rpi.tw.twks.server;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.factory.TwksConfiguration;
 import edu.rpi.tw.twks.factory.TwksFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContext;
 import java.util.Enumeration;
@@ -12,6 +14,7 @@ import java.util.function.Function;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class ServletContextTwks {
+    private final static Logger logger = LoggerFactory.getLogger(ServletContextTwks.class);
     private static Twks instance = null;
 
     private ServletContextTwks() {
@@ -20,8 +23,9 @@ public final class ServletContextTwks {
     synchronized static void initInstance(final ServletContext servletContext) {
         final Properties attributeProperties = toProperties(servletContext.getAttributeNames(), name -> servletContext.getAttribute(name));
         final Properties initParameterProperties = toProperties(servletContext.getInitParameterNames(), name -> servletContext.getInitParameter(name));
-
-        instance = TwksFactory.getInstance().createTwks(new TwksConfiguration().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties));
+        final TwksConfiguration configuration = new TwksConfiguration().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties);
+        logger.info("creating servlet Twks instance with configuration {}", configuration);
+        instance = TwksFactory.getInstance().createTwks(configuration);
     }
 
     public final synchronized static Twks getInstance() {
