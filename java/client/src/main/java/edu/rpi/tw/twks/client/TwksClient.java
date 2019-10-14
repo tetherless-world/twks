@@ -15,8 +15,10 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFParserBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +53,16 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
 
     @Override
     public Model getAssertions() {
-        throw new UnsupportedOperationException();
+        try {
+            final HttpResponse response = httpRequestFactory.buildGetRequest(new GenericUrl(baseUrl + "/assertions")).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
+            try (final InputStream inputStream = response.getContent()) {
+                final Model model = ModelFactory.createDefaultModel();
+                RDFParserBuilder.create().source(inputStream).lang(Lang.TRIG).parse(model);
+                return model;
+            }
+        } catch (final IOException e) {
+            throw wrapException(e);
+        }
     }
 
     @Override
