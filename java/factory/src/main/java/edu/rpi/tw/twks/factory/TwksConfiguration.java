@@ -1,5 +1,7 @@
 package edu.rpi.tw.twks.factory;
 
+import edu.rpi.tw.twks.tdb.Tdb2Twks;
+
 import java.util.Optional;
 import java.util.Properties;
 
@@ -17,6 +19,10 @@ public final class TwksConfiguration {
         return this;
     }
 
+    public final boolean isEmpty() {
+        return !getTdb2Location().isPresent();
+    }
+
     public final TwksConfiguration setFromSystemProperties() {
         return setFromProperties(System.getProperties());
     }
@@ -30,6 +36,6 @@ public final class TwksConfiguration {
     }
 
     public final static class PropertyKeys {
-        public final static String TDB2_LOCATION = "edu.rpi.tw.twks.tdb2.location";
+        public final static String TDB2_LOCATION = Tdb2Twks.class.getPackage().getName() + ".location";
     }
 }

@@ -3,14 +3,18 @@ package edu.rpi.tw.twks.cli;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.cli.command.Command;
 import edu.rpi.tw.twks.cli.command.PutNanopublicationsCommand;
+import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.factory.TwksConfiguration;
 import edu.rpi.tw.twks.factory.TwksFactory;
+import org.apache.jena.query.ReadWrite;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -49,31 +53,36 @@ public final class CliMain {
 
         final Command command = commandsByName.get(jCommander.getParsedCommand());
 
-        final Twks db;
-        {
-            final TwksConfiguration dbConfiguration = new TwksConfiguration();
-            dbConfiguration.setFromSystemProperties();
-            if (globalArgs.configurationFilePath != null) {
-                final Properties properties = new Properties();
-                try (final FileReader fileReader = new FileReader(new File(globalArgs.configurationFilePath))) {
-                    properties.load(fileReader);
-                } catch (final IOException e) {
-                    throw new RuntimeException(e);
-                }
-                dbConfiguration.setFromProperties(properties);
+        final Properties configurationProperties = new Properties();
+        for (final Enumeration<?> propertyNameI = System.getProperties().propertyNames(); propertyNameI.hasMoreElements(); ) {
+            final String propertyName = (String) propertyNameI.nextElement();
+            configurationProperties.setProperty(propertyName, System.getProperty(propertyName));
+        }
+        if (globalArgs.configurationFilePath != null) {
+            try (final FileReader fileReader = new FileReader(new File(globalArgs.configurationFilePath))) {
+                configurationProperties.load(fileReader);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
             }
-
-            db = TwksFactory.getInstance().createTwks(dbConfiguration);
         }
 
-        command.run(db);
+        final TwksConfiguration configuration = new TwksConfiguration();
+        configuration.setFromProperties(configurationProperties);
+        if (!configuration.isEmpty()) {
+            final Twks twks = TwksFactory.getInstance().createTwks(configuration);
+            try (final TwksTransaction sparqlQueryTransaction = twks.beginTransaction(ReadWrite.READ)) {
+                command.run(twks, sparqlQueryTransaction);
+            }
+        } else {
+            final String baseUrlPropertyName = TwksClient.class.getPackage().getName() + "." + TwksClient.class.getSimpleName() + ".baseUrl";
+        }
     }
 
     private final static class GlobalArgs {
         @Parameter(names = {"-h", "--help"})
         boolean help = false;
 
-        @Parameter(names = {"-c"}, description = "configuration file path in .properties format")
+        @Parameter(names = {"-c"}, description = "library configuration file path in .properties format")
         String configurationFilePath;
     }
 }

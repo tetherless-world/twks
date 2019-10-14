@@ -1,14 +1,13 @@
 package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
-import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.TwksTransaction;
+import edu.rpi.tw.twks.api.NanopublicationCrudApi;
+import edu.rpi.tw.twks.api.SparqlQueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.uri.Uri;
-import org.apache.jena.query.ReadWrite;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.slf4j.Logger;
@@ -50,7 +49,7 @@ public final class PutNanopublicationsCommand extends Command {
     }
 
     @Override
-    public void run(final Twks db) {
+    public void run(final NanopublicationCrudApi nanopublicationCrudApi, final SparqlQueryApi sparqlQueryApi) {
         NanopublicationDialect dialect = NanopublicationDialect.SPECIFICATION;
         if (args.dialect != null) {
             dialect = NanopublicationDialect.valueOf(args.dialect.toUpperCase());
@@ -122,15 +121,12 @@ public final class PutNanopublicationsCommand extends Command {
 
         logger.info("parsed {} nanopublication(s) from {}", nanopublications.size(), args.source);
 
-        try (final TwksTransaction transaction = db.beginTransaction(ReadWrite.WRITE)) {
-            for (int nanopublicationI = 0; nanopublicationI < nanopublications.size(); nanopublicationI++) {
-                final Nanopublication nanopublication = nanopublications.get(nanopublicationI);
-                transaction.putNanopublication(nanopublication);
-                if (nanopublicationI > 0 && (nanopublicationI + 1) % 10 == 0) {
-                    logger.info("put {} nanopublication(s) from {}", nanopublicationI + 1, args.source);
-                }
+        for (int nanopublicationI = 0; nanopublicationI < nanopublications.size(); nanopublicationI++) {
+            final Nanopublication nanopublication = nanopublications.get(nanopublicationI);
+            nanopublicationCrudApi.putNanopublication(nanopublication);
+            if (nanopublicationI > 0 && (nanopublicationI + 1) % 10 == 0) {
+                logger.info("put {} nanopublication(s) from {}", nanopublicationI + 1, args.source);
             }
-            transaction.commit();
         }
 
         logger.info("put {} nanopublication(s) from {}", nanopublications.size(), args.source);

@@ -35,16 +35,14 @@ public final class TwksClient implements NanopublicationCrudApi, SparqlQueryApi 
     private final HttpRequestFactory httpRequestFactory;
 
     public TwksClient() {
-        this("http://localhost:8080");
+        this(new TwksClientConfiguration());
     }
 
     /**
      * Construct a new TWKS client.
-     *
-     * @param baseUrl base URL of the server without a path e.g., http://localhost:8080
      */
-    public TwksClient(final String baseUrl) {
-        this.baseUrl = checkNotNull(baseUrl);
+    public TwksClient(final TwksClientConfiguration configuration) {
+        this.baseUrl = checkNotNull(configuration.getBaseUrl());
         httpTransport = new ApacheHttpTransport();
         httpRequestFactory = httpTransport.createRequestFactory();
     }
