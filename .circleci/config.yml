@@ -50,13 +50,6 @@ jobs:
           name: Build Docker images
           command: cd docker && docker-compose build
       - run:
-          name: Push Docker images
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              docker login -u $DOCKER_USER -p $DOCKER_PASS
-              cd docker && docker-compose push twks-cli twks-server
-            fi
-      - run:
           name: Run the server
           command: cd docker && docker-compose up -d twks-java twks-py twks-server
       - run:
@@ -77,3 +70,10 @@ jobs:
           path: test-results
       - store_test_results:
           path: test-results
+      - run:
+          name: Push Docker images
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              cd docker && docker-compose push twks-cli twks-server
+            fi
