@@ -1,14 +1,18 @@
 package edu.rpi.tw.twks.client;
 
 import com.google.api.client.http.*;
-import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.http.apache.v2.ApacheHttpTransport;
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
+import edu.rpi.tw.twks.api.SparqlQueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.uri.Uri;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.slf4j.Logger;
@@ -24,10 +28,10 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * Client for a TWKS server.
  */
-public final class TwksClient implements NanopublicationCrudApi {
+public final class TwksClient implements NanopublicationCrudApi, SparqlQueryApi {
     private final static Logger logger = LoggerFactory.getLogger(TwksClient.class);
     private final String baseUrl;
-    private final NetHttpTransport httpTransport;
+    private final ApacheHttpTransport httpTransport;
     private final HttpRequestFactory httpRequestFactory;
 
     public TwksClient() {
@@ -41,7 +45,7 @@ public final class TwksClient implements NanopublicationCrudApi {
      */
     public TwksClient(final String baseUrl) {
         this.baseUrl = checkNotNull(baseUrl);
-        httpTransport = new NetHttpTransport();
+        httpTransport = new ApacheHttpTransport();
         httpRequestFactory = httpTransport.createRequestFactory();
     }
 
@@ -122,5 +126,15 @@ public final class TwksClient implements NanopublicationCrudApi {
             default:
                 throw new IllegalStateException();
         }
+    }
+
+    @Override
+    public QueryExecution queryAssertions(final Query query) {
+        return QueryExecutionFactory.sparqlService(baseUrl + "/sparql/assertions", query, httpTransport.getHttpClient());
+    }
+
+    @Override
+    public QueryExecution queryNanopublications(final Query query) {
+        return QueryExecutionFactory.sparqlService(baseUrl + "/sparql/nanopublications", query, httpTransport.getHttpClient());
     }
 }

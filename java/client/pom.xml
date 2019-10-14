@@ -35,7 +35,7 @@
         </dependency>
         <dependency>
             <groupId>com.google.http-client</groupId>
-            <artifactId>google-http-client</artifactId>
+            <artifactId>google-http-client-apache-v2</artifactId>
             <version>1.32.1</version>
         </dependency>
     </dependencies>
