@@ -19,7 +19,7 @@ public final class Tdb2Twks extends AbstractTwks {
     }
 
     @Override
-    public final TwksTransaction beginTransaction(final ReadWrite readWrite) {
+    protected final TwksTransaction _beginTransaction(final ReadWrite readWrite) {
         return new Tdb2TwksTransaction(tdbDataset, readWrite);
     }
 }
