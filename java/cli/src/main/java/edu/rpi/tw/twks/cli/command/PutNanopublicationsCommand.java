@@ -92,7 +92,7 @@ public final class PutNanopublicationsCommand extends Command {
         @Parameter(names = {"-l", "--lang"}, description = "language/format of the nanopublication file e.g., TRIG")
         String lang = null;
 
-        @Parameter(required = true, description = "nanopublication or assertion file path or URI", variableArity = true)
+        @Parameter(required = true, description = "1+ nanopublication or assertion file path(s) or URI(s), or - for stdin")
         List<String> sources = new ArrayList<>();
     }
 
