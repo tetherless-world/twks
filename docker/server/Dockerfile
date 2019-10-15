@@ -14,3 +14,5 @@ RUN mkdir /data
 RUN chown jetty.jetty /data
 
 USER jetty
+
+EXPOSE 8080
