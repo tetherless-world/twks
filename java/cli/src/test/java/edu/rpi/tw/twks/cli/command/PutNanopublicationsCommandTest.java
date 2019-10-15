@@ -1,5 +1,8 @@
 package edu.rpi.tw.twks.cli.command;
 
+import com.google.common.io.Files;
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.test.TestData;
 import org.junit.Before;
@@ -19,6 +22,25 @@ public final class PutNanopublicationsCommandTest extends AbstractCommandTest {
     @Before
     public void setUp() {
         command = new PutNanopublicationsCommand();
+    }
+
+    @Test
+    public void testDirectory() throws IOException {
+        assertFalse(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+
+        final File tempDirPath = Files.createTempDir().getAbsoluteFile();
+        try {
+            try (final FileWriter fileWriter = new FileWriter(new File(tempDirPath, "test.trig"))) {
+                fileWriter.write(TestData.SPEC_NANOPUBLICATION_TRIG);
+            }
+            command.getArgs().sources.add(tempDirPath.toString());
+            runCommand(command);
+        } finally {
+            MoreFiles.deleteRecursively(tempDirPath.toPath(), RecursiveDeleteOption.ALLOW_INSECURE);
+        }
+
+        final Optional<Nanopublication> actual = getTwks().getNanopublication(getTestData().specNanopublication.getUri());
+        assertTrue(getTestData().specNanopublication.isIsomorphicWith(actual.get()));
     }
 
     @Test
