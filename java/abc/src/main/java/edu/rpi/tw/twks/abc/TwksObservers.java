@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableSet;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.observer.DeleteNanopublicationObserver;
 import edu.rpi.tw.twks.api.observer.Observer;
 import edu.rpi.tw.twks.api.observer.ObserverRegistration;
@@ -17,12 +18,12 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class TwksObservers implements DeleteNanopublicationObserver, PutNanopublicationObserver {
+final class TwksObservers implements DeleteNanopublicationObserver, PutNanopublicationObserver {
     private final static Logger logger = LoggerFactory.getLogger(TwksObservers.class);
     private final Set<DeleteNanopublicationObserverRegistration> deleteNanopublicationObserverRegistrations = new HashSet<>();
     private final Set<PutNanopublicationObserverRegistration> putNanopublicationObserverRegistrations = new HashSet<>();
 
-    public TwksObservers() {
+    TwksObservers() {
         loadObserverServices(DeleteNanopublicationObserver.class).forEach(observer -> registerDeleteNanopublicationObserver(observer));
         loadObserverServices(PutNanopublicationObserver.class).forEach(observer -> registerPutNanopublicationObserver(observer));
     }
@@ -50,16 +51,16 @@ public final class TwksObservers implements DeleteNanopublicationObserver, PutNa
     }
 
     @Override
-    public void onDeleteNanopublication(final Uri nanopublicationUri) {
+    public final void onDeleteNanopublication(final Twks twks, final Uri nanopublicationUri) {
         for (final DeleteNanopublicationObserverRegistration observerRegistration : deleteNanopublicationObserverRegistrations) {
-            observerRegistration.getObserver().onDeleteNanopublication(nanopublicationUri);
+            observerRegistration.getObserver().onDeleteNanopublication(twks, nanopublicationUri);
         }
     }
 
     @Override
-    public void onPutNanopublication(final Nanopublication nanopublication) {
+    public final void onPutNanopublication(final Twks twks, final Nanopublication nanopublication) {
         for (final PutNanopublicationObserverRegistration observerRegistration : putNanopublicationObserverRegistrations) {
-            observerRegistration.getObserver().onPutNanopublication(nanopublication);
+            observerRegistration.getObserver().onPutNanopublication(twks, nanopublication);
         }
     }
 

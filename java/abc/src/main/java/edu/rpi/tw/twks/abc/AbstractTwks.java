@@ -21,7 +21,7 @@ public abstract class AbstractTwks implements Twks {
 
     @Override
     public final TwksTransaction beginTransaction(final ReadWrite readWrite) {
-        return new ObservingTwksTransaction(_beginTransaction(readWrite), observers);
+        return new ObservingTwksTransaction(this, _beginTransaction(readWrite), observers);
     }
 
     protected abstract TwksTransaction _beginTransaction(ReadWrite readWrite);

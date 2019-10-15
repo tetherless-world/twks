@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.abc;
 
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
@@ -15,10 +16,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 final class ObservingTwksTransaction extends ForwardingTwksTransaction {
     private final List<ObservedOperation> observedOperations = new ArrayList<>();
     private final TwksObservers observers;
+    private final Twks twks;
 
-    ObservingTwksTransaction(final TwksTransaction delegate, final TwksObservers observers) {
+    ObservingTwksTransaction(final Twks twks, final TwksTransaction delegate, final TwksObservers observers) {
         super(delegate);
         this.observers = checkNotNull(observers);
+        this.twks = checkNotNull(twks);
     }
 
     @Override
@@ -52,20 +55,7 @@ final class ObservingTwksTransaction extends ForwardingTwksTransaction {
         abstract void notifyObservers(TwksObservers observers);
     }
 
-    private final static class DeleteNanopublicationObservedOperation extends ObservedOperation {
-        private final Uri nanopublicationUri;
-
-        DeleteNanopublicationObservedOperation(final Uri nanopublicationUri) {
-            this.nanopublicationUri = checkNotNull(nanopublicationUri);
-        }
-
-        @Override
-        void notifyObservers(final TwksObservers observers) {
-            observers.onDeleteNanopublication(nanopublicationUri);
-        }
-    }
-
-    private final static class PutNanopublicationObservedOperation extends ObservedOperation {
+    private final class PutNanopublicationObservedOperation extends ObservedOperation {
         private final Nanopublication nanopublication;
 
         PutNanopublicationObservedOperation(final Nanopublication nanopublication) {
@@ -74,7 +64,20 @@ final class ObservingTwksTransaction extends ForwardingTwksTransaction {
 
         @Override
         void notifyObservers(final TwksObservers observers) {
-            observers.onPutNanopublication(nanopublication);
+            observers.onPutNanopublication(twks, nanopublication);
+        }
+    }
+
+    private final class DeleteNanopublicationObservedOperation extends ObservedOperation {
+        private final Uri nanopublicationUri;
+
+        DeleteNanopublicationObservedOperation(final Uri nanopublicationUri) {
+            this.nanopublicationUri = checkNotNull(nanopublicationUri);
+        }
+
+        @Override
+        void notifyObservers(final TwksObservers observers) {
+            observers.onDeleteNanopublication(twks, nanopublicationUri);
         }
     }
 }
