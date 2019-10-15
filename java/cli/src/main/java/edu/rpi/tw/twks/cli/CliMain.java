@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.cli;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twks.api.Twks;
@@ -57,6 +58,7 @@ public final class CliMain {
         final Command command = commandsByName.get(jCommander.getParsedCommand());
 
         final Properties configurationProperties = new Properties();
+
         if (globalArgs.configurationFilePath != null) {
             try (final FileReader fileReader = new FileReader(new File(globalArgs.configurationFilePath))) {
                 configurationProperties.load(fileReader);
@@ -64,6 +66,8 @@ public final class CliMain {
                 throw new RuntimeException(e);
             }
         }
+
+        globalArgs.configuration.forEach((key, value) -> configurationProperties.setProperty(key, value));
 
         {
             final TwksConfiguration configuration = new TwksConfiguration();
@@ -90,10 +94,13 @@ public final class CliMain {
     }
 
     private final static class GlobalArgs {
-        @Parameter(names = {"-h", "--help"})
-        boolean help = false;
+        @DynamicParameter(names = "-D", description = "library configuration, overrides -c and system properties")
+        Map<String, String> configuration = new HashMap<>();
 
         @Parameter(names = {"-c"}, description = "library configuration file path in .properties format")
         String configurationFilePath;
+
+        @Parameter(names = {"-h", "--help"})
+        boolean help = false;
     }
 }
