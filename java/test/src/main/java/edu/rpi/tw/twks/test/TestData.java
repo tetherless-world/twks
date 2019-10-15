@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 public final class TestData {
-    private final static String SPEC_NANOPUBLICATION_TRIG = "@prefix : <http://example.org/pub1#> .\n" +
+    public final static String SPEC_NANOPUBLICATION_TRIG = "@prefix : <http://example.org/pub1#> .\n" +
             "@prefix ex: <http://example.org/> .\n" +
             "@prefix np:  <http://www.nanopub.org/nschema#> .\n" +
             "@prefix prov: <http://www.w3.org/ns/prov#> .\n" +
@@ -37,7 +37,7 @@ public final class TestData {
             "    ex:pub1 prov:generatedAtTime \"2012-10-26T12:45:00Z\"^^xsd:dateTime .\n" +
             "}\n";
 
-    private final static String SECOND_NANOPUBLICATION_TRIG = "@prefix : <http://example.org/pub2#> .\n" +
+    public final static String SECOND_NANOPUBLICATION_TRIG = "@prefix : <http://example.org/pub2#> .\n" +
             "@prefix ex: <http://example.org/> .\n" +
             "@prefix np:  <http://www.nanopub.org/nschema#> .\n" +
             "@prefix prov: <http://www.w3.org/ns/prov#> .\n" +
