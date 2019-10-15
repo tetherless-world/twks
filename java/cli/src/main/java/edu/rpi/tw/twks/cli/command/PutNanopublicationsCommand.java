@@ -85,7 +85,7 @@ public final class PutNanopublicationsCommand extends Command {
         return args;
     }
 
-    private final static class Args {
+    public final static class Args {
         @Parameter(names = {"--dialect"}, description = "dialect of the nanopublication, such as SPECIFICATION or WHYIS")
         String dialect = null;
 

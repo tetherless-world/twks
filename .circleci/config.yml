@@ -7,41 +7,38 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
       - run:
           name: Build and test Java
-          command: cd java && mvn -q clean package site
-      - store_artifacts:
-          path: java/api/target/site
-      - store_artifacts:
-          path: java/cli/target/site
-      - store_artifacts:
-          path: java/client/target/site
-      - store_artifacts:
-          path: java/abc/target/site
-      - store_artifacts:
-          path: java/factory/target/site
-      - store_artifacts:
-          path: java/nanopub/target/site
-      - store_artifacts:
-          path: java/server/target/site
-      - store_artifacts:
-          path: java/tdb/target/site
-      - store_artifacts:
-          path: java/uri/target/site
-      - save_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}
-          paths:
-            - ~/.m2
-      - run:
-          name: Move Java test results to right directory
           command: |
+            cd java
+            mvn -q clean package site
+            cd ..
+            mkdir -p java/site
+            mv java/abc/target/site java/site/abc
+            mv java/api/target/site java/site/api
+            mv java/cli/target/site java/site/cli
+            mv java/client/target/site java/site/client
+            mv java/factory/target/site java/site/factory
+            mv java/nanopub/target/site java/site/nanopub
+            mv java/server/target/site java/site/server
+            mv java/tdb/target/site java/site/tdb
+            mv java/uri/target/site java/site/uri
+            mv java/vocabulary/target/site java/site/vocabulary
+            cd ..
             mkdir -p test-results/java
+            mv java/cli/target/surefire-reports/* test-results/java
             mv java/factory/target/surefire-reports/* test-results/java
             mv java/nanopub/target/surefire-reports/* test-results/java
             mv java/server/target/surefire-reports/* test-results/java
             mv java/tdb/target/surefire-reports/* test-results/java
             mv java/uri/target/surefire-reports/* test-results/java
+      - store_artifacts:
+          path: java/site
+      - save_cache:
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+          paths:
+            - ~/.m2
       - setup_remote_docker
       - run:
           name: Copy .m2 directory to java/ temporarily so that it will be speed up Docker image builds
