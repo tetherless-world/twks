@@ -3,8 +3,6 @@ package edu.rpi.tw.twks.cli.command;
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
-import edu.rpi.tw.twks.api.NanopublicationCrudApi;
-import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
@@ -97,7 +95,7 @@ public final class PutNanopublicationsCommand extends Command {
     }
 
     @Override
-    public void run(final NanopublicationCrudApi nanopublicationCrudApi, final QueryApi queryApi) {
+    public void run(final Apis apis) {
         NanopublicationDialect dialect = NanopublicationDialect.SPECIFICATION;
         if (args.dialect != null) {
             dialect = NanopublicationDialect.valueOf(args.dialect.toUpperCase());
@@ -137,7 +135,7 @@ public final class PutNanopublicationsCommand extends Command {
 
         for (int nanopublicationI = 0; nanopublicationI < nanopublications.size(); nanopublicationI++) {
             final Nanopublication nanopublication = nanopublications.get(nanopublicationI);
-            nanopublicationCrudApi.putNanopublication(nanopublication);
+            apis.getNanopublicationCrudApi().putNanopublication(nanopublication);
             if (nanopublicationI > 0 && (nanopublicationI + 1) % 10 == 0) {
                 logger.info("put {} nanopublication(s) from {}", nanopublicationI + 1, args.source);
             }
