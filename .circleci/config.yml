@@ -25,7 +25,6 @@ jobs:
             mv java/tdb/target/site java/site/tdb
             mv java/uri/target/site java/site/uri
             mv java/vocabulary/target/site java/site/vocabulary
-            cd ..
             mkdir -p test-results/java
             mv java/cli/target/surefire-reports/* test-results/java
             mv java/factory/target/surefire-reports/* test-results/java
