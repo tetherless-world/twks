@@ -7,10 +7,11 @@ public final class Vocabularies {
     private Vocabularies() {
     }
 
-    static void setNsPrefixes(final PrefixMapping prefixMapping) {
+    public static void setNsPrefixes(final PrefixMapping prefixMapping) {
         prefixMapping.setNsPrefix("dc", DC_11.NS);
         prefixMapping.setNsPrefix("dcterms", DCTerms.NS);
         prefixMapping.setNsPrefix("foaf", "http://xmlns.com/foaf/0.1/");
+        prefixMapping.setNsPrefix(NANOPUB.PREFIX, NANOPUB.NS);
         prefixMapping.setNsPrefix("owl", OWL.NS);
         prefixMapping.setNsPrefix(PROV.PREFIX, PROV.NS);
         prefixMapping.setNsPrefix("rdf", RDF.uri);
