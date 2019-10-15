@@ -73,7 +73,7 @@ public final class CliMain {
                 logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);
 
                 try (final TwksTransaction sparqlQueryTransaction = twks.beginTransaction(ReadWrite.READ)) {
-                    command.run(twks, sparqlQueryTransaction);
+                    command.run(new Command.Apis(twks, twks, sparqlQueryTransaction));
                 }
                 return;
             }
@@ -85,7 +85,7 @@ public final class CliMain {
             final TwksClient client = new TwksClient(clientConfiguration);
             logger.info("using client with configuration {}", clientConfiguration);
 
-            command.run(client, client);
+            command.run(new Command.Apis(client, client, client));
         }
     }
 
