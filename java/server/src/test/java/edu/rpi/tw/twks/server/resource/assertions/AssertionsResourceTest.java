@@ -2,10 +2,14 @@ package edu.rpi.tw.twks.server.resource.assertions;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.AbstractResourceTest;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.io.StringReader;
+
+import static org.junit.Assert.assertTrue;
 
 public final class AssertionsResourceTest extends AbstractResourceTest {
     @Test
@@ -16,7 +20,9 @@ public final class AssertionsResourceTest extends AbstractResourceTest {
                         .path("/assertions")
                         .request(Lang.TRIG.getContentType().getContentType())
                         .get(String.class);
-        assertEquals(toTrigString(getTestData().specNanopublication.getAssertion().getModel()), responseBody);
+        final Model actual = ModelFactory.createDefaultModel();
+        actual.read(new StringReader(responseBody), "", Lang.TRIG.getName());
+        assertTrue(getTestData().specNanopublication.getAssertion().getModel().isIsomorphicWith(actual));
     }
 
     @Override

@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 
 /**
  * Client for a TWKS server.
@@ -57,6 +58,7 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
             final HttpResponse response = httpRequestFactory.buildGetRequest(new GenericUrl(baseUrl + "/assertions")).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
             try (final InputStream inputStream = response.getContent()) {
                 final Model model = ModelFactory.createDefaultModel();
+                setNsPrefixes(model);
                 RDFParserBuilder.create().source(inputStream).lang(Lang.TRIG).parse(model);
                 return model;
             }

@@ -4,7 +4,6 @@ import edu.rpi.tw.twks.abc.DatasetTwksTransaction;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
-import edu.rpi.tw.twks.nanopub.vocabulary.Vocabularies;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
@@ -13,6 +12,8 @@ import org.apache.jena.tdb2.TDB2;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 
 final class Tdb2TwksTransaction extends DatasetTwksTransaction {
     private final static String GET_ASSERTION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
@@ -73,6 +74,7 @@ final class Tdb2TwksTransaction extends DatasetTwksTransaction {
     @Override
     public final Model getAssertions() {
         final Model assertions = ModelFactory.createDefaultModel();
+        setNsPrefixes(assertions);
         final Set<String> assertionGraphNames = getAssertionGraphNames();
         for (final String assertionGraphName : assertionGraphNames) {
             final Model assertion = getDataset().getNamedModel(assertionGraphName);
@@ -111,7 +113,7 @@ final class Tdb2TwksTransaction extends DatasetTwksTransaction {
                 Model model = nanopublicationDataset.getNamedModel(g.getURI());
                 if (model == null) {
                     model = ModelFactory.createDefaultModel();
-                    Vocabularies.setNsPrefixes(model);
+                    setNsPrefixes(model);
                     nanopublicationDataset.addNamedModel(g.getURI(), model);
                 }
                 model.add(s, p, o);

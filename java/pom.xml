@@ -60,6 +60,7 @@
         <module>tdb</module>
         <module>test</module>
         <module>uri</module>
+        <module>vocabulary</module>
     </modules>
 
     <properties>

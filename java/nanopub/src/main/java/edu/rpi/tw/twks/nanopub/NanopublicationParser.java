@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.nanopub;
 
-import edu.rpi.tw.twks.nanopub.vocabulary.PROV;
 import edu.rpi.tw.twks.uri.Uri;
+import edu.rpi.tw.twks.vocabulary.PROV;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -19,7 +19,7 @@ import java.util.Calendar;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static edu.rpi.tw.twks.nanopub.vocabulary.Vocabularies.setNsPrefixes;
+import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 
 public final class NanopublicationParser {
     private final RDFParserBuilder rdfParserBuilder = RDFParserBuilder.create();
