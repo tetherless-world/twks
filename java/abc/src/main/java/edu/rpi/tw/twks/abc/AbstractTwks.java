@@ -2,6 +2,9 @@ package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
+import edu.rpi.tw.twks.api.observer.DeleteNanopublicationObserver;
+import edu.rpi.tw.twks.api.observer.ObserverRegistration;
+import edu.rpi.tw.twks.api.observer.PutNanopublicationObserver;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.ReadWrite;
@@ -10,6 +13,12 @@ import org.apache.jena.rdf.model.Model;
 import java.util.Optional;
 
 public abstract class AbstractTwks implements Twks {
+    private final TwksObservers observers = new TwksObservers();
+
+    protected final TwksObservers getObservers() {
+        return observers;
+    }
+
     @Override
     public final Model getAssertions() {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.READ)) {
@@ -44,5 +53,15 @@ public abstract class AbstractTwks implements Twks {
             transaction.commit();
             return result;
         }
+    }
+
+    @Override
+    public final ObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationObserver observer) {
+        return observers.registerDeleteNanopublicationObserver(observer);
+    }
+
+    @Override
+    public final ObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationObserver observer) {
+        return observers.registerPutNanopublicationObserver(observer);
     }
 }
