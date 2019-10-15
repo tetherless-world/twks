@@ -2,10 +2,10 @@ package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.observer.DeleteNanopublicationObserver;
-import edu.rpi.tw.twks.api.observer.Observer;
-import edu.rpi.tw.twks.api.observer.ObserverRegistration;
-import edu.rpi.tw.twks.api.observer.PutNanopublicationObserver;
+import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.TwksObserver;
+import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 import org.slf4j.Logger;
@@ -18,17 +18,17 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-final class TwksObservers implements DeleteNanopublicationObserver, PutNanopublicationObserver {
+final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanopublicationTwksObserver {
     private final static Logger logger = LoggerFactory.getLogger(TwksObservers.class);
-    private final Set<DeleteNanopublicationObserverRegistration> deleteNanopublicationObserverRegistrations = new HashSet<>();
-    private final Set<PutNanopublicationObserverRegistration> putNanopublicationObserverRegistrations = new HashSet<>();
+    private final Set<DeleteNanopublicationTwksObserverRegistration> deleteNanopublicationObserverRegistrations = new HashSet<>();
+    private final Set<PutNanopublicationTwksObserverRegistration> putNanopublicationObserverRegistrations = new HashSet<>();
 
     TwksObservers() {
-        loadObserverServices(DeleteNanopublicationObserver.class).forEach(observer -> registerDeleteNanopublicationObserver(observer));
-        loadObserverServices(PutNanopublicationObserver.class).forEach(observer -> registerPutNanopublicationObserver(observer));
+        loadObserverServices(DeleteNanopublicationTwksObserver.class).forEach(observer -> registerDeleteNanopublicationObserver(observer));
+        loadObserverServices(PutNanopublicationTwksObserver.class).forEach(observer -> registerPutNanopublicationObserver(observer));
     }
 
-    private <ObserverT extends Observer> ImmutableSet<ObserverT> loadObserverServices(final Class<ObserverT> observerClass) {
+    private <ObserverT extends TwksObserver> ImmutableSet<ObserverT> loadObserverServices(final Class<ObserverT> observerClass) {
         final ServiceLoader<ObserverT> serviceLoader = ServiceLoader.load(observerClass);
         final ImmutableSet.Builder<ObserverT> resultBuilder = ImmutableSet.builder();
         for (final Iterator<ObserverT> observerI = serviceLoader.iterator(); observerI.hasNext(); ) {
@@ -38,36 +38,36 @@ final class TwksObservers implements DeleteNanopublicationObserver, PutNanopubli
         return resultBuilder.build();
     }
 
-    public final ObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationObserver observer) {
-        final DeleteNanopublicationObserverRegistration registration = new DeleteNanopublicationObserverRegistration(observer);
+    public final TwksObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationTwksObserver observer) {
+        final DeleteNanopublicationTwksObserverRegistration registration = new DeleteNanopublicationTwksObserverRegistration(observer);
         deleteNanopublicationObserverRegistrations.add(registration);
         return registration;
     }
 
-    public final ObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationObserver observer) {
-        final PutNanopublicationObserverRegistration registration = new PutNanopublicationObserverRegistration(observer);
+    public final TwksObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationTwksObserver observer) {
+        final PutNanopublicationTwksObserverRegistration registration = new PutNanopublicationTwksObserverRegistration(observer);
         putNanopublicationObserverRegistrations.add(registration);
         return registration;
     }
 
     @Override
     public final void onDeleteNanopublication(final Twks twks, final Uri nanopublicationUri) {
-        for (final DeleteNanopublicationObserverRegistration observerRegistration : deleteNanopublicationObserverRegistrations) {
+        for (final DeleteNanopublicationTwksObserverRegistration observerRegistration : deleteNanopublicationObserverRegistrations) {
             observerRegistration.getObserver().onDeleteNanopublication(twks, nanopublicationUri);
         }
     }
 
     @Override
     public final void onPutNanopublication(final Twks twks, final Nanopublication nanopublication) {
-        for (final PutNanopublicationObserverRegistration observerRegistration : putNanopublicationObserverRegistrations) {
+        for (final PutNanopublicationTwksObserverRegistration observerRegistration : putNanopublicationObserverRegistrations) {
             observerRegistration.getObserver().onPutNanopublication(twks, nanopublication);
         }
     }
 
-    private abstract class AbstractObserverRegistration<ObserverT extends Observer> implements ObserverRegistration {
+    private abstract class AbstractTwksObserverRegistration<ObserverT extends TwksObserver> implements TwksObserverRegistration {
         private final ObserverT observer;
 
-        protected AbstractObserverRegistration(final ObserverT observer) {
+        protected AbstractTwksObserverRegistration(final ObserverT observer) {
             this.observer = checkNotNull(observer);
         }
 
@@ -76,8 +76,8 @@ final class TwksObservers implements DeleteNanopublicationObserver, PutNanopubli
         }
     }
 
-    private final class DeleteNanopublicationObserverRegistration extends AbstractObserverRegistration<DeleteNanopublicationObserver> {
-        private DeleteNanopublicationObserverRegistration(final DeleteNanopublicationObserver observer) {
+    private final class DeleteNanopublicationTwksObserverRegistration extends AbstractTwksObserverRegistration<DeleteNanopublicationTwksObserver> {
+        private DeleteNanopublicationTwksObserverRegistration(final DeleteNanopublicationTwksObserver observer) {
             super(observer);
         }
 
@@ -87,8 +87,8 @@ final class TwksObservers implements DeleteNanopublicationObserver, PutNanopubli
         }
     }
 
-    private final class PutNanopublicationObserverRegistration extends AbstractObserverRegistration<PutNanopublicationObserver> {
-        private PutNanopublicationObserverRegistration(final PutNanopublicationObserver observer) {
+    private final class PutNanopublicationTwksObserverRegistration extends AbstractTwksObserverRegistration<PutNanopublicationTwksObserver> {
+        private PutNanopublicationTwksObserverRegistration(final PutNanopublicationTwksObserver observer) {
             super(observer);
         }
 

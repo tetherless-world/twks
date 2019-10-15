@@ -7,5 +7,5 @@ package edu.rpi.tw.twks.api.observer;
  * - implementations can choose what they observe
  * - adding new on* methods will not break implementations
  */
-public interface Observer {
+public interface TwksObserver {
 }

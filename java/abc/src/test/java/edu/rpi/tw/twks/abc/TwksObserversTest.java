@@ -2,9 +2,9 @@ package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
-import edu.rpi.tw.twks.api.observer.DeleteNanopublicationObserver;
-import edu.rpi.tw.twks.api.observer.ObserverRegistration;
-import edu.rpi.tw.twks.api.observer.PutNanopublicationObserver;
+import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.test.TestData;
 import edu.rpi.tw.twks.uri.Uri;
@@ -35,7 +35,7 @@ public final class TwksObserversTest {
     @Test
     public void testOnDeleteNanopublication() {
         final TestDeleteNanopublicationObserver observer = new TestDeleteNanopublicationObserver();
-        final ObserverRegistration registration = observers.registerDeleteNanopublicationObserver(observer);
+        final TwksObserverRegistration registration = observers.registerDeleteNanopublicationObserver(observer);
         observers.onDeleteNanopublication(twks, testData.specNanopublication.getUri());
         assertEquals(1, observer.deleteNanopublicationUris.size());
         assertEquals(testData.specNanopublication.getUri(), observer.deleteNanopublicationUris.get(0));
@@ -48,7 +48,7 @@ public final class TwksObserversTest {
     @Test
     public void testOnPutNanopublication() {
         final TestPutNanopublicationObserver observer = new TestPutNanopublicationObserver();
-        final ObserverRegistration registration = observers.registerPutNanopublicationObserver(observer);
+        final TwksObserverRegistration registration = observers.registerPutNanopublicationObserver(observer);
         observers.onPutNanopublication(twks, testData.specNanopublication);
         assertEquals(1, observer.putNanopublications.size());
         assertEquals(testData.specNanopublication.getUri(), observer.putNanopublications.get(0).getUri());
@@ -85,7 +85,7 @@ public final class TwksObserversTest {
         }
     }
 
-    private final static class TestDeleteNanopublicationObserver implements DeleteNanopublicationObserver {
+    private final static class TestDeleteNanopublicationObserver implements DeleteNanopublicationTwksObserver {
         List<Uri> deleteNanopublicationUris = new ArrayList<>();
 
         @Override
@@ -94,7 +94,7 @@ public final class TwksObserversTest {
         }
     }
 
-    private final static class TestPutNanopublicationObserver implements PutNanopublicationObserver {
+    private final static class TestPutNanopublicationObserver implements PutNanopublicationTwksObserver {
         List<Nanopublication> putNanopublications = new ArrayList<>();
 
         @Override

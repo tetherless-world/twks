@@ -2,9 +2,9 @@ package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
-import edu.rpi.tw.twks.api.observer.DeleteNanopublicationObserver;
-import edu.rpi.tw.twks.api.observer.ObserverRegistration;
-import edu.rpi.tw.twks.api.observer.PutNanopublicationObserver;
+import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.ReadWrite;
@@ -63,12 +63,12 @@ public abstract class AbstractTwks implements Twks {
     }
 
     @Override
-    public final ObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationObserver observer) {
+    public final TwksObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationTwksObserver observer) {
         return observers.registerDeleteNanopublicationObserver(observer);
     }
 
     @Override
-    public final ObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationObserver observer) {
+    public final TwksObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationTwksObserver observer) {
         return observers.registerPutNanopublicationObserver(observer);
     }
 }
