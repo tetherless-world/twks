@@ -74,6 +74,7 @@ final class Tdb2TwksTransaction extends DatasetTwksTransaction {
     @Override
     public final Model getAssertions() {
         final Model assertions = ModelFactory.createDefaultModel();
+        setNsPrefixes(assertions);
         final Set<String> assertionGraphNames = getAssertionGraphNames();
         for (final String assertionGraphName : assertionGraphNames) {
             final Model assertion = getDataset().getNamedModel(assertionGraphName);
