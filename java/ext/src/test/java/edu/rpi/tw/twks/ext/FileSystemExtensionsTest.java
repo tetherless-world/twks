@@ -75,7 +75,7 @@ public final class FileSystemExtensionsTest {
         for (int tryI = 0; tryI < 10; tryI++) {
             try (final FileReader fileReader = new FileReader(tempSubdirPath.resolve("ran.txt").toFile())) {
                 final String output = CharStreams.toString(fileReader).trim();
-                assertEquals(testData.specNanopublication.getUri().toString(), output);
+                assertEquals("--nanopublication-uri " + testData.specNanopublication.getUri().toString(), output);
                 return;
             } catch (final IOException e) {
                 Thread.sleep(500);
