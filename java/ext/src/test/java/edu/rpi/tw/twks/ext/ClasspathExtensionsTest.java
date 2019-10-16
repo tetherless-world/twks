@@ -12,7 +12,7 @@ public final class ClasspathExtensionsTest {
     public void testRegisterObservers() {
         final Twks twks = TwksFactory.getInstance().createTwks();
         assertFalse(TestDeleteNanopublicationTwksObserver.instantiated);
-        ClasspathExtensions.registerObservers(twks);
+        new ClasspathExtensions().registerObservers(twks);
         assertTrue(TestDeleteNanopublicationTwksObserver.instantiated);
     }
 }

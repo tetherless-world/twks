@@ -10,14 +10,6 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 public final class ClasspathExtensions {
-    private ClasspathExtensions() {
-    }
-
-    static void registerObservers(final Twks twks) {
-        loadObserverServices(DeleteNanopublicationTwksObserver.class).forEach(observer -> twks.registerDeleteNanopublicationObserver(observer));
-        loadObserverServices(PutNanopublicationTwksObserver.class).forEach(observer -> twks.registerPutNanopublicationObserver(observer));
-    }
-
     private static <ObserverT extends TwksObserver> ImmutableSet<ObserverT> loadObserverServices(final Class<ObserverT> observerClass) {
         final ServiceLoader<ObserverT> serviceLoader = ServiceLoader.load(observerClass);
         final ImmutableSet.Builder<ObserverT> resultBuilder = ImmutableSet.builder();
@@ -26,5 +18,10 @@ public final class ClasspathExtensions {
             resultBuilder.add(observer);
         }
         return resultBuilder.build();
+    }
+
+    public final void registerObservers(final Twks twks) {
+        loadObserverServices(DeleteNanopublicationTwksObserver.class).forEach(observer -> twks.registerDeleteNanopublicationObserver(observer));
+        loadObserverServices(PutNanopublicationTwksObserver.class).forEach(observer -> twks.registerPutNanopublicationObserver(observer));
     }
 }
