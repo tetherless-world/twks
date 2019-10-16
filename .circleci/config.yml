@@ -14,7 +14,7 @@ jobs:
             cd java
             mvn -q clean package site site:stage -DstagingDirectory=$PWD/site
             tar cf site.tar site
-            bzip2 site.tar
+            bzip2 -9 site.tar
             cd ..
             mkdir -p test-results/java
             mv java/cli/target/surefire-reports/* test-results/java
