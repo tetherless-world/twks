@@ -5,6 +5,10 @@
     <Set name="contextPath">/</Set>
     <Set name="war">/var/lib/jetty/tw-webapps/twks-server-current.war</Set>
     <Call name="setInitParameter">
+        <Arg>twks.extfs</Arg>
+        <Arg>/extfs</Arg>
+    </Call>
+    <Call name="setInitParameter">
         <Arg>twks.tdb2Location</Arg>
         <Arg>/data</Arg>
     </Call>

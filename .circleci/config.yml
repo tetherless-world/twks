@@ -60,7 +60,7 @@ jobs:
           name: Run Python client tests
           command: |
             mkdir -p test-results/py
-            docker exec twks-py bash -c "mkdir -p ../test-results/py && cd tests && TWKS_BASE_URL=\"http://twks-server:8080\" pytest --junitxml=../../test-results/py/junit.xml"
+            docker exec twks-py bash -c "mkdir -p ../test-results/py && cd tests && TWKS_SERVER_BASE_URL=\"http://twks-server:8080\" pytest --junitxml=../../test-results/py/junit.xml"
             docker cp twks-py:/twks/test-results/py/junit.xml test-results/py
       - store_artifacts:
           path: test-results

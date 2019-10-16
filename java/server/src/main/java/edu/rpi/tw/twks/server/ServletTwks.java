@@ -28,10 +28,10 @@ public final class ServletTwks {
         logger.info("enabling classpath extensions");
         new ClasspathExtensions().registerObservers(instance);
 
-        final Path extfsDirectoryPath = Paths.get("/extfs");
+        final Path extfsDirectoryPath = Paths.get(configuration.getExtfsDirectoryPath());
         if (Files.isDirectory(extfsDirectoryPath)) {
             logger.info("found {}, enabling file system extensions", extfsDirectoryPath);
-            new FileSystemExtensions(extfsDirectoryPath, Optional.of(configuration.getServerBaseUrl()));
+            new FileSystemExtensions(extfsDirectoryPath, Optional.of(configuration.getServerBaseUrl())).registerObservers(instance);
         } else {
             logger.warn("{} does not exist, disabling file system extensions", extfsDirectoryPath);
         }
