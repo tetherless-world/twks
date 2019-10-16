@@ -12,8 +12,22 @@
 
 The Docker container exposes the server's REST and SPARQL APIs via HTTP on port 8080, which is bound to localhost.
 
-The server stores its data in a volume, `twks-data`.
+The server Dockerfile has several declared VOLUMEs:
+* `/data`: where the server stores its data
+* `/extcp`: where the server loads [Service Provider Interface (SPI)](https://docs.oracle.com/javase/tutorial/sound/SPI-intro.html) .jars
+* `/extfs`: where the server loads extension scripts
 
+The volumes can be accessed by running any other container with `--volumes-from`. After starting up the server:
+
+    docker run -it --volumes-from=twks-server ubuntu:bionic bash
+
+which mounts the volumes at the paths listed above. You can add an additional bind mount of a host directory:
+
+    docker run -it -v $PWD:/host --volumes-from=twks-server ubuntu:bionic bash
+
+and then copy files from the host to the appropriate `twks-server` volume e.g., `cp /host/my-spi.jar /extcp`.
+
+    
 ## Running the command line interface as a client
 
 Run the server as above, then:
