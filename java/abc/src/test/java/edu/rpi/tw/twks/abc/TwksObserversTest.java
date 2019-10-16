@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.observer.AsynchronousTwksObserver;
 import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
 import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
 import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public final class TwksObserversTest {
@@ -40,6 +42,22 @@ public final class TwksObserversTest {
         assertEquals(testData.specNanopublication.getUri(), observer.deleteNanopublicationUris.get(0));
         registration.unregister();
         observers.onDeleteNanopublication(twks, testData.secondNanopublication.getUri());
+        assertEquals(1, observer.deleteNanopublicationUris.size());
+        assertEquals(testData.specNanopublication.getUri(), observer.deleteNanopublicationUris.get(0));
+    }
+
+    @Test
+    public void testOnDeleteNanopublicationAsynchronous() throws InterruptedException {
+        final TestAsynchronousDeleteNanopublicationObserver observer = new TestAsynchronousDeleteNanopublicationObserver();
+        final TwksObserverRegistration registration = observers.registerDeleteNanopublicationObserver(observer);
+        assertTrue(observer.deleteNanopublicationUris.isEmpty());
+        observers.onDeleteNanopublication(twks, testData.specNanopublication.getUri());
+        for (int tryI = 0; tryI < 100; tryI++) {
+            if (!observer.deleteNanopublicationUris.isEmpty()) {
+                break;
+            }
+            Thread.sleep(100);
+        }
         assertEquals(1, observer.deleteNanopublicationUris.size());
         assertEquals(testData.specNanopublication.getUri(), observer.deleteNanopublicationUris.get(0));
     }
@@ -77,13 +95,16 @@ public final class TwksObserversTest {
         observers.registerPutNanopublicationObserver(new TestPutNanopublicationObserver()).unregister();
     }
 
-    private final static class TestDeleteNanopublicationObserver implements DeleteNanopublicationTwksObserver {
+    private static class TestDeleteNanopublicationObserver implements DeleteNanopublicationTwksObserver {
         List<Uri> deleteNanopublicationUris = new ArrayList<>();
 
         @Override
         public void onDeleteNanopublication(final Twks twks, final Uri nanopublicationUri) {
             deleteNanopublicationUris.add(nanopublicationUri);
         }
+    }
+
+    private static class TestAsynchronousDeleteNanopublicationObserver extends TestDeleteNanopublicationObserver implements AsynchronousTwksObserver {
     }
 
     private final static class TestPutNanopublicationObserver implements PutNanopublicationTwksObserver {

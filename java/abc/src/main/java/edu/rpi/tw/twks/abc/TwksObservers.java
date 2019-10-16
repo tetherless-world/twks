@@ -1,17 +1,17 @@
 package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
-import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
-import edu.rpi.tw.twks.api.observer.TwksObserver;
-import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
+import edu.rpi.tw.twks.api.observer.*;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -21,9 +21,18 @@ final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanop
     private final Set<DeleteNanopublicationTwksObserverRegistration> deleteNanopublicationObserverRegistrations = new HashSet<>();
     private final Set<PutNanopublicationTwksObserverRegistration> putNanopublicationObserverRegistrations = new HashSet<>();
     private final Twks twks;
+    private @Nullable
+    ExecutorService asynchronousObserverExecutorService = null;
 
     TwksObservers(final Twks twks) {
         this.twks = checkNotNull(twks);
+    }
+
+    private synchronized ExecutorService getAsynchronousObserverExecutorService() {
+        if (asynchronousObserverExecutorService == null) {
+            asynchronousObserverExecutorService = Executors.newWorkStealingPool();
+        }
+        return asynchronousObserverExecutorService;
     }
 
     public final TwksObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationTwksObserver observer) {
@@ -42,7 +51,11 @@ final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanop
     public final void onDeleteNanopublication(final Twks twks, final Uri nanopublicationUri) {
         checkState(twks == this.twks);
         for (final DeleteNanopublicationTwksObserverRegistration observerRegistration : deleteNanopublicationObserverRegistrations) {
-            observerRegistration.getObserver().onDeleteNanopublication(twks, nanopublicationUri);
+            if (observerRegistration.getObserver() instanceof AsynchronousTwksObserver) {
+                getAsynchronousObserverExecutorService().submit(() -> invokeDeleteNanonpublicationObserver(nanopublicationUri, observerRegistration.getObserver()));
+            } else {
+                invokeDeleteNanonpublicationObserver(nanopublicationUri, observerRegistration.getObserver());
+            }
         }
     }
 
@@ -50,8 +63,20 @@ final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanop
     public final void onPutNanopublication(final Twks twks, final Nanopublication nanopublication) {
         checkState(twks == this.twks);
         for (final PutNanopublicationTwksObserverRegistration observerRegistration : putNanopublicationObserverRegistrations) {
-            observerRegistration.getObserver().onPutNanopublication(twks, nanopublication);
+            if (observerRegistration.getObserver() instanceof AsynchronousTwksObserver) {
+                getAsynchronousObserverExecutorService().submit(() -> invokePutNanopublicationObserver(nanopublication, observerRegistration.getObserver()));
+            } else {
+                invokePutNanopublicationObserver(nanopublication, observerRegistration.getObserver());
+            }
         }
+    }
+
+    private void invokeDeleteNanonpublicationObserver(final Uri nanopublicationUri, final DeleteNanopublicationTwksObserver observer) {
+        observer.onDeleteNanopublication(twks, nanopublicationUri);
+    }
+
+    private void invokePutNanopublicationObserver(final Nanopublication nanopublication, final PutNanopublicationTwksObserver observer) {
+        observer.onPutNanopublication(twks, nanopublication);
     }
 
     private abstract class AbstractTwksObserverRegistration<ObserverT extends TwksObserver> implements TwksObserverRegistration {
