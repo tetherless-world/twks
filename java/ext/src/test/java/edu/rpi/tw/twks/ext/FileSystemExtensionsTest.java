@@ -61,7 +61,7 @@ public final class FileSystemExtensionsTest {
         Files.createDirectory(tempSubdirPath);
         try (final FileWriter fileWriter = new FileWriter(tempSubdirPath.resolve("delete_nanopublication_test.sh").toFile())) {
             fileWriter.write("#!/bin/bash\n" +
-                    "echo \"$1\">$(dirname \"$0\")/ran.txt");
+                    "echo \"$*\">$(dirname \"$0\")/ran.txt");
         }
 
         sut.registerObservers(twks);
