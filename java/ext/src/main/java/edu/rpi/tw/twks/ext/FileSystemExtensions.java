@@ -83,7 +83,10 @@ public final class FileSystemExtensions {
         }
 
         protected final ProcessBuilder newProcessBuilder() {
-            return new ProcessBuilder(filePath.toString());
+            final ProcessBuilder processBuilder = new ProcessBuilder(filePath.toString());
+            processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
+            processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            return processBuilder;
         }
 
         protected final void runProcess(final ProcessBuilder processBuilder) {
@@ -107,7 +110,7 @@ public final class FileSystemExtensions {
         @Override
         public void onDeleteNanopublication(final Twks twks, final Uri nanopublicationUri) {
             final ProcessBuilder processBuilder = newProcessBuilder();
-            processBuilder.command(nanopublicationUri.toString());
+            processBuilder.command().add(nanopublicationUri.toString());
             runProcess(processBuilder);
         }
     }
@@ -120,7 +123,7 @@ public final class FileSystemExtensions {
         @Override
         public void onPutNanopublication(final Twks twks, final Nanopublication nanopublication) {
             final ProcessBuilder processBuilder = newProcessBuilder();
-            processBuilder.command(nanopublication.getUri().toString());
+            processBuilder.command().add(nanopublication.getUri().toString());
             runProcess(processBuilder);
         }
     }

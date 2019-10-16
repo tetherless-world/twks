@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.ext;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 
 import static java.nio.file.Files.createTempDirectory;
 import static org.junit.Assert.assertEquals;
@@ -59,10 +61,12 @@ public final class FileSystemExtensionsTest {
 
         final Path tempSubdirPath = tempDirPath.resolve("delete_nanopublication");
         Files.createDirectory(tempSubdirPath);
-        try (final FileWriter fileWriter = new FileWriter(tempSubdirPath.resolve("delete_nanopublication_test.sh").toFile())) {
+        final Path tempFilePath = tempSubdirPath.resolve("delete_nanopublication_test.sh");
+        try (final FileWriter fileWriter = new FileWriter(tempFilePath.toFile())) {
             fileWriter.write("#!/bin/bash\n" +
                     "echo \"$*\">$(dirname \"$0\")/ran.txt");
         }
+        Files.setPosixFilePermissions(tempFilePath, ImmutableSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
 
         sut.registerObservers(twks);
 
@@ -70,7 +74,7 @@ public final class FileSystemExtensionsTest {
 
         for (int tryI = 0; tryI < 10; tryI++) {
             try (final FileReader fileReader = new FileReader(tempSubdirPath.resolve("ran.txt").toFile())) {
-                final String output = CharStreams.toString(fileReader);
+                final String output = CharStreams.toString(fileReader).trim();
                 assertEquals(testData.specNanopublication.getUri().toString(), output);
                 return;
             } catch (final IOException e) {
