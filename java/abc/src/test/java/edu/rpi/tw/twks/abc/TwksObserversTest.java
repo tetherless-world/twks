@@ -1,14 +1,12 @@
 package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
 import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
 import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.test.TestData;
 import edu.rpi.tw.twks.uri.Uri;
-import org.apache.jena.query.ReadWrite;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,15 +14,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 public final class TwksObserversTest {
     private final TestData testData;
-    private final TestTwks twks;
+    private final Twks twks;
     private TwksObservers observers;
 
     public TwksObserversTest() throws Exception {
         testData = new TestData();
-        twks = new TestTwks();
+        twks = mock(Twks.class);
     }
 
     @Before
@@ -76,13 +75,6 @@ public final class TwksObserversTest {
     @Test
     public void testUnregisterPutNanopublicationObserver() {
         observers.registerPutNanopublicationObserver(new TestPutNanopublicationObserver()).unregister();
-    }
-
-    private final static class TestTwks extends AbstractTwks {
-        @Override
-        protected TwksTransaction _beginTransaction(final ReadWrite readWrite) {
-            throw new UnsupportedOperationException();
-        }
     }
 
     private final static class TestDeleteNanopublicationObserver implements DeleteNanopublicationTwksObserver {

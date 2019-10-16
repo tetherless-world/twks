@@ -1,6 +1,5 @@
 package edu.rpi.tw.twks.abc;
 
-import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
 import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
@@ -12,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.ServiceLoader;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -27,18 +24,6 @@ final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanop
 
     TwksObservers(final Twks twks) {
         this.twks = checkNotNull(twks);
-        loadObserverServices(DeleteNanopublicationTwksObserver.class).forEach(observer -> registerDeleteNanopublicationObserver(observer));
-        loadObserverServices(PutNanopublicationTwksObserver.class).forEach(observer -> registerPutNanopublicationObserver(observer));
-    }
-
-    private <ObserverT extends TwksObserver> ImmutableSet<ObserverT> loadObserverServices(final Class<ObserverT> observerClass) {
-        final ServiceLoader<ObserverT> serviceLoader = ServiceLoader.load(observerClass);
-        final ImmutableSet.Builder<ObserverT> resultBuilder = ImmutableSet.builder();
-        for (final Iterator<ObserverT> observerI = serviceLoader.iterator(); observerI.hasNext(); ) {
-            final ObserverT observer = observerI.next();
-            resultBuilder.add(observer);
-        }
-        return resultBuilder.build();
     }
 
     public final TwksObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationTwksObserver observer) {
