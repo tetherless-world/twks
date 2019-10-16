@@ -17,13 +17,16 @@ import java.util.ServiceLoader;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanopublicationTwksObserver {
     private final static Logger logger = LoggerFactory.getLogger(TwksObservers.class);
     private final Set<DeleteNanopublicationTwksObserverRegistration> deleteNanopublicationObserverRegistrations = new HashSet<>();
     private final Set<PutNanopublicationTwksObserverRegistration> putNanopublicationObserverRegistrations = new HashSet<>();
+    private final Twks twks;
 
-    TwksObservers() {
+    TwksObservers(final Twks twks) {
+        this.twks = checkNotNull(twks);
         loadObserverServices(DeleteNanopublicationTwksObserver.class).forEach(observer -> registerDeleteNanopublicationObserver(observer));
         loadObserverServices(PutNanopublicationTwksObserver.class).forEach(observer -> registerPutNanopublicationObserver(observer));
     }
@@ -52,6 +55,7 @@ final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanop
 
     @Override
     public final void onDeleteNanopublication(final Twks twks, final Uri nanopublicationUri) {
+        checkState(twks == this.twks);
         for (final DeleteNanopublicationTwksObserverRegistration observerRegistration : deleteNanopublicationObserverRegistrations) {
             observerRegistration.getObserver().onDeleteNanopublication(twks, nanopublicationUri);
         }
@@ -59,6 +63,7 @@ final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanop
 
     @Override
     public final void onPutNanopublication(final Twks twks, final Nanopublication nanopublication) {
+        checkState(twks == this.twks);
         for (final PutNanopublicationTwksObserverRegistration observerRegistration : putNanopublicationObserverRegistrations) {
             observerRegistration.getObserver().onPutNanopublication(twks, nanopublication);
         }

@@ -29,7 +29,7 @@ public final class TwksObserversTest {
 
     @Before
     public void setUp() {
-        observers = new TwksObservers();
+        observers = new TwksObservers(twks);
     }
 
     @Test

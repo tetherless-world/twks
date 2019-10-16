@@ -13,7 +13,7 @@ import org.apache.jena.rdf.model.Model;
 import java.util.Optional;
 
 public abstract class AbstractTwks implements Twks {
-    private final TwksObservers observers = new TwksObservers();
+    private final TwksObservers observers = new TwksObservers(this);
 
     protected final TwksObservers getObservers() {
         return observers;
