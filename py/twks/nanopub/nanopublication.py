@@ -121,6 +121,9 @@ class Nanopublication:
 
         return nanopublication_uri
 
+    def __repr__(self):
+        return "%s(uri=%s)" % (self.__class__.__name__, self.uri)
+
     @property
     def uri(self) -> rdflib.URIRef:
         return self.__uri
