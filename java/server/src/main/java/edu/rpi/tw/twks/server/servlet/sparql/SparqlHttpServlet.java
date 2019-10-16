@@ -4,7 +4,7 @@ import com.google.common.io.CharStreams;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.server.AcceptLists;
-import edu.rpi.tw.twks.server.ServletContextTwks;
+import edu.rpi.tw.twks.server.ServletTwks;
 import edu.rpi.tw.twks.server.servlet.TwksHttpServlet;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.atlas.web.AcceptList;
@@ -31,7 +31,7 @@ abstract class SparqlHttpServlet extends TwksHttpServlet {
     private final AcceptList offerResultsAcceptList;
 
     protected SparqlHttpServlet() {
-        this(ServletContextTwks.getInstance());
+        this(ServletTwks.getInstance());
     }
 
     protected SparqlHttpServlet(final Twks twks) {

@@ -1,5 +1,8 @@
 package edu.rpi.tw.twks.api;
 
+import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
 import org.apache.jena.query.ReadWrite;
 
 /**
@@ -20,4 +23,20 @@ public interface Twks extends BulkReadApi, NanopublicationCrudApi {
      * @see TwksTransaction for use information.
      */
     TwksTransaction beginTransaction(ReadWrite readWrite);
+
+    /**
+     * Register an observer of the deleteNanopublication operation.
+     *
+     * @param observer
+     * @return registration instance, which can be used to unregister the observer
+     */
+    TwksObserverRegistration registerDeleteNanopublicationObserver(DeleteNanopublicationTwksObserver observer);
+
+    /**
+     * Register an observer of the putNanopublication operation.
+     *
+     * @param observer
+     * @return registration instance, which can be used to unregister the observer
+     */
+    TwksObserverRegistration registerPutNanopublicationObserver(PutNanopublicationTwksObserver observer);
 }

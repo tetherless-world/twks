@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
       - run:
           name: Build and test Java
           command: |
@@ -25,7 +25,6 @@ jobs:
             mv java/tdb/target/site java/site/tdb
             mv java/uri/target/site java/site/uri
             mv java/vocabulary/target/site java/site/vocabulary
-            cd ..
             mkdir -p test-results/java
             mv java/cli/target/surefire-reports/* test-results/java
             mv java/factory/target/surefire-reports/* test-results/java
@@ -36,7 +35,7 @@ jobs:
       - store_artifacts:
           path: java/site
       - save_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
           paths:
             - ~/.m2
       - setup_remote_docker
@@ -55,13 +54,13 @@ jobs:
       - run:
           name: Run Java client tests
           command: |
-            docker exec twks-java bash -c "mvn -q -DargLine=\"-Dedu.rpi.tw.twks.client.baseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false test"
+            docker exec twks-java bash -c "mvn -q -DargLine=\"-Dtwks.serverBaseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false test"
             docker cp twks-java:/twks/java/client/target/surefire-reports/TEST-edu.rpi.tw.twks.client.TwksClientTest.xml test-results/java
       - run:
           name: Run Python client tests
           command: |
             mkdir -p test-results/py
-            docker exec twks-py bash -c "mkdir -p ../test-results/py && cd tests && TWKS_BASE_URL=\"http://twks-server:8080\" pytest --junitxml=../../test-results/py/junit.xml"
+            docker exec twks-py bash -c "mkdir -p ../test-results/py && cd tests && TWKS_SERVER_BASE_URL=\"http://twks-server:8080\" pytest --junitxml=../../test-results/py/junit.xml"
             docker cp twks-py:/twks/test-results/py/junit.xml test-results/py
       - store_artifacts:
           path: test-results

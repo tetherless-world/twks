@@ -10,9 +10,9 @@ COPY --from=build-java /twks/java/dist/twks-server-current.war /var/lib/jetty/tw
 COPY /docker/server/twks-server.xml /var/lib/jetty/webapps
 
 USER root
-RUN mkdir /data
-RUN chown jetty.jetty /data
-
+RUN rmdir /var/lib/jetty/lib/ext && ln -s /extcp /var/lib/jetty/lib/ext
 USER jetty
 
 EXPOSE 8080
+
+VOLUME ["/data", "/extcp", "/extfs"]

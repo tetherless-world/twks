@@ -54,6 +54,7 @@
         <module>api</module>
         <module>cli</module>
         <module>client</module>
+        <module>ext</module>
         <module>factory</module>
         <module>nanopub</module>
         <module>server</module>
@@ -64,10 +65,8 @@
     </modules>
 
     <properties>
-        <hamcrest.version>1.3</hamcrest.version>
         <jena.version>3.13.0</jena.version>
         <junit.version>4.12</junit.version>
-        <mockito.version>3.1.0</mockito.version>
         <product>Tetherless World Knowledge Store (TWKS)</product>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.28</slf4j.version>

@@ -2,7 +2,7 @@ package edu.rpi.tw.twks.server.servlet;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.AcceptLists;
-import edu.rpi.tw.twks.server.ServletContextTwks;
+import edu.rpi.tw.twks.server.ServletTwks;
 import org.apache.jena.atlas.web.AcceptList;
 
 import javax.servlet.http.HttpServlet;
@@ -15,7 +15,7 @@ public abstract class TwksHttpServlet extends HttpServlet {
     private final Twks twks;
 
     protected TwksHttpServlet() {
-        this(ServletContextTwks.getInstance());
+        this(ServletTwks.getInstance());
     }
 
     protected TwksHttpServlet(final Twks twks) {
