@@ -64,7 +64,8 @@ public final class FileSystemExtensionsTest {
         final Path tempFilePath = tempSubdirPath.resolve("delete_nanopublication_test.sh");
         try (final FileWriter fileWriter = new FileWriter(tempFilePath.toFile())) {
             fileWriter.write("#!/bin/bash\n" +
-                    "echo \"$*\">$(dirname \"$0\")/ran.txt");
+                    "echo \"Executing script\"\n" +
+                    "echo \"$*\">>$(dirname \"$0\")/ran.txt");
         }
         Files.setPosixFilePermissions(tempFilePath, ImmutableSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
 

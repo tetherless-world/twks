@@ -39,7 +39,6 @@ public abstract class AbstractTwks implements Twks {
             final DeleteNanopublicationResult result = transaction.deleteNanopublication(uri);
             if (result == DeleteNanopublicationResult.DELETED) {
                 transaction.commit();
-                getObservers().onDeleteNanopublication(this, uri);
             } else {
                 transaction.abort();
             }
@@ -59,7 +58,6 @@ public abstract class AbstractTwks implements Twks {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
             final PutNanopublicationResult result = transaction.putNanopublication(nanopublication);
             transaction.commit();
-            getObservers().onPutNanopublication(this, nanopublication);
             return result;
         }
     }
