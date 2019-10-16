@@ -13,6 +13,8 @@ jobs:
           command: |
             cd java
             mvn -q clean package site site:stage -DstagingDirectory=$PWD/site
+            tar cf site.tar site
+            bzip2 site.tar
             cd ..
             mkdir -p test-results/java
             mv java/cli/target/surefire-reports/* test-results/java
@@ -23,7 +25,7 @@ jobs:
             mv java/tdb/target/surefire-reports/* test-results/java
             mv java/uri/target/surefire-reports/* test-results/java
       - store_artifacts:
-          path: java/site
+          path: java/site.tar.bz2
       - save_cache:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
           paths:
