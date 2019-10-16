@@ -32,6 +32,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>3.2.1</version>
                 </plugin>
@@ -69,6 +74,14 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <site>
+            <id>twks.tw.rpi.edu</id>
+            <!-- Not supposed to work, just a placeholder -->
+            <url>scp://twks.tw.rpi.edu</url>
+        </site>
+    </distributionManagement>
 
     <modules>
         <module>abc</module>

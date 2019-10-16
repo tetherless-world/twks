@@ -12,21 +12,11 @@ jobs:
           name: Build and test Java
           command: |
             cd java
-            mvn -q clean package site
+            mvn -q clean package site site:stage -DstagingDirectory=$PWD/site
             cd ..
-            mkdir -p java/site
-            mv java/abc/target/site java/site/abc
-            mv java/api/target/site java/site/api
-            mv java/cli/target/site java/site/cli
-            mv java/client/target/site java/site/client
-            mv java/factory/target/site java/site/factory
-            mv java/nanopub/target/site java/site/nanopub
-            mv java/server/target/site java/site/server
-            mv java/tdb/target/site java/site/tdb
-            mv java/uri/target/site java/site/uri
-            mv java/vocabulary/target/site java/site/vocabulary
             mkdir -p test-results/java
             mv java/cli/target/surefire-reports/* test-results/java
+            mv java/ext/target/surefire-reports/* test-results/java
             mv java/factory/target/surefire-reports/* test-results/java
             mv java/nanopub/target/surefire-reports/* test-results/java
             mv java/server/target/surefire-reports/* test-results/java
