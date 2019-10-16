@@ -11,6 +11,6 @@ The store is implemented in Java, and exposes several interfaces:
 
 TWKS consists of multiple sub-projects. Each sub-project directory ([`docker/`](docker/README.md), [`java/`](java/README.md), [`py/`](py/README.md)) has a `script/` subdirectory for building and running that part of the project. The `script/` directories conform to the [Scripts to Rule Them All](https://github.com/github/scripts-to-rule-them-all) conventions.
 
-* [Docker-based server](docker/script/README.md)
-* [Java library](java/script/README.md)
-* [Python library](py/script/README.md)
+* [Docker-based server](docker/script/)
+* [Java library](java/script/)
+* [Python library](py/script/)
