@@ -35,9 +35,9 @@ import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
  */
 public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, QueryApi {
     private final static Logger logger = LoggerFactory.getLogger(TwksClient.class);
-    private final String baseUrl;
     private final ApacheHttpTransport httpTransport;
     private final HttpRequestFactory httpRequestFactory;
+    private final String serverBaseUrl;
 
     public TwksClient() {
         this(new TwksClientConfiguration());
@@ -47,7 +47,7 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
      * Construct a new TWKS client.
      */
     public TwksClient(final TwksClientConfiguration configuration) {
-        this.baseUrl = checkNotNull(configuration.getBaseUrl());
+        this.serverBaseUrl = checkNotNull(configuration.getServerBaseUrl());
         httpTransport = new ApacheHttpTransport();
         httpRequestFactory = httpTransport.createRequestFactory();
     }
@@ -55,7 +55,7 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
     @Override
     public Model getAssertions() {
         try {
-            final HttpResponse response = httpRequestFactory.buildGetRequest(new GenericUrl(baseUrl + "/assertions")).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
+            final HttpResponse response = httpRequestFactory.buildGetRequest(new GenericUrl(serverBaseUrl + "/assertions")).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
             try (final InputStream inputStream = response.getContent()) {
                 final Model model = ModelFactory.createDefaultModel();
                 setNsPrefixes(model);
@@ -91,7 +91,7 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
 
     private GenericUrl newNanopublicationUrl(final Uri nanopublicationUri) {
         try {
-            return new GenericUrl(baseUrl + "/nanopublication/" + URLEncoder.encode(nanopublicationUri.toString(), "UTF-8"));
+            return new GenericUrl(serverBaseUrl + "/nanopublication/" + URLEncoder.encode(nanopublicationUri.toString(), "UTF-8"));
         } catch (final UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
@@ -148,11 +148,11 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
 
     @Override
     public QueryExecution queryAssertions(final Query query) {
-        return QueryExecutionFactory.sparqlService(baseUrl + "/sparql/assertions", query, httpTransport.getHttpClient());
+        return QueryExecutionFactory.sparqlService(serverBaseUrl + "/sparql/assertions", query, httpTransport.getHttpClient());
     }
 
     @Override
     public QueryExecution queryNanopublications(final Query query) {
-        return QueryExecutionFactory.sparqlService(baseUrl + "/sparql/nanopublications", query, httpTransport.getHttpClient());
+        return QueryExecutionFactory.sparqlService(serverBaseUrl + "/sparql/nanopublications", query, httpTransport.getHttpClient());
     }
 }

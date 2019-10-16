@@ -12,15 +12,18 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class FileSystemExtensions {
     private final static Logger logger = LoggerFactory.getLogger(FileSystemExtensions.class);
     private final Path rootDirectoryPath;
+    private final Optional<String> serverBaseUrl;
 
-    public FileSystemExtensions(final Path rootDirectoryPath) {
+    public FileSystemExtensions(final Path rootDirectoryPath, final Optional<String> serverBaseUrl) {
         this.rootDirectoryPath = checkNotNull(rootDirectoryPath);
+        this.serverBaseUrl = checkNotNull(serverBaseUrl);
     }
 
     public final void registerObservers(final Twks twks) {
@@ -68,6 +71,7 @@ public final class FileSystemExtensions {
             default:
                 throw new UnsupportedOperationException();
         }
+        logger.info("registered {} observer {}", type, filePath);
     }
 
     private enum TwksObserverType {
@@ -75,34 +79,7 @@ public final class FileSystemExtensions {
         PUT_NANOPUBLICATION
     }
 
-    private abstract static class FileSystemTwksObserver implements AsynchronousTwksObserver {
-        private final Path filePath;
-
-        protected FileSystemTwksObserver(final Path filePath) {
-            this.filePath = checkNotNull(filePath);
-        }
-
-        protected final ProcessBuilder newProcessBuilder() {
-            final ProcessBuilder processBuilder = new ProcessBuilder(filePath.toString());
-            processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
-            processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-            return processBuilder;
-        }
-
-        protected final void runProcess(final ProcessBuilder processBuilder) {
-            try {
-                final Process process = processBuilder.start();
-                final int returnCode = process.waitFor();
-                if (returnCode != 0) {
-                    logger.warn("{} returned {}", filePath, returnCode);
-                }
-            } catch (final IOException | InterruptedException e) {
-                logger.error("error executing {}: ", filePath, e);
-            }
-        }
-    }
-
-    private final static class FileSystemDeleteNanopublicationTwksObserver extends FileSystemTwksObserver implements DeleteNanopublicationTwksObserver {
+    private final class FileSystemDeleteNanopublicationTwksObserver extends FileSystemTwksObserver implements DeleteNanopublicationTwksObserver {
         public FileSystemDeleteNanopublicationTwksObserver(final Path filePath) {
             super(filePath);
         }
@@ -116,7 +93,7 @@ public final class FileSystemExtensions {
         }
     }
 
-    private final static class FileSystemPutNanopublicationTwksObserver extends FileSystemTwksObserver implements PutNanopublicationTwksObserver {
+    private final class FileSystemPutNanopublicationTwksObserver extends FileSystemTwksObserver implements PutNanopublicationTwksObserver {
         public FileSystemPutNanopublicationTwksObserver(final Path filePath) {
             super(filePath);
         }
@@ -127,6 +104,37 @@ public final class FileSystemExtensions {
             processBuilder.command().add("--nanopublication-uri");
             processBuilder.command().add(nanopublication.getUri().toString());
             runProcess(processBuilder);
+        }
+    }
+
+    private abstract class FileSystemTwksObserver implements AsynchronousTwksObserver {
+        private final Path filePath;
+
+        protected FileSystemTwksObserver(final Path filePath) {
+            this.filePath = checkNotNull(filePath);
+        }
+
+        protected final ProcessBuilder newProcessBuilder() {
+            final ProcessBuilder processBuilder = new ProcessBuilder(filePath.toString());
+            processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
+            processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            if (serverBaseUrl.isPresent()) {
+                processBuilder.command().add("--server-base-url");
+                processBuilder.command().add(serverBaseUrl.get());
+            }
+            return processBuilder;
+        }
+
+        protected final void runProcess(final ProcessBuilder processBuilder) {
+            try {
+                final Process process = processBuilder.start();
+                final int returnCode = process.waitFor();
+                if (returnCode != 0) {
+                    logger.warn("{} returned {}", filePath, returnCode);
+                }
+            } catch (final IOException | InterruptedException e) {
+                logger.error("error executing {}: ", filePath, e);
+            }
         }
     }
 }

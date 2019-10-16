@@ -37,6 +37,11 @@
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
+            <artifactId>twks-ext</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
             <artifactId>twks-factory</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

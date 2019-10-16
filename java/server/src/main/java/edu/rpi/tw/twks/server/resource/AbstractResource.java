@@ -1,13 +1,13 @@
 package edu.rpi.tw.twks.server.resource;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.server.ServletContextTwks;
+import edu.rpi.tw.twks.server.ServletTwks;
 
 public abstract class AbstractResource {
     private final Twks twks;
 
     public AbstractResource() {
-        this(ServletContextTwks.getInstance());
+        this(ServletTwks.getInstance());
     }
 
     public AbstractResource(final Twks twks) {

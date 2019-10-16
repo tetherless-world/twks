@@ -20,6 +20,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.Optional;
 
 import static java.nio.file.Files.createTempDirectory;
 import static org.junit.Assert.assertEquals;
@@ -40,7 +41,7 @@ public final class FileSystemExtensionsTest {
     public void setUp() throws IOException {
         originalSystemOut = System.out;
         tempDirPath = createTempDirectory(getClass().getCanonicalName());
-        sut = new FileSystemExtensions(tempDirPath);
+        sut = new FileSystemExtensions(tempDirPath, Optional.empty());
         twks = TwksFactory.getInstance().createTwks();
     }
 

@@ -7,16 +7,16 @@ import java.util.Properties;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class TwksClientConfiguration {
-    public final static String BASE_URL_DEFAULT = "http://localhost:8080";
+    public final static String SERVER_BASE_URL_DEFAULT = "http://localhost:8080";
 
-    private String baseUrl = BASE_URL_DEFAULT;
+    private String serverBaseUrl = SERVER_BASE_URL_DEFAULT;
 
-    public final String getBaseUrl() {
-        return baseUrl;
+    public final String getServerBaseUrl() {
+        return serverBaseUrl;
     }
 
-    public final TwksClientConfiguration setBaseUrl(final String baseUrl) {
-        this.baseUrl = checkNotNull(baseUrl);
+    public final TwksClientConfiguration setServerBaseUrl(final String serverBaseUrl) {
+        this.serverBaseUrl = checkNotNull(serverBaseUrl);
         return this;
     }
 
@@ -26,19 +26,14 @@ public final class TwksClientConfiguration {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("baseUrl", baseUrl).toString();
+        return MoreObjects.toStringHelper(this).add("serverBaseUrl", serverBaseUrl).toString();
     }
 
     public final TwksClientConfiguration setFromProperties(final Properties properties) {
-        final String baseUrl = properties.getProperty(PropertyKeys.BASE_URL);
-        if (baseUrl != null) {
-            this.baseUrl = baseUrl;
-        }
-        return this;
+        return setServerBaseUrl(properties.getProperty(PropertyKeys.SERVER_BASE_URL, serverBaseUrl));
     }
 
     public final static class PropertyKeys {
-        public final static String BASE_URL = TwksClientConfiguration.class.getPackage().getName() + ".baseUrl";
+        public final static String SERVER_BASE_URL = "twks.serverBaseUrl";
     }
-
 }

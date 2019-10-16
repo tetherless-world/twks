@@ -30,8 +30,6 @@ services:
     depends_on:
       - twks-java
     image: tetherlessworld/twks-server
-    volumes:
-      - twks-data:/data
 
 volumes:
   twks-data:
