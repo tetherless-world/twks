@@ -8,7 +8,7 @@ from twks.client.twks_client import TwksClient
 
 @pytest.fixture
 def client():
-    return TwksClient(base_url=os.environ.get("TWKS_SERVER_BASE_URL", None))
+    return TwksClient(server_base_url=os.environ.get("TWKS_SERVER_BASE_URL", None))
 
 
 def test_delete_nanopublication_absent(client, spec_nanopublication):

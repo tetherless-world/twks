@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -30,7 +32,7 @@ public final class FileSystemExtensions {
         try {
             Files.list(rootDirectoryPath).forEach(subDirectoryPath -> {
                 if (!Files.isDirectory(subDirectoryPath)) {
-                    logger.warn("{} contains unrecognized non-directory {}", rootDirectoryPath, subDirectoryPath);
+                    logger.warn("extfs: {} contains unrecognized non-directory {}", rootDirectoryPath, subDirectoryPath);
                     return;
                 }
 
@@ -38,25 +40,39 @@ public final class FileSystemExtensions {
                 try {
                     observerType = TwksObserverType.valueOf(subDirectoryPath.getFileName().toString().toUpperCase());
                 } catch (final IllegalArgumentException e) {
-                    logger.error("{}: unrecognized observer type {}", subDirectoryPath, subDirectoryPath.getFileName());
+                    logger.error("extfs: {}: unrecognized observer type {}", subDirectoryPath, subDirectoryPath.getFileName());
                     return;
                 }
 
                 try {
                     Files.list(subDirectoryPath).forEach(filePath -> {
                         if (!Files.isRegularFile(filePath)) {
-                            logger.warn("{} contains unrecognized non-file {}", subDirectoryPath, filePath);
+                            logger.warn("extfs: {} contains unrecognized non-file {}", subDirectoryPath, filePath);
+                            return;
+                        }
+
+                        final Set<PosixFilePermission> filePermissions;
+                        try {
+                            filePermissions = Files.getPosixFilePermissions(filePath);
+                        } catch (final IOException e) {
+                            logger.error("extfs: error getting file permissions for {}", filePath);
+                            return;
+                        }
+
+                        if (!filePermissions.contains(PosixFilePermission.OWNER_EXECUTE)) {
+                            logger.info("extfs: {} is not owner-executable, ignoring", filePath);
                             return;
                         }
 
                         registerObserver(filePath, observerType, twks);
                     });
                 } catch (final IOException e) {
-                    throw new RuntimeException(e);
+                    logger.error("extfs: error listing subdirectory {}", subDirectoryPath);
+                    return;
                 }
             });
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            logger.error("extfs: error listing root directory {}", rootDirectoryPath);
         }
     }
 
@@ -71,7 +87,7 @@ public final class FileSystemExtensions {
             default:
                 throw new UnsupportedOperationException();
         }
-        logger.info("registered {} observer {}", type, filePath);
+        logger.info("extfs: registered {} observer {}", type, filePath);
     }
 
     private enum TwksObserverType {
@@ -130,10 +146,10 @@ public final class FileSystemExtensions {
                 final Process process = processBuilder.start();
                 final int returnCode = process.waitFor();
                 if (returnCode != 0) {
-                    logger.warn("{} returned {}", filePath, returnCode);
+                    logger.warn("extfs: {} returned {}", filePath, returnCode);
                 }
             } catch (final IOException | InterruptedException e) {
-                logger.error("error executing {}: ", filePath, e);
+                logger.error("extfs: error executing {}: ", filePath, e);
             }
         }
     }

@@ -1,4 +1,10 @@
-#!/usr/bin/env python3
+"""
+Python example observer.
+
+This file is not marked executable, and so it is ignored by the loader.
+The companion shell script is executable. It is needed to set up the virtual environment.
+"""
+
 
 from twks.ext import ExtensionArgumentParser
 

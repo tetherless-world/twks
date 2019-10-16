@@ -15,5 +15,5 @@ class ExtensionArgumentParser(ArgumentParser):
         args = ArgumentParser.parse_args(self, *args, **kwds)
         if args.server_base_url:
             from twks.client.twks_client import TwksClient
-            args.client = TwksClient(base_url=args.server_base_url)
+            args.client = TwksClient(server_base_url=args.server_base_url)
         return args
