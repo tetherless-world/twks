@@ -36,7 +36,7 @@ jobs:
           command: cp -p -R ~/.m2 java/
       - run:
           name: Build Docker images
-          command: cd docker && docker-compose build --parallel
+          command: cd docker && docker-compose build
       - run:
           name: Run the server
           command: cd docker && docker-compose up -d twks-java twks-py twks-server
