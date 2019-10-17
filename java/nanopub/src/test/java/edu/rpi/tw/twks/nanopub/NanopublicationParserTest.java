@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public final class NanopublicationParserTest {
     private NanopublicationParser sut;
@@ -31,7 +32,8 @@ public final class NanopublicationParserTest {
     @Test
     public void testParseAssertionFile() throws IOException, MalformedNanopublicationException {
         final Nanopublication nanopublication = sut.parse(testData.assertionOnlyFilePath);
-        assertEquals(testData.assertionOnlyFilePath.toURI().toString(), nanopublication.getUri().toString());
+//        assertEquals(testData.assertionOnlyFilePath.toURI().toString(), nanopublication.getUri().toString());
+        assertTrue(nanopublication.getUri().toString().startsWith("urn:uuid:"));
         assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
         assertEquals(1, nanopublication.getProvenance().getModel().listStatements().toList().size());
         assertEquals(1, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
