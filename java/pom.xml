@@ -208,24 +208,13 @@
         </license>
     </licenses>
 
-    <modules>
-        <module>abc</module>
-        <module>api</module>
-        <module>cli</module>
-        <module>client</module>
-        <module>ext</module>
-        <module>factory</module>
-        <module>nanopub</module>
-        <module>server</module>
-        <module>tdb</module>
-        <module>test</module>
-        <module>uri</module>
-        <module>vocabulary</module>
-    </modules>
-
     <profiles>
         <profile>
-            <id>ci</id>
+            <id>default</id>
+            <activation>
+                <!-- Activate this profile if no other profiles are activated with -P on the command line -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -249,6 +238,21 @@
                     </plugin>
                 </plugins>
             </build>
+            <!-- All modules active by default -->
+            <modules>
+                <module>abc</module>
+                <module>api</module>
+                <module>cli</module>
+                <module>client</module>
+                <module>ext</module>
+                <module>factory</module>
+                <module>nanopub</module>
+                <module>server</module>
+                <module>tdb</module>
+                <module>test</module>
+                <module>uri</module>
+                <module>vocabulary</module>
+            </modules>
         </profile>
         <profile>
             <id>release</id>
@@ -275,6 +279,21 @@
                     </plugin>
                 </plugins>
             </build>
+            <modules>
+                <!-- Copied from complete modules list, selectively commented out: cli, ext, server -->
+                <module>abc</module>
+                <module>api</module>
+                <!--                <module>cli</module>-->
+                <module>client</module>
+                <!--                <module>ext</module>-->
+                <module>factory</module>
+                <module>nanopub</module>
+                <!--                <module>server</module>-->
+                <module>tdb</module>
+                <module>test</module>
+                <module>uri</module>
+                <module>vocabulary</module>
+            </modules>
         </profile>
     </profiles>
 
