@@ -68,6 +68,8 @@ jobs:
       - run:
           name: Push Java artifacts
           command: |
-            cp ~/twks/.circleci/maven-settings.xml ~/.m2/settings.xml
-            echo -e "$OSSRH_GPG_KEY" | gpg --import
-            cd java && mvn -P release -Dmaven.test.skip=true deploy
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              cp ~/twks/.circleci/maven-settings.xml ~/.m2/settings.xml
+              echo -e "$OSSRH_GPG_KEY" | gpg --import
+              cd java && mvn -q -P release -Dmaven.test.skip=true deploy
+            fi
