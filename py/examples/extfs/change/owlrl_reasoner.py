@@ -36,6 +36,14 @@ def main():
     if not new_assertions:
         return
 
+    bnode_assertions_count = 0
+    for s, p, o in new_assertions:
+        if isinstance(s, rdflib.BNode) and isinstance(o, rdflib.BNode) and p == rdflib.OWL["sameAs"]:
+            bnode_assertions_count += 1
+    if bnode_assertions_count == len(new_assertions):
+        logging.info("owlrl_reasoner: only produced bnode owl:sameAs otherBnode assertions, ignoring")
+        return
+
     new_nanopublication = Nanopublication.from_assertions(new_assertions)
     logging.info("owlrl_reasoner: new nanopublication: {}", new_nanopublication)
     client.put_nanopublication(new_nanopublication)

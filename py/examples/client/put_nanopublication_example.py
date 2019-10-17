@@ -2,6 +2,7 @@
 TWKS client example that puts a nanopublication to the server
 """
 
+import logging
 import os.path
 import pathlib
 
@@ -17,4 +18,5 @@ if __name__ == '__main__':
         format="ttl",
         source=file_path,
         source_uri=rdflib.URIRef(pathlib.Path(file_path).as_uri()))
+    logging.info("putting nanopublication to the server")
     client.put_nanopublication(nanopublication)
