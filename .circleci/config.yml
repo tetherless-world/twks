@@ -12,7 +12,7 @@ jobs:
           name: Build and test Java
           command: |
             cd java
-            mvn -q clean package site site:stage -DstagingDirectory=$PWD/site
+            mvn clean package site site:stage -DstagingDirectory=$PWD/site
             tar cf site.tar site
             bzip2 -9 site.tar
             cd ..
@@ -65,3 +65,9 @@ jobs:
               docker login -u $DOCKER_USER -p $DOCKER_PASS
               cd docker && docker-compose push twks-cli twks-server
             fi
+      - run:
+          name: Push Java artifacts
+          command: |
+            cp ~/twks/.circleci/maven-settings.xml ~/.m2/settings.xml
+            echo -e "$GPG_KEY" | gpg --import
+            # mvn -P release deploy
