@@ -21,7 +21,9 @@ Release dependencies can be added directly to your Maven/Gradle/SBT configuratio
 
 #### Snapshots
 
-Snapshots from Maven Central require enabling the OSSRH snapshot repository. In Maven `~/.m2/settings.xml`
+Snapshots from Maven Central require enabling the OSSRH snapshot repository.
+
+In Maven `~/.m2/settings.xml`
 
     <profiles>
       <profile>
@@ -37,6 +39,11 @@ Snapshots from Maven Central require enabling the OSSRH snapshot repository. In 
          </repositories>
        </profile>
     </profiles>
+
+Or in `build.sbt`:
+
+    resolvers +=
+      "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 Then use a dependency like:
 
