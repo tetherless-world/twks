@@ -59,6 +59,7 @@
                     <configuration>
                         <failOnError>false</failOnError>
                         <skip>true</skip>
+                        <source>1.8</source>
                     </configuration>
                     <executions>
                         <execution>
