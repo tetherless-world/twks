@@ -9,6 +9,149 @@ import java.io.IOException;
 import java.io.StringReader;
 
 public final class TestData {
+    public final static String RELATIVES_TTL = "@prefix : <http://example.org/relatives#> .\n" +
+            "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n" +
+            "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+            "@prefix xml: <http://www.w3.org/XML/1998/namespace> .\n" +
+            "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n" +
+            "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+            "@base <http://example.org/relatives> .\n" +
+            "\n" +
+            "<http://example.org/relatives> rdf:type owl:Ontology .\n" +
+            "\n" +
+            "#################################################################\n" +
+            "#    Object Properties\n" +
+            "#################################################################\n" +
+            "\n" +
+            "###  http://example.org/relatives#hasChild\n" +
+            ":hasChild rdf:type owl:ObjectProperty ;\n" +
+            "          owl:inverseOf :hasParent .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#hasParent\n" +
+            ":hasParent rdf:type owl:ObjectProperty .\n" +
+            "\n" +
+            ":hasGrandparent rdf:type owl:ObjectProperty ;\n" +
+            "                owl:propertyChainAxiom ( :hasParent\n" +
+            "                                         :hasParent\n" +
+            "                                       ) .\n" +
+            "\n" +
+            "#################################################################\n" +
+            "#    Classes\n" +
+            "#################################################################\n" +
+            "\n" +
+            "###  http://example.org/relatives#Child\n" +
+            ":Child rdf:type owl:Class ;\n" +
+            "       rdfs:subClassOf :Person .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Parent\n" +
+            ":Parent rdf:type owl:Class ;\n" +
+            "        rdfs:subClassOf :Person .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Person\n" +
+            ":Person rdf:type owl:Class .\n" +
+            "\n" +
+            "\n" +
+            "#################################################################\n" +
+            "#    Individuals\n" +
+            "#################################################################\n" +
+            "\n" +
+            "###  http://example.org/relatives#Aaron\n" +
+            ":Aaron rdf:type owl:NamedIndividual .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Ann\n" +
+            ":Ann rdf:type owl:NamedIndividual ,\n" +
+            "              :Person .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Bill\n" +
+            ":Bill rdf:type owl:NamedIndividual ,\n" +
+            "               :Person .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Bob\n" +
+            ":Bob rdf:type owl:NamedIndividual ,\n" +
+            "              :Person ;\n" +
+            "     :hasParent :Bill .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Cathy\n" +
+            ":Cathy rdf:type owl:NamedIndividual ,\n" +
+            "                :Person ;\n" +
+            "       :hasParent :Bill .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Fred\n" +
+            ":Fred rdf:type owl:NamedIndividual ,\n" +
+            "               :Person ;\n" +
+            "      :hasChild :James ;\n" +
+            "      :hasParent :Cathy .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Jacob\n" +
+            ":Jacob rdf:type owl:NamedIndividual ,\n" +
+            "                :Person ;\n" +
+            "       :hasParent :Fred .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#James\n" +
+            ":James rdf:type owl:NamedIndividual ,\n" +
+            "                :Person .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#James2\n" +
+            ":James2 rdf:type owl:NamedIndividual ,\n" +
+            "                 :Person ;\n" +
+            "        :hasChild :John .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#John\n" +
+            ":John rdf:type owl:NamedIndividual ,\n" +
+            "               :Person ;\n" +
+            "      :hasChild :Mary ,\n" +
+            "                :Michael ;\n" +
+            "      :hasParent :James2 .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Mary\n" +
+            ":Mary rdf:type owl:NamedIndividual ,\n" +
+            "               :Person .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Michael\n" +
+            ":Michael rdf:type owl:NamedIndividual ,\n" +
+            "                  :Person ;\n" +
+            "         :hasParent :John .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Simon\n" +
+            ":Simon rdf:type owl:NamedIndividual ,\n" +
+            "                :Person ;\n" +
+            "       :hasParent :Michael .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Tim\n" +
+            ":Tim rdf:type owl:NamedIndividual ,\n" +
+            "              :Person ;\n" +
+            "     :hasParent :Simon ,\n" +
+            "                :Valerie .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Valerie\n" +
+            ":Valerie rdf:type owl:NamedIndividual ,\n" +
+            "                  :Person .\n" +
+            "\n" +
+            "\n" +
+            "###  http://example.org/relatives#Victor\n" +
+            ":Victor rdf:type owl:NamedIndividual ,\n" +
+            "                 :Person .\n" +
+            "\n" +
+            "\n" +
+            "###  Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi\n";
+
     public final static String SPEC_NANOPUBLICATION_TRIG = "@prefix : <http://example.org/pub1#> .\n" +
             "@prefix ex: <http://example.org/> .\n" +
             "@prefix np:  <http://www.nanopub.org/nschema#> .\n" +
