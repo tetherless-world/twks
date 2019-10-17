@@ -5,34 +5,74 @@
 * Java 8 or 11 JDK
 * [Maven](https://maven.apache.org/)
 
-## One-time setup
+### Dependencies
 
-Build the Java source:
+See [Maven Central](https://search.maven.org/search?q=edu.rpi.tw.twks) for available artifacts.
 
-    cd java
-    mvn package -Dmaven.test.skip=true
+#### Releases
+
+Release dependencies can be added directly to your Maven/Gradle/SBT configuration:
+
+        <dependency>
+            <groupId>edu.rpi.tw.twks</groupId>
+            <artifactId>twks-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+#### Snapshots
+
+Snapshots from Maven Central require enabling the OSSRH snapshot repository.
+
+In Maven `~/.m2/settings.xml`
+
+    <profiles>
+      <profile>
+         <id>allow-snapshots</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+         <repositories>
+           <repository>
+             <id>snapshots-repo</id>
+             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+             <releases><enabled>false</enabled></releases>
+             <snapshots><enabled>true</enabled></snapshots>
+           </repository>
+         </repositories>
+       </profile>
+    </profiles>
+
+Or in `build.sbt`:
+
+    resolvers +=
+      "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+
+Then use a dependency like:
+
+        <dependency>
+            <groupId>edu.rpi.tw.twks</groupId>
+            <artifactId>twks-api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
 
 ## Use as a client
 
 The preferred way to access the store is over the network, as a client of the TWKS server. This allows the server implementation to be isolated.
 
-A Java client library is provided, [`TwksClient`](client/src/main/java/edu/rpi/tw/twks/client/TwksClient.java).
+A Java client library is provided, [`TwksClient`](client/src/main/java/edu/rpi/tw/twks/client/TwksClient.java). It is available via the following Maven dependency:
+
+        <dependency>
+            <groupId>edu.rpi.tw.twks</groupId>
+            <artifactId>twks-client</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
 ## Use as a library
 
-### Installation
-
-Install the library to your local Maven repository:
-
-    cd java
-    mvn install -Dmaven.test.skip=true
-    
 Add a `Twks` implementation to your Maven/SBT/Gradle/etc. dependencies:
         
         <dependency>
             <groupId>edu.rpi.tw.twks</groupId>
             <artifactId>twks-tdb</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
 
 ### Development

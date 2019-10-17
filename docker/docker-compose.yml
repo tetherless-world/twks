@@ -5,6 +5,8 @@ services:
       context: ..
       dockerfile: docker/cli/Dockerfile
     container_name: "twks-cli"
+    depends_on:
+      - twks-java
     image: tetherlessworld/twks-cli
     links:
       - twks-server

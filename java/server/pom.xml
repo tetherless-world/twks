@@ -22,14 +22,6 @@
                               tofile="${project.build.directory}/../../dist/${project.artifactId}-current.war"/>
                     </tasks>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
