@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 public final class TestData {
+    // Copied from https://github.com/RDFLib/OWL-RL, W3C SOFTWARE NOTICE AND LICENSE
     public final static String RELATIVES_TTL = "@prefix : <http://example.org/relatives#> .\n" +
             "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n" +
             "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
