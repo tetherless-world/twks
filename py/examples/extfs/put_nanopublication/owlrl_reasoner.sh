@@ -10,4 +10,4 @@ fi
 
 export PYTHONPATH="${MY_DIR_PATH}/../../.."
 
-python3 $MY_DIR_PATH/put_nanopublication_example.py $*
+python3 $MY_DIR_PATH/owl2rl_reasoner.py $*
