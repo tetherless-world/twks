@@ -21,6 +21,12 @@ def test_delete_nanopublication_present(client, spec_nanopublication):
     assert client.delete_nanopublication(spec_nanopublication.uri)
 
 
+def test_get_assertions(client, spec_nanopublication):
+    client.put_nanopublication(spec_nanopublication)
+    assertions = client.get_assertions()
+    assert len(assertions) == 1
+
+
 def test_get_nanopublication_absent(client, spec_nanopublication):
     client.delete_nanopublication(spec_nanopublication.uri)
     actual_nanopublication = client.get_nanopublication(spec_nanopublication.uri)

@@ -3,6 +3,7 @@ from typing import Optional
 from urllib.error import HTTPError
 from urllib.parse import quote
 
+import rdflib
 from rdflib.plugins.stores.sparqlstore import SPARQLStore
 
 from twks.nanopub.nanopublication import Nanopublication
@@ -43,6 +44,22 @@ class TwksClient:
                 return False
             else:
                 raise
+
+    def get_assertions(self, store='default') -> rdflib.Graph:
+        """
+        Get the union of all assertions in the store, as a new Graph.
+        :param store: store for the returned Graph
+        """
+
+        request = urllib.request.Request(url=self.__server_base_url + "/assertions", headers={"Accept": "text/trig"},
+                                         method="GET")
+
+        with urllib.request.urlopen(request) as f:
+            response_trig = f.read()
+            result = rdflib.Graph(store=store)
+            result.parse(format="trig",
+                         data=response_trig)
+            return result
 
     def get_nanopublication(self, nanopublication_uri: str) -> Optional[Nanopublication]:
         """
