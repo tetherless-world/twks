@@ -70,4 +70,4 @@ jobs:
           command: |
             cp ~/twks/.circleci/maven-settings.xml ~/.m2/settings.xml
             echo -e "$GPG_KEY" | gpg --import
-            # mvn -P release deploy
+            mvn -P release -Dmaven.test.skip=true deploy
