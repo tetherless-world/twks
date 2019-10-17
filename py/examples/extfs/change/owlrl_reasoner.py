@@ -25,7 +25,8 @@ def main():
     for assertion in assertions_graph:
         expanded_assertions_graph.add(assertion)
 
-    reasoner = owlrl.DeductiveClosure(owlrl.OWLRL_Extension)
+    reasoner = owlrl.DeductiveClosure(owlrl.OWLRL_Extension, rdfs_closure=False, axiomatic_triples=False,
+                                      datatype_axioms=False)
     reasoner.expand(expanded_assertions_graph)
     print(len(expanded_assertions_graph), "assertions in expanded graph")
 
