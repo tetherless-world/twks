@@ -15,6 +15,6 @@ if __name__ == '__main__':
     file_path = os.path.join(os.path.dirname(__file__), "relatives.ttl")
     nanopublication = Nanopublication.parse_assertions(
         format="ttl",
-        nanopublication_uri=rdflib.URIRef(pathlib.Path(file_path).as_uri()),
-        source=file_path)
+        source=file_path,
+        source_uri=rdflib.URIRef(pathlib.Path(file_path).as_uri()))
     client.put_nanopublication(nanopublication)

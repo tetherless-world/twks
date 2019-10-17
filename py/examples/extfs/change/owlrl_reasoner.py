@@ -7,6 +7,7 @@ import logging
 import rdflib
 
 from twks.ext import ExtensionArgumentParser
+from twks.nanopub import Nanopublication
 
 
 def main():
@@ -20,7 +21,7 @@ def main():
     client = args.client
 
     assertions_graph = client.get_assertions()
-    print(len(assertions_graph), "assertions at start")
+    logging.info("owlrl_reasoner: {} assertions at start", len(assertions_graph))
     expanded_assertions_graph = rdflib.Graph()
     for assertion in assertions_graph:
         expanded_assertions_graph.add(assertion)
@@ -28,12 +29,16 @@ def main():
     reasoner = owlrl.DeductiveClosure(owlrl.OWLRL_Extension, rdfs_closure=False, axiomatic_triples=False,
                                       datatype_axioms=False)
     reasoner.expand(expanded_assertions_graph)
-    print(len(expanded_assertions_graph), "assertions in expanded graph")
+    logging.info("owlrl_reasoner: {} assertions in expanded graph", len(expanded_assertions_graph))
 
     new_assertions = expanded_assertions_graph - assertions_graph
-    print(len(new_assertions), "new assertions")
-    # for assertion in new_assertions:
-    #     print(assertion)
+    logging.info("owlrl_reasoner: {} new assertions in expanded graph", len(new_assertions))
+    if not new_assertions:
+        return
+
+    new_nanopublication = Nanopublication.from_assertions(new_assertions)
+    logging.info("owlrl_reasoner: new nanopublication: {}", new_nanopublication)
+    client.put_nanopublication(new_nanopublication)
 
 
 if __name__ == "__main__":

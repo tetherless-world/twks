@@ -1,4 +1,6 @@
 from datetime import datetime
+from typing import Optional
+from uuid import uuid4
 
 import rdflib
 
@@ -22,10 +24,11 @@ class Nanopublication:
         self.__uri = self.__validate()
 
     @classmethod
-    def from_assertions(cls, *, assertions: rdflib.Graph, nanopublication_uri: rdflib.URIRef):
+    def from_assertions(cls, assertions: rdflib.Graph, source_uri: Optional[rdflib.URIRef] = None):
         """
         Create a nanopublication from an assertions graph, filling in the other parts.
         :param assertions: assertions graph
+        :param source_uri: source URI of the assertions
         :return: a new Nanopublication
         """
 
@@ -34,6 +37,8 @@ class Nanopublication:
         PROV = rdflib.Namespace("http://www.w3.org/ns/prov#")
 
         conjunctive_graph = rdflib.ConjunctiveGraph()
+
+        nanopublication_uri = rdflib.URIRef("urn:uuid:" + str(uuid4()))
 
         # Create the nanopublication part contexts/named graphs
         assertion_context = conjunctive_graph.get_context(
@@ -80,6 +85,7 @@ class Nanopublication:
         """
         Parse a nanopublication.
         :param kwds: see ConjunctiveGraph.parse
+        :param source_uri: source URI of the assertions
         :return a new Nanopublication
         """
         conjunctive_graph = rdflib.ConjunctiveGraph()
@@ -87,16 +93,15 @@ class Nanopublication:
         return cls(conjunctive_graph)
 
     @classmethod
-    def parse_assertions(cls, *, nanopublication_uri: rdflib.URIRef, **kwds):
+    def parse_assertions(cls, *, source_uri: Optional[rdflib.URIRef] = None, **kwds):
         """
         Parse a nanopublication from assertions.
         :param kwds: see Graph.parse
-        :param nanopublication_uri: optional nanopublication URI, other
         :return: a new Nanopublication
         """
         graph = rdflib.Graph()
         graph.parse(**kwds)
-        return cls.from_assertions(assertions=graph, nanopublication_uri=nanopublication_uri)
+        return cls.from_assertions(assertions=graph, source_uri=source_uri)
 
     def __get_part_context(self, *, head_context: rdflib.Graph, nanopublication_uri: rdflib.URIRef,
                            part_property_name: str) -> rdflib.Graph:

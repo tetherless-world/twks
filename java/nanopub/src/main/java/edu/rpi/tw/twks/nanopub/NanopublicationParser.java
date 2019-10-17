@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Calendar;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
@@ -55,7 +56,7 @@ public final class NanopublicationParser {
         return parseDelegate(sourceUri);
     }
 
-    private Nanopublication parseDelegate(final Optional<Uri> sourceUri) throws IOException, MalformedNanopublicationException {
+    private Nanopublication parseDelegate(final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
         final Dataset dataset = DatasetFactory.create();
         rdfParserBuilder.parse(dataset);
 
@@ -64,12 +65,9 @@ public final class NanopublicationParser {
             return NanopublicationFactory.getInstance().createNanopublicationFromDataset(dataset, dialect);
         }
 
-        if (!sourceUri.isPresent()) {
-            throw new MalformedNanopublicationException("no source URI specified, cannot infer from loose assertion graph");
-        }
-
-        final Uri nanopublicationUri = sourceUri.get();
-        final String nanopublicationUriString = nanopublicationUri.toString();
+        // Can't assume the source URI can be extended with fragments, so create a new URI.
+        final String nanopublicationUriString = "urn:uuid:" + UUID.randomUUID().toString();
+        final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
 
         final Literal generatedAtTime = ResourceFactory.createTypedLiteral(new XSDDateTime(Calendar.getInstance()));
 
