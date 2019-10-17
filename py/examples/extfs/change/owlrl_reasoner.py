@@ -1,3 +1,7 @@
+"""
+An example change observer. This will be invoked on any change to the store, such as deleting or creating a nanopublication.
+"""
+
 import logging
 
 from twks.ext import ExtensionArgumentParser
@@ -12,9 +16,9 @@ def main():
 
     args = ExtensionArgumentParser().parse_args()
     client = args.client
-    # Don't care which nanopublication changed
 
     assertions_graph = client.get_assertions()
+    print(len(assertions_graph))
 
 
 if __name__ == "__main__":

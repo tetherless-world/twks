@@ -3,11 +3,18 @@ TWKS client example that puts a nanopublication to the server
 """
 
 import os.path
+import pathlib
+
+import rdflib
 
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
 
 if __name__ == '__main__':
     client = TwksClient(server_base_url="http://localhost:8080")
-    nanopublication = Nanopublication.parse(source=os.path.join(os.path.dirname(__file__), "spec_nanopublication.trig"))
+    file_path = os.path.join(os.path.dirname(__file__), "relatives.ttl")
+    nanopublication = Nanopublication.parse_assertions(
+        format="ttl",
+        nanopublication_uri=rdflib.URIRef(pathlib.Path(file_path).as_uri()),
+        source=file_path)
     client.put_nanopublication(nanopublication)
