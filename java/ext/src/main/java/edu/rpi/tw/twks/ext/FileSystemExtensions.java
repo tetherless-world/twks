@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.ext;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.observer.AsynchronousTwksObserver;
+import edu.rpi.tw.twks.api.observer.ChangeTwksObserver;
 import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
 import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
@@ -32,7 +33,7 @@ public final class FileSystemExtensions {
         try {
             Files.list(rootDirectoryPath).forEach(subDirectoryPath -> {
                 if (!Files.isDirectory(subDirectoryPath)) {
-                    logger.warn("extfs: {} contains unrecognized non-directory {}", rootDirectoryPath, subDirectoryPath);
+                    logger.debug("extfs: {} contains unrecognized non-directory {}", rootDirectoryPath, subDirectoryPath);
                     return;
                 }
 
@@ -60,7 +61,7 @@ public final class FileSystemExtensions {
                         }
 
                         if (!filePermissions.contains(PosixFilePermission.OWNER_EXECUTE)) {
-                            logger.info("extfs: {} is not owner-executable, ignoring", filePath);
+                            logger.debug("extfs: {} is not owner-executable, ignoring", filePath);
                             return;
                         }
 
@@ -78,6 +79,9 @@ public final class FileSystemExtensions {
 
     private void registerObserver(final Path filePath, final TwksObserverType type, final Twks twks) {
         switch (type) {
+            case CHANGE:
+                twks.registerChangeObserver(new FileSystemChangeTwksObserver(filePath));
+                break;
             case DELETE_NANOPUBLICATION:
                 twks.registerDeleteNanopublicationObserver(new FileSystemDeleteNanopublicationTwksObserver(filePath));
                 break;
@@ -91,8 +95,20 @@ public final class FileSystemExtensions {
     }
 
     private enum TwksObserverType {
+        CHANGE,
         DELETE_NANOPUBLICATION,
         PUT_NANOPUBLICATION
+    }
+
+    private final class FileSystemChangeTwksObserver extends FileSystemTwksObserver implements ChangeTwksObserver {
+        public FileSystemChangeTwksObserver(final Path filePath) {
+            super(filePath);
+        }
+
+        @Override
+        public void onChange(final Twks twks) {
+            runProcess(newProcessBuilder());
+        }
     }
 
     private final class FileSystemDeleteNanopublicationTwksObserver extends FileSystemTwksObserver implements DeleteNanopublicationTwksObserver {

@@ -34,10 +34,12 @@ public final class TwksObserversTest {
     public void testOnChange() {
         final TestChangeObserver observer = new TestChangeObserver();
         final TwksObserverRegistration registration = observers.registerChangeObserver(observer);
-        observers.onChange(twks);
+        // onChange can't be invoked directly
+        assertEquals(0, observer.invocationCount);
+        observers.onDeleteNanopublication(twks, testData.specNanopublication.getUri());
         assertEquals(1, observer.invocationCount);
         registration.unregister();
-        observers.onChange(twks);
+        observers.onDeleteNanopublication(twks, testData.specNanopublication.getUri());
         assertEquals(1, observer.invocationCount);
     }
 

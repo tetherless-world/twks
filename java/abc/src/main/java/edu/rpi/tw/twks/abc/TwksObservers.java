@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-final class TwksObservers implements ChangeTwksObserver, DeleteNanopublicationTwksObserver, PutNanopublicationTwksObserver {
+final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanopublicationTwksObserver {
     private final static Logger logger = LoggerFactory.getLogger(TwksObservers.class);
     private final Set<TwksObserverRegistrationImpl<ChangeTwksObserver>> changeObserverRegistrations = new HashSet<>();
     private final Set<TwksObserverRegistrationImpl<DeleteNanopublicationTwksObserver>> deleteNanopublicationObserverRegistrations = new HashSet<>();
@@ -49,8 +49,7 @@ final class TwksObservers implements ChangeTwksObserver, DeleteNanopublicationTw
         return new TwksObserverRegistrationImpl<>(observer, putNanopublicationObserverRegistrations);
     }
 
-    @Override
-    public void onChange(final Twks twks) {
+    private void onChange(final Twks twks) {
         checkState(twks == this.twks);
         invokeObservers(observer -> observer.onChange(twks), changeObserverRegistrations);
     }
@@ -59,12 +58,14 @@ final class TwksObservers implements ChangeTwksObserver, DeleteNanopublicationTw
     public final void onDeleteNanopublication(final Twks twks, final Uri nanopublicationUri) {
         checkState(twks == this.twks);
         invokeObservers(observer -> observer.onDeleteNanopublication(twks, nanopublicationUri), deleteNanopublicationObserverRegistrations);
+        onChange(twks);
     }
 
     @Override
     public final void onPutNanopublication(final Twks twks, final Nanopublication nanopublication) {
         checkState(twks == this.twks);
         invokeObservers(observer -> observer.onPutNanopublication(twks, nanopublication), putNanopublicationObserverRegistrations);
+        onChange(twks);
     }
 
     private <ObserverT extends TwksObserver> void invokeObservers(final Consumer<ObserverT> invoker, final Set<TwksObserverRegistrationImpl<ObserverT>> registrations) {
