@@ -12,7 +12,7 @@ jobs:
           name: Build and test Java
           command: |
             cd java
-            mvn -q clean package site site:stage -DstagingDirectory=$PWD/site
+            mvn -q clean package site site:stage -DstagingDirectory=$PWD/site -P ci
             tar cf site.tar site
             bzip2 -9 site.tar
             cd ..
