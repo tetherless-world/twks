@@ -9,4 +9,4 @@ if __name__ == "__main__":
     # Run operations on the client
     nanopublication = client.get_nanopublication(args.nanopublication_uri)
     if nanopublication is not None:
-        print(nanopublication)
+        print("put_nanopublication_example: ", nanopublication)

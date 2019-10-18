@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public final class NanopublicationResourceTest extends AbstractResourceTest {
-
+    @Test
     public void testDeleteNanopublicationPresent() throws Exception {
         getTwks().putNanopublication(getTestData().specNanopublication);
         final Response response =
@@ -65,48 +65,28 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
     }
 
     @Test
-    public void testPutNanopublicationWithUri() throws Exception {
-        final Response response =
-                target()
-                        .path("/nanopublication/")
-                        .path(URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8"))
-                        .request()
-                        .put(toTrigEntity(getTestData().specNanopublication));
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        assertTrue(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
-    }
-
-    @Test
-    public void testPutNanopublicationWithoutUri() throws Exception {
+    public void testPutNanopublication() throws Exception {
         final Response response =
                 target()
                         .path("/nanopublication/")
                         .request()
                         .put(toTrigEntity(getTestData().specNanopublication));
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        final String location = response.getHeaderString("Location");
+        assertTrue(location.contains("/nanopublication/" + URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8")));
         assertTrue(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
     }
 
     @Test
-    public void testPutAssertionsWithoutUri() {
+    public void testPutAssertions() {
         final Response response =
                 target()
                         .path("/nanopublication/")
                         .request()
                         .put(toTrigEntity(getTestData().specNanopublication.getAssertion().getModel()));
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        final String location = response.getHeaderString("Location");
+        assertTrue(location.contains("/nanopublication/urn"));
         assertFalse(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
-    }
-
-    @Test
-    public void testPutAssertionsWithUri() throws Exception {
-        final Response response =
-                target()
-                        .path("/nanopublication/")
-                        .path(URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8"))
-                        .request()
-                        .put(toTrigEntity(getTestData().specNanopublication.getAssertion().getModel()));
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        assertTrue(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
     }
 }

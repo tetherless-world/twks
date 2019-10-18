@@ -131,7 +131,7 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
 
         final HttpResponse response;
         try {
-            response = httpRequestFactory.buildPutRequest(newNanopublicationUrl(nanopublication.getUri()), new ByteArrayContent("text/trig; charset=utf-8", contentBytes)).execute();
+            response = httpRequestFactory.buildPutRequest(new GenericUrl(serverBaseUrl + "/nanopublication/"), new ByteArrayContent("text/trig; charset=utf-8", contentBytes)).execute();
         } catch (final IOException e) {
             throw wrapException(e);
         }

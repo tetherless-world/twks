@@ -1,0 +1,3 @@
+@prefix ex: <http://example.org/> .
+
+ex:trastuzumab ex:is-indicated-for ex:breast-cancer .

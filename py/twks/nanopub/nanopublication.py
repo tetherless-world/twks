@@ -1,3 +1,7 @@
+from datetime import datetime
+from typing import Optional
+from uuid import uuid4
+
 import rdflib
 
 
@@ -19,6 +23,58 @@ class Nanopublication:
         self.__conjunctive_graph = conjunctive_graph
         self.__uri = self.__validate()
 
+    @classmethod
+    def from_assertions(cls, assertions: rdflib.Graph, source_uri: Optional[rdflib.URIRef] = None):
+        """
+        Create a nanopublication from an assertions graph, filling in the other parts.
+        :param assertions: assertions graph
+        :param source_uri: source URI of the assertions
+        :return: a new Nanopublication
+        """
+
+        # Declare some namespaces
+        NP = rdflib.Namespace("http://www.nanopub.org/nschema#")
+        PROV = rdflib.Namespace("http://www.w3.org/ns/prov#")
+
+        conjunctive_graph = rdflib.ConjunctiveGraph()
+
+        nanopublication_uri = rdflib.URIRef("urn:uuid:" + str(uuid4()))
+
+        # Create the nanopublication part contexts/named graphs
+        assertion_context = conjunctive_graph.get_context(
+            identifier=rdflib.URIRef(str(nanopublication_uri + "#assertion")))
+        head_context = conjunctive_graph.get_context(identifier=rdflib.URIRef(str(nanopublication_uri + "#head")))
+        provenance_context = conjunctive_graph.get_context(
+            identifier=rdflib.URIRef(str(nanopublication_uri + "#provenance")))
+        publication_info_context = conjunctive_graph.get_context(identifier=
+        rdflib.URIRef(
+            str(nanopublication_uri + "#publicationInfo")))
+
+        # Populate the assertion part
+        for assertion in assertions:
+            assertion_context.add(assertion)
+
+        # Populate the provenance part
+        generated_at_time = rdflib.Literal(datetime.now())
+        provenance_context.add((assertion_context.identifier, PROV["generatedAtTime"], generated_at_time))
+
+        # Populate the publication info part
+        publication_info_context.add((nanopublication_uri, PROV["generatedAtTime"], generated_at_time))
+
+        # Populate the head part
+        #         // :head {
+        #         //    ex:pub1 a np:Nanopublication .
+        #         //    ex:pub1 np:hasAssertion :assertion .
+        #         //    ex:pub1 np:hasProvenance :provenance .
+        #         //    ex:pub1 np:hasPublicationInfo :pubInfo .
+        #         //}
+        head_context.add((nanopublication_uri, rdflib.RDF["type"], NP["Nanopublication"]))
+        head_context.add((nanopublication_uri, NP["hasAssertion"], assertion_context.identifier))
+        head_context.add((nanopublication_uri, NP["hasProvenance"], provenance_context.identifier))
+        head_context.add((nanopublication_uri, NP["hasPublicationInfo"], publication_info_context.identifier))
+
+        return cls(conjunctive_graph)
+
     def isomorphic(self, other):
         if not isinstance(other, Nanopublication):
             return False
@@ -29,11 +85,23 @@ class Nanopublication:
         """
         Parse a nanopublication.
         :param kwds: see ConjunctiveGraph.parse
+        :param source_uri: source URI of the assertions
         :return a new Nanopublication
         """
         conjunctive_graph = rdflib.ConjunctiveGraph()
         conjunctive_graph.parse(format=format, **kwds)
         return cls(conjunctive_graph)
+
+    @classmethod
+    def parse_assertions(cls, *, source_uri: Optional[rdflib.URIRef] = None, **kwds):
+        """
+        Parse a nanopublication from assertions.
+        :param kwds: see Graph.parse
+        :return: a new Nanopublication
+        """
+        graph = rdflib.Graph()
+        graph.parse(**kwds)
+        return cls.from_assertions(assertions=graph, source_uri=source_uri)
 
     def __get_part_context(self, *, head_context: rdflib.Graph, nanopublication_uri: rdflib.URIRef,
                            part_property_name: str) -> rdflib.Graph:
@@ -71,7 +139,9 @@ class Nanopublication:
             raise ValueError("must not contain quads in the default graph")
 
         contexts = tuple(conjunctive_graph.contexts())
-        if len(contexts) != 4:
+        if len(contexts) < 4:
+            raise ValueError("too few contexts")
+        elif len(contexts) > 4:
             raise ValueError("extraneous contexts")
 
         nanopublication_quads = tuple(

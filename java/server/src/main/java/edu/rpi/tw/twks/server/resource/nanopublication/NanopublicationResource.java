@@ -23,6 +23,9 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Optional;
 
 @Path("nanopublication")
@@ -90,39 +93,22 @@ public class NanopublicationResource extends AbstractResource {
             final String requestBody,
             @Context final UriInfo uriInfo
     ) {
-        return putNanopublication(contentType, nanopublicationDialectString, Optional.empty(), requestBody, uriInfo);
-    }
-
-    @PUT
-    @Path("{nanopublicationUri}")
-    public Response
-    putNanopublicationWithUri(
-            @HeaderParam("Content-Type") @Nullable final String contentType,
-            @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
-            @PathParam("nanopublicationUri") final String nanopublicationUriString,
-            final String requestBody,
-            @Context final UriInfo uriInfo
-    ) {
-        final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
-        return putNanopublication(contentType, nanopublicationDialectString, Optional.of(nanopublicationUri), requestBody, uriInfo);
-    }
-
-    private Response
-    putNanopublication(
-            @Nullable final String contentType,
-            @Nullable final String nanopublicationDialectString,
-            final Optional<Uri> nanopublicationUri,
-            final String requestBody,
-            final UriInfo uriInfo
-    ) {
-        final Nanopublication nanopublication = parseNanopublication(contentType, nanopublicationDialectString, nanopublicationUri, requestBody);
+        final Nanopublication nanopublication = parseNanopublication(contentType, nanopublicationDialectString, requestBody);
 
         final Twks.PutNanopublicationResult result = getTwks().putNanopublication(nanopublication);
+
+        final URI location;
+        try {
+            location = uriInfo.getAbsolutePathBuilder().path(URLEncoder.encode(nanopublication.getUri().toString(), "UTF-8")).build();
+        } catch (final UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+
         switch (result) {
             case CREATED:
-                return Response.created(uriInfo.getAbsolutePathBuilder().path(NanopublicationResource.class).path(nanopublicationUri.toString()).build()).build();
+                return Response.created(location).build();
             case OVERWROTE:
-                return Response.noContent().build();
+                return Response.noContent().header("Location", location.toString()).build();
             default:
                 throw new IllegalStateException();
         }
@@ -131,7 +117,6 @@ public class NanopublicationResource extends AbstractResource {
     private Nanopublication parseNanopublication(
             @Nullable final String contentType,
             @Nullable final String nanopublicationDialectString,
-            final Optional<Uri> nanopublicationUri,
             final String requestBody
     ) {
         final Lang lang = parseLang(contentType);
@@ -145,7 +130,7 @@ public class NanopublicationResource extends AbstractResource {
         }
 
         try {
-            return parser.parse(new StringReader(requestBody), nanopublicationUri);
+            return parser.parse(new StringReader(requestBody));
         } catch (final IOException | MalformedNanopublicationException e) {
             logger.info("error parsing nanopublication: ", e);
             throw new WebApplicationException("Malformed nanopublication", Response.Status.BAD_REQUEST);

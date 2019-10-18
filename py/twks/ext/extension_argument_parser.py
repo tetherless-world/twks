@@ -8,7 +8,7 @@ class ExtensionArgumentParser(ArgumentParser):
 
     def __init__(self, *args, **kwds):
         ArgumentParser.__init__(self, *args, **kwds)
-        self.add_argument("--nanopublication-uri", required=True)
+        self.add_argument("--nanopublication-uri")
         self.add_argument("--server-base-url", required=True)
 
     def parse_args(self, *args, **kwds):

@@ -1,10 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.observer.AsynchronousTwksObserver;
-import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
-import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
-import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
+import edu.rpi.tw.twks.api.observer.*;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.test.TestData;
 import edu.rpi.tw.twks.uri.Uri;
@@ -31,6 +28,19 @@ public final class TwksObserversTest {
     @Before
     public void setUp() {
         observers = new TwksObservers(twks);
+    }
+
+    @Test
+    public void testOnChange() {
+        final TestChangeObserver observer = new TestChangeObserver();
+        final TwksObserverRegistration registration = observers.registerChangeObserver(observer);
+        // onChange can't be invoked directly
+        assertEquals(0, observer.invocationCount);
+        observers.onDeleteNanopublication(twks, testData.specNanopublication.getUri());
+        assertEquals(1, observer.invocationCount);
+        registration.unregister();
+        observers.onDeleteNanopublication(twks, testData.specNanopublication.getUri());
+        assertEquals(1, observer.invocationCount);
     }
 
     @Test
@@ -105,6 +115,15 @@ public final class TwksObserversTest {
     }
 
     private static class TestAsynchronousDeleteNanopublicationObserver extends TestDeleteNanopublicationObserver implements AsynchronousTwksObserver {
+    }
+
+    private final static class TestChangeObserver implements ChangeTwksObserver {
+        int invocationCount = 0;
+
+        @Override
+        public void onChange(final Twks twks) {
+            invocationCount++;
+        }
     }
 
     private final static class TestPutNanopublicationObserver implements PutNanopublicationTwksObserver {

@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
+import edu.rpi.tw.twks.api.observer.ChangeTwksObserver;
 import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
 import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
 import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
@@ -60,6 +61,11 @@ public abstract class AbstractTwks implements Twks {
             transaction.commit();
             return result;
         }
+    }
+
+    @Override
+    public final TwksObserverRegistration registerChangeObserver(final ChangeTwksObserver observer) {
+        return observers.registerChangeObserver(observer);
     }
 
     @Override
