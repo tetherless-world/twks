@@ -1,15 +1,16 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.rpi.tw.twks.vocabulary.NANOPUB;
+import edu.rpi.tw.twks.vocabulary.PROV;
+import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
@@ -73,11 +74,40 @@ public final class NanopublicationFactory {
         return new NanopublicationPart(partModel, partModelUri);
     }
 
-    public final Nanopublication createNanopublicationFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
-        return createNanopublicationFromDataset(dataset, NanopublicationDialect.SPECIFICATION);
+    public final Nanopublication createNanopublicationFromAssertions(final Model assertions) {
+        // Can't assume the source URI can be extended with fragments, so create a new URI.
+        final String nanopublicationUriString = "urn:uuid:" + UUID.randomUUID().toString();
+        final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
+
+        final Literal generatedAtTime = ResourceFactory.createTypedLiteral(new XSDDateTime(Calendar.getInstance()));
+
+        setNsPrefixes(assertions);
+        final String assertionUriString = nanopublicationUriString + "#assertion";
+        final Uri assertionUri = Uri.parse(assertionUriString);
+
+        final Model provenanceModel = ModelFactory.createDefaultModel();
+        setNsPrefixes(provenanceModel);
+        provenanceModel.createResource(assertionUriString).addProperty(PROV.generatedAtTime, generatedAtTime);
+        final Uri provenanceUri = Uri.parse(nanopublicationUriString + "#provenance");
+
+        final Model publicationInfoModel = ModelFactory.createDefaultModel();
+        setNsPrefixes(publicationInfoModel);
+        final String publicationInfoUriString = nanopublicationUriString + "#publicationInfo";
+        final Uri publicationInfoUri = Uri.parse(publicationInfoUriString);
+        publicationInfoModel.createResource(nanopublicationUriString).addProperty(PROV.generatedAtTime, generatedAtTime);
+
+        final String headUriString = nanopublicationUriString + "#head";
+        final Uri headUri = Uri.parse(headUriString);
+        final Model headModel = NanopublicationFactory.getInstance().createNanopublicationHead(assertionUri, nanopublicationUri, provenanceUri, publicationInfoUri);
+
+        return new Nanopublication(new NanopublicationPart(assertions, assertionUri), new NanopublicationPart(headModel, headUri), new NanopublicationPart(provenanceModel, provenanceUri), new NanopublicationPart(publicationInfoModel, publicationInfoUri), nanopublicationUri);
     }
 
-    public final Nanopublication createNanopublicationFromDataset(final Dataset dataset, final NanopublicationDialect dialect) throws MalformedNanopublicationException {
+    public final ImmutableList<Nanopublication> createNanopublicationsFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
+        return createNanopublicationsFromDataset(dataset, NanopublicationDialect.SPECIFICATION);
+    }
+
+    public final ImmutableList<Nanopublication> createNanopublicationsFromDataset(final Dataset dataset, final NanopublicationDialect dialect) throws MalformedNanopublicationException {
         checkNotNull(dataset);
         checkNotNull(dialect);
 
@@ -130,7 +160,7 @@ public final class NanopublicationFactory {
                 // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
                 final NanopublicationPart publicationInfo = getNanopublicationPartFromDataset(dataset, dialect, head, nanopublicationResource, NANOPUB.hasPublicationInfo, transaction);
 
-                return createNanopublicationFromParts(assertion, dialect, head, provenance, publicationInfo, Uri.parse(nanopublicationResource.getURI()));
+                return ImmutableList.of(createNanopublicationFromParts(assertion, dialect, head, provenance, publicationInfo, Uri.parse(nanopublicationResource.getURI())));
             }
         }
 

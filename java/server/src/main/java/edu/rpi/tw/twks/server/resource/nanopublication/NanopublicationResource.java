@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.server.resource.nanopublication;
 
+import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
@@ -87,13 +88,18 @@ public class NanopublicationResource extends AbstractResource {
 
     @PUT
     public Response
-    putNanopublication(
+    putNanopublications(
             @HeaderParam("Content-Type") @Nullable final String contentType,
             @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
             final String requestBody,
             @Context final UriInfo uriInfo
     ) {
-        final Nanopublication nanopublication = parseNanopublication(contentType, nanopublicationDialectString, requestBody);
+        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, nanopublicationDialectString, requestBody);
+
+        if (nanopublications.size() != 1) {
+            throw new UnsupportedOperationException("only a single nanopublication can be PUT currently");
+        }
+        final Nanopublication nanopublication = nanopublications.get(0);
 
         final Twks.PutNanopublicationResult result = getTwks().putNanopublication(nanopublication);
 
@@ -114,7 +120,7 @@ public class NanopublicationResource extends AbstractResource {
         }
     }
 
-    private Nanopublication parseNanopublication(
+    private ImmutableList<Nanopublication> parseNanopublications(
             @Nullable final String contentType,
             @Nullable final String nanopublicationDialectString,
             final String requestBody

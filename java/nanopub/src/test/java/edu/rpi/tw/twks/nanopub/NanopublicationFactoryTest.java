@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,8 +17,10 @@ public final class NanopublicationFactoryTest {
     }
 
     @Test
-    public void testCreateNanopublicationFromDataset() throws MalformedNanopublicationException {
-        final Nanopublication nanopublication = sut.createNanopublicationFromDataset(testData.specNanopublicationDataset);
+    public void testCreateNanopublicationsFromDataset() throws MalformedNanopublicationException {
+        final ImmutableList<Nanopublication> nanopublications = sut.createNanopublicationsFromDataset(testData.specNanopublicationDataset);
+        assertEquals(1, nanopublications.size());
+        final Nanopublication nanopublication = nanopublications.get(0);
         assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
         assertEquals(3, nanopublication.getProvenance().getModel().listStatements().toList().size());
         assertEquals(2, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
