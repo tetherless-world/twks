@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -31,6 +32,10 @@ public final class Nanopublication {
         this.provenance = checkNotNull(provenance);
         this.publicationInfo = checkNotNull(publicationInfo);
         this.uri = checkNotNull(uri);
+    }
+
+    public static NanopublicationBuilder builder() {
+        return new NanopublicationBuilder();
     }
 
     public final NanopublicationPart getAssertion() {
@@ -105,5 +110,16 @@ public final class Nanopublication {
             }
             dataset.addNamedModel(name, nanopublicationPart.getModel());
         }
+    }
+
+    @Override
+    public final String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("uri", getUri())
+                .add("assertion", getAssertion())
+                .add("head", getHead())
+                .add("provenance", getProvenance())
+                .add("publicationInfo", getPublicationInfo())
+                .toString();
     }
 }

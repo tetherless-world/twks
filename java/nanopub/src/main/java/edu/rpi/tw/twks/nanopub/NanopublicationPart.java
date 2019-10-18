@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.mem.GraphMem;
@@ -13,9 +14,12 @@ public final class NanopublicationPart {
     private final Uri name;
 
     public NanopublicationPart(final Model model, final Uri name) {
-        checkNotNull(model);
-        checkNotNull(name);
+        this.model = checkModelType(model);
+        this.name = checkNotNull(name);
+    }
 
+    static Model checkModelType(final Model model) {
+        checkNotNull(model);
         Graph graph = model.getGraph();
         if (graph instanceof GraphWrapper) {
             graph = ((GraphWrapper) graph).get();
@@ -23,9 +27,7 @@ public final class NanopublicationPart {
         if (!(graph instanceof GraphMem)) {
             throw new IllegalStateException(String.format("nanopublication must be backed by an %s, not %s", GraphMem.class.getCanonicalName(), graph.getClass().getCanonicalName()));
         }
-
-        this.model = model;
-        this.name = name;
+        return model;
     }
 
     public final Model getModel() {
@@ -46,5 +48,10 @@ public final class NanopublicationPart {
         }
 
         return true;
+    }
+
+    @Override
+    public final String toString() {
+        return MoreObjects.toStringHelper(this).add("name", getName()).toString();
     }
 }
