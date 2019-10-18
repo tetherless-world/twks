@@ -57,6 +57,6 @@ public final class NanopublicationParser {
             return NanopublicationFactory.getInstance().createNanopublicationsFromDataset(dataset, dialect);
         }
 
-        return ImmutableList.of(NanopublicationFactory.getInstance().createNanopublicationFromAssertions(dataset.getUnionModel()));
+        return ImmutableList.of(NanopublicationFactory.getInstance().createNanopublicationFromAssertions(dataset.getDefaultModel()));
     }
 }
