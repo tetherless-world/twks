@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 
 public final class NanopublicationTest {
@@ -17,6 +18,11 @@ public final class NanopublicationTest {
     @Before
     public void setUp() throws Exception {
         this.testData = new TestData();
+    }
+
+    @Test
+    public void testBuilder() {
+        assertNotSame(null, Nanopublication.builder());
     }
 
     @Test

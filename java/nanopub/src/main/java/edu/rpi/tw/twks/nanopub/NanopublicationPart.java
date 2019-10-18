@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.mem.GraphMem;
@@ -47,5 +48,10 @@ public final class NanopublicationPart {
         }
 
         return true;
+    }
+
+    @Override
+    public final String toString() {
+        return MoreObjects.toStringHelper(this).add("name", getName()).toString();
     }
 }
