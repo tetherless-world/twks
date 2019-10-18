@@ -33,6 +33,10 @@ public final class Nanopublication {
         this.uri = checkNotNull(uri);
     }
 
+    public static NanopublicationBuilder builder() {
+        return new NanopublicationBuilder();
+    }
+
     public final NanopublicationPart getAssertion() {
         return assertion;
     }
