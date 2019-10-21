@@ -9,6 +9,16 @@
 
 See [Maven Central](https://search.maven.org/search?q=edu.rpi.tw.twks) for available artifacts.
 
+The public-facing Java modules are:
+* `twks-api`: public-facing Java library API, including the store library API `Twks`
+* `twks-client`: public-facing Java client API
+* `twks-nanopub`: library for working with nanopublications, independently of TWKS
+* `twks-tdb`: [Jena TDB2](https://jena.apache.org/documentation/tdb2/) implementation of the `Twks` API
+* `twks-uri`: tiny type for URIs
+* `twks-vocabulary`: RDF vocabulary singletons, similar to `org.apache.jena.vocabulary`
+
+The above modules are supported by various internal modules, such as the `twks-abc` module of abstract base classes for `Twks` implementations. API users should not need these.
+
 #### Releases
 
 Release dependencies can be added directly to your Maven/Gradle/SBT configuration:
