@@ -269,7 +269,9 @@ public final class NanopublicationFactory {
             }
 
             if (!unusedDatasetModelNames.remove(partModelName)) {
-                throw new MalformedNanopublicationException(String.format("nanopublication %s %s referns to a named graph that has already been used by another nanopublication", nanopublicationUri, partProperty, partResource));
+                if (dialect != NanopublicationDialect.WHYIS) {
+                    throw new MalformedNanopublicationException(String.format("nanopublication %s %s refern to a named graph that has already been used by another nanopublication", nanopublicationUri, partProperty, partResource));
+                }
             }
 
             if (partModel.isEmpty()) {
