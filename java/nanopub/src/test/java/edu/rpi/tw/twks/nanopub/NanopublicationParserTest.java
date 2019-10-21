@@ -5,10 +5,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public final class NanopublicationParserTest {
     private NanopublicationParser sut;
@@ -45,15 +44,6 @@ public final class NanopublicationParserTest {
         assertEquals(1, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
         // Test that we can decompose nanopublications we generate
         NanopublicationFactory.getInstance().createNanopublicationsFromDataset(nanopublication.toDataset()).get(0);
-    }
-
-    @Test
-    public void testMultipleUniqueNanopublicationsFile() throws Exception {
-        final ImmutableList<Nanopublication> nanopublications = sut.parse(testData.uniqueNanopublicationsFilePath);
-        assertEquals(2, nanopublications.size());
-        final Map<String, Nanopublication> nanopublicationsByUri = nanopublications.stream().collect(Collectors.toMap(nanopublication -> nanopublication.getUri().toString(), nanopublication -> nanopublication));
-        assertNotSame(null, nanopublicationsByUri.get("http://example.org/pub1"));
-        assertNotSame(null, nanopublicationsByUri.get("http://example.org/pub2"));
     }
 
     @Test

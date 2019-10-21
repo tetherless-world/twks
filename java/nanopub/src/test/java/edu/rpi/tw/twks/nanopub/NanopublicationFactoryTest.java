@@ -7,8 +7,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public final class NanopublicationFactoryTest {
     private NanopublicationFactory sut;
@@ -18,6 +20,15 @@ public final class NanopublicationFactoryTest {
     public void setUp() throws Exception {
         this.sut = NanopublicationFactory.getInstance();
         this.testData = new TestData();
+    }
+
+    @Test
+    public void testDuplicateNanopublications() throws IOException {
+        try {
+            sut.createNanopublicationsFromDataset(testData.duplicateNanopublicationsDataset);
+            fail();
+        } catch (final MalformedNanopublicationException e) {
+        }
     }
 
     @Test
@@ -38,5 +49,23 @@ public final class NanopublicationFactoryTest {
         assertEquals(8, ImmutableList.copyOf(dataset.listNames()).size());
         final ImmutableList<Nanopublication> nanopublications = NanopublicationFactory.getInstance().createNanopublicationsFromDataset(dataset);
         assertEquals(2, nanopublications.size());
+    }
+
+    @Test
+    public void testMultipleUniqueNanopublications() throws Exception {
+        final ImmutableList<Nanopublication> nanopublications = sut.createNanopublicationsFromDataset(testData.uniqueNanopublicationsDataset);
+        assertEquals(2, nanopublications.size());
+        final Map<String, Nanopublication> nanopublicationsByUri = nanopublications.stream().collect(Collectors.toMap(nanopublication -> nanopublication.getUri().toString(), nanopublication -> nanopublication));
+        assertNotSame(null, nanopublicationsByUri.get("http://example.org/pub1"));
+        assertNotSame(null, nanopublicationsByUri.get("http://example.org/pub2"));
+    }
+
+    @Test
+    public void testOverlappingNanopublications() throws IOException {
+        try {
+            sut.createNanopublicationsFromDataset(testData.overlappingNanopublicationsDataset);
+            fail();
+        } catch (final MalformedNanopublicationException e) {
+        }
     }
 }
