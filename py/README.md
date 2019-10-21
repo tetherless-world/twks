@@ -1,4 +1,4 @@
-# TWKS Python client library
+# TWKS Python client and library
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ Install the library:
 
 Or add a dependency from PyPI: [`twks-client`](https://pypi.org/project/twks-client/).
 
-## Use
+## Client use
 
 [`TwksClient`](twks/client/twks_client.py) is the entry point class. It is a client of the [TWKS server](../docker/README.md).
 
@@ -21,4 +21,8 @@ The client API mirrors the primary TWKS API in [`Twks.java`](../java/api/src/mai
 * CRUD operations on nanopublications
 * querying assertions and nanopublications via SPARQL
 
-See [`test_twks_client.py`](tests/test_twks_client.py) for examples of using the client.
+See [`test_twks_client.py`](tests/twks_test/client/test_twks_client.py) for examples of using the client.
+
+## Other examples
+
+See the [`examples`](examples/) directory for other examples.
