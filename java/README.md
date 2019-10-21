@@ -93,3 +93,32 @@ A command-line interface provides various sub-commands for manipulating TWKSs. A
 To see the available sub-commands and their options.
    
 Note that TDB2 is a single process store, so you will not be able to access it separate library-using, command line, and/or server processes concurrently. 
+
+## Running the server
+
+You can run the server directly on your host machine in one of two ways:
+
+### Using your own servlet container
+
+After building the project with `mvn package`, copy the `java/dist/twks-server-current.war` to your servlet container's `webapps` directory e.g., `/var/lib/jetty/webapps`.
+
+You may want to rename the `.war` to `ROOT.war` to mount at the root context.
+
+### Running the server from Maven
+
+The server can be started directly using Maven:
+
+    cd java
+    mvn jetty:run -DskipTests
+
+See the [`jetty-maven-plugin` documentation](https://www.eclipse.org/jetty/documentation/9.4.x/jetty-maven-plugin.html) for `-D` configuration options to control the port.
+
+Various server options that require interaction with the host are disabled by default. You can use `-D` with properties to enable them. For example, to enable `extfs` against a directory:
+
+    cd java
+    mvn jetty:run -DskipTests -Dtwks.extfs=$PWD/../py/examples/extfs/
+
+Or persist to disk with the TDB implementation of the store:
+
+    cd java
+    mvn jetty:run -DskipTests -Dtwks.tdbLocation=$PWD/../data
