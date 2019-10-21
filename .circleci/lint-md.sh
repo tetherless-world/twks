@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set +e
-
 mkdir lint-results
 
 sudo gem install --silent mdl
