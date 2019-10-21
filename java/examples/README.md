@@ -8,7 +8,7 @@
 * Maven
 * Installed TWKS dependencies
 
-See the [parent Java documentation](../..) for the above.
+See the [parent Java documentation](../) for the above.
 
 ## Building
 
