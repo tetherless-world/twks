@@ -73,3 +73,17 @@ jobs:
               echo -e "$OSSRH_GPG_KEY" | gpg --import
               cd java && mvn -q -P release -Dmaven.test.skip=true deploy
             fi
+  check_md:
+    docker:
+      - image: circleci/node:current-buster
+    working_directory: ~/twks
+    steps:
+      - checkout
+      - run: npm install -g markdown-link-check
+      - run: find twks -name README.md | xargs markdown-link-check
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
+      - check_md
