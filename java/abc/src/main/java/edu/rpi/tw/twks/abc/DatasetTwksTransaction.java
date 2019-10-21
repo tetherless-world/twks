@@ -9,6 +9,8 @@ import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -45,7 +47,7 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             "  {graph ?H {: a np:Nanopublication {: np:hasAssertion ?G} union {: np:hasProvenance ?G} union {: np:hasPublicationInfo ?G}}}\n" +
             "  graph ?G {?S ?P ?O}\n" +
             "}";
-
+    private final static Logger logger = LoggerFactory.getLogger(DatasetTwksTransaction.class);
     private final DatasetTransaction datasetTransaction;
     private final Dataset dataset;
 
@@ -102,9 +104,12 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
 
     @Override
     public final Model getAssertions() {
-        final Model assertions = ModelFactory.createDefaultModel();
-        setNsPrefixes(assertions);
         final Set<String> assertionGraphNames = getAssertionGraphNames();
+        final Model assertions = ModelFactory.createDefaultModel();
+        if (assertionGraphNames.isEmpty()) {
+            return assertions;
+        }
+        setNsPrefixes(assertions);
         for (final String assertionGraphName : assertionGraphNames) {
             final Model assertion = getDataset().getNamedModel(assertionGraphName);
             assertions.add(assertion);
@@ -179,10 +184,14 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
         // https://jena.apache.org/documentation/tdb/dynamic_datasets.html
         // Using one or more FROM clauses, causes the default graph of the dataset to be the union of those graphs.
         final Set<String> assertionGraphNames = getAssertionGraphNames();
+        if (assertionGraphNames.isEmpty()) {
+            logger.warn("no assertion graph names, querying empty model");
+            return QueryExecutionFactory.create(query, ModelFactory.createDefaultModel());
+        }
         for (final String assertionGraphName : assertionGraphNames) {
             query.addGraphURI(assertionGraphName);
         }
-        return queryNanopublications(query);
+        return QueryExecutionFactory.create(query, dataset);
     }
 
     protected final Dataset getDataset() {

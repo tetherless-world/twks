@@ -9,6 +9,6 @@ final class MemTwksTransaction extends DatasetTwksTransaction {
 
     @Override
     public final QueryExecution queryNanopublications(final Query query) {
-        return QueryExecutionFactory.create(query, getDataset().getUnionModel());
+        return QueryExecutionFactory.create(query, getDataset());
     }
 }
