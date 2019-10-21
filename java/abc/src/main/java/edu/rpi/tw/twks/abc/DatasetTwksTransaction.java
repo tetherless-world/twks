@@ -48,6 +48,7 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             "  graph ?G {?S ?P ?O}\n" +
             "}";
     private final static Logger logger = LoggerFactory.getLogger(DatasetTwksTransaction.class);
+
     private final DatasetTransaction datasetTransaction;
     private final Dataset dataset;
 
@@ -86,7 +87,17 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
         return DeleteNanopublicationResult.DELETED;
     }
 
-    protected abstract Set<String> getAssertionGraphNames();
+    private Set<String> getAssertionGraphNames() {
+        final Set<String> assertionGraphNames = new HashSet<>();
+        try (final QueryExecution queryExecution = queryNanopublications(GET_ASSERTION_GRAPH_NAMES_QUERY)) {
+            for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
+                final QuerySolution querySolution = resultSet.nextSolution();
+                final Resource g = querySolution.getResource("A");
+                assertionGraphNames.add(g.getURI());
+            }
+        }
+        return assertionGraphNames;
+    }
 
     public final DatasetTransaction getDatasetTransaction() {
         return datasetTransaction;
