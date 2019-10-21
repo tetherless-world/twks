@@ -79,7 +79,7 @@ jobs:
     working_directory: ~/twks
     steps:
       - checkout
-      - .circleci/lint-md.sh
+      - run: .circleci/lint-md.sh
       - store_artifacts:
           path: lint-results
 workflows:
