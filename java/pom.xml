@@ -249,6 +249,7 @@
                 <module>api</module>
                 <module>cli</module>
                 <module>client</module>
+                <module>examples/client</module>
                 <module>ext</module>
                 <module>factory</module>
                 <module>nanopub</module>
