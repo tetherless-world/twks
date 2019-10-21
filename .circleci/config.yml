@@ -7,12 +7,13 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
       - run:
           name: Build and test Java modules
           command: |
+            rm -fr ~/.m2/repository/edu/rpi/tw/twks
             cd java
-            MAVEN_OPTS="-Xmx3500M" mvn -q clean package install site site:stage -DstagingDirectory=$PWD/site
+            MAVEN_OPTS="-Xmx3500M" mvn -q clean package site site:stage -DstagingDirectory=$PWD/site
             tar cf site.tar site
             bzip2 -9 site.tar
             cd ..
@@ -26,15 +27,21 @@ jobs:
             mv java/uri/target/surefire-reports/* test-results/java
       - store_artifacts:
           path: java/site.tar.bz2
+      - save_cache:
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+          paths:
+            - ~/.m2
+      # Save .m2 before installing our libraries
+      - run:
+          name: Install Java modules
+          command: |
+            cd java
+            MAVEN_OPTS="-Xmx3500M" mvn -q install
       - run:
           name: Build Java examples
           command: |
             cd java/examples/client
             mvn package
-      - save_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
-          paths:
-            - ~/.m2
       - setup_remote_docker
       - run:
           name: Copy .m2 directory to java/ temporarily so that it will be speed up Docker image builds
