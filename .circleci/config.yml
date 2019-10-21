@@ -36,7 +36,7 @@ jobs:
           name: Install Java modules
           command: |
             cd java
-            MAVEN_OPTS="-Xmx3500M" mvn -q install
+            MAVEN_OPTS="-Xmx3500M" mvn -q install -DskipTests
       - run:
           name: Build Java examples
           command: |
