@@ -109,16 +109,16 @@ You may want to rename the `.war` to `ROOT.war` to mount at the root context.
 The server can be started directly using Maven:
 
     cd java
-    mvn jetty:run -DskipTests
+    mvn jetty:run
 
 See the [`jetty-maven-plugin` documentation](https://www.eclipse.org/jetty/documentation/9.4.x/jetty-maven-plugin.html) for `-D` configuration options to control the port.
 
 Various server options that require interaction with the host are disabled by default. You can use `-D` with properties to enable them. For example, to enable `extfs` against a directory:
 
     cd java
-    mvn jetty:run -DskipTests -Dtwks.extfs=$PWD/../py/examples/extfs/
+    mvn jetty:run -Dtwks.extfs=$PWD/../py/examples/extfs/
 
 Or persist to disk with the TDB implementation of the store:
 
     cd java
-    mvn jetty:run -DskipTests -Dtwks.tdbLocation=$PWD/../data
+    mvn jetty:run -Dtwks.tdbLocation=$PWD/../data
