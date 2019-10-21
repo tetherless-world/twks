@@ -86,17 +86,7 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
         return DeleteNanopublicationResult.DELETED;
     }
 
-    private Set<String> getAssertionGraphNames() {
-        final Set<String> assertionGraphNames = new HashSet<>();
-        try (final QueryExecution queryExecution = queryNanopublications(GET_ASSERTION_GRAPH_NAMES_QUERY)) {
-            for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
-                final QuerySolution querySolution = resultSet.nextSolution();
-                final Resource g = querySolution.getResource("A");
-                assertionGraphNames.add(g.getURI());
-            }
-        }
-        return assertionGraphNames;
-    }
+    protected abstract Set<String> getAssertionGraphNames();
 
     public final DatasetTransaction getDatasetTransaction() {
         return datasetTransaction;
