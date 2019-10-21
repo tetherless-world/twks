@@ -7,10 +7,11 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
       - run:
-          name: Build and test Java
+          name: Build and test Java modules
           command: |
+            rm -fr ~/.m2/repository/edu/rpi/tw/twks
             cd java
             MAVEN_OPTS="-Xmx3500M" mvn -q clean package site site:stage -DstagingDirectory=$PWD/site
             tar cf site.tar site
@@ -27,9 +28,20 @@ jobs:
       - store_artifacts:
           path: java/site.tar.bz2
       - save_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
           paths:
             - ~/.m2
+      # Save .m2 before installing our libraries
+      - run:
+          name: Install Java modules
+          command: |
+            cd java
+            MAVEN_OPTS="-Xmx3500M" mvn -q install -DskipTests
+      - run:
+          name: Build Java examples
+          command: |
+            cd java/examples/client
+            mvn -q package -DskipTests
       - setup_remote_docker
       - run:
           name: Copy .m2 directory to java/ temporarily so that it will be speed up Docker image builds
@@ -73,3 +85,18 @@ jobs:
               echo -e "$OSSRH_GPG_KEY" | gpg --import
               cd java && mvn -q -P release -Dmaven.test.skip=true deploy
             fi
+  lint_md:
+    docker:
+      - image: circleci/ruby:2.4-node
+    working_directory: ~/twks
+    steps:
+      - checkout
+      - run: .circleci/lint-md.sh
+      - store_artifacts:
+          path: lint-results
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
+      - lint_md

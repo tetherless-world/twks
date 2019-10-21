@@ -64,6 +64,8 @@ A Java client library is provided, [`TwksClient`](client/src/main/java/edu/rpi/t
             <artifactId>twks-client</artifactId>
             <version>1.0.0</version>
         </dependency>
+        
+See the [`examples`](examples/) directory for a client example.
 
 ## Use as a library
 
