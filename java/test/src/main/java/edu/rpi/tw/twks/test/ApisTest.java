@@ -62,7 +62,13 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
         assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
         sut.putNanopublication(testData.specNanopublication);
-        assertTrue(((BulkReadApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
+        {
+            final Model assertions = ((BulkReadApi) sut).getAssertions();
+            if (!assertions.isIsomorphicWith(testData.specNanopublication.getAssertion().getModel())) {
+//                assertions.write(System.out, Lang.TRIG.getName());
+                fail();
+            }
+        }
         sut.putNanopublication(testData.secondNanopublication);
         assertFalse(((BulkReadApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
     }

@@ -9,7 +9,6 @@ import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.sparql.util.Context;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -27,6 +26,8 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             "  ?NP np:hasAssertion ?A\n" +
             "  graph ?A {?S ?P ?O}\n" +
             "}";
+
+    private final static Query GET_ASSERTION_GRAPH_NAMES_QUERY = QueryFactory.create(GET_ASSERTION_GRAPH_NAMES_QUERY_STRING);
 
     // http://nanopub.org/guidelines/working_draft/
     private final static String GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
@@ -85,8 +86,7 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
 
     private Set<String> getAssertionGraphNames() {
         final Set<String> assertionGraphNames = new HashSet<>();
-        try (final QueryExecution queryExecution = QueryExecutionFactory.create(GET_ASSERTION_GRAPH_NAMES_QUERY_STRING, getDataset())) {
-            setUnionDefaultGraph(queryExecution.getContext());
+        try (final QueryExecution queryExecution = queryNanopublications(GET_ASSERTION_GRAPH_NAMES_QUERY)) {
             for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
                 final QuerySolution querySolution = resultSet.nextSolution();
                 final Resource g = querySolution.getResource("A");
@@ -134,11 +134,8 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
     }
 
     private Dataset getNanopublicationDataset(final Uri uri) {
-        final String queryString = String.format(GET_NANOPUBLICATION_DATASET_QUERY_STRING, uri);
-        final Query query = QueryFactory.create(queryString);
         final Dataset nanopublicationDataset = DatasetFactory.create();
-        try (final QueryExecution queryExecution = QueryExecutionFactory.create(query, getDataset())) {
-            setUnionDefaultGraph(queryExecution.getContext());
+        try (final QueryExecution queryExecution = queryNanopublications(QueryFactory.create(String.format(GET_NANOPUBLICATION_DATASET_QUERY_STRING, uri)))) {
             for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
                 final QuerySolution querySolution = resultSet.nextSolution();
                 final Resource g = querySolution.getResource("G");
@@ -158,14 +155,9 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
         return nanopublicationDataset;
     }
 
-    protected abstract void setUnionDefaultGraph(Context context);
-
     private Set<String> getNanopublicationGraphNames(final Uri uri) {
-        final String queryString = String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, uri);
-        final Query query = QueryFactory.create(queryString);
         final Set<String> nanopublicationGraphNames = new HashSet<>();
-        try (final QueryExecution queryExecution = QueryExecutionFactory.create(query, getDataset())) {
-            setUnionDefaultGraph(queryExecution.getContext());
+        try (final QueryExecution queryExecution = queryNanopublications(QueryFactory.create(String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, uri)))) {
             for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
                 final QuerySolution querySolution = resultSet.nextSolution();
                 final Resource g = querySolution.getResource("G");
@@ -190,14 +182,7 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
         for (final String assertionGraphName : assertionGraphNames) {
             query.addGraphURI(assertionGraphName);
         }
-        return QueryExecutionFactory.create(query, getDataset());
-    }
-
-    @Override
-    public final QueryExecution queryNanopublications(final Query query) {
-        final QueryExecution queryExecution = QueryExecutionFactory.create(query, getDataset());
-        setUnionDefaultGraph(queryExecution.getContext());
-        return queryExecution;
+        return queryNanopublications(query);
     }
 
     protected final Dataset getDataset() {

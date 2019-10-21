@@ -9,7 +9,7 @@ import org.apache.jena.query.ReadWrite;
  */
 public final class MemTwks extends DatasetTwks {
     public MemTwks() {
-        super(DatasetFactory.create());
+        super(DatasetFactory.createTxnMem());
     }
 
     @Override

@@ -1,8 +1,6 @@
 package edu.rpi.tw.twks.abc;
 
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.ReadWrite;
-import org.apache.jena.sparql.util.Context;
+import org.apache.jena.query.*;
 
 final class MemTwksTransaction extends DatasetTwksTransaction {
     MemTwksTransaction(final Dataset dataset, final ReadWrite readWrite) {
@@ -10,6 +8,7 @@ final class MemTwksTransaction extends DatasetTwksTransaction {
     }
 
     @Override
-    protected void setUnionDefaultGraph(final Context context) {
+    public final QueryExecution queryNanopublications(final Query query) {
+        return QueryExecutionFactory.create(query, getDataset().getUnionModel());
     }
 }
