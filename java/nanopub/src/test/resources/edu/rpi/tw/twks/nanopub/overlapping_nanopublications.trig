@@ -18,8 +18,8 @@ pub1:assertion {
 
 pub1:provenance {
     pub1:assertion prov:generatedAtTime "2012-02-03T14:38:00Z"^^xsd:dateTime .
-    pub1:assertion prov:wasDerivedFrom :experiment .
-    pub1:assertion prov:wasAttributedTo :experimentScientist .
+    pub1:assertion prov:wasDerivedFrom pub1:experiment .
+    pub1:assertion prov:wasAttributedTo pub1:experimentScientist .
 }
 
 pub1:pubInfo {
