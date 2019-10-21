@@ -73,19 +73,21 @@ jobs:
               echo -e "$OSSRH_GPG_KEY" | gpg --import
               cd java && mvn -q -P release -Dmaven.test.skip=true deploy
             fi
-  check_md:
+  lint_md:
     docker:
       - image: circleci/ruby:2.4-node
     working_directory: ~/twks
     steps:
       - checkout
-      - run: sudo gem install mdl
-      - run: sudo npm install -g markdown-link-check
-      - run: find . -name README.md | xargs mdl
-      - run: find . -name README.md | xargs markdown-link-check
+      - run: sudo gem install --silent mdl
+      - run: sudo npm install -g --silent markdown-link-check
+      - run: mkdir lint-results && find . -name README.md | xargs mdl >>lint-results/mdl.txt 2>&1
+      - run: find . -name README.md | xargs markdown-link-check >>lint-results/markdown-lint-check 2>&1
+      - store_artifacts:
+          path: lint-results
 workflows:
   version: 2
   build:
     jobs:
       - build
-      - check_md
+      - lint_md
