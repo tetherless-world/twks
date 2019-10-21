@@ -79,10 +79,7 @@ jobs:
     working_directory: ~/twks
     steps:
       - checkout
-      - run: sudo gem install --silent mdl
-      - run: sudo npm install -g --silent markdown-link-check
-      - run: mkdir lint-results && find . -name README.md | xargs mdl >>lint-results/mdl.txt 2>&1
-      - run: find . -name README.md | xargs markdown-link-check >>lint-results/markdown-lint-check 2>&1
+      - .circleci/lint-md.sh
       - store_artifacts:
           path: lint-results
 workflows:
