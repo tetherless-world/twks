@@ -75,11 +75,13 @@ jobs:
             fi
   check_md:
     docker:
-      - image: circleci/node:current-buster
+      - image: circleci/ruby:2.4-node
     working_directory: ~/twks
     steps:
       - checkout
-      - run: npm install -g markdown-link-check
+      - run: sudo gem install mdl
+      - run: sudo npm install -g markdown-link-check
+      - run: find twks -name README.md | xargs mdl
       - run: find twks -name README.md | xargs markdown-link-check
 workflows:
   version: 2
