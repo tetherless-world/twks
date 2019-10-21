@@ -81,8 +81,8 @@ jobs:
       - checkout
       - run: sudo gem install mdl
       - run: sudo npm install -g markdown-link-check
-      - run: find twks -name README.md | xargs mdl
-      - run: find twks -name README.md | xargs markdown-link-check
+      - run: find . -name README.md | xargs mdl
+      - run: find . -name README.md | xargs markdown-link-check
 workflows:
   version: 2
   build:
