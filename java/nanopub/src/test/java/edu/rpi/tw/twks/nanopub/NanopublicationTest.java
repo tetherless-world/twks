@@ -1,12 +1,18 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.google.common.base.Charsets;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.RDF;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNotSame;
@@ -27,7 +33,7 @@ public final class NanopublicationTest {
 
     @Test
     public void testToDataset() throws MalformedNanopublicationException {
-        final Nanopublication nanopublication = NanopublicationFactory.getInstance().createNanopublicationFromDataset(testData.specNanopublicationDataset);
+        final Nanopublication nanopublication = NanopublicationFactory.getInstance().createNanopublicationsFromDataset(testData.specNanopublicationDataset).get(0);
         {
             final Dataset actual = nanopublication.toDataset();
             assertTrue(actual.getUnionModel().isIsomorphicWith(testData.specNanopublicationDataset.getUnionModel()));
@@ -41,7 +47,7 @@ public final class NanopublicationTest {
 
     @Test
     public void testToDatasetDuplicateModelName() throws MalformedNanopublicationException {
-        final Nanopublication nanopublication = NanopublicationFactory.getInstance().createNanopublicationFromDataset(testData.specNanopublicationDataset);
+        final Nanopublication nanopublication = NanopublicationFactory.getInstance().createNanopublicationsFromDataset(testData.specNanopublicationDataset).get(0);
         final Dataset actual = DatasetFactory.create();
         {
             // containsModel will fail if the model is empty
@@ -54,5 +60,23 @@ public final class NanopublicationTest {
             fail();
         } catch (final DuplicateModelNameException e) {
         }
+    }
+
+    @Test
+    public void testWrite() throws Exception {
+        final Nanopublication expected = new NanopublicationParser().parse(testData.specNanopublicationFilePath).get(0);
+        final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        expected.write(bos);
+        final String actualString = new String(bos.toByteArray(), Charsets.UTF_8);
+        final Nanopublication actual = new NanopublicationParser().setLang(Lang.TRIG).parse(new StringReader(actualString)).get(0);
+        Assert.assertTrue(expected.isIsomorphicWith(actual));
+    }
+
+    @Test
+    public void testWriteToString() throws Exception {
+        final Nanopublication expected = new NanopublicationParser().parse(testData.specNanopublicationFilePath).get(0);
+        final String actualString = expected.writeToString();
+        final Nanopublication actual = new NanopublicationParser().setLang(Lang.TRIG).parse(new StringReader(actualString)).get(0);
+        Assert.assertTrue(expected.isIsomorphicWith(actual));
     }
 }

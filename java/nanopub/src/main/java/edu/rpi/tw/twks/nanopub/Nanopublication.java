@@ -5,6 +5,12 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ReadWrite;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -109,6 +115,21 @@ public final class Nanopublication {
                 throw new DuplicateModelNameException(name);
             }
             dataset.addNamedModel(name, nanopublicationPart.getModel());
+        }
+    }
+
+    public final void write(final OutputStream outputStream) {
+        RDFDataMgr.write(outputStream, toDataset(), Lang.TRIG);
+    }
+
+    public final void write(final StringWriter writer) {
+        RDFDataMgr.write(writer, toDataset(), Lang.TRIG);
+    }
+
+    public final String writeToString() throws IOException {
+        try (final StringWriter stringWriter = new StringWriter()) {
+            write(stringWriter);
+            return stringWriter.toString();
         }
     }
 

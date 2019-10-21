@@ -15,14 +15,20 @@ import java.net.URL;
  */
 public final class TestData {
     public final File assertionOnlyFilePath;
+    public final Dataset duplicateNanopublicationsDataset;
+    public final Dataset overlappingNanopublicationsDataset;
     public final File specNanopublicationFilePath;
-    public final Dataset specNanopublicationDataset = DatasetFactory.create();
+    public final Dataset specNanopublicationDataset;
+    public final Dataset uniqueNanopublicationsDataset;
     public final File whyisNanopublicationFilePath;
 
     public TestData() throws IOException, MalformedNanopublicationException {
         assertionOnlyFilePath = getResourceFilePath("assertion_only.ttl");
+        duplicateNanopublicationsDataset = parseDatasetFromResource("duplicate_nanopublications.trig");
+        overlappingNanopublicationsDataset = parseDatasetFromResource("overlapping_nanopublications.trig");
         specNanopublicationFilePath = getResourceFilePath("spec_nanopublication.trig");
-        parseDatasetFromResource(specNanopublicationDataset, "spec_nanopublication.trig");
+        specNanopublicationDataset = parseDatasetFromResource("spec_nanopublication.trig");
+        uniqueNanopublicationsDataset = parseDatasetFromResource("unique_nanopublications.trig");
         whyisNanopublicationFilePath = getResourceFilePath("whyis_nanopublication.trig");
     }
 
@@ -35,11 +41,14 @@ public final class TestData {
         }
     }
 
-    private void parseDatasetFromResource(final Dataset dataset, final String fileName) throws IOException {
+    private Dataset parseDatasetFromResource(final String fileName) throws IOException {
         final URL url = getClass().getResource("./" + fileName);
         try (final InputStream inputStream = url.openStream()) {
+            final Dataset dataset = DatasetFactory.create();
             RDFParserBuilder.create().base(url.toString()).source(inputStream).parse(dataset);
+            return dataset;
         }
     }
+
 
 }

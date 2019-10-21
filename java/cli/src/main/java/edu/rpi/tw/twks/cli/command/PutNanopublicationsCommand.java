@@ -124,7 +124,7 @@ public final class PutNanopublicationsCommand extends Command {
             try {
                 final byte[] trigBytes = ByteStreams.toByteArray(System.in);
                 final String trigString = new String(trigBytes);
-                final ImmutableList<Nanopublication> result = ImmutableList.of(newNanopublicationParser().parse(new StringReader(trigString)));
+                final ImmutableList<Nanopublication> result = newNanopublicationParser().parse(new StringReader(trigString));
                 logger.info("parsed {} nanopublications from stdin", result.size());
                 return result;
             } catch (final IOException | MalformedNanopublicationException e) {
@@ -135,7 +135,7 @@ public final class PutNanopublicationsCommand extends Command {
 
         public final ImmutableList<Nanopublication> parseFile(final File sourceFilePath) {
             try {
-                final ImmutableList<Nanopublication> result = ImmutableList.of(newNanopublicationParser().parse(sourceFilePath));
+                final ImmutableList<Nanopublication> result = newNanopublicationParser().parse(sourceFilePath);
                 logger.info("parsed {} nanopublications from {}", result.size(), sourceFilePath);
                 return result;
             } catch (final IOException | MalformedNanopublicationException e) {
@@ -196,7 +196,7 @@ public final class PutNanopublicationsCommand extends Command {
 
         public final ImmutableList<Nanopublication> parseUri(final Uri sourceUri) {
             try {
-                final ImmutableList<Nanopublication> result = ImmutableList.of(newNanopublicationParser().parse(sourceUri));
+                final ImmutableList<Nanopublication> result = newNanopublicationParser().parse(sourceUri);
                 logger.info("parsed {} nanopublications from {}", result.size(), sourceUri);
                 return result;
             } catch (final IOException | MalformedNanopublicationException e) {

@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.client;
 import com.google.api.client.http.*;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.api.BulkReadApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
@@ -105,7 +106,15 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
             try (final InputStream inputStream = response.getContent()) {
                 final byte[] contentBytes = ByteStreams.toByteArray(inputStream);
                 try {
-                    return Optional.of(new NanopublicationParser().setLang(Lang.TRIG).parse(new StringReader(new String(contentBytes, "UTF-8"))));
+                    final ImmutableList<Nanopublication> nanopublications = new NanopublicationParser().setLang(Lang.TRIG).parse(new StringReader(new String(contentBytes, "UTF-8")));
+                    switch (nanopublications.size()) {
+                        case 0:
+                            throw new IllegalStateException();
+                        case 1:
+                            return Optional.of(nanopublications.get(0));
+                        default:
+                            throw new IllegalStateException();
+                    }
                 } catch (final MalformedNanopublicationException e) {
                     logger.error("malformed nanopublication from server: ", e);
                     return Optional.empty();

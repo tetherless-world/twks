@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.tdb;
 
+import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.abc.DatasetTwksTransaction;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
@@ -86,14 +87,21 @@ final class Tdb2TwksTransaction extends DatasetTwksTransaction {
     @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
         final Dataset nanopublicationDataset = getNanopublicationDataset(uri);
-        if (!nanopublicationDataset.isEmpty()) {
-            try {
-                return Optional.of(NanopublicationFactory.getInstance().createNanopublicationFromDataset(nanopublicationDataset));
-            } catch (final MalformedNanopublicationException e) {
-                throw new IllegalStateException(e);
-            }
-        } else {
+        if (nanopublicationDataset.isEmpty()) {
             return Optional.empty();
+        }
+        try {
+            final ImmutableList<Nanopublication> nanopublications = NanopublicationFactory.getInstance().createNanopublicationsFromDataset(nanopublicationDataset);
+            switch (nanopublications.size()) {
+                case 0:
+                    throw new IllegalStateException();
+                case 1:
+                    return Optional.of(nanopublications.get(0));
+                default:
+                    throw new IllegalStateException();
+            }
+        } catch (final MalformedNanopublicationException e) {
+            throw new IllegalStateException(e);
         }
     }
 
