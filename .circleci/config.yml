@@ -41,7 +41,7 @@ jobs:
           name: Build Java examples
           command: |
             cd java/examples/client
-            mvn package
+            mvn -q package -DskipTests
       - setup_remote_docker
       - run:
           name: Copy .m2 directory to java/ temporarily so that it will be speed up Docker image builds
