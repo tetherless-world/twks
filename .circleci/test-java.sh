@@ -5,6 +5,7 @@ set -e
 rm -fr ~/.m2/repository/edu/rpi/tw/twks
 MAVEN_OPTS="-Xmx3500M" \
   mvn \
+  -q \
   -DargLine=\"-Dtwks.serverBaseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false \
   test
 mkdir surefire-reports
