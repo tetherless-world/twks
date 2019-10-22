@@ -2,13 +2,12 @@ package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.TwksTransaction;
-import edu.rpi.tw.twks.nanopub.DatasetTransaction;
-import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
-import edu.rpi.tw.twks.nanopub.Nanopublication;
-import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
+import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.*;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,25 +139,9 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
     }
 
     private Dataset getNanopublicationDataset(final Uri uri) {
-        final Dataset nanopublicationDataset = DatasetFactory.create();
         try (final QueryExecution queryExecution = queryNanopublications(QueryFactory.create(String.format(GET_NANOPUBLICATION_DATASET_QUERY_STRING, uri)))) {
-            for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
-                final QuerySolution querySolution = resultSet.nextSolution();
-                final Resource g = querySolution.getResource("G");
-                final RDFNode o = querySolution.get("O");
-                final Property p = ResourceFactory.createProperty(querySolution.getResource("P").getURI());
-                final Resource s = querySolution.getResource("S");
-
-                Model model = nanopublicationDataset.getNamedModel(g.getURI());
-                if (model == null) {
-                    model = ModelFactory.createDefaultModel();
-                    setNsPrefixes(model);
-                    nanopublicationDataset.addNamedModel(g.getURI(), model);
-                }
-                model.add(s, p, o);
-            }
+            return MoreDatasetFactory.createDatasetFromResultSet(queryExecution.execSelect());
         }
-        return nanopublicationDataset;
     }
 
     private Set<String> getNanopublicationGraphNames(final Uri uri) {
