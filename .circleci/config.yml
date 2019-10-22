@@ -8,7 +8,9 @@ jobs:
       - checkout
       - restore_cache:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
-      - run: cp -p -R /home/circleci/.m2 ~/ || true
+      - run:
+          name: Move old ~/.m2 cache if exists
+          command: mv /home/circleci/.m2 ~/ || true
       - run: mkdir -p ~/.m2
       - run: find ~/.m2 | wc
       - setup_remote_docker
@@ -23,7 +25,9 @@ jobs:
           name: Copy .m2 directory out of container so that it can be cached
           command: |
             rm -fr ~/.m2
-            docker cp twks-java:/root/.m2 ~/.m2
+            docker exec twks-java bash -c "tar cf /root/.m2 /root/m2.tar && bzip2 -9 /root/m2.tar"
+            docker cp twks-java:/root/m2.tar ~
+            tar jxf ~/m2.tar
             find ~/.m2 | wc
       - save_cache:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
