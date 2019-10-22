@@ -7,12 +7,18 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+          keys:
+            - twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+            - m2-v1-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
       - run:
-          name: Move old ~/.m2 cache if exists
-          command: mv /home/circleci/.m2 ~/ || true
-      - run: mkdir -p ~/.m2
-      - run: find ~/.m2 | wc
+          name: Move old ~/.m2 cache to right path if exists
+          command: mv -n /home/circleci/.m2 ~/
+      - run:
+          name: Create ~/.m2 if it doesn't exist
+          command: mkdir -p ~/.m2
+      - run:
+          name: Count files in ~/.m2
+          command: find ~/.m2 | wc
       - setup_remote_docker
       - run:
           name: Copy .m2 directory to java/ temporarily so that it will be speed up Docker image builds
@@ -34,7 +40,7 @@ jobs:
             docker cp twks-java:/root/.m2 ~/
             find ~/.m2 | wc
       - save_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+          key: m2-v1-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
           paths:
             - ~/.m2
       - run:
