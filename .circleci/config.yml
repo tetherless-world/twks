@@ -8,8 +8,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
             - m2-v1-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+            - twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
       - run:
           name: Move old ~/.m2 cache to right path if exists
           command: mv -n /home/circleci/.m2 ~/ || true
