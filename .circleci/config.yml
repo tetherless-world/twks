@@ -97,7 +97,7 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker cp .circleci/maven-settings.xml twks-java:/root/.m2/settings.xml
-              docker exec twks-java bash -c "echo -e \"$OSSRH_GPG_KEY\" | gpg --import && cd /twks/java && mvn -P release -DskipTests deploy"
+              docker exec -e OSSRH_PASS=$OSSRH_PASS -e OSSRH_USER=$OSSRH_USER twks-java bash -c "echo -e \"$OSSRH_GPG_KEY\" | gpg --import && cd /twks/java && mvn -P release -DskipTests deploy"
             fi
   lint_md:
     docker:
