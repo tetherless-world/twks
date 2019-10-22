@@ -38,11 +38,10 @@ jobs:
           paths:
             - ~/.m2
       - run:
-          name: Run Java tests and generate site
+          name: Run Java tests
           command: |
             docker cp .circleci/test-java.sh twks-java:/twks/java
             docker exec twks-java bash -c "/twks/java/test-java.sh"
-            docker cp twks-java:/twks/java/site.tar.bz2 java/
             mkdir -p test-results
             docker cp twks-java:/twks/java/surefire-reports.tar.bz2 test-results && cd test-results && tar jxf surefire-reports.tar.bz2 && mv surefire-reports java && rm surefire-reports.tar.bz2
       - run:
@@ -50,8 +49,6 @@ jobs:
           command: |
             docker cp .circleci/build-java-examples twks-java:/twks/java
             docker exec twks-java bash -c "/twks/java/build-java-examples.sh"
-      - store_artifacts:
-          path: java/site.tar.bz2
       - run:
           name: Run Python client tests
           command: |
@@ -63,14 +60,24 @@ jobs:
       - store_test_results:
           path: test-results
       - run:
-          name: Push Docker images
+          name: Generate Java site (master only)
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker cp .circleci/report-java.sh twks-java:/twks/java
+              docker exec twks-java bash -c "/twks/java/report-java.sh"
+              docker cp twks-java:/twks/java/site.tar.bz2 java/
+            fi
+      - store_artifacts:
+          path: java/site.tar.bz2
+      - run:
+          name: Push Docker images (master only)
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
               cd docker && docker-compose push twks-cli twks-server
             fi
       - run:
-          name: Push Java artifacts
+          name: Push Java artifacts (master only)
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker cp ~/twks/.circleci/maven-settings.xml twks-java:/root/.m2/settings.xml

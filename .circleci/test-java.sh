@@ -5,10 +5,8 @@ set -e
 rm -fr ~/.m2/repository/edu/rpi/tw/twks
 MAVEN_OPTS="-Xmx3500M" \
   mvn \
-  -DargLine=\"-Dtwks.serverBaseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false -DstagingDirectory=$PWD/site \
-  test site site:stage
-tar cf site.tar site
-bzip2 -9 site.tar
+  -DargLine=\"-Dtwks.serverBaseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false \
+  test
 mkdir surefire-reports
 mv java/cli/target/surefire-reports/* surefire-reports
 mv java/ext/target/surefire-reports/* surefire-reports
