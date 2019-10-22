@@ -8,7 +8,9 @@ MAVEN_OPTS="-Xmx3500M" \
   -DargLine=\"-Dtwks.serverBaseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false \
   test
 mkdir surefire-reports
+mv abc/target/surefire-reports/* surefire-reports
 mv cli/target/surefire-reports/* surefire-reports
+mv client/target/surefire-reports/* surefire-reports
 mv ext/target/surefire-reports/* surefire-reports
 mv factory/target/surefire-reports/* surefire-reports
 mv nanopub/target/surefire-reports/* surefire-reports
