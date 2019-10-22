@@ -43,6 +43,7 @@ jobs:
             cd java/examples/client
             mvn -q package -DskipTests
       - setup_remote_docker
+        docker_layer_caching: true
       - run:
           name: Copy .m2 directory to java/ temporarily so that it will be speed up Docker image builds
           command: cp -p -R ~/.m2 java/
