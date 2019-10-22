@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 public final class ClasspathExtensionsTest {
     @Test
-    public void testRegisterObservers() {
+    public void testLifecycle() {
         final Twks twks = TwksFactory.getInstance().createTwks();
         assertFalse(TestTwksExtension.instantiated);
         final ClasspathExtensions sut = new ClasspathExtensions(twks);
@@ -17,5 +17,7 @@ public final class ClasspathExtensionsTest {
         assertFalse(TestTwksExtension.initialized);
         sut.initialize();
         assertTrue(TestTwksExtension.initialized);
+        sut.destroy();
+        assertTrue(TestTwksExtension.destroyed);
     }
 }
