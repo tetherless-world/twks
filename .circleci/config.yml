@@ -8,10 +8,8 @@ jobs:
       - checkout
       - restore_cache:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
-      - run:
-          command: |
-            set +e
-            find ~/.m2 | wc
+      - run: echo ~/.m2
+      - run: find ~/.m2 | wc || true
       - setup_remote_docker
       - run:
           name: Copy .m2 directory to java/ temporarily so that it will be speed up Docker image builds
@@ -38,7 +36,7 @@ jobs:
           name: Copy .m2 directory out of container so that it can be cached
           command: |
             rm -fr ~/.m2
-            docker cp twks-java:/root/.m2 ~/
+            docker cp twks-java:/root/.m2 ~/.m2
       - save_cache:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
           paths:
