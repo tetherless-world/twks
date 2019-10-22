@@ -6,7 +6,7 @@ rm -fr ~/.m2/repository/edu/rpi/tw/twks
 MAVEN_OPTS="-Xmx3500M" \
   mvn \
   -DargLine=\"-Dtwks.serverBaseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false -DstagingDirectory=$PWD/site \
-  clean package site site:stage
+  test site site:stage
 tar cf site.tar site
 bzip2 -9 site.tar
 mkdir surefire-reports
