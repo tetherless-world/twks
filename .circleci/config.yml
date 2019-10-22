@@ -16,9 +16,6 @@ jobs:
       - run:
           name: Move old ~/.m2 cache to right path if exists
           command: mv -n /home/circleci/.m2 ~/ || true
-      - run:
-          name: Create ~/.m2 if it doesn't exist
-          command: mkdir -p ~/.m2
       #      - run:
       #          name: Count files in ~/.m2
       #          command: find ~/.m2 | wc
@@ -27,9 +24,11 @@ jobs:
           name: Copy package caches into Docker contexts to speed up Docker image builds
           command: |
             rm -fr py/.cache
-            mv ~/.cache py/ || true
+            mkdir -p ~/.cache/pip
+            mv ~/.cache py/
             rm -fr java/.m2
-            mv ~/.m2 java/ || true
+            mkdir -p ~/.m2
+            mv ~/.m2 java/
       - run:
           name: Build Docker images
           command: cd docker && docker-compose build
