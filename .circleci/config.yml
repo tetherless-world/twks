@@ -17,6 +17,17 @@ jobs:
       - run:
           name: Build Docker images
           command: cd docker && docker-compose build
+      # Cache ~/.m2 before building Java examples, since that installs our libraries into ~/.m2
+      - run:
+          name: Copy .m2 directory out of container so that it can be cached
+          command: |
+            rm -fr ~/.m2
+            docker cp twks-java:/root/.m2 ~/.m2
+            find ~/.m2 | wc
+      - save_cache:
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+          paths:
+            - ~/.m2
       - run:
           name: Run the server
           command: cd docker && docker-compose up -d twks-java twks-py twks-server
@@ -31,17 +42,6 @@ jobs:
             docker cp twks-java:/twks/java/site.tar.bz2 java/
             mkdir -p test-results
             docker cp twks-java:/twks/java/surefire-reports.tar.bz2 test-results && cd test-results && tar jxf surefire-reports.tar.bz2 && mv surefire-reports java && rm surefire-reports.tar.bz2
-      # Cache ~/.m2 before building Java examples, since that installs our libraries into ~/.m2
-      - run:
-          name: Copy .m2 directory out of container so that it can be cached
-          command: |
-            rm -fr ~/.m2
-            docker cp twks-java:/root/.m2 ~/.m2
-            find ~/.m2 | wc
-      - save_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
-          paths:
-            - ~/.m2
       - run:
           name: Build Java examples
           command: |
