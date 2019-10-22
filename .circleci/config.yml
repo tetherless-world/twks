@@ -31,7 +31,7 @@ jobs:
           name: Copy .m2 directory out of container so that it can be cached
           command: |
             rm -fr ~/.m2
-            docker exec twks-java bash -c "tar cf /root/m2.tar /root/.m2 && bzip2 -9 /root/m2.tar"
+            docker exec twks-java bash -c "cd /root && tar cf m2.tar .m2 && bzip2 -9 m2.tar"
             docker cp twks-java:/root/m2.tar.bz2 ~
             tar jxf ~/m2.tar.bz2
             find ~/.m2 | wc
