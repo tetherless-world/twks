@@ -53,7 +53,7 @@ jobs:
       - run:
           name: Build Java examples
           command: |
-            docker cp .circleci/build-java-examples twks-java:/twks/java
+            docker cp .circleci/build-java-examples.sh twks-java:/twks/java
             docker exec twks-java bash -c "/twks/java/build-java-examples.sh"
       - run:
           name: Run Python client tests
@@ -63,8 +63,8 @@ jobs:
             docker cp twks-py:/twks/test-results/py/junit.xml test-results/py
       - store_artifacts:
           path: test-results
-      - store_test_results:
-          path: test-results
+      #      - store_test_results:
+      #          path: test-results
       - run:
           name: Generate Java site (master only)
           command: |
