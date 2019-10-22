@@ -25,7 +25,7 @@ import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 public abstract class DatasetTwksTransaction implements TwksTransaction {
     private final static String GET_ASSERTION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "select ?A where {\n" +
-            "  ?NP np:hasAssertion ?A\n" +
+            "  graph ?H { ?NP np:hasAssertion ?A }\n" +
             "  graph ?A {?S ?P ?O}\n" +
             "}";
 

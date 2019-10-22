@@ -9,9 +9,10 @@ final class MemTwksTransaction extends DatasetTwksTransaction {
 
     @Override
     public final QueryExecution queryNanopublications(final Query query) {
-        final Dataset datasetCopy = DatasetFactory.create(getDataset());
-        // Only way to emulate TDB2.symUnionDefaultGraph semantics
-        datasetCopy.setDefaultModel(datasetCopy.getUnionModel());
-        return QueryExecutionFactory.create(query, datasetCopy);
+//        final Dataset datasetCopy = DatasetFactory.create(getDataset());
+//        // Only way to emulate TDB2.symUnionDefaultGraph semantics
+//        datasetCopy.setDefaultModel(datasetCopy.getUnionModel());
+//        return QueryExecutionFactory.create(query, datasetCopy);
+        return QueryExecutionFactory.create(query, getDataset());
     }
 }

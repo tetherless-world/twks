@@ -60,7 +60,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
             return;
         }
 
-        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
+//        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
         sut.putNanopublication(testData.specNanopublication);
         {
             final Model assertions = ((BulkReadApi) sut).getAssertions();
