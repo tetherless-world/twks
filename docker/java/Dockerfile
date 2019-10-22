@@ -1,4 +1,4 @@
-FROM maven:3.6-jdk-11 as build-java
+FROM maven:3.6-jdk-11
 
 COPY /java /twks/java
 WORKDIR /twks/java
