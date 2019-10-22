@@ -26,7 +26,9 @@ jobs:
       - run:
           name: Copy package caches into Docker contexts to speed up Docker image builds
           command: |
+            rm -fr py/.cache
             mv ~/.cache py/ || true
+            rm -fr java/.m2
             mv ~/.m2 java/ || true
       - run:
           name: Build Docker images
