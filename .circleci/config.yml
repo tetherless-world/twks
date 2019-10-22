@@ -20,6 +20,12 @@ jobs:
       - run:
           name: Build Docker images
           command: cd docker && docker-compose build
+      - run:
+          name: Run the server
+          command: |
+            cd docker
+            docker-compose up -d twks-java twks-py twks-server
+            docker exec twks-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twks-server:8080"
       # Cache ~/.m2 before building Java examples, since that installs our libraries into ~/.m2
       - run:
           name: Copy .m2 directory out of container so that it can be cached
@@ -33,12 +39,6 @@ jobs:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
           paths:
             - ~/.m2
-      - run:
-          name: Run the server
-          command: cd docker && docker-compose up -d twks-java twks-py twks-server
-      - run:
-          name: Curl the server until it comes up
-          command: docker exec twks-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twks-server:8080"
       - run:
           name: Run Java tests and generate site
           command: |
