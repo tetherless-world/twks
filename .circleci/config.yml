@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8-jdk-stretch
+      - image: docker/compose:1.24.1
     working_directory: ~/twks
     steps:
       - checkout
@@ -67,9 +67,8 @@ jobs:
           name: Push Java artifacts
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              cp ~/twks/.circleci/maven-settings.xml ~/.m2/settings.xml
-              echo -e "$OSSRH_GPG_KEY" | gpg --import
-              cd java && mvn -q -P release -Dmaven.test.skip=true deploy
+              docker cp ~/twks/.circleci/maven-settings.xml twks-java:/root/.m2/settings.xml
+              docker exec twks-java bash -c "echo -e \"$OSSRH_GPG_KEY\" | gpg --import && cd /twks/java && mvn -q -P release -Dmaven.test.skip=true deploy"
             fi
   lint_md:
     docker:
