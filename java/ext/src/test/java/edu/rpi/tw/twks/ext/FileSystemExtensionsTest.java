@@ -61,8 +61,7 @@ public final class FileSystemExtensionsTest {
 
         twks.putNanopublication(testData.specNanopublication);
 
-        final Path tempSubdirPath = tempDirPath.resolve("delete_nanopublication");
-        Files.createDirectory(tempSubdirPath);
+        final Path tempSubdirPath = Files.createDirectory(Files.createDirectory(tempDirPath.resolve("observer")).resolve("delete_nanopublication"));
         final Path tempFilePath = tempSubdirPath.resolve("delete_nanopublication_test.sh");
         try (final FileWriter fileWriter = new FileWriter(tempFilePath.toFile())) {
             fileWriter.write("#!/bin/bash\n" +

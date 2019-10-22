@@ -30,10 +30,11 @@ public final class FileSystemExtensions {
     }
 
     public final void registerObservers(final Twks twks) {
+        final Path observerDirectoryPath = rootDirectoryPath.resolve("observer");
         try {
-            Files.list(rootDirectoryPath).forEach(subDirectoryPath -> {
+            Files.list(observerDirectoryPath).forEach(subDirectoryPath -> {
                 if (!Files.isDirectory(subDirectoryPath)) {
-                    logger.debug("extfs: {} contains unrecognized non-directory {}", rootDirectoryPath, subDirectoryPath);
+                    logger.debug("extfs: {} contains unrecognized non-directory {}", observerDirectoryPath, subDirectoryPath);
                     return;
                 }
 
@@ -73,7 +74,7 @@ public final class FileSystemExtensions {
                 }
             });
         } catch (final IOException e) {
-            logger.error("extfs: error listing root directory {}", rootDirectoryPath);
+            logger.error("extfs: error listing observer directory {}", observerDirectoryPath);
         }
     }
 
