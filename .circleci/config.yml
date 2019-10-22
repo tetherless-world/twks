@@ -8,40 +8,6 @@ jobs:
       - checkout
       - restore_cache:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
-      - run:
-          name: Build and test Java modules
-          command: |
-            rm -fr ~/.m2/repository/edu/rpi/tw/twks
-            cd java
-            MAVEN_OPTS="-Xmx3500M" mvn -q clean package site site:stage -DstagingDirectory=$PWD/site
-            tar cf site.tar site
-            bzip2 -9 site.tar
-            cd ..
-            mkdir -p test-results/java
-            mv java/cli/target/surefire-reports/* test-results/java
-            mv java/ext/target/surefire-reports/* test-results/java
-            mv java/factory/target/surefire-reports/* test-results/java
-            mv java/nanopub/target/surefire-reports/* test-results/java
-            mv java/server/target/surefire-reports/* test-results/java
-            mv java/tdb/target/surefire-reports/* test-results/java
-            mv java/uri/target/surefire-reports/* test-results/java
-      - store_artifacts:
-          path: java/site.tar.bz2
-      - save_cache:
-          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
-          paths:
-            - ~/.m2
-      # Save .m2 before installing our libraries
-      - run:
-          name: Install Java modules
-          command: |
-            cd java
-            MAVEN_OPTS="-Xmx3500M" mvn -q install -DskipTests
-      - run:
-          name: Build Java examples
-          command: |
-            cd java/examples/client
-            mvn -q package -DskipTests
       - setup_remote_docker
       - run:
           name: Copy .m2 directory to java/ temporarily so that it will be speed up Docker image builds
@@ -56,10 +22,30 @@ jobs:
           name: Curl the server until it comes up
           command: docker exec twks-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twks-server:8080"
       - run:
-          name: Run Java client tests
+          name: Run Java tests and generate site
           command: |
-            docker exec twks-java bash -c "mvn -q -DargLine=\"-Dtwks.serverBaseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false test"
-            docker cp twks-java:/twks/java/client/target/surefire-reports/TEST-edu.rpi.tw.twks.client.TwksClientTest.xml test-results/java
+            docker cp .circleci/test-java.sh twks-java:/twks/java
+            docker exec twks-java bash -c "/twks/java/test-java.sh"
+            docker cp twks-java:/twks/java/site.tar.bz2 java/
+            mkdir -p test-results
+            docker cp twks-java:/twks/java/surefire-reports.tar.bz2 test-results && cd test-results && tar jxf surefire-reports.tar.bz2 && mv surefire-reports java && rm surefire-reports.tar.bz2
+      # Cache ~/.m2 before building Java examples, since that installs our libraries into ~/.m2
+      - run:
+          name: Copy .m2 directory out of container so that it can be cached
+          command: |
+            rm -fr ~/.m2
+            docker cp twks-java:/root/.m2 ~/
+      - save_cache:
+          key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
+          paths:
+            - ~/.m2
+      - run:
+          name: Build Java examples
+          command: |
+            docker cp .circleci/build-java-examples twks-java:/twks/java
+            docker exec twks-java bash -c "/twks/java/build-java-examples.sh"
+      - store_artifacts:
+          path: java/site.tar.bz2
       - run:
           name: Run Python client tests
           command: |
