@@ -7,8 +7,10 @@ from twks.client.twks_client import TwksClient
 
 
 @pytest.fixture
-def client():
-    return TwksClient(server_base_url=os.environ.get("TWKS_SERVER_BASE_URL", None))
+def client(spec_nanopublication):
+    client = TwksClient(server_base_url=os.environ.get("TWKS_SERVER_BASE_URL", None))
+    yield client
+    client.delete_nanopublication(spec_nanopublication.uri)
 
 
 def test_delete_nanopublication_absent(client, spec_nanopublication):
@@ -56,5 +58,6 @@ def test_query_assertions(client, spec_nanopublication):
 
 def test_query_nanopublications(client, spec_nanopublication):
     client.put_nanopublication(spec_nanopublication)
-    graph = client.query_nanopublications("CONSTRUCT WHERE { ?s ?p ?o }").graph
-    assert len(graph) == 10
+    rows = tuple(client.query_nanopublications(
+        "SELECT ?s ?p ?o WHERE { GRAPH ?H { ?np <http://www.nanopub.org/nschema#hasAssertion> ?A } GRAPH ?A { ?s ?p ?o } }"))
+    assert len(rows) == 1

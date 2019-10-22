@@ -4,7 +4,10 @@ import edu.rpi.tw.twks.api.BulkReadApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
+import edu.rpi.tw.twks.nanopub.MoreDatasetFactory;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryFactory;
@@ -60,7 +63,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
             return;
         }
 
-        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
+//        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
         sut.putNanopublication(testData.specNanopublication);
         {
             final Model assertions = ((BulkReadApi) sut).getAssertions();
@@ -113,26 +116,29 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     }
 
     @Test
-    public void testQueryNanopublications() {
+    public void testQueryNanopublications() throws Exception {
         if (!(sut instanceof QueryApi)) {
             return;
         }
 
-        final Query query = QueryFactory.create("CONSTRUCT WHERE { ?S ?P ?O }");
+        // SPARQL 1.1 can't do CONSTRUCT WHERE { GRAPH ?G { ?S ?P ?O } }
+        final Query query = QueryFactory.create("SELECT ?G ?S ?P ?O WHERE { GRAPH ?G { ?S ?P ?O } }");
         try (final QueryExecution queryExecution = ((QueryApi) sut).queryNanopublications(query)) {
-            if (!queryExecution.execConstruct().isEmpty()) {
+            if (queryExecution.execSelect().hasNext()) {
                 fail();
             }
         }
 
         sut.putNanopublication(testData.specNanopublication);
 
-        final Model sutUnionModel;
-        try (final QueryExecution queryExecution = ((QueryApi) sut).queryNanopublications(query)) {
-            sutUnionModel = queryExecution.execConstruct();
-        }
 
-        assertTrue(sutUnionModel.isIsomorphicWith(testData.specNanopublication.toDataset().getUnionModel()));
+        final Dataset actualDataset;
+        try (final QueryExecution queryExecution = ((QueryApi) sut).queryNanopublications(query)) {
+            actualDataset = MoreDatasetFactory.createDatasetFromResultSet(queryExecution.execSelect());
+        }
+        final Nanopublication actual = NanopublicationFactory.getInstance().createNanopublicationsFromDataset(actualDataset).get(0);
+
+        assertTrue(actual.isIsomorphicWith(testData.specNanopublication));
     }
 
     @Test
