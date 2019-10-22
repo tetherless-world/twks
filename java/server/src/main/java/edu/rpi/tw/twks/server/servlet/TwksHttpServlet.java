@@ -15,7 +15,7 @@ public abstract class TwksHttpServlet extends HttpServlet {
     private final Twks twks;
 
     protected TwksHttpServlet() {
-        this(ServletTwks.getInstance());
+        this(ServletTwks.getInstance().getTwks());
     }
 
     protected TwksHttpServlet(final Twks twks) {

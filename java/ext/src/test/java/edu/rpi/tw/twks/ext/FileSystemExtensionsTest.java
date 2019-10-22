@@ -41,8 +41,8 @@ public final class FileSystemExtensionsTest {
     public void setUp() throws IOException {
         originalSystemOut = System.out;
         tempDirPath = createTempDirectory(getClass().getCanonicalName());
-        sut = new FileSystemExtensions(tempDirPath, Optional.empty());
         twks = TwksFactory.getInstance().createTwks();
+        sut = new FileSystemExtensions(tempDirPath, Optional.empty(), twks);
     }
 
     @After
@@ -70,7 +70,7 @@ public final class FileSystemExtensionsTest {
         }
         Files.setPosixFilePermissions(tempFilePath, ImmutableSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
 
-        sut.registerObservers(twks);
+        sut.initialize();
 
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, twks.deleteNanopublication(testData.specNanopublication.getUri()));
 

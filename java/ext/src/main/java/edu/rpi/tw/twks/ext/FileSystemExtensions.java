@@ -19,17 +19,30 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class FileSystemExtensions {
+public final class FileSystemExtensions extends AbstractExtensions {
     private final static Logger logger = LoggerFactory.getLogger(FileSystemExtensions.class);
     private final Path rootDirectoryPath;
     private final Optional<String> serverBaseUrl;
 
-    public FileSystemExtensions(final Path rootDirectoryPath, final Optional<String> serverBaseUrl) {
+    public FileSystemExtensions(final Path rootDirectoryPath, final Optional<String> serverBaseUrl, final Twks twks) {
+        super(twks);
         this.rootDirectoryPath = checkNotNull(rootDirectoryPath);
         this.serverBaseUrl = checkNotNull(serverBaseUrl);
     }
 
-    public final void registerObservers(final Twks twks) {
+    @Override
+    public final void destroy() {
+    }
+
+    @Override
+    public final void initialize() {
+        if (!Files.isDirectory(rootDirectoryPath)) {
+            logger.warn("{} does not exist, disabling file system extensions", rootDirectoryPath);
+            return;
+        }
+
+        logger.info("found {}, enabling file system extensions", rootDirectoryPath);
+
         final Path observerDirectoryPath = rootDirectoryPath.resolve("observer");
         try {
             Files.list(observerDirectoryPath).forEach(subDirectoryPath -> {
@@ -66,7 +79,7 @@ public final class FileSystemExtensions {
                             return;
                         }
 
-                        registerObserver(filePath, observerType, twks);
+                        registerObserver(filePath, observerType, getTwks());
                     });
                 } catch (final IOException e) {
                     logger.error("extfs: error listing subdirectory {}", subDirectoryPath);

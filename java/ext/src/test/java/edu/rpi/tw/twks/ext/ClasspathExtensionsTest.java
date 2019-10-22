@@ -11,8 +11,11 @@ public final class ClasspathExtensionsTest {
     @Test
     public void testRegisterObservers() {
         final Twks twks = TwksFactory.getInstance().createTwks();
-        assertFalse(TestDeleteNanopublicationTwksObserver.instantiated);
-        new ClasspathExtensions().registerObservers(twks);
-        assertTrue(TestDeleteNanopublicationTwksObserver.instantiated);
+        assertFalse(TestTwksExtension.instantiated);
+        final ClasspathExtensions sut = new ClasspathExtensions(twks);
+        assertTrue(TestTwksExtension.instantiated);
+        assertFalse(TestTwksExtension.initialized);
+        sut.initialize();
+        assertTrue(TestTwksExtension.initialized);
     }
 }
