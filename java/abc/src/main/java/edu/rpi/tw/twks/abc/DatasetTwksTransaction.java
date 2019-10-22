@@ -181,4 +181,9 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
     protected final Dataset getDataset() {
         return dataset;
     }
+
+    @Override
+    public final QueryExecution queryNanopublications(final Query query) {
+        return QueryExecutionFactory.create(query, getDataset());
+    }
 }
