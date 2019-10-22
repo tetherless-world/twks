@@ -96,8 +96,8 @@ jobs:
           name: Push Java artifacts (master only)
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              docker cp ~/twks/.circleci/maven-settings.xml twks-java:/root/.m2/settings.xml
-              docker exec twks-java bash -c "echo -e \"$OSSRH_GPG_KEY\" | gpg --import && cd /twks/java && mvn -q -P release -Dmaven.test.skip=true deploy"
+              docker cp .circleci/maven-settings.xml twks-java:/root/.m2/settings.xml
+              docker exec twks-java bash -c "echo -e \"$OSSRH_GPG_KEY\" | gpg --import && cd /twks/java && mvn -P release -DskipTests deploy"
             fi
   lint_md:
     docker:
