@@ -15,5 +15,5 @@ mv nanopub/target/surefire-reports/* surefire-reports
 mv server/target/surefire-reports/* surefire-reports
 mv tdb/target/surefire-reports/* surefire-reports
 mv uri/target/surefire-reports/* surefire-reports
-tar cf surefire-reports
+tar cf surefire-reports.tar surefire-reports
 bzip2 -9 surefire-reports.tar
