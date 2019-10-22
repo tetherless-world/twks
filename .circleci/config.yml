@@ -32,8 +32,8 @@ jobs:
           command: |
             rm -fr ~/.m2
             docker exec twks-java bash -c "tar cf /root/m2.tar /root/.m2 && bzip2 -9 /root/m2.tar"
-            docker cp twks-java:/root/m2.tar ~
-            tar jxf ~/m2.tar
+            docker cp twks-java:/root/m2.tar.bz2 ~
+            tar jxf ~/m2.tar.bz2
             find ~/.m2 | wc
       - save_cache:
           key: twks-{{ checksum "java/pom.xml" }}-{{ checksum "java/abc/pom.xml" }}-{{ checksum "java/api/pom.xml" }}-{{ checksum "java/cli/pom.xml" }}-{{ checksum "java/client/pom.xml" }}-{{ checksum "java/examples/client/pom.xml" }}-{{ checksum "java/ext/pom.xml" }}-{{ checksum "java/factory/pom.xml" }}-{{ checksum "java/nanopub/pom.xml" }}-{{ checksum "java/server/pom.xml" }}-{{ checksum "java/tdb/pom.xml" }}-{{ checksum "java/test/pom.xml" }}-{{ checksum "java/uri/pom.xml" }}-{{ checksum "java/vocabulary/pom.xml" }}
