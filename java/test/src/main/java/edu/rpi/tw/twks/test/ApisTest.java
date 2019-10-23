@@ -31,6 +31,10 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         testData = new TestData();
     }
 
+    protected final SystemUnderTestT getSystemUnderTest() {
+        return sut;
+    }
+
     @Before
     public void setUp() throws Exception {
         sut = openSystemUnderTest();

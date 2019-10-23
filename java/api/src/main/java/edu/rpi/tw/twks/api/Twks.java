@@ -2,6 +2,8 @@ package edu.rpi.tw.twks.api;
 
 import org.apache.jena.query.ReadWrite;
 
+import java.nio.file.Path;
+
 /**
  * Tetherless World knowledge store API.
  * <p>
@@ -20,4 +22,11 @@ public interface Twks extends BulkReadApi, ChangeObservableApi, NanopublicationC
      * @see TwksTransaction for use information.
      */
     TwksTransaction beginTransaction(ReadWrite readWrite);
+
+    /**
+     * Dump the contents of the store to a directory, one nanopublication per file in .trig format.
+     *
+     * @param directoryPath directory to which to write nanopublication .trig files
+     */
+    void dump(Path directoryPath);
 }
