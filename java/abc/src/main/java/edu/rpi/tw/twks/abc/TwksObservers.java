@@ -55,16 +55,14 @@ final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanop
     }
 
     @Override
-    public final void onDeleteNanopublication(final Twks twks, final Uri nanopublicationUri) {
-        checkState(twks == this.twks);
-        invokeObservers(observer -> observer.onDeleteNanopublication(twks, nanopublicationUri), deleteNanopublicationObserverRegistrations);
+    public final void onDeleteNanopublication(final Uri nanopublicationUri) {
+        invokeObservers(observer -> observer.onDeleteNanopublication(nanopublicationUri), deleteNanopublicationObserverRegistrations);
         onChange(twks);
     }
 
     @Override
-    public final void onPutNanopublication(final Twks twks, final Nanopublication nanopublication) {
-        checkState(twks == this.twks);
-        invokeObservers(observer -> observer.onPutNanopublication(twks, nanopublication), putNanopublicationObserverRegistrations);
+    public final void onPutNanopublication(final Nanopublication nanopublication) {
+        invokeObservers(observer -> observer.onPutNanopublication(nanopublication), putNanopublicationObserverRegistrations);
         onChange(twks);
     }
 

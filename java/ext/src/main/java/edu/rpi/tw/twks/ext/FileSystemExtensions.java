@@ -120,7 +120,7 @@ public final class FileSystemExtensions extends AbstractExtensions {
         }
 
         @Override
-        public void onChange(final Twks twks) {
+        public void onChange() {
             runProcess(newProcessBuilder());
         }
     }
@@ -131,7 +131,7 @@ public final class FileSystemExtensions extends AbstractExtensions {
         }
 
         @Override
-        public void onDeleteNanopublication(final Twks twks, final Uri nanopublicationUri) {
+        public void onDeleteNanopublication(final Uri nanopublicationUri) {
             final ProcessBuilder processBuilder = newProcessBuilder();
             processBuilder.command().add("--nanopublication-uri");
             processBuilder.command().add(nanopublicationUri.toString());
@@ -145,7 +145,7 @@ public final class FileSystemExtensions extends AbstractExtensions {
         }
 
         @Override
-        public void onPutNanopublication(final Twks twks, final Nanopublication nanopublication) {
+        public void onPutNanopublication(final Nanopublication nanopublication) {
             final ProcessBuilder processBuilder = newProcessBuilder();
             processBuilder.command().add("--nanopublication-uri");
             processBuilder.command().add(nanopublication.getUri().toString());
