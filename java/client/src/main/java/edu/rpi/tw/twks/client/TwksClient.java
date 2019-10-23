@@ -54,7 +54,7 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
     }
 
     @Override
-    public Model getAssertions() {
+    public final Model getAssertions() {
         try {
             final HttpResponse response = httpRequestFactory.buildGetRequest(new GenericUrl(serverBaseUrl + "/assertions")).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
             try (final InputStream inputStream = response.getContent()) {
@@ -69,7 +69,7 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
     }
 
     @Override
-    public DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
+    public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
         final HttpResponse response;
         try {
             response = httpRequestFactory.buildDeleteRequest(newNanopublicationUrl(uri)).execute();
@@ -99,7 +99,7 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
     }
 
     @Override
-    public Optional<Nanopublication> getNanopublication(final Uri uri) {
+    public final Optional<Nanopublication> getNanopublication(final Uri uri) {
         try {
             final HttpResponse response = httpRequestFactory.buildGetRequest(newNanopublicationUrl(uri)).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
             checkState(response.getStatusCode() == 200);
@@ -132,7 +132,7 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
     }
 
     @Override
-    public PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
+    public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
         final StringWriter contentStringWriter = new StringWriter();
         RDFDataMgr.write(contentStringWriter, nanopublication.toDataset(), Lang.TRIG);
         final String contentString = contentStringWriter.toString();
@@ -156,12 +156,12 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
     }
 
     @Override
-    public QueryExecution queryAssertions(final Query query) {
+    public final QueryExecution queryAssertions(final Query query) {
         return QueryExecutionFactory.sparqlService(serverBaseUrl + "/sparql/assertions", query, httpTransport.getHttpClient());
     }
 
     @Override
-    public QueryExecution queryNanopublications(final Query query) {
+    public final QueryExecution queryNanopublications(final Query query) {
         return QueryExecutionFactory.sparqlService(serverBaseUrl + "/sparql/nanopublications", query, httpTransport.getHttpClient());
     }
 }
