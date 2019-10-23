@@ -36,8 +36,12 @@ public class TwksConfiguration {
     }
 
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).omitNullValues().add("tdb2Location", tdb2Location.orElse(null)).toString();
+    public final String toString() {
+        return toStringHelper().toString();
+    }
+
+    protected MoreObjects.ToStringHelper toStringHelper() {
+        return MoreObjects.toStringHelper(this).omitNullValues().add("tdb2Location", tdb2Location.orElse(null));
     }
 
     public static class PropertyKeys {
