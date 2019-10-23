@@ -4,6 +4,10 @@ import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksExtension;
 
 public final class TwksExtensionExample implements TwksExtension {
+    public TwksExtensionExample() {
+        System.out.println("Instantiating example extension");
+    }
+
     @Override
     public final void destroy() {
     }

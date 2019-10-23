@@ -7,7 +7,6 @@ import edu.rpi.tw.twks.factory.TwksFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -23,8 +22,8 @@ public final class ServletTwks {
     private ServletTwks(final ServletConfiguration configuration) {
         logger.info("creating servlet Twks instance with configuration {}", configuration);
         twks = TwksFactory.getInstance().createTwks(configuration);
-        classpathExtensions = new ClasspathExtensions(twks);
-        fileSystemExtensions = new FileSystemExtensions(Paths.get(configuration.getExtfsDirectoryPath()), Optional.of(configuration.getServerBaseUrl()), twks);
+        classpathExtensions = new ClasspathExtensions(configuration.getExtcpDirectoryPath(), twks);
+        fileSystemExtensions = new FileSystemExtensions(configuration.getExtfsDirectoryPath(), Optional.of(configuration.getServerBaseUrl()), twks);
 
         classpathExtensions.initialize();
         fileSystemExtensions.initialize();
