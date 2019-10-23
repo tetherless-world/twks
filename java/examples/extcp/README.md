@@ -17,6 +17,8 @@ See the [parent Java documentation](../..) for the above.
     cd java/examples/extcp
     mvn package
 
+The build produces a shaded .jar with all of the extension's dependencies in it, so that the .jar is self-contained.
+
 ## Running
 
     cd java
@@ -25,4 +27,4 @@ See the [parent Java documentation](../..) for the above.
 Then perform an operation using a client:
 
     cd java
-    java -jar java/dist/twks-cli-current.jar put-nanopublications test/src/main/resources/edu/rpi/tw/twks/test/spec_nanopublication.trig
+    java -jar dist/twks-cli-current.jar put-nanopublications test/src/main/resources/edu/rpi/tw/twks/test/spec_nanopublication.trig

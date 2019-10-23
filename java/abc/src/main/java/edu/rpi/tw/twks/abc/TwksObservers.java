@@ -74,9 +74,19 @@ final class TwksObservers implements ChangeObservableApi, DeleteNanopublicationO
     private <ObserverT extends TwksObserver> void invokeObservers(final Consumer<ObserverT> invoker, final Set<TwksObserverRegistrationImpl<ObserverT>> registrations) {
         for (final TwksObserverRegistrationImpl<ObserverT> observerRegistration : registrations) {
             if (observerRegistration.getObserver() instanceof AsynchronousTwksObserver) {
-                getAsynchronousObserverExecutorService().submit(() -> invoker.accept(observerRegistration.getObserver()));
+                getAsynchronousObserverExecutorService().submit(() -> {
+                    try {
+                        invoker.accept(observerRegistration.getObserver());
+                    } catch (final RuntimeException e) {
+                        logger.error("uncaught exception in observer: {}", e);
+                    }
+                });
             } else {
-                invoker.accept(observerRegistration.getObserver());
+                try {
+                    invoker.accept(observerRegistration.getObserver());
+                } catch (final RuntimeException e) {
+                    logger.error("uncaught exception in observer: {}", e);
+                }
             }
         }
     }
