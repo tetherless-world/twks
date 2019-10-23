@@ -21,3 +21,8 @@ See the [parent Java documentation](../..) for the above.
 
     cd java
     mvn package jetty:run -DskipTests -Dtwks.extcp=$PWD/java/examples/extcp/target/twks-examples-extcp-1.0.0-SNAPSHOT.jar
+
+Then perform an operation using a client:
+
+    cd java
+    java -jar java/dist/twks-cli-current.jar put-nanopublications test/src/main/resources/edu/rpi/tw/twks/test/spec_nanopublication.trig
