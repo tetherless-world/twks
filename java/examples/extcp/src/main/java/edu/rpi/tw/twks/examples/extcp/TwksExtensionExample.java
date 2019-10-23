@@ -41,20 +41,29 @@ public final class TwksExtensionExample implements TwksExtension {
                 assertionTurtle = out.toByteArray();
             }
 
-            final OWLOntologyManager owlOntologyManager = OWLManager.createOWLOntologyManager();
-            final OWLOntology owlOntology;
+            final ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
+            // Use the extcp class loader to get things out of the shaded .jar
+            // This is necessary for the OWL API dependency injection to work.
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
             try {
-                owlOntology = owlOntologyManager.loadOntologyFromOntologyDocument(new ByteArrayInputStream(assertionTurtle));
-            } catch (final OWLOntologyCreationException e) {
-                logger.error("error creating OWL ontology from assertions: ", e);
-                return;
-            }
+                final OWLOntologyManager owlOntologyManager = OWLManager.createOWLOntologyManager();
+                final OWLOntology owlOntology;
+                try {
+                    owlOntology = owlOntologyManager.loadOntologyFromOntologyDocument(new ByteArrayInputStream(assertionTurtle));
+                } catch (final OWLOntologyCreationException e) {
+                    logger.error("error creating OWL ontology from assertions: ", e);
+                    return;
+                }
 
-            final OWLReasoner reasoner = new Reasoner.ReasonerFactory().createReasoner(owlOntology);
-            if (reasoner.isConsistent()) {
-                logger.info("current assertions are consistent");
-            } else {
-                logger.info("current assertions are inconsistent");
+                final OWLReasoner reasoner = new Reasoner.ReasonerFactory().createReasoner(owlOntology);
+                if (reasoner.isConsistent()) {
+                    logger.info("current assertions are consistent");
+                } else {
+                    logger.info("current assertions are inconsistent");
+                }
+            } finally {
+                // Restore the original class loader.
+                Thread.currentThread().setContextClassLoader(originalContextClassLoader);
             }
         });
 
