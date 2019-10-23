@@ -105,7 +105,7 @@ public final class TwksObserversTest {
         observers.registerPutNanopublicationObserver(new TestPutNanopublicationObserver()).unregister();
     }
 
-    private static class TestDeleteNanopublicationObserver implements DeleteNanopublicationTwksObserver {
+    private static class TestDeleteNanopublicationObserver implements DeleteNanopublicationObserver {
         List<Uri> deleteNanopublicationUris = new ArrayList<>();
 
         @Override
@@ -117,7 +117,7 @@ public final class TwksObserversTest {
     private static class TestAsynchronousDeleteNanopublicationObserver extends TestDeleteNanopublicationObserver implements AsynchronousTwksObserver {
     }
 
-    private final static class TestChangeObserver implements ChangeTwksObserver {
+    private final static class TestChangeObserver implements ChangeObserver {
         int invocationCount = 0;
 
         @Override
@@ -126,7 +126,7 @@ public final class TwksObserversTest {
         }
     }
 
-    private final static class TestPutNanopublicationObserver implements PutNanopublicationTwksObserver {
+    private final static class TestPutNanopublicationObserver implements PutNanopublicationObserver {
         List<Nanopublication> putNanopublications = new ArrayList<>();
 
         @Override

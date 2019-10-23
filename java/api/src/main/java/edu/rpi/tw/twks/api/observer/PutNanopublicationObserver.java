@@ -5,6 +5,6 @@ import edu.rpi.tw.twks.nanopub.Nanopublication;
 /**
  * Observer callback interface for the putNanopublication operation.
  */
-public interface PutNanopublicationTwksObserver extends TwksObserver {
+public interface PutNanopublicationObserver extends TwksObserver {
     void onPutNanopublication(Nanopublication nanopublication);
 }

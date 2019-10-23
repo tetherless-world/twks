@@ -3,6 +3,6 @@ package edu.rpi.tw.twks.api.observer;
 /**
  * Observer callback interface for any operation that changes the store.
  */
-public interface ChangeTwksObserver extends TwksObserver {
+public interface ChangeObserver extends TwksObserver {
     void onChange();
 }

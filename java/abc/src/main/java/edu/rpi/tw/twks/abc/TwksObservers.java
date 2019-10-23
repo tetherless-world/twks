@@ -17,11 +17,11 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanopublicationTwksObserver {
+final class TwksObservers implements DeleteNanopublicationObserver, PutNanopublicationObserver {
     private final static Logger logger = LoggerFactory.getLogger(TwksObservers.class);
-    private final Set<TwksObserverRegistrationImpl<ChangeTwksObserver>> changeObserverRegistrations = new HashSet<>();
-    private final Set<TwksObserverRegistrationImpl<DeleteNanopublicationTwksObserver>> deleteNanopublicationObserverRegistrations = new HashSet<>();
-    private final Set<TwksObserverRegistrationImpl<PutNanopublicationTwksObserver>> putNanopublicationObserverRegistrations = new HashSet<>();
+    private final Set<TwksObserverRegistrationImpl<ChangeObserver>> changeObserverRegistrations = new HashSet<>();
+    private final Set<TwksObserverRegistrationImpl<DeleteNanopublicationObserver>> deleteNanopublicationObserverRegistrations = new HashSet<>();
+    private final Set<TwksObserverRegistrationImpl<PutNanopublicationObserver>> putNanopublicationObserverRegistrations = new HashSet<>();
     private final Twks twks;
     private @Nullable
     ExecutorService asynchronousObserverExecutorService = null;
@@ -37,15 +37,15 @@ final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanop
         return asynchronousObserverExecutorService;
     }
 
-    public final TwksObserverRegistration registerChangeObserver(final ChangeTwksObserver observer) {
+    public final TwksObserverRegistration registerChangeObserver(final ChangeObserver observer) {
         return new TwksObserverRegistrationImpl<>(observer, changeObserverRegistrations);
     }
 
-    public final TwksObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationTwksObserver observer) {
+    public final TwksObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationObserver observer) {
         return new TwksObserverRegistrationImpl<>(observer, deleteNanopublicationObserverRegistrations);
     }
 
-    public final TwksObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationTwksObserver observer) {
+    public final TwksObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationObserver observer) {
         return new TwksObserverRegistrationImpl<>(observer, putNanopublicationObserverRegistrations);
     }
 

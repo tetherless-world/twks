@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.api;
 
-import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
-import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.DeleteNanopublicationObserver;
+import edu.rpi.tw.twks.api.observer.PutNanopublicationObserver;
 import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
 
 /**
@@ -14,7 +14,7 @@ public interface NanopublicationCrudObservableApi {
      * @param observer
      * @return registration instance, which can be used to unregister the observer
      */
-    TwksObserverRegistration registerDeleteNanopublicationObserver(DeleteNanopublicationTwksObserver observer);
+    TwksObserverRegistration registerDeleteNanopublicationObserver(DeleteNanopublicationObserver observer);
 
     /**
      * Register an observer of the putNanopublication operation.
@@ -22,5 +22,5 @@ public interface NanopublicationCrudObservableApi {
      * @param observer
      * @return registration instance, which can be used to unregister the observer
      */
-    TwksObserverRegistration registerPutNanopublicationObserver(PutNanopublicationTwksObserver observer);
+    TwksObserverRegistration registerPutNanopublicationObserver(PutNanopublicationObserver observer);
 }

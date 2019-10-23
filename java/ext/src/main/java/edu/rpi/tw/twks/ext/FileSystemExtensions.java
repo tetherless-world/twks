@@ -2,9 +2,9 @@ package edu.rpi.tw.twks.ext;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.observer.AsynchronousTwksObserver;
-import edu.rpi.tw.twks.api.observer.ChangeTwksObserver;
-import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
-import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.ChangeObserver;
+import edu.rpi.tw.twks.api.observer.DeleteNanopublicationObserver;
+import edu.rpi.tw.twks.api.observer.PutNanopublicationObserver;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 import org.slf4j.Logger;
@@ -94,13 +94,13 @@ public final class FileSystemExtensions extends AbstractExtensions {
     private void registerObserver(final Path filePath, final TwksObserverType type, final Twks twks) {
         switch (type) {
             case CHANGE:
-                twks.registerChangeObserver(new FileSystemChangeTwksObserver(filePath));
+                twks.registerChangeObserver(new FileSystemChangeObserver(filePath));
                 break;
             case DELETE_NANOPUBLICATION:
-                twks.registerDeleteNanopublicationObserver(new FileSystemDeleteNanopublicationTwksObserver(filePath));
+                twks.registerDeleteNanopublicationObserver(new FileSystemDeleteNanopublicationObserver(filePath));
                 break;
             case PUT_NANOPUBLICATION:
-                twks.registerPutNanopublicationObserver(new FileSystemPutNanopublicationTwksObserver(filePath));
+                twks.registerPutNanopublicationObserver(new FileSystemPutNanopublicationObserver(filePath));
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -114,8 +114,8 @@ public final class FileSystemExtensions extends AbstractExtensions {
         PUT_NANOPUBLICATION
     }
 
-    private final class FileSystemChangeTwksObserver extends FileSystemTwksObserver implements ChangeTwksObserver {
-        public FileSystemChangeTwksObserver(final Path filePath) {
+    private final class FileSystemChangeObserver extends FileSystemTwksObserver implements ChangeObserver {
+        public FileSystemChangeObserver(final Path filePath) {
             super(filePath);
         }
 
@@ -125,8 +125,8 @@ public final class FileSystemExtensions extends AbstractExtensions {
         }
     }
 
-    private final class FileSystemDeleteNanopublicationTwksObserver extends FileSystemTwksObserver implements DeleteNanopublicationTwksObserver {
-        public FileSystemDeleteNanopublicationTwksObserver(final Path filePath) {
+    private final class FileSystemDeleteNanopublicationObserver extends FileSystemTwksObserver implements DeleteNanopublicationObserver {
+        public FileSystemDeleteNanopublicationObserver(final Path filePath) {
             super(filePath);
         }
 
@@ -139,8 +139,8 @@ public final class FileSystemExtensions extends AbstractExtensions {
         }
     }
 
-    private final class FileSystemPutNanopublicationTwksObserver extends FileSystemTwksObserver implements PutNanopublicationTwksObserver {
-        public FileSystemPutNanopublicationTwksObserver(final Path filePath) {
+    private final class FileSystemPutNanopublicationObserver extends FileSystemTwksObserver implements PutNanopublicationObserver {
+        public FileSystemPutNanopublicationObserver(final Path filePath) {
             super(filePath);
         }
 
