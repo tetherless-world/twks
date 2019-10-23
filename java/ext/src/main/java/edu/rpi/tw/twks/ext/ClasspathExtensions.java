@@ -6,14 +6,13 @@ import edu.rpi.tw.twks.api.TwksExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.ServiceLoader;
+import java.util.*;
 
 public final class ClasspathExtensions extends AbstractExtensions {
     private final static Logger logger = LoggerFactory.getLogger(ClasspathExtensions.class);
@@ -56,15 +55,34 @@ public final class ClasspathExtensions extends AbstractExtensions {
             return Optional.empty();
         }
 
-        final URL extDirectoryUrl;
-        try {
-            extDirectoryUrl = extDirectoryPath.get().toUri().toURL();
-        } catch (final MalformedURLException e) {
-            logger.error("{} could not be converted to a URL", extDirectoryPath.get(), e);
-            return Optional.empty();
+        final List<Path> jarFilePaths = new ArrayList<>();
+        if (Files.isDirectory(extDirectoryPath.get())) {
+            try {
+                Files.list(extDirectoryPath.get()).forEach(path -> {
+                    if (Files.isRegularFile(path) && path.getFileName().toString().toLowerCase().endsWith(".jar")) {
+                        jarFilePaths.add(path);
+                    }
+                });
+            } catch (final IOException e) {
+                logger.error("error listing {}", extDirectoryPath.get());
+                return Optional.empty();
+            }
+        } else if (Files.isRegularFile(extDirectoryPath.get())) {
+            jarFilePaths.add(extDirectoryPath.get());
         }
 
-        return Optional.of(new URLClassLoader(new URL[]{extDirectoryUrl}));
+        final List<URL> jarFileUrls = new ArrayList<>();
+        jarFilePaths.stream().forEach(jarFilePath -> {
+            try {
+                jarFileUrls.add(jarFilePath.toUri().toURL());
+            } catch (final MalformedURLException e) {
+                logger.error("{} could not be converted to a URL: ", jarFilePath, e);
+            }
+        });
+
+        logger.info("extension .jar file URLs: {}", jarFileUrls);
+
+        return Optional.of(new URLClassLoader(jarFileUrls.toArray(new URL[0]), Thread.currentThread().getContextClassLoader()));
     }
 
     @Override
