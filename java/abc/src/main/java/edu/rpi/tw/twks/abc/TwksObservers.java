@@ -1,5 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
+import edu.rpi.tw.twks.api.ChangeObservableApi;
+import edu.rpi.tw.twks.api.NanopublicationCrudObservableApi;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.observer.*;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
@@ -17,7 +19,7 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-final class TwksObservers implements DeleteNanopublicationObserver, PutNanopublicationObserver {
+final class TwksObservers implements ChangeObservableApi, DeleteNanopublicationObserver, NanopublicationCrudObservableApi, PutNanopublicationObserver {
     private final static Logger logger = LoggerFactory.getLogger(TwksObservers.class);
     private final Set<TwksObserverRegistrationImpl<ChangeObserver>> changeObserverRegistrations = new HashSet<>();
     private final Set<TwksObserverRegistrationImpl<DeleteNanopublicationObserver>> deleteNanopublicationObserverRegistrations = new HashSet<>();
@@ -37,21 +39,24 @@ final class TwksObservers implements DeleteNanopublicationObserver, PutNanopubli
         return asynchronousObserverExecutorService;
     }
 
+    @Override
     public final TwksObserverRegistration registerChangeObserver(final ChangeObserver observer) {
         return new TwksObserverRegistrationImpl<>(observer, changeObserverRegistrations);
     }
 
+    @Override
     public final TwksObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationObserver observer) {
         return new TwksObserverRegistrationImpl<>(observer, deleteNanopublicationObserverRegistrations);
     }
 
+    @Override
     public final TwksObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationObserver observer) {
         return new TwksObserverRegistrationImpl<>(observer, putNanopublicationObserverRegistrations);
     }
 
     private void onChange(final Twks twks) {
         checkState(twks == this.twks);
-        invokeObservers(observer -> observer.onChange(twks), changeObserverRegistrations);
+        invokeObservers(observer -> observer.onChange(), changeObserverRegistrations);
     }
 
     @Override
