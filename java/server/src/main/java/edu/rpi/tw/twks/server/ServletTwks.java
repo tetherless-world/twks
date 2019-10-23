@@ -7,37 +7,50 @@ import edu.rpi.tw.twks.factory.TwksFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public final class ServletTwks {
     private final static Logger logger = LoggerFactory.getLogger(ServletTwks.class);
-    private static Twks instance = null;
+    private static ServletTwks instance = null;
+    private final ClasspathExtensions classpathExtensions;
+    private final Twks twks;
+    private final FileSystemExtensions fileSystemExtensions;
 
-    private ServletTwks() {
+    private ServletTwks(final ServletConfiguration configuration) {
+        logger.info("creating servlet Twks instance with configuration {}", configuration);
+        twks = TwksFactory.getInstance().createTwks(configuration);
+        classpathExtensions = new ClasspathExtensions(twks);
+        fileSystemExtensions = new FileSystemExtensions(Paths.get(configuration.getExtfsDirectoryPath()), Optional.of(configuration.getServerBaseUrl()), twks);
+
+        classpathExtensions.initialize();
+        fileSystemExtensions.initialize();
     }
 
-    synchronized static void initInstance(final ServletConfiguration configuration) {
-        logger.info("creating servlet Twks instance with configuration {}", configuration);
-        instance = TwksFactory.getInstance().createTwks(configuration);
-
-        logger.info("enabling classpath extensions");
-        new ClasspathExtensions().registerObservers(instance);
-
-        final Path extfsDirectoryPath = Paths.get(configuration.getExtfsDirectoryPath());
-        if (Files.isDirectory(extfsDirectoryPath)) {
-            logger.info("found {}, enabling file system extensions", extfsDirectoryPath);
-            new FileSystemExtensions(extfsDirectoryPath, Optional.of(configuration.getServerBaseUrl())).registerObservers(instance);
-        } else {
-            logger.warn("{} does not exist, disabling file system extensions", extfsDirectoryPath);
+    synchronized static void destroyInstance() {
+        if (instance != null) {
+            instance.destroy();
         }
     }
 
-    public final synchronized static Twks getInstance() {
+    synchronized static void initializeInstance(final ServletConfiguration configuration) {
+        checkState(instance == null);
+        instance = new ServletTwks(configuration);
+    }
+
+    public final synchronized static ServletTwks getInstance() {
         return checkNotNull(instance);
+    }
+
+    public final Twks getTwks() {
+        return twks;
+    }
+
+    private void destroy() {
+        classpathExtensions.destroy();
+        fileSystemExtensions.destroy();
     }
 }

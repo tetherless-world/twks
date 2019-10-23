@@ -2,9 +2,9 @@ package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
-import edu.rpi.tw.twks.api.observer.ChangeTwksObserver;
-import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
-import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.ChangeObserver;
+import edu.rpi.tw.twks.api.observer.DeleteNanopublicationObserver;
+import edu.rpi.tw.twks.api.observer.PutNanopublicationObserver;
 import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
@@ -64,17 +64,17 @@ public abstract class AbstractTwks implements Twks {
     }
 
     @Override
-    public final TwksObserverRegistration registerChangeObserver(final ChangeTwksObserver observer) {
+    public final TwksObserverRegistration registerChangeObserver(final ChangeObserver observer) {
         return observers.registerChangeObserver(observer);
     }
 
     @Override
-    public final TwksObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationTwksObserver observer) {
+    public final TwksObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationObserver observer) {
         return observers.registerDeleteNanopublicationObserver(observer);
     }
 
     @Override
-    public final TwksObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationTwksObserver observer) {
+    public final TwksObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationObserver observer) {
         return observers.registerPutNanopublicationObserver(observer);
     }
 }

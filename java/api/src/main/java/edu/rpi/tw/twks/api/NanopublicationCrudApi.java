@@ -6,7 +6,7 @@ import edu.rpi.tw.twks.uri.Uri;
 import java.util.Optional;
 
 /**
- * Nanopublication Create-Read-Update-Delete (CRUDI) interface.
+ * Nanopublication Create-Read-Update-Delete (CRUD) interface.
  */
 public interface NanopublicationCrudApi {
     /**

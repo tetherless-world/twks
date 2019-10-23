@@ -1,5 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
+import edu.rpi.tw.twks.api.ChangeObservableApi;
+import edu.rpi.tw.twks.api.NanopublicationCrudObservableApi;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.observer.*;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
@@ -17,11 +19,11 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanopublicationTwksObserver {
+final class TwksObservers implements ChangeObservableApi, DeleteNanopublicationObserver, NanopublicationCrudObservableApi, PutNanopublicationObserver {
     private final static Logger logger = LoggerFactory.getLogger(TwksObservers.class);
-    private final Set<TwksObserverRegistrationImpl<ChangeTwksObserver>> changeObserverRegistrations = new HashSet<>();
-    private final Set<TwksObserverRegistrationImpl<DeleteNanopublicationTwksObserver>> deleteNanopublicationObserverRegistrations = new HashSet<>();
-    private final Set<TwksObserverRegistrationImpl<PutNanopublicationTwksObserver>> putNanopublicationObserverRegistrations = new HashSet<>();
+    private final Set<TwksObserverRegistrationImpl<ChangeObserver>> changeObserverRegistrations = new HashSet<>();
+    private final Set<TwksObserverRegistrationImpl<DeleteNanopublicationObserver>> deleteNanopublicationObserverRegistrations = new HashSet<>();
+    private final Set<TwksObserverRegistrationImpl<PutNanopublicationObserver>> putNanopublicationObserverRegistrations = new HashSet<>();
     private final Twks twks;
     private @Nullable
     ExecutorService asynchronousObserverExecutorService = null;
@@ -37,34 +39,35 @@ final class TwksObservers implements DeleteNanopublicationTwksObserver, PutNanop
         return asynchronousObserverExecutorService;
     }
 
-    public final TwksObserverRegistration registerChangeObserver(final ChangeTwksObserver observer) {
+    @Override
+    public final TwksObserverRegistration registerChangeObserver(final ChangeObserver observer) {
         return new TwksObserverRegistrationImpl<>(observer, changeObserverRegistrations);
     }
 
-    public final TwksObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationTwksObserver observer) {
+    @Override
+    public final TwksObserverRegistration registerDeleteNanopublicationObserver(final DeleteNanopublicationObserver observer) {
         return new TwksObserverRegistrationImpl<>(observer, deleteNanopublicationObserverRegistrations);
     }
 
-    public final TwksObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationTwksObserver observer) {
+    @Override
+    public final TwksObserverRegistration registerPutNanopublicationObserver(final PutNanopublicationObserver observer) {
         return new TwksObserverRegistrationImpl<>(observer, putNanopublicationObserverRegistrations);
     }
 
     private void onChange(final Twks twks) {
         checkState(twks == this.twks);
-        invokeObservers(observer -> observer.onChange(twks), changeObserverRegistrations);
+        invokeObservers(observer -> observer.onChange(), changeObserverRegistrations);
     }
 
     @Override
-    public final void onDeleteNanopublication(final Twks twks, final Uri nanopublicationUri) {
-        checkState(twks == this.twks);
-        invokeObservers(observer -> observer.onDeleteNanopublication(twks, nanopublicationUri), deleteNanopublicationObserverRegistrations);
+    public final void onDeleteNanopublication(final Uri nanopublicationUri) {
+        invokeObservers(observer -> observer.onDeleteNanopublication(nanopublicationUri), deleteNanopublicationObserverRegistrations);
         onChange(twks);
     }
 
     @Override
-    public final void onPutNanopublication(final Twks twks, final Nanopublication nanopublication) {
-        checkState(twks == this.twks);
-        invokeObservers(observer -> observer.onPutNanopublication(twks, nanopublication), putNanopublicationObserverRegistrations);
+    public final void onPutNanopublication(final Nanopublication nanopublication) {
+        invokeObservers(observer -> observer.onPutNanopublication(nanopublication), putNanopublicationObserverRegistrations);
         onChange(twks);
     }
 

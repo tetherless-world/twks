@@ -64,7 +64,7 @@ final class ObservingTwksTransaction extends ForwardingTwksTransaction {
 
         @Override
         void notifyObservers(final TwksObservers observers) {
-            observers.onPutNanopublication(twks, nanopublication);
+            observers.onPutNanopublication(nanopublication);
         }
     }
 
@@ -77,7 +77,7 @@ final class ObservingTwksTransaction extends ForwardingTwksTransaction {
 
         @Override
         void notifyObservers(final TwksObservers observers) {
-            observers.onDeleteNanopublication(twks, nanopublicationUri);
+            observers.onDeleteNanopublication(nanopublicationUri);
         }
     }
 }

@@ -7,7 +7,7 @@ public abstract class AbstractResource {
     private final Twks twks;
 
     public AbstractResource() {
-        this(ServletTwks.getInstance());
+        this(ServletTwks.getInstance().getTwks());
     }
 
     public AbstractResource(final Twks twks) {

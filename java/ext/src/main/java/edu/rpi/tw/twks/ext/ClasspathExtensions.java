@@ -1,27 +1,33 @@
 package edu.rpi.tw.twks.ext;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
-import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
-import edu.rpi.tw.twks.api.observer.TwksObserver;
+import edu.rpi.tw.twks.api.TwksExtension;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-public final class ClasspathExtensions {
-    private static <ObserverT extends TwksObserver> ImmutableSet<ObserverT> loadObserverServices(final Class<ObserverT> observerClass) {
-        final ServiceLoader<ObserverT> serviceLoader = ServiceLoader.load(observerClass);
-        final ImmutableSet.Builder<ObserverT> resultBuilder = ImmutableSet.builder();
-        for (final Iterator<ObserverT> observerI = serviceLoader.iterator(); observerI.hasNext(); ) {
-            final ObserverT observer = observerI.next();
-            resultBuilder.add(observer);
+public final class ClasspathExtensions extends AbstractExtensions {
+    private final ImmutableList<TwksExtension> extensions;
+
+    public ClasspathExtensions(final Twks twks) {
+        super(twks);
+
+        final ServiceLoader<TwksExtension> serviceLoader = ServiceLoader.load(TwksExtension.class);
+        final ImmutableList.Builder<TwksExtension> extensionsBuilder = ImmutableList.builder();
+        for (final Iterator<TwksExtension> extensionI = serviceLoader.iterator(); extensionI.hasNext(); ) {
+            extensionsBuilder.add(extensionI.next());
         }
-        return resultBuilder.build();
+        extensions = extensionsBuilder.build();
     }
 
-    public final void registerObservers(final Twks twks) {
-        loadObserverServices(DeleteNanopublicationTwksObserver.class).forEach(observer -> twks.registerDeleteNanopublicationObserver(observer));
-        loadObserverServices(PutNanopublicationTwksObserver.class).forEach(observer -> twks.registerPutNanopublicationObserver(observer));
+    @Override
+    public final void destroy() {
+        extensions.forEach(extensions -> extensions.destroy());
+    }
+
+    @Override
+    public final void initialize() {
+        extensions.forEach(extension -> extension.initialize(getTwks()));
     }
 }

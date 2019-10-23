@@ -41,8 +41,8 @@ public final class FileSystemExtensionsTest {
     public void setUp() throws IOException {
         originalSystemOut = System.out;
         tempDirPath = createTempDirectory(getClass().getCanonicalName());
-        sut = new FileSystemExtensions(tempDirPath, Optional.empty());
         twks = TwksFactory.getInstance().createTwks();
+        sut = new FileSystemExtensions(tempDirPath, Optional.empty(), twks);
     }
 
     @After
@@ -61,8 +61,7 @@ public final class FileSystemExtensionsTest {
 
         twks.putNanopublication(testData.specNanopublication);
 
-        final Path tempSubdirPath = tempDirPath.resolve("delete_nanopublication");
-        Files.createDirectory(tempSubdirPath);
+        final Path tempSubdirPath = Files.createDirectory(Files.createDirectory(tempDirPath.resolve("observer")).resolve("delete_nanopublication"));
         final Path tempFilePath = tempSubdirPath.resolve("delete_nanopublication_test.sh");
         try (final FileWriter fileWriter = new FileWriter(tempFilePath.toFile())) {
             fileWriter.write("#!/bin/bash\n" +
@@ -71,7 +70,7 @@ public final class FileSystemExtensionsTest {
         }
         Files.setPosixFilePermissions(tempFilePath, ImmutableSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
 
-        sut.registerObservers(twks);
+        sut.initialize();
 
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, twks.deleteNanopublication(testData.specNanopublication.getUri()));
 

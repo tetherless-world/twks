@@ -31,7 +31,7 @@ abstract class SparqlHttpServlet extends TwksHttpServlet {
     private final AcceptList offerResultsAcceptList;
 
     protected SparqlHttpServlet() {
-        this(ServletTwks.getInstance());
+        this(ServletTwks.getInstance().getTwks());
     }
 
     protected SparqlHttpServlet(final Twks twks) {

@@ -2,9 +2,9 @@ package edu.rpi.tw.twks.ext;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.observer.AsynchronousTwksObserver;
-import edu.rpi.tw.twks.api.observer.ChangeTwksObserver;
-import edu.rpi.tw.twks.api.observer.DeleteNanopublicationTwksObserver;
-import edu.rpi.tw.twks.api.observer.PutNanopublicationTwksObserver;
+import edu.rpi.tw.twks.api.observer.ChangeObserver;
+import edu.rpi.tw.twks.api.observer.DeleteNanopublicationObserver;
+import edu.rpi.tw.twks.api.observer.PutNanopublicationObserver;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 import org.slf4j.Logger;
@@ -19,21 +19,35 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class FileSystemExtensions {
+public final class FileSystemExtensions extends AbstractExtensions {
     private final static Logger logger = LoggerFactory.getLogger(FileSystemExtensions.class);
     private final Path rootDirectoryPath;
     private final Optional<String> serverBaseUrl;
 
-    public FileSystemExtensions(final Path rootDirectoryPath, final Optional<String> serverBaseUrl) {
+    public FileSystemExtensions(final Path rootDirectoryPath, final Optional<String> serverBaseUrl, final Twks twks) {
+        super(twks);
         this.rootDirectoryPath = checkNotNull(rootDirectoryPath);
         this.serverBaseUrl = checkNotNull(serverBaseUrl);
     }
 
-    public final void registerObservers(final Twks twks) {
+    @Override
+    public final void destroy() {
+    }
+
+    @Override
+    public final void initialize() {
+        if (!Files.isDirectory(rootDirectoryPath)) {
+            logger.warn("{} does not exist, disabling file system extensions", rootDirectoryPath);
+            return;
+        }
+
+        logger.info("found {}, enabling file system extensions", rootDirectoryPath);
+
+        final Path observerDirectoryPath = rootDirectoryPath.resolve("observer");
         try {
-            Files.list(rootDirectoryPath).forEach(subDirectoryPath -> {
+            Files.list(observerDirectoryPath).forEach(subDirectoryPath -> {
                 if (!Files.isDirectory(subDirectoryPath)) {
-                    logger.debug("extfs: {} contains unrecognized non-directory {}", rootDirectoryPath, subDirectoryPath);
+                    logger.debug("extfs: {} contains unrecognized non-directory {}", observerDirectoryPath, subDirectoryPath);
                     return;
                 }
 
@@ -65,7 +79,7 @@ public final class FileSystemExtensions {
                             return;
                         }
 
-                        registerObserver(filePath, observerType, twks);
+                        registerObserver(filePath, observerType, getTwks());
                     });
                 } catch (final IOException e) {
                     logger.error("extfs: error listing subdirectory {}", subDirectoryPath);
@@ -73,20 +87,20 @@ public final class FileSystemExtensions {
                 }
             });
         } catch (final IOException e) {
-            logger.error("extfs: error listing root directory {}", rootDirectoryPath);
+            logger.error("extfs: error listing observer directory {}", observerDirectoryPath);
         }
     }
 
     private void registerObserver(final Path filePath, final TwksObserverType type, final Twks twks) {
         switch (type) {
             case CHANGE:
-                twks.registerChangeObserver(new FileSystemChangeTwksObserver(filePath));
+                twks.registerChangeObserver(new FileSystemChangeObserver(filePath));
                 break;
             case DELETE_NANOPUBLICATION:
-                twks.registerDeleteNanopublicationObserver(new FileSystemDeleteNanopublicationTwksObserver(filePath));
+                twks.registerDeleteNanopublicationObserver(new FileSystemDeleteNanopublicationObserver(filePath));
                 break;
             case PUT_NANOPUBLICATION:
-                twks.registerPutNanopublicationObserver(new FileSystemPutNanopublicationTwksObserver(filePath));
+                twks.registerPutNanopublicationObserver(new FileSystemPutNanopublicationObserver(filePath));
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -100,24 +114,24 @@ public final class FileSystemExtensions {
         PUT_NANOPUBLICATION
     }
 
-    private final class FileSystemChangeTwksObserver extends FileSystemTwksObserver implements ChangeTwksObserver {
-        public FileSystemChangeTwksObserver(final Path filePath) {
+    private final class FileSystemChangeObserver extends FileSystemTwksObserver implements ChangeObserver {
+        public FileSystemChangeObserver(final Path filePath) {
             super(filePath);
         }
 
         @Override
-        public void onChange(final Twks twks) {
+        public void onChange() {
             runProcess(newProcessBuilder());
         }
     }
 
-    private final class FileSystemDeleteNanopublicationTwksObserver extends FileSystemTwksObserver implements DeleteNanopublicationTwksObserver {
-        public FileSystemDeleteNanopublicationTwksObserver(final Path filePath) {
+    private final class FileSystemDeleteNanopublicationObserver extends FileSystemTwksObserver implements DeleteNanopublicationObserver {
+        public FileSystemDeleteNanopublicationObserver(final Path filePath) {
             super(filePath);
         }
 
         @Override
-        public void onDeleteNanopublication(final Twks twks, final Uri nanopublicationUri) {
+        public void onDeleteNanopublication(final Uri nanopublicationUri) {
             final ProcessBuilder processBuilder = newProcessBuilder();
             processBuilder.command().add("--nanopublication-uri");
             processBuilder.command().add(nanopublicationUri.toString());
@@ -125,13 +139,13 @@ public final class FileSystemExtensions {
         }
     }
 
-    private final class FileSystemPutNanopublicationTwksObserver extends FileSystemTwksObserver implements PutNanopublicationTwksObserver {
-        public FileSystemPutNanopublicationTwksObserver(final Path filePath) {
+    private final class FileSystemPutNanopublicationObserver extends FileSystemTwksObserver implements PutNanopublicationObserver {
+        public FileSystemPutNanopublicationObserver(final Path filePath) {
             super(filePath);
         }
 
         @Override
-        public void onPutNanopublication(final Twks twks, final Nanopublication nanopublication) {
+        public void onPutNanopublication(final Nanopublication nanopublication) {
             final ProcessBuilder processBuilder = newProcessBuilder();
             processBuilder.command().add("--nanopublication-uri");
             processBuilder.command().add(nanopublication.getUri().toString());
