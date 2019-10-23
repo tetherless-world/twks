@@ -1,6 +1,8 @@
 package edu.rpi.tw.twks.test;
 
+import com.google.common.io.MoreFiles;
 import edu.rpi.tw.twks.api.BulkReadApi;
+import edu.rpi.tw.twks.api.BulkWriteApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
@@ -18,17 +20,26 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
 public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> {
     private static TestData testData;
     private SystemUnderTestT sut;
+    private Path tempDirPath;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         testData = new TestData();
+    }
+
+    protected final Path getTempDirPath() {
+        return tempDirPath;
     }
 
     protected final SystemUnderTestT getSystemUnderTest() {
@@ -36,15 +47,17 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     }
 
     @Before
-    public void setUp() throws Exception {
+    public final void setUp() throws Exception {
+        tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
         sut = openSystemUnderTest();
     }
 
     @After
-    public void tearDown() throws Exception {
+    public final void tearDown() throws Exception {
         sut.deleteNanopublication(testData.secondNanopublication.getUri());
         sut.deleteNanopublication(testData.specNanopublication.getUri());
         closeSystemUnderTest(sut);
+        MoreFiles.deleteRecursively(tempDirPath);
     }
 
     protected abstract void closeSystemUnderTest(SystemUnderTestT sut);
@@ -59,6 +72,26 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         sut.putNanopublication(testData.specNanopublication);
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, sut.deleteNanopublication(testData.specNanopublication.getUri()));
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
+    }
+
+    @Test
+    public void testDump() throws Exception {
+        if (!(sut instanceof BulkWriteApi)) {
+            return;
+        }
+
+        sut.putNanopublication(testData.specNanopublication);
+
+        ((BulkWriteApi) sut).dump();
+
+        final List<Path> filePaths = Files.walk(tempDirPath).collect(Collectors.toList());
+
+        for (final Path filePath : filePaths) {
+            if (Files.isRegularFile(filePath) && filePath.getFileName().endsWith(".trig")) {
+                return;
+            }
+        }
+        fail();
     }
 
     @Test

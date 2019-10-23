@@ -6,6 +6,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.api.BulkReadApi;
+import edu.rpi.tw.twks.api.BulkWriteApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
@@ -34,7 +35,7 @@ import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 /**
  * Client for a TWKS server.
  */
-public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, QueryApi {
+public final class TwksClient implements BulkReadApi, BulkWriteApi, NanopublicationCrudApi, QueryApi {
     private final static Logger logger = LoggerFactory.getLogger(TwksClient.class);
     private final ApacheHttpTransport httpTransport;
     private final HttpRequestFactory httpRequestFactory;
@@ -51,6 +52,11 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
         this.serverBaseUrl = checkNotNull(configuration.getServerBaseUrl());
         httpTransport = new ApacheHttpTransport();
         httpRequestFactory = httpTransport.createRequestFactory();
+    }
+
+    @Override
+    public void dump() {
+
     }
 
     @Override
