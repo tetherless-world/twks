@@ -5,6 +5,7 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.mem.GraphMem;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.sparql.core.mem.GraphInMemory;
 import org.apache.jena.sparql.graph.GraphWrapper;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -24,8 +25,8 @@ public final class NanopublicationPart {
         if (graph instanceof GraphWrapper) {
             graph = ((GraphWrapper) graph).get();
         }
-        if (!(graph instanceof GraphMem)) {
-            throw new IllegalStateException(String.format("nanopublication must be backed by an %s, not %s", GraphMem.class.getCanonicalName(), graph.getClass().getCanonicalName()));
+        if (!(graph instanceof GraphMem) && !(graph instanceof GraphInMemory)) {
+            throw new IllegalStateException(String.format("nanopublication must be backed by memory so that changes are not persist, not %s", graph.getClass().getCanonicalName()));
         }
         return model;
     }

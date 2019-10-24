@@ -88,7 +88,11 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         final List<Path> filePaths = Files.walk(tempDirPath).collect(Collectors.toList());
 
         for (final Path filePath : filePaths) {
-            if (Files.isRegularFile(filePath) && filePath.getFileName().endsWith(".trig")) {
+            if (!Files.isRegularFile(filePath)) {
+                continue;
+            }
+            final String fileName = filePath.getFileName().toString();
+            if (fileName.endsWith(".trig")) {
                 return;
             }
         }
