@@ -54,7 +54,7 @@ public final class TwksClientExample {
         // Parse a nanopublication to use
         // The parser may return more than one, but we know there's only one.
         System.out.println("Parsing the nanopublication");
-        final Nanopublication nanopublication = new NanopublicationParser().setLang(Lang.TRIG).parse(new StringReader(SPEC_NANOPUBLICATION_TRIG)).get(0);
+        final Nanopublication nanopublication = new NanopublicationParser().setLang(Lang.TRIG).parseOne(new StringReader(SPEC_NANOPUBLICATION_TRIG));
         System.out.println("Parsed the nanopublication");
 
         {

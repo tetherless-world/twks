@@ -13,6 +13,7 @@ import org.apache.jena.vocabulary.RDF;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 
 public final class NanopublicationFactory {
@@ -54,14 +55,32 @@ public final class NanopublicationFactory {
         return new Nanopublication(new NanopublicationPart(assertions, assertionUri), new NanopublicationPart(headModel, headUri), new NanopublicationPart(provenanceModel, provenanceUri), new NanopublicationPart(publicationInfoModel, publicationInfoUri), nanopublicationUri);
     }
 
-    public final Iterable<Nanopublication> createNanopublicationsFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
+    public final Iterable<Nanopublication> createNanopublicationsFromDataset(final Dataset dataset) {
         return createNanopublicationsFromDataset(dataset, NanopublicationDialect.SPECIFICATION);
     }
 
-    public final Iterable<Nanopublication> createNanopublicationsFromDataset(final Dataset dataset, final NanopublicationDialect dialect) throws MalformedNanopublicationException {
+    public final Nanopublication createNanopublicationFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
+        return createNanopublicationFromDataset(dataset, NanopublicationDialect.SPECIFICATION);
+    }
+
+    public final Iterable<Nanopublication> createNanopublicationsFromDataset(final Dataset dataset, final NanopublicationDialect dialect) {
         // This method keeps a lot of state through a lot of logic, so delegate to a temporary instance that has all of the state
         try (final NanopublicationsFromDatasetFactory delegate = new NanopublicationsFromDatasetFactory(dataset, dialect)) {
             return delegate.createNanopublications();
+        }
+    }
+
+    public final Nanopublication createNanopublicationFromDataset(final Dataset dataset, final NanopublicationDialect dialect) throws MalformedNanopublicationException {
+        try {
+            final Iterator<Nanopublication> nanopublicationI = createNanopublicationsFromDataset(dataset, dialect).iterator();
+            checkState(nanopublicationI.hasNext());
+            final Nanopublication nanopublication = nanopublicationI.next();
+            if (nanopublicationI.hasNext()) {
+                throw new MalformedNanopublicationException("more than one nanopublication in dataset");
+            }
+            return nanopublication;
+        } catch (final MalformedNanopublicationRuntimeException e) {
+            throw (MalformedNanopublicationException) e.getCause();
         }
     }
 
@@ -143,12 +162,6 @@ public final class NanopublicationFactory {
         return new Nanopublication(assertion, head, provenance, publicationInfo, uri);
     }
 
-    private final static class MalformedNanopublicationRuntimeException extends RuntimeException {
-        MalformedNanopublicationRuntimeException(final MalformedNanopublicationException cause) {
-            super(cause);
-        }
-    }
-
     private final static class NanopublicationsFromDatasetFactory implements AutoCloseable {
         private final Dataset dataset;
         private final NanopublicationDialect dialect;
@@ -209,16 +222,21 @@ public final class NanopublicationFactory {
             return headsByNanopublicationUri;
         }
 
-        Iterable<Nanopublication> createNanopublications() throws MalformedNanopublicationException {
+        Iterable<Nanopublication> createNanopublications() {
             // All triples must be placed in one of [H] or [A] or [P] or [I]
             //        if (dataset.getDefaultModel().isEmpty()) {
             //            dataset.getDefaultModel().write(System.out, "TURTLE");
             //            throw new MalformedNanopublicationException("default model is not empty");
             //        }
 
-            final Iterator<Map.Entry<Uri, NanopublicationPart>> headEntryI = getHeads().entrySet().iterator();
-            if (!headEntryI.hasNext()) {
-                throw new MalformedNanopublicationException("unable to locate head graph by rdf:type Nanopublication statement");
+            final Iterator<Map.Entry<Uri, NanopublicationPart>> headEntryI;
+            try {
+                headEntryI = getHeads().entrySet().iterator();
+                if (!headEntryI.hasNext()) {
+                    throw new MalformedNanopublicationException("unable to locate head graph by rdf:type Nanopublication statement");
+                }
+            } catch (final MalformedNanopublicationException e) {
+                throw new MalformedNanopublicationRuntimeException(e);
             }
 
             return new Iterable<Nanopublication>() {

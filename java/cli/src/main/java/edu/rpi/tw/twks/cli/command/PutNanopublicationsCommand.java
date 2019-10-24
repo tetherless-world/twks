@@ -3,7 +3,7 @@ package edu.rpi.tw.twks.cli.command;
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
-import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
+import edu.rpi.tw.twks.nanopub.MalformedNanopublicationRuntimeException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
@@ -124,10 +124,10 @@ public final class PutNanopublicationsCommand extends Command {
             try {
                 final byte[] trigBytes = ByteStreams.toByteArray(System.in);
                 final String trigString = new String(trigBytes);
-                final ImmutableList<Nanopublication> result = newNanopublicationParser().parse(new StringReader(trigString));
+                final ImmutableList<Nanopublication> result = ImmutableList.copyOf(newNanopublicationParser().parseAll(new StringReader(trigString)));
                 logger.info("parsed {} nanopublications from stdin", result.size());
                 return result;
-            } catch (final IOException | MalformedNanopublicationException e) {
+            } catch (final IOException | MalformedNanopublicationRuntimeException e) {
                 logger.error("error parsing stdin: ", e);
                 return ImmutableList.of();
             }
@@ -135,10 +135,10 @@ public final class PutNanopublicationsCommand extends Command {
 
         public final ImmutableList<Nanopublication> parseFile(final File sourceFilePath) {
             try {
-                final ImmutableList<Nanopublication> result = newNanopublicationParser().parse(sourceFilePath);
+                final ImmutableList<Nanopublication> result = ImmutableList.copyOf(newNanopublicationParser().parseAll(sourceFilePath));
                 logger.info("parsed {} nanopublications from {}", result.size(), sourceFilePath);
                 return result;
-            } catch (final IOException | MalformedNanopublicationException e) {
+            } catch (final MalformedNanopublicationRuntimeException e) {
                 logger.error("error parsing {}: ", sourceFilePath, e);
                 return ImmutableList.of();
             }
@@ -196,10 +196,10 @@ public final class PutNanopublicationsCommand extends Command {
 
         public final ImmutableList<Nanopublication> parseUri(final Uri sourceUri) {
             try {
-                final ImmutableList<Nanopublication> result = newNanopublicationParser().parse(sourceUri);
+                final ImmutableList<Nanopublication> result = ImmutableList.copyOf(newNanopublicationParser().parseAll(sourceUri));
                 logger.info("parsed {} nanopublications from {}", result.size(), sourceUri);
                 return result;
-            } catch (final IOException | MalformedNanopublicationException e) {
+            } catch (final MalformedNanopublicationRuntimeException e) {
                 logger.error("error parsing {}: ", sourceUri, e);
                 return ImmutableList.of();
             }
