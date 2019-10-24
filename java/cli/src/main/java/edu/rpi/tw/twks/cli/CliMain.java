@@ -9,8 +9,8 @@ import edu.rpi.tw.twks.cli.command.Command;
 import edu.rpi.tw.twks.cli.command.PutNanopublicationsCommand;
 import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.client.TwksClientConfiguration;
-import edu.rpi.tw.twks.factory.TwksConfiguration;
 import edu.rpi.tw.twks.factory.TwksFactory;
+import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
 import org.apache.jena.query.ReadWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,8 +70,7 @@ public final class CliMain {
         globalArgs.configuration.forEach((key, value) -> configurationProperties.setProperty(key, value));
 
         {
-            final TwksConfiguration configuration = new TwksConfiguration();
-            configuration.setFromSystemProperties().setFromProperties(configurationProperties);
+            final TwksFactoryConfiguration configuration = TwksFactoryConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties).build();
             if (!configuration.isEmpty()) {
                 final Twks twks = TwksFactory.getInstance().createTwks(configuration);
                 logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);

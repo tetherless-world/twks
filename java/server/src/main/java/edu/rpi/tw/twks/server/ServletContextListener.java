@@ -25,7 +25,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
         final ServletContext servletContext = servletContextEvent.getServletContext();
         final Properties attributeProperties = toProperties(servletContext.getAttributeNames(), name -> servletContext.getAttribute(name));
         final Properties initParameterProperties = toProperties(servletContext.getInitParameterNames(), name -> servletContext.getInitParameter(name));
-        final ServletConfiguration configuration = (ServletConfiguration) new ServletConfiguration().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties);
+        final ServletConfiguration configuration = ServletConfiguration.builder().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties).build();
         ServletTwks.initializeInstance(configuration);
     }
 
