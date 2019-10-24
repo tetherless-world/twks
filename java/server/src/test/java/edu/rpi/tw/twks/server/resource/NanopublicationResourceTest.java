@@ -1,10 +1,9 @@
-package edu.rpi.tw.twks.server.resource.nanopublication;
+package edu.rpi.tw.twks.server.resource;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.server.AbstractResourceTest;
-import edu.rpi.tw.twks.server.resource.NanopublicationResource;
 import org.apache.jena.riot.Lang;
 import org.junit.Test;
 
