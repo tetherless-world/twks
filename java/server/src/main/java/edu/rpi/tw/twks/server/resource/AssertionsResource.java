@@ -6,8 +6,6 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -17,8 +15,6 @@ import java.io.StringWriter;
 
 @Path("assertions")
 public class AssertionsResource extends AbstractResource {
-    private final static Logger logger = LoggerFactory.getLogger(AssertionsResource.class);
-
     public AssertionsResource() {
     }
 

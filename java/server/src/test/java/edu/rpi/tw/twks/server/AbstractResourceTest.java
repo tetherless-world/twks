@@ -11,6 +11,7 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.After;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -50,6 +51,13 @@ public abstract class AbstractResourceTest extends JerseyTest {
 
     protected static Entity<String> toTrigEntity(final Model model) {
         return Entity.entity(toTrigString(model), Lang.TRIG.getContentType().getContentType());
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        throw new UnsupportedOperationException("implement dump directory delete");
     }
 
     protected final Twks getTwks() {
