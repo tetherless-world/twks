@@ -24,10 +24,10 @@ public final class TwksFactory {
     public final Twks createTwks(final TwksFactoryConfiguration configuration) {
         if (configuration.getTdb2Location().isPresent()) {
             logger.info("using TDB2 at {}", configuration.getTdb2Location().get());
-            return new Tdb2Twks(Location.create(configuration.getTdb2Location().get()));
+            return new Tdb2Twks(configuration, Location.create(configuration.getTdb2Location().get()));
         } else {
             logger.info("using memory-backed TDB2");
-            return new Tdb2Twks(Location.mem());
+            return new Tdb2Twks(configuration, Location.mem());
         }
     }
 }

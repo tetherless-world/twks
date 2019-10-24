@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.api.observer.ChangeObserver;
 import edu.rpi.tw.twks.api.observer.DeleteNanopublicationObserver;
@@ -13,8 +14,19 @@ import org.apache.jena.rdf.model.Model;
 
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class AbstractTwks implements Twks {
     private final TwksObservers observers = new TwksObservers(this);
+    private final TwksConfiguration configuration;
+
+    protected AbstractTwks(final TwksConfiguration configuration) {
+        this.configuration = checkNotNull(configuration);
+    }
+
+    protected final TwksConfiguration getConfiguration() {
+        return configuration;
+    }
 
     protected final TwksObservers getObservers() {
         return observers;
