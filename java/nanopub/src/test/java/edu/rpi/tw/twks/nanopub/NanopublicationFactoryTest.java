@@ -61,7 +61,7 @@ public final class NanopublicationFactoryTest {
     @Test
     public void testOverlappingNanopublications() throws IOException {
         try {
-            sut.createNanopublicationsFromDataset(testData.overlappingNanopublicationsDataset);
+            final ImmutableList<Nanopublication> nanopublications = ImmutableList.copyOf(sut.createNanopublicationsFromDataset(testData.overlappingNanopublicationsDataset));
             fail();
         } catch (final MalformedNanopublicationRuntimeException e) {
         }
