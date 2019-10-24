@@ -28,27 +28,27 @@ public final class NanopublicationParser {
         return this;
     }
 
-    public final ImmutableList<Nanopublication> parse(final File filePath) throws MalformedNanopublicationException, IOException {
+    public final Iterable<Nanopublication> parse(final File filePath) throws MalformedNanopublicationException, IOException {
         final Uri nanopublicationUri = Uri.parse(checkNotNull(filePath).toURI().toString());
         rdfParserBuilder.source(filePath.getPath());
         return parseDelegate(Optional.of(nanopublicationUri));
     }
 
-    public final ImmutableList<Nanopublication> parse(final Uri url) throws MalformedNanopublicationException, IOException {
+    public final Iterable<Nanopublication> parse(final Uri url) throws MalformedNanopublicationException, IOException {
         rdfParserBuilder.source(url.toString());
         return parseDelegate(Optional.of(url));
     }
 
-    public final ImmutableList<Nanopublication> parse(final StringReader stringReader) throws MalformedNanopublicationException, IOException {
+    public final Iterable<Nanopublication> parse(final StringReader stringReader) throws MalformedNanopublicationException, IOException {
         return parse(stringReader, Optional.empty());
     }
 
-    public final ImmutableList<Nanopublication> parse(final StringReader stringReader, final Optional<Uri> sourceUri) throws MalformedNanopublicationException, IOException {
+    public final Iterable<Nanopublication> parse(final StringReader stringReader, final Optional<Uri> sourceUri) throws MalformedNanopublicationException, IOException {
         rdfParserBuilder.source(stringReader);
         return parseDelegate(sourceUri);
     }
 
-    private ImmutableList<Nanopublication> parseDelegate(final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
+    private Iterable<Nanopublication> parseDelegate(final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
         final Dataset dataset = DatasetFactory.create();
         rdfParserBuilder.parse(dataset);
 
