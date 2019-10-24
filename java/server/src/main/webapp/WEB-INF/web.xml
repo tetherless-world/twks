@@ -20,8 +20,7 @@
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>edu.rpi.tw.twks.server.resource.assertions,edu.rpi.tw.twks.server.resource.nanopublication
-            </param-value>
+            <param-value>edu.rpi.tw.twks.server.resource</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

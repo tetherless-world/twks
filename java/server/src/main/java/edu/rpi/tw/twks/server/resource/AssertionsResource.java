@@ -1,8 +1,7 @@
-package edu.rpi.tw.twks.server.resource.assertions;
+package edu.rpi.tw.twks.server.resource;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.AcceptLists;
-import edu.rpi.tw.twks.server.resource.AbstractResource;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;

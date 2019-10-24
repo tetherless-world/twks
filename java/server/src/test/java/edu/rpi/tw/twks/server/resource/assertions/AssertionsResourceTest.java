@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.server.resource.assertions;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.AbstractResourceTest;
+import edu.rpi.tw.twks.server.resource.AssertionsResource;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
