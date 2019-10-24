@@ -244,7 +244,7 @@ public final class NanopublicationFactory {
                 public Iterator<Nanopublication> iterator() {
                     return new Iterator<Nanopublication>() {
                         private @Nullable
-                        Nanopublication nanopublication;
+                        Nanopublication nanopublication = null;
 
                         @Override
                         public boolean hasNext() {
@@ -277,7 +277,9 @@ public final class NanopublicationFactory {
 
                         @Override
                         public Nanopublication next() {
-                            return checkNotNull(nanopublication);
+                            final Nanopublication nanopublication = checkNotNull(this.nanopublication);
+                            this.nanopublication = null;
+                            return nanopublication;
                         }
                     };
                 }
