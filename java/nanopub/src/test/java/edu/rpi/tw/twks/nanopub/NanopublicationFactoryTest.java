@@ -18,7 +18,7 @@ public final class NanopublicationFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        this.sut = NanopublicationFactory.getInstance();
+        this.sut = NanopublicationFactory.DEFAULT;
         this.testData = new TestData();
     }
 
@@ -45,13 +45,13 @@ public final class NanopublicationFactoryTest {
         new NanopublicationParser().parseOne(testData.assertionOnlyFilePath).toDataset(dataset);
         sut.createNanopublicationFromDataset(testData.specNanopublicationDataset).toDataset(dataset);
         assertEquals(8, ImmutableList.copyOf(dataset.listNames()).size());
-        final ImmutableList<Nanopublication> nanopublications = NanopublicationFactory.getInstance().createNanopublicationsFromDataset(dataset);
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationFactory.DEFAULT.createNanopublicationsFromDataset(dataset);
         assertEquals(2, nanopublications.size());
     }
 
     @Test
     public void testMultipleUniqueNanopublications() throws Exception {
-        final ImmutableList<Nanopublication> nanopublications = NanopublicationFactory.getInstance().createNanopublicationsFromDataset(testData.uniqueNanopublicationsDataset);
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationFactory.DEFAULT.createNanopublicationsFromDataset(testData.uniqueNanopublicationsDataset);
         assertEquals(2, nanopublications.size());
         final Map<String, Nanopublication> nanopublicationsByUri = nanopublications.stream().collect(Collectors.toMap(nanopublication -> nanopublication.getUri().toString(), nanopublication -> nanopublication));
         assertNotSame(null, nanopublicationsByUri.get("http://example.org/pub1"));
@@ -61,7 +61,7 @@ public final class NanopublicationFactoryTest {
     @Test
     public void testOverlappingNanopublications() throws IOException {
         try {
-            NanopublicationFactory.getInstance().createNanopublicationsFromDataset(testData.overlappingNanopublicationsDataset);
+            NanopublicationFactory.DEFAULT.createNanopublicationsFromDataset(testData.overlappingNanopublicationsDataset);
             fail();
         } catch (final MalformedNanopublicationException e) {
         }

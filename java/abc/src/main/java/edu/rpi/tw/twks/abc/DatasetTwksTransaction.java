@@ -123,7 +123,7 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             return Optional.empty();
         }
         try {
-            return Optional.of(NanopublicationFactory.getInstance().createNanopublicationFromDataset(nanopublicationDataset));
+            return Optional.of(NanopublicationFactory.DEFAULT.createNanopublicationFromDataset(nanopublicationDataset));
         } catch (final MalformedNanopublicationException e) {
             throw new IllegalStateException(e);
         }

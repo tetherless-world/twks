@@ -178,7 +178,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         try (final QueryExecution queryExecution = ((QueryApi) sut).queryNanopublications(query)) {
             actualDataset = MoreDatasetFactory.createDatasetFromResultSet(queryExecution.execSelect());
         }
-        final Nanopublication actual = NanopublicationFactory.getInstance().createNanopublicationFromDataset(actualDataset);
+        final Nanopublication actual = NanopublicationFactory.DEFAULT.createNanopublicationFromDataset(actualDataset);
 
         assertTrue(actual.isIsomorphicWith(testData.specNanopublication));
     }

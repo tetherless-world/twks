@@ -58,7 +58,7 @@ public abstract class DatasetTwks extends AbstractTwks {
 
         final Map<String, Uri> nanopublicationFileNames = new HashMap<>();
         try {
-            for (final Nanopublication nanopublication : NanopublicationFactory.getInstance().createNanopublicationsFromDataset(getDataset())) {
+            for (final Nanopublication nanopublication : NanopublicationFactory.DEFAULT.createNanopublicationsFromDataset(getDataset())) {
                 final String nanopublicationFileName = cleanFileName(nanopublication.getUri().toString()) + ".trig";
 
                 {

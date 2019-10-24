@@ -67,12 +67,14 @@ public final class NanopublicationParser {
         final Dataset dataset = DatasetFactory.create();
         rdfParserBuilder.parse(dataset);
 
+        final NanopublicationFactory factory = new NanopublicationFactory(dialect);
+
         // Dataset has named graphs, assume it's a well-formed nanopublication.
         if (dataset.listNames().hasNext()) {
-            return NanopublicationFactory.getInstance().createNanopublicationsFromDataset(dataset, dialect);
+            return factory.createNanopublicationsFromDataset(dataset);
         }
 
-        return ImmutableList.of(NanopublicationFactory.getInstance().createNanopublicationFromAssertions(dataset.getDefaultModel()));
+        return ImmutableList.of(factory.createNanopublicationFromAssertions(dataset.getDefaultModel()));
     }
 
     private Nanopublication parseOneDelegate(final ImmutableList<Nanopublication> nanopublications) throws MalformedNanopublicationException {
