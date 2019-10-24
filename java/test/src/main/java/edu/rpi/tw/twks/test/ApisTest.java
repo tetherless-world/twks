@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.test;
 
 import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.BulkReadApi;
 import edu.rpi.tw.twks.api.BulkWriteApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
@@ -57,7 +58,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         sut.deleteNanopublication(testData.secondNanopublication.getUri());
         sut.deleteNanopublication(testData.specNanopublication.getUri());
         closeSystemUnderTest(sut);
-        MoreFiles.deleteRecursively(tempDirPath);
+        MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
     }
 
     protected abstract void closeSystemUnderTest(SystemUnderTestT sut);
