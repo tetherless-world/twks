@@ -5,30 +5,32 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.mem.GraphMem;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.sparql.core.mem.GraphInMemory;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.sparql.graph.GraphWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class NanopublicationPart {
+    private final static Logger logger = LoggerFactory.getLogger(NanopublicationPart.class);
     private final Model model;
     private final Uri name;
 
-    public NanopublicationPart(final Model model, final Uri name) {
-        this.model = checkModelType(model);
-        this.name = checkNotNull(name);
-    }
-
-    static Model checkModelType(final Model model) {
+    public NanopublicationPart(Model model, final Uri name) {
         checkNotNull(model);
         Graph graph = model.getGraph();
         if (graph instanceof GraphWrapper) {
             graph = ((GraphWrapper) graph).get();
         }
-        if (!(graph instanceof GraphMem) && !(graph instanceof GraphInMemory)) {
-            throw new IllegalStateException(String.format("nanopublication must be backed by memory so that changes are not persist, not %s", graph.getClass().getCanonicalName()));
+        if (!(graph instanceof GraphMem)) {
+            logger.debug("nanopublication part is not backed by memory ({}), copying", graph.getClass().getCanonicalName());
+            final Model modelCopy = ModelFactory.createDefaultModel();
+            modelCopy.add(model);
+            model = modelCopy;
         }
-        return model;
+        this.model = model;
+        this.name = checkNotNull(name);
     }
 
     public final Model getModel() {

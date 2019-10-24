@@ -131,7 +131,7 @@ public final class NanopublicationBuilder {
 
         @SuppressWarnings("unchecked")
         public NanopublicationPartBuilderT setModel(final Model model) {
-            this.model = NanopublicationPart.checkModelType(model);
+            this.model = checkNotNull(model);
             return (NanopublicationPartBuilderT) this;
         }
 
