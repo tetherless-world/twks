@@ -112,7 +112,7 @@ public final class Nanopublication {
         for (final NanopublicationPart nanopublicationPart : new NanopublicationPart[]{getAssertion(), getHead(), getProvenance(), getPublicationInfo()}) {
             final String name = nanopublicationPart.getName().toString();
             if (dataset.containsNamedModel(nanopublicationPart.getName().toString())) {
-                throw new DuplicateModelNameException(name);
+                throw new DuplicateNanopublicationPartName(name);
             }
             dataset.addNamedModel(name, nanopublicationPart.getModel());
         }

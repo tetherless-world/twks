@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.TwksConfiguration;
+import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
 import edu.rpi.tw.twks.uri.Uri;
@@ -56,23 +57,27 @@ public abstract class DatasetTwks extends AbstractTwks {
         }
 
         final Map<String, Uri> nanopublicationFileNames = new HashMap<>();
-        for (final Nanopublication nanopublication : NanopublicationFactory.getInstance().createNanopublicationsFromDataset(getDataset())) {
-            final String nanopublicationFileName = cleanFileName(nanopublication.getUri().toString()) + ".trig";
+        try {
+            for (final Nanopublication nanopublication : NanopublicationFactory.getInstance().createNanopublicationsFromDataset(getDataset())) {
+                final String nanopublicationFileName = cleanFileName(nanopublication.getUri().toString()) + ".trig";
 
-            {
-                @Nullable final Uri conflictNanopublicationUri = nanopublicationFileNames.get(nanopublicationFileName);
-                if (conflictNanopublicationUri != null) {
-                    throw new IllegalStateException(String.format("duplicate nanopublication file name: %s (from URIs %s and %s)", nanopublicationFileName, nanopublication.getUri(), conflictNanopublicationUri));
+                {
+                    @Nullable final Uri conflictNanopublicationUri = nanopublicationFileNames.get(nanopublicationFileName);
+                    if (conflictNanopublicationUri != null) {
+                        throw new IllegalStateException(String.format("duplicate nanopublication file name: %s (from URIs %s and %s)", nanopublicationFileName, nanopublication.getUri(), conflictNanopublicationUri));
+                    }
+                }
+
+                nanopublicationFileNames.put(nanopublicationFileName, nanopublication.getUri());
+
+                final Path dumpFilePath = dumpDirectoryPath.resolve(nanopublicationFileName);
+                try (final FileOutputStream fileOutputStream = new FileOutputStream(dumpFilePath.toFile())) {
+                    nanopublication.write(fileOutputStream);
+                    logger.debug("wrote {} to {}", nanopublication.getUri(), dumpFilePath);
                 }
             }
-
-            nanopublicationFileNames.put(nanopublicationFileName, nanopublication.getUri());
-
-            final Path dumpFilePath = dumpDirectoryPath.resolve(nanopublicationFileName);
-            try (final FileOutputStream fileOutputStream = new FileOutputStream(dumpFilePath.toFile())) {
-                nanopublication.write(fileOutputStream);
-                logger.debug("wrote {} to {}", nanopublication.getUri(), dumpFilePath);
-            }
+        } catch (final MalformedNanopublicationException e) {
+            logger.error("malformed nanopublication: ", e);
         }
     }
 

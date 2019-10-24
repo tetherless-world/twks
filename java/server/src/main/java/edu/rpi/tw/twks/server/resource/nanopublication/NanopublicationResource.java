@@ -2,7 +2,7 @@ package edu.rpi.tw.twks.server.resource.nanopublication;
 
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.nanopub.MalformedNanopublicationRuntimeException;
+import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
@@ -135,8 +135,8 @@ public class NanopublicationResource extends AbstractResource {
         }
 
         try {
-            return ImmutableList.copyOf(parser.parseAll(new StringReader(requestBody)));
-        } catch (final MalformedNanopublicationRuntimeException e) {
+            return parser.parseAll(new StringReader(requestBody));
+        } catch (final MalformedNanopublicationException e) {
             logger.info("error parsing nanopublication: ", e);
             throw new WebApplicationException("Malformed nanopublication", Response.Status.BAD_REQUEST);
         }

@@ -58,7 +58,7 @@ public final class NanopublicationTest {
         try {
             nanopublication.toDataset(actual);
             fail();
-        } catch (final DuplicateModelNameException e) {
+        } catch (final DuplicateNanopublicationPartName e) {
         }
     }
 

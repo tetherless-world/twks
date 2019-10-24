@@ -27,7 +27,7 @@ public final class NanopublicationFactoryTest {
         try {
             sut.createNanopublicationsFromDataset(testData.duplicateNanopublicationsDataset);
             fail();
-        } catch (final MalformedNanopublicationRuntimeException e) {
+        } catch (final MalformedNanopublicationException e) {
         }
     }
 
@@ -45,13 +45,13 @@ public final class NanopublicationFactoryTest {
         new NanopublicationParser().parseOne(testData.assertionOnlyFilePath).toDataset(dataset);
         sut.createNanopublicationFromDataset(testData.specNanopublicationDataset).toDataset(dataset);
         assertEquals(8, ImmutableList.copyOf(dataset.listNames()).size());
-        final ImmutableList<Nanopublication> nanopublications = ImmutableList.copyOf(NanopublicationFactory.getInstance().createNanopublicationsFromDataset(dataset));
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationFactory.getInstance().createNanopublicationsFromDataset(dataset);
         assertEquals(2, nanopublications.size());
     }
 
     @Test
     public void testMultipleUniqueNanopublications() throws Exception {
-        final ImmutableList<Nanopublication> nanopublications = ImmutableList.copyOf(sut.createNanopublicationsFromDataset(testData.uniqueNanopublicationsDataset));
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationFactory.getInstance().createNanopublicationsFromDataset(testData.uniqueNanopublicationsDataset);
         assertEquals(2, nanopublications.size());
         final Map<String, Nanopublication> nanopublicationsByUri = nanopublications.stream().collect(Collectors.toMap(nanopublication -> nanopublication.getUri().toString(), nanopublication -> nanopublication));
         assertNotSame(null, nanopublicationsByUri.get("http://example.org/pub1"));
@@ -61,9 +61,9 @@ public final class NanopublicationFactoryTest {
     @Test
     public void testOverlappingNanopublications() throws IOException {
         try {
-            final ImmutableList<Nanopublication> nanopublications = ImmutableList.copyOf(sut.createNanopublicationsFromDataset(testData.overlappingNanopublicationsDataset));
+            NanopublicationFactory.getInstance().createNanopublicationsFromDataset(testData.overlappingNanopublicationsDataset);
             fail();
-        } catch (final MalformedNanopublicationRuntimeException e) {
+        } catch (final MalformedNanopublicationException e) {
         }
     }
 }

@@ -27,35 +27,32 @@ public final class NanopublicationParser {
         return this;
     }
 
-    public final Iterable<Nanopublication> parseAll(final File filePath) {
+    public final ImmutableList<Nanopublication> parseAll(final File filePath) throws MalformedNanopublicationException {
         final Uri nanopublicationUri = Uri.parse(checkNotNull(filePath).toURI().toString());
         rdfParserBuilder.source(filePath.getPath());
         return parseAllDelegate(Optional.of(nanopublicationUri));
     }
 
-    public final Iterable<Nanopublication> parseAll(final Uri url) {
+    public final ImmutableList<Nanopublication> parseAll(final Uri url) throws MalformedNanopublicationException {
         rdfParserBuilder.source(url.toString());
         return parseAllDelegate(Optional.of(url));
     }
 
-    public final Iterable<Nanopublication> parseAll(final StringReader stringReader) {
+    public final ImmutableList<Nanopublication> parseAll(final StringReader stringReader) throws MalformedNanopublicationException {
         return parseAll(stringReader, Optional.empty());
     }
 
-    public final Iterable<Nanopublication> parseAll(final StringReader stringReader, final Optional<Uri> sourceUri) {
+    public final ImmutableList<Nanopublication> parseAll(final StringReader stringReader, final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
         rdfParserBuilder.source(stringReader);
         return parseAllDelegate(sourceUri);
     }
 
     public final Nanopublication parseOne(final File filePath) throws MalformedNanopublicationException {
-        final Uri nanopublicationUri = Uri.parse(checkNotNull(filePath).toURI().toString());
-        rdfParserBuilder.source(filePath.getPath());
-        return parseOneDelegate(Optional.of(nanopublicationUri));
+        return parseOneDelegate(parseAll(filePath));
     }
 
     public final Nanopublication parseOne(final Uri url) throws MalformedNanopublicationException {
-        rdfParserBuilder.source(url.toString());
-        return parseOneDelegate(Optional.of(url));
+        return parseOneDelegate(parseAll(url));
     }
 
     public final Nanopublication parseOne(final StringReader stringReader) throws MalformedNanopublicationException {
@@ -63,11 +60,10 @@ public final class NanopublicationParser {
     }
 
     public final Nanopublication parseOne(final StringReader stringReader, final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
-        rdfParserBuilder.source(stringReader);
-        return parseOneDelegate(sourceUri);
+        return parseOneDelegate(parseAll(stringReader, sourceUri));
     }
 
-    private Iterable<Nanopublication> parseAllDelegate(final Optional<Uri> sourceUri) {
+    private ImmutableList<Nanopublication> parseAllDelegate(final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
         final Dataset dataset = DatasetFactory.create();
         rdfParserBuilder.parse(dataset);
 
@@ -79,15 +75,14 @@ public final class NanopublicationParser {
         return ImmutableList.of(NanopublicationFactory.getInstance().createNanopublicationFromAssertions(dataset.getDefaultModel()));
     }
 
-    private Nanopublication parseOneDelegate(final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
-        final Dataset dataset = DatasetFactory.create();
-        rdfParserBuilder.parse(dataset);
-
-        // Dataset has named graphs, assume it's a well-formed nanopublication.
-        if (dataset.listNames().hasNext()) {
-            return NanopublicationFactory.getInstance().createNanopublicationFromDataset(dataset, dialect);
+    private Nanopublication parseOneDelegate(final ImmutableList<Nanopublication> nanopublications) throws MalformedNanopublicationException {
+        switch (nanopublications.size()) {
+            case 0:
+                throw new IllegalStateException();
+            case 1:
+                return nanopublications.get(0);
+            default:
+                throw new MalformedNanopublicationException("more than one nanopublication parsed");
         }
-
-        return NanopublicationFactory.getInstance().createNanopublicationFromAssertions(dataset.getDefaultModel());
     }
 }
