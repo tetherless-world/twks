@@ -4,7 +4,7 @@ import edu.rpi.tw.twks.api.Twks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -20,8 +20,8 @@ public class DumpResource extends AbstractResource {
         super(twks);
     }
 
-    @GET
-    public Response getDump() {
+    @POST
+    public Response postDump() {
         try {
             getTwks().dump();
         } catch (final IOException e) {

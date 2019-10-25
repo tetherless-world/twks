@@ -55,7 +55,13 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
 
     @Override
     public void dump() {
-
+        try {
+            httpRequestFactory.buildPostRequest(new GenericUrl(serverBaseUrl + "/dump"), new EmptyContent()).execute();
+        } catch (final HttpResponseException e) {
+            throw wrapException(e);
+        } catch (final IOException e) {
+            throw wrapException(e);
+        }
     }
 
     @Override
