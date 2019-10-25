@@ -12,6 +12,7 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -38,6 +39,13 @@ public abstract class AbstractTwks implements Twks {
     }
 
     protected abstract TwksTransaction _beginTransaction(ReadWrite readWrite);
+
+    @Override
+    public final void dump() throws IOException {
+        try (final TwksTransaction transaction = beginTransaction(ReadWrite.READ)) {
+            transaction.dump();
+        }
+    }
 
     @Override
     public final Model getAssertions() {

@@ -1,8 +1,10 @@
 package edu.rpi.tw.twks.abc;
 
+import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -10,9 +12,11 @@ import org.apache.jena.rdf.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
@@ -47,10 +51,12 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             "}";
     private final static Logger logger = LoggerFactory.getLogger(DatasetTwksTransaction.class);
 
+    private final TwksConfiguration configuration;
     private final DatasetTransaction datasetTransaction;
     private final Dataset dataset;
 
-    protected DatasetTwksTransaction(final Dataset dataset, final ReadWrite readWrite) {
+    protected DatasetTwksTransaction(final TwksConfiguration configuration, final Dataset dataset, final ReadWrite readWrite) {
+        this.configuration = checkNotNull(configuration);
         this.dataset = checkNotNull(dataset);
         this.datasetTransaction = new DatasetTransaction(dataset, readWrite);
     }
@@ -83,6 +89,42 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             getDataset().removeNamedModel(nanopublicationGraphName);
         }
         return DeleteNanopublicationResult.DELETED;
+    }
+
+    @Override
+    public final void dump() throws IOException {
+        final Path dumpDirectoryPath = configuration.getDumpDirectoryPath();
+        if (!Files.isDirectory(dumpDirectoryPath)) {
+            logger.info("dump directory {} does not exist, creating", dumpDirectoryPath);
+            Files.createDirectory(dumpDirectoryPath);
+            logger.info("created dump directory {}", dumpDirectoryPath);
+        }
+
+        final Map<String, Uri> nanopublicationFileNames = new HashMap<>();
+        try {
+            try (final NanopublicationFactory.DatasetNanopublications nanopublications = NanopublicationFactory.DEFAULT.iterateNanopublicationsFromDataset(getDataset(), getDatasetTransaction())) {
+                for (final Nanopublication nanopublication : nanopublications) {
+                    final String nanopublicationFileName = MoreFilenameUtils.cleanFileName(nanopublication.getUri().toString()) + ".trig";
+
+                    {
+                        @Nullable final Uri conflictNanopublicationUri = nanopublicationFileNames.get(nanopublicationFileName);
+                        if (conflictNanopublicationUri != null) {
+                            throw new IllegalStateException(String.format("duplicate nanopublication file name: %s (from URIs %s and %s)", nanopublicationFileName, nanopublication.getUri(), conflictNanopublicationUri));
+                        }
+                    }
+
+                    nanopublicationFileNames.put(nanopublicationFileName, nanopublication.getUri());
+
+                    final Path dumpFilePath = dumpDirectoryPath.resolve(nanopublicationFileName);
+                    try (final FileOutputStream fileOutputStream = new FileOutputStream(dumpFilePath.toFile())) {
+                        nanopublication.write(fileOutputStream);
+                        logger.debug("wrote {} to {}", nanopublication.getUri(), dumpFilePath);
+                    }
+                }
+            }
+        } catch (final MalformedNanopublicationRuntimeException e) {
+            logger.error("malformed nanopublication: ", e);
+        }
     }
 
     private Set<String> getAssertionGraphNames() {
