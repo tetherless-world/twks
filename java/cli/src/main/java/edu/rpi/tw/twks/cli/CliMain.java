@@ -6,6 +6,7 @@ import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.cli.command.Command;
+import edu.rpi.tw.twks.cli.command.DumpCommand;
 import edu.rpi.tw.twks.cli.command.PutNanopublicationsCommand;
 import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.client.TwksClientConfiguration;
@@ -24,6 +25,7 @@ import java.util.Properties;
 
 public final class CliMain {
     private final static Command[] commands = {
+            new DumpCommand(),
             new PutNanopublicationsCommand()
     };
     private final static Logger logger = LoggerFactory.getLogger(CliMain.class);
@@ -75,8 +77,8 @@ public final class CliMain {
                 final Twks twks = TwksFactory.getInstance().createTwks(configuration);
                 logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);
 
-                try (final TwksTransaction sparqlQueryTransaction = twks.beginTransaction(ReadWrite.READ)) {
-                    command.run(new Command.Apis(twks, twks, sparqlQueryTransaction));
+                try (final TwksTransaction transaction = twks.beginTransaction(ReadWrite.READ)) {
+                    command.run(new Command.Apis(transaction));
                 }
                 return;
             }
@@ -88,7 +90,7 @@ public final class CliMain {
             final TwksClient client = new TwksClient(clientConfiguration);
             logger.info("using client with configuration {}", clientConfiguration);
 
-            command.run(new Command.Apis(client, client, client));
+            command.run(new Command.Apis(client));
         }
     }
 
