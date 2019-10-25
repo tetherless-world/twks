@@ -46,7 +46,7 @@ public class TwksConfiguration {
             return dumpDirectoryPath;
         }
 
-        public final Builder setDumpDirectoryPath(final Path dumpDirectoryPath) {
+        public Builder setDumpDirectoryPath(final Path dumpDirectoryPath) {
             this.dumpDirectoryPath = dumpDirectoryPath;
             return this;
         }

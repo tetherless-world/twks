@@ -43,6 +43,11 @@ public class TwksFactoryConfiguration extends TwksConfiguration {
         }
 
         @Override
+        public Builder setDumpDirectoryPath(final Path dumpDirectoryPath) {
+            return (Builder) super.setDumpDirectoryPath(dumpDirectoryPath);
+        }
+
+        @Override
         public TwksFactoryConfiguration build() {
             return new TwksFactoryConfiguration(getDumpDirectoryPath(), tdb2Location);
         }

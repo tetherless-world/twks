@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -37,6 +38,21 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     @BeforeClass
     public static void setUpClass() throws Exception {
         testData = new TestData();
+    }
+
+    public static void checkDump(final Path dumpDirectoryPath) throws IOException {
+        final List<Path> filePaths = Files.walk(dumpDirectoryPath).collect(Collectors.toList());
+
+        for (final Path filePath : filePaths) {
+            if (!Files.isRegularFile(filePath)) {
+                continue;
+            }
+            final String fileName = filePath.getFileName().toString();
+            if (fileName.endsWith(".trig")) {
+                return;
+            }
+        }
+        fail();
     }
 
     protected final Path getTempDirPath() {
@@ -85,18 +101,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
         ((BulkWriteApi) sut).dump();
 
-        final List<Path> filePaths = Files.walk(tempDirPath).collect(Collectors.toList());
-
-        for (final Path filePath : filePaths) {
-            if (!Files.isRegularFile(filePath)) {
-                continue;
-            }
-            final String fileName = filePath.getFileName().toString();
-            if (fileName.endsWith(".trig")) {
-                return;
-            }
-        }
-        fail();
+        checkDump(tempDirPath);
     }
 
     @Test

@@ -1,7 +1,10 @@
 package edu.rpi.tw.twks.server;
 
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.factory.TwksFactory;
+import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.test.TestData;
@@ -17,11 +20,16 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
 public abstract class AbstractResourceTest extends JerseyTest {
     private final TestData testData;
+    private Path tempDirPath;
     private Twks twks;
 
     protected AbstractResourceTest() {
@@ -53,11 +61,15 @@ public abstract class AbstractResourceTest extends JerseyTest {
         return Entity.entity(toTrigString(model), Lang.TRIG.getContentType().getContentType());
     }
 
-    @Override
+    protected final Path getTempDirPath() {
+        return tempDirPath;
+    }
+
     @After
-    public void tearDown() throws Exception {
-        super.tearDown();
-        throw new UnsupportedOperationException("implement dump directory delete");
+    public final void deleteTempDir() throws Exception {
+        assertNotSame(null, tempDirPath);
+        MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
+        tempDirPath = null;
     }
 
     protected final Twks getTwks() {
@@ -70,8 +82,15 @@ public abstract class AbstractResourceTest extends JerseyTest {
 
     @Override
     protected final Application configure() {
+        assertSame(tempDirPath, null);
+        try {
+            tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+
         final ResourceConfig config = new ResourceConfig();
-        this.twks = TwksFactory.getInstance().createTwks();
+        this.twks = TwksFactory.getInstance().createTwks(TwksFactoryConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build());
         config.registerInstances(newResource(twks));
         return config;
     }
