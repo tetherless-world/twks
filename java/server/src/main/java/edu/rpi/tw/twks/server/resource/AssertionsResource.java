@@ -1,14 +1,11 @@
-package edu.rpi.tw.twks.server.resource.assertions;
+package edu.rpi.tw.twks.server.resource;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.AcceptLists;
-import edu.rpi.tw.twks.server.resource.AbstractResource;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -18,8 +15,6 @@ import java.io.StringWriter;
 
 @Path("assertions")
 public class AssertionsResource extends AbstractResource {
-    private final static Logger logger = LoggerFactory.getLogger(AssertionsResource.class);
-
     public AssertionsResource() {
     }
 

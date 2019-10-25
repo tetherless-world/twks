@@ -16,13 +16,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 
 public final class NanopublicationFactory {
-    private final static NanopublicationFactory instance = new NanopublicationFactory();
+    public final static NanopublicationFactory DEFAULT = new NanopublicationFactory();
+    private final NanopublicationDialect dialect;
 
-    private NanopublicationFactory() {
+    public NanopublicationFactory() {
+        this(NanopublicationDialect.SPECIFICATION);
     }
 
-    public static NanopublicationFactory getInstance() {
-        return instance;
+    public NanopublicationFactory(final NanopublicationDialect dialect) {
+        this.dialect = checkNotNull(dialect);
     }
 
     public final Nanopublication createNanopublicationFromAssertions(final Model assertions) {
@@ -49,19 +51,29 @@ public final class NanopublicationFactory {
 
         final String headUriString = nanopublicationUriString + "#head";
         final Uri headUri = Uri.parse(headUriString);
-        final Model headModel = NanopublicationFactory.getInstance().createNanopublicationHead(assertionUri, nanopublicationUri, provenanceUri, publicationInfoUri);
+        final Model headModel = createNanopublicationHead(assertionUri, nanopublicationUri, provenanceUri, publicationInfoUri);
 
         return new Nanopublication(new NanopublicationPart(assertions, assertionUri), new NanopublicationPart(headModel, headUri), new NanopublicationPart(provenanceModel, provenanceUri), new NanopublicationPart(publicationInfoModel, publicationInfoUri), nanopublicationUri);
     }
 
+
     public final ImmutableList<Nanopublication> createNanopublicationsFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
-        return createNanopublicationsFromDataset(dataset, NanopublicationDialect.SPECIFICATION);
+        // This method keeps a lot of state through a lot of logic, so delegate to a temporary instance that has all of the state
+        try (final NanopublicationsFromDatasetFactory delegate = new NanopublicationsFromDatasetFactory(dataset)) {
+            return delegate.createNanopublications();
+        }
     }
 
-    public final ImmutableList<Nanopublication> createNanopublicationsFromDataset(final Dataset dataset, final NanopublicationDialect dialect) throws MalformedNanopublicationException {
-        // This method keeps a lot of state through a lot of logic, so delegate to a temporary instance that has all of the state
-        try (final NanopublicationsFromDatasetFactory delegate = new NanopublicationsFromDatasetFactory(dataset, dialect)) {
-            return delegate.createNanopublications();
+    public final Nanopublication createNanopublicationFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
+        final ImmutableList<Nanopublication> nanopublications = createNanopublicationsFromDataset(dataset);
+
+        switch (nanopublications.size()) {
+            case 0:
+                throw new IllegalStateException();
+            case 1:
+                return nanopublications.get(0);
+            default:
+                throw new MalformedNanopublicationException("more than one nanopublication in dataset");
         }
     }
 
@@ -98,7 +110,7 @@ public final class NanopublicationFactory {
         return headModel;
     }
 
-    public final Nanopublication createNanopublicationFromParts(final NanopublicationPart assertion, final NanopublicationDialect dialect, final NanopublicationPart head, final NanopublicationPart provenance, final NanopublicationPart publicationInfo, final Uri uri) throws MalformedNanopublicationException {
+    public final Nanopublication createNanopublicationFromParts(final NanopublicationPart assertion, final NanopublicationPart head, final NanopublicationPart provenance, final NanopublicationPart publicationInfo, final Uri uri) throws MalformedNanopublicationException {
         checkNotNull(assertion);
         checkNotNull(dialect);
         checkNotNull(head);
@@ -143,15 +155,13 @@ public final class NanopublicationFactory {
         return new Nanopublication(assertion, head, provenance, publicationInfo, uri);
     }
 
-    private final static class NanopublicationsFromDatasetFactory implements AutoCloseable {
+    private final class NanopublicationsFromDatasetFactory implements AutoCloseable {
         private final Dataset dataset;
-        private final NanopublicationDialect dialect;
         private final Set<String> unusedDatasetModelNames = new HashSet<>();
         private final DatasetTransaction transaction;
 
-        NanopublicationsFromDatasetFactory(final Dataset dataset, final NanopublicationDialect dialect) {
+        NanopublicationsFromDatasetFactory(final Dataset dataset) {
             this.dataset = checkNotNull(dataset);
-            this.dialect = checkNotNull(dialect);
 
             transaction = new DatasetTransaction(dataset, ReadWrite.READ);
 
@@ -222,13 +232,10 @@ public final class NanopublicationFactory {
                 // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
                 final NanopublicationPart publicationInfo = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasPublicationInfo, transaction);
 
-                nanopublicationsBuilder.add(NanopublicationFactory.getInstance().createNanopublicationFromParts(assertion, dialect, head, provenance, publicationInfo, nanopublicationUri));
+                final Nanopublication nanopublication = createNanopublicationFromParts(assertion, head, provenance, publicationInfo, nanopublicationUri);
+                nanopublicationsBuilder.add(nanopublication);
             }
-            final ImmutableList<Nanopublication> nanopublications = nanopublicationsBuilder.build();
-            if (nanopublications.isEmpty()) {
-                throw new MalformedNanopublicationException("unable to locate head graph by rdf:type Nanopublication statement");
-            }
-            return nanopublications;
+            return nanopublicationsBuilder.build();
         }
 
         /**

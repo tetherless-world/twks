@@ -9,7 +9,7 @@
         <Arg>/extfs</Arg>
     </Call>
     <Call name="setInitParameter">
-        <Arg>twks.tdb2Location</Arg>
+        <Arg>twks.tdbLocation</Arg>
         <Arg>/data</Arg>
     </Call>
 </Configure>

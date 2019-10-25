@@ -1,6 +1,5 @@
 package edu.rpi.tw.twks.abc;
 
-import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
@@ -124,15 +123,7 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             return Optional.empty();
         }
         try {
-            final ImmutableList<Nanopublication> nanopublications = NanopublicationFactory.getInstance().createNanopublicationsFromDataset(nanopublicationDataset);
-            switch (nanopublications.size()) {
-                case 0:
-                    throw new IllegalStateException();
-                case 1:
-                    return Optional.of(nanopublications.get(0));
-                default:
-                    throw new IllegalStateException();
-            }
+            return Optional.of(NanopublicationFactory.DEFAULT.createNanopublicationFromDataset(nanopublicationDataset));
         } catch (final MalformedNanopublicationException e) {
             throw new IllegalStateException(e);
         }

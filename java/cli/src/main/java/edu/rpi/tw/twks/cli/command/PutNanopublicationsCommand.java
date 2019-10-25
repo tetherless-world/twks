@@ -124,7 +124,7 @@ public final class PutNanopublicationsCommand extends Command {
             try {
                 final byte[] trigBytes = ByteStreams.toByteArray(System.in);
                 final String trigString = new String(trigBytes);
-                final ImmutableList<Nanopublication> result = newNanopublicationParser().parse(new StringReader(trigString));
+                final ImmutableList<Nanopublication> result = newNanopublicationParser().parseAll(new StringReader(trigString));
                 logger.info("parsed {} nanopublications from stdin", result.size());
                 return result;
             } catch (final IOException | MalformedNanopublicationException e) {
@@ -135,10 +135,10 @@ public final class PutNanopublicationsCommand extends Command {
 
         public final ImmutableList<Nanopublication> parseFile(final File sourceFilePath) {
             try {
-                final ImmutableList<Nanopublication> result = newNanopublicationParser().parse(sourceFilePath);
+                final ImmutableList<Nanopublication> result = newNanopublicationParser().parseAll(sourceFilePath);
                 logger.info("parsed {} nanopublications from {}", result.size(), sourceFilePath);
                 return result;
-            } catch (final IOException | MalformedNanopublicationException e) {
+            } catch (final MalformedNanopublicationException e) {
                 logger.error("error parsing {}: ", sourceFilePath, e);
                 return ImmutableList.of();
             }
@@ -196,10 +196,10 @@ public final class PutNanopublicationsCommand extends Command {
 
         public final ImmutableList<Nanopublication> parseUri(final Uri sourceUri) {
             try {
-                final ImmutableList<Nanopublication> result = newNanopublicationParser().parse(sourceUri);
+                final ImmutableList<Nanopublication> result = newNanopublicationParser().parseAll(sourceUri);
                 logger.info("parsed {} nanopublications from {}", result.size(), sourceUri);
                 return result;
-            } catch (final IOException | MalformedNanopublicationException e) {
+            } catch (final MalformedNanopublicationException e) {
                 logger.error("error parsing {}: ", sourceUri, e);
                 return ImmutableList.of();
             }

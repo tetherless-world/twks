@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.server.resource.nanopublication;
+package edu.rpi.tw.twks.server.resource;
 
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.Twks;
@@ -7,7 +7,6 @@ import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.server.AcceptLists;
-import edu.rpi.tw.twks.server.resource.AbstractResource;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.atlas.web.ContentType;
@@ -21,7 +20,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -136,8 +134,8 @@ public class NanopublicationResource extends AbstractResource {
         }
 
         try {
-            return parser.parse(new StringReader(requestBody));
-        } catch (final IOException | MalformedNanopublicationException e) {
+            return parser.parseAll(new StringReader(requestBody));
+        } catch (final MalformedNanopublicationException e) {
             logger.info("error parsing nanopublication: ", e);
             throw new WebApplicationException("Malformed nanopublication", Response.Status.BAD_REQUEST);
         }

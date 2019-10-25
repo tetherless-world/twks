@@ -1,6 +1,5 @@
 package edu.rpi.tw.twks.test;
 
-import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
@@ -8,8 +7,6 @@ import org.apache.jena.riot.Lang;
 
 import java.io.IOException;
 import java.io.StringReader;
-
-import static org.junit.Assert.assertEquals;
 
 public final class TestData {
     public final static String SPEC_NANOPUBLICATION_TRIG = "@prefix : <http://example.org/pub1#> .\n" +
@@ -88,9 +85,7 @@ public final class TestData {
     }
 
     private Nanopublication parseNanopublicationFromString(final String trig) throws IOException, MalformedNanopublicationException {
-        final ImmutableList<Nanopublication> nanopublications = new NanopublicationParser().setLang(Lang.TRIG).parse(new StringReader(trig));
-        assertEquals(1, nanopublications.size());
-        return nanopublications.get(0);
+        return new NanopublicationParser().setLang(Lang.TRIG).parseOne(new StringReader(trig));
     }
 
 //    private Nanopublication parseNanopublicationFromResource(final String fileName) throws IOException, MalformedNanopublicationException {

@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.server.resource.assertions;
+package edu.rpi.tw.twks.server.resource;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.AbstractResourceTest;

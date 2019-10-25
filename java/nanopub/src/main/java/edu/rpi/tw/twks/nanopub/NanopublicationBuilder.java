@@ -44,12 +44,12 @@ public final class NanopublicationBuilder {
 
         final NanopublicationPart head =
                 new NanopublicationPart(
-                        NanopublicationFactory.getInstance().createNanopublicationHead(assertion.getName(), nanopublicationUri, provenance.getName(), publicationInfo.getName()),
+                        NanopublicationFactory.DEFAULT.createNanopublicationHead(assertion.getName(), nanopublicationUri, provenance.getName(), publicationInfo.getName()),
                         Uri.parse(generatedUri.toString() + "#head")
                 );
 
         try {
-            return NanopublicationFactory.getInstance().createNanopublicationFromParts(assertion, NanopublicationDialect.SPECIFICATION, head, provenance, publicationInfo, nanopublicationUri);
+            return NanopublicationFactory.DEFAULT.createNanopublicationFromParts(assertion, head, provenance, publicationInfo, nanopublicationUri);
         } catch (final MalformedNanopublicationException e) {
             throw new IllegalStateException(e);
         }
@@ -131,7 +131,7 @@ public final class NanopublicationBuilder {
 
         @SuppressWarnings("unchecked")
         public NanopublicationPartBuilderT setModel(final Model model) {
-            this.model = NanopublicationPart.checkModelType(model);
+            this.model = checkNotNull(model);
             return (NanopublicationPartBuilderT) this;
         }
 

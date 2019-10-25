@@ -1,6 +1,9 @@
 package edu.rpi.tw.twks.test;
 
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.BulkReadApi;
+import edu.rpi.tw.twks.api.BulkWriteApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
@@ -18,29 +21,64 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
 public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> {
     private static TestData testData;
     private SystemUnderTestT sut;
+    private Path tempDirPath;
+
+    protected final static TestData getTestData() {
+        return testData;
+    }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         testData = new TestData();
     }
 
+    public static void checkDump(final Path dumpDirectoryPath) throws IOException {
+        final List<Path> filePaths = Files.walk(dumpDirectoryPath).collect(Collectors.toList());
+
+        for (final Path filePath : filePaths) {
+            if (!Files.isRegularFile(filePath)) {
+                continue;
+            }
+            final String fileName = filePath.getFileName().toString();
+            if (fileName.endsWith(".trig")) {
+                return;
+            }
+        }
+        fail();
+    }
+
+    protected final Path getTempDirPath() {
+        return tempDirPath;
+    }
+
+    protected final SystemUnderTestT getSystemUnderTest() {
+        return sut;
+    }
+
     @Before
-    public void setUp() throws Exception {
+    public final void setUp() throws Exception {
+        tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
         sut = openSystemUnderTest();
     }
 
     @After
-    public void tearDown() throws Exception {
+    public final void tearDown() throws Exception {
         sut.deleteNanopublication(testData.secondNanopublication.getUri());
         sut.deleteNanopublication(testData.specNanopublication.getUri());
         closeSystemUnderTest(sut);
+        MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
     }
 
     protected abstract void closeSystemUnderTest(SystemUnderTestT sut);
@@ -55,6 +93,19 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         sut.putNanopublication(testData.specNanopublication);
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, sut.deleteNanopublication(testData.specNanopublication.getUri()));
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
+    }
+
+    @Test
+    public void testDump() throws Exception {
+        if (!(sut instanceof BulkWriteApi)) {
+            return;
+        }
+
+        sut.putNanopublication(testData.specNanopublication);
+
+        ((BulkWriteApi) sut).dump();
+
+        checkDump(tempDirPath);
     }
 
     @Test
@@ -136,7 +187,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         try (final QueryExecution queryExecution = ((QueryApi) sut).queryNanopublications(query)) {
             actualDataset = MoreDatasetFactory.createDatasetFromResultSet(queryExecution.execSelect());
         }
-        final Nanopublication actual = NanopublicationFactory.getInstance().createNanopublicationsFromDataset(actualDataset).get(0);
+        final Nanopublication actual = NanopublicationFactory.DEFAULT.createNanopublicationFromDataset(actualDataset);
 
         assertTrue(actual.isIsomorphicWith(testData.specNanopublication));
     }

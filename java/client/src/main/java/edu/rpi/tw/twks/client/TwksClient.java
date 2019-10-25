@@ -3,9 +3,9 @@ package edu.rpi.tw.twks.client;
 import com.google.api.client.http.*;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.api.BulkReadApi;
+import edu.rpi.tw.twks.api.BulkWriteApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
@@ -34,7 +34,7 @@ import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 /**
  * Client for a TWKS server.
  */
-public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, QueryApi {
+public final class TwksClient implements BulkReadApi, BulkWriteApi, NanopublicationCrudApi, QueryApi {
     private final static Logger logger = LoggerFactory.getLogger(TwksClient.class);
     private final ApacheHttpTransport httpTransport;
     private final HttpRequestFactory httpRequestFactory;
@@ -54,7 +54,18 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
     }
 
     @Override
-    public Model getAssertions() {
+    public void dump() {
+        try {
+            httpRequestFactory.buildPostRequest(new GenericUrl(serverBaseUrl + "/dump"), new EmptyContent()).execute();
+        } catch (final HttpResponseException e) {
+            throw wrapException(e);
+        } catch (final IOException e) {
+            throw wrapException(e);
+        }
+    }
+
+    @Override
+    public final Model getAssertions() {
         try {
             final HttpResponse response = httpRequestFactory.buildGetRequest(new GenericUrl(serverBaseUrl + "/assertions")).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
             try (final InputStream inputStream = response.getContent()) {
@@ -69,7 +80,7 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
     }
 
     @Override
-    public DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
+    public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
         final HttpResponse response;
         try {
             response = httpRequestFactory.buildDeleteRequest(newNanopublicationUrl(uri)).execute();
@@ -99,22 +110,14 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
     }
 
     @Override
-    public Optional<Nanopublication> getNanopublication(final Uri uri) {
+    public final Optional<Nanopublication> getNanopublication(final Uri uri) {
         try {
             final HttpResponse response = httpRequestFactory.buildGetRequest(newNanopublicationUrl(uri)).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
             checkState(response.getStatusCode() == 200);
             try (final InputStream inputStream = response.getContent()) {
                 final byte[] contentBytes = ByteStreams.toByteArray(inputStream);
                 try {
-                    final ImmutableList<Nanopublication> nanopublications = new NanopublicationParser().setLang(Lang.TRIG).parse(new StringReader(new String(contentBytes, "UTF-8")));
-                    switch (nanopublications.size()) {
-                        case 0:
-                            throw new IllegalStateException();
-                        case 1:
-                            return Optional.of(nanopublications.get(0));
-                        default:
-                            throw new IllegalStateException();
-                    }
+                    return Optional.of(new NanopublicationParser().setLang(Lang.TRIG).parseOne(new StringReader(new String(contentBytes, "UTF-8"))));
                 } catch (final MalformedNanopublicationException e) {
                     logger.error("malformed nanopublication from server: ", e);
                     return Optional.empty();
@@ -132,7 +135,7 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
     }
 
     @Override
-    public PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
+    public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
         final StringWriter contentStringWriter = new StringWriter();
         RDFDataMgr.write(contentStringWriter, nanopublication.toDataset(), Lang.TRIG);
         final String contentString = contentStringWriter.toString();
@@ -156,12 +159,12 @@ public final class TwksClient implements BulkReadApi, NanopublicationCrudApi, Qu
     }
 
     @Override
-    public QueryExecution queryAssertions(final Query query) {
+    public final QueryExecution queryAssertions(final Query query) {
         return QueryExecutionFactory.sparqlService(serverBaseUrl + "/sparql/assertions", query, httpTransport.getHttpClient());
     }
 
     @Override
-    public QueryExecution queryNanopublications(final Query query) {
+    public final QueryExecution queryNanopublications(final Query query) {
         return QueryExecutionFactory.sparqlService(serverBaseUrl + "/sparql/nanopublications", query, httpTransport.getHttpClient());
     }
 }
