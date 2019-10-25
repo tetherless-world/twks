@@ -35,6 +35,10 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     private SystemUnderTestT sut;
     private Path tempDirPath;
 
+    protected final static TestData getTestData() {
+        return testData;
+    }
+
     @BeforeClass
     public static void setUpClass() throws Exception {
         testData = new TestData();
