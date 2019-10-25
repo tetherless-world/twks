@@ -45,6 +45,16 @@ class TwksClient:
             else:
                 raise
 
+    def dump(self) -> None:
+        """
+        Tell the server to dump the contents of the store to its (local) disk.
+        """
+
+        request = urllib.request.Request(url=self.__server_base_url + "/dump", method="POST")
+
+        with urllib.request.urlopen(request) as _:
+            return
+
     def get_assertions(self, store='default') -> rdflib.Graph:
         """
         Get the union of all assertions in the store, as a new Graph.

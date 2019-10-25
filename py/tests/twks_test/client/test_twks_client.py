@@ -23,6 +23,12 @@ def test_delete_nanopublication_present(client, spec_nanopublication):
     assert client.delete_nanopublication(spec_nanopublication.uri)
 
 
+def test_dump(client, spec_nanopublication):
+    client.put_nanopublication(spec_nanopublication)
+    client.dump()
+    # Can't tell what the server has done
+
+
 def test_get_assertions(client, spec_nanopublication):
     client.put_nanopublication(spec_nanopublication)
     assertions = client.get_assertions()
