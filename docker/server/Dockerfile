@@ -15,4 +15,4 @@ USER jetty
 
 EXPOSE 8080
 
-VOLUME ["/data", "/extcp", "/extfs"]
+VOLUME ["/data", "/dump", "/extcp", "/extfs"]
