@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.rpi.tw.twks.vocabulary.NANOPUB;
 import edu.rpi.tw.twks.vocabulary.PROV;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
@@ -56,12 +57,19 @@ public final class NanopublicationFactory {
         return new Nanopublication(new NanopublicationPart(assertions, assertionUri), new NanopublicationPart(headModel, headUri), new NanopublicationPart(provenanceModel, provenanceUri), new NanopublicationPart(publicationInfoModel, publicationInfoUri), nanopublicationUri);
     }
 
-
     public final ImmutableList<Nanopublication> createNanopublicationsFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
         // This method keeps a lot of state through a lot of logic, so delegate to a temporary instance that has all of the state
-        try (final NanopublicationsFromDatasetFactory delegate = new NanopublicationsFromDatasetFactory(dataset)) {
-            return delegate.createNanopublications();
+        try (final DatasetNanopublications delegate = new DatasetNanopublications(dataset)) {
+            try {
+                return ImmutableList.copyOf(delegate);
+            } catch (final MalformedNanopublicationRuntimeException e) {
+                throw (MalformedNanopublicationException) e.getCause();
+            }
         }
+    }
+
+    public final DatasetNanopublications iterateNanopublicationsFromDataset(final Dataset dataset) {
+        return new DatasetNanopublications(dataset);
     }
 
     public final Nanopublication createNanopublicationFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
@@ -155,27 +163,75 @@ public final class NanopublicationFactory {
         return new Nanopublication(assertion, head, provenance, publicationInfo, uri);
     }
 
-    private final class NanopublicationsFromDatasetFactory implements AutoCloseable {
+    /**
+     * Helper class that facilitates iterating over the nanopublications within a Dataset within the confines of a Dataset transaction.
+     */
+    public final class DatasetNanopublications implements AutoCloseable, Iterable<Nanopublication> {
         private final Dataset dataset;
-        private final Set<String> unusedDatasetModelNames = new HashSet<>();
         private final DatasetTransaction transaction;
 
-        NanopublicationsFromDatasetFactory(final Dataset dataset) {
+        public DatasetNanopublications(final Dataset dataset) {
             this.dataset = checkNotNull(dataset);
+            this.transaction = new DatasetTransaction(dataset, ReadWrite.READ);
+        }
 
-            transaction = new DatasetTransaction(dataset, ReadWrite.READ);
-
+        @Override
+        public Iterator<Nanopublication> iterator() {
+            final Set<String> unusedDatasetModelNames = new HashSet<>();
             dataset.listNames().forEachRemaining(modelName -> {
                 if (unusedDatasetModelNames.contains(modelName)) {
                     throw new IllegalStateException();
                 }
                 unusedDatasetModelNames.add(modelName);
             });
-        }
 
-        @Override
-        public void close() {
-            transaction.close();
+            final Iterator<Map.Entry<Uri, NanopublicationPart>> headEntryI;
+            try {
+                headEntryI = getHeads(unusedDatasetModelNames).entrySet().iterator();
+            } catch (final MalformedNanopublicationException e) {
+                throw new MalformedNanopublicationRuntimeException(e);
+            }
+
+            return new Iterator<Nanopublication>() {
+                private @Nullable
+                Nanopublication nanopublication = null;
+
+                @Override
+                public boolean hasNext() {
+                    if (nanopublication != null) {
+                        return true;
+                    }
+
+                    if (!headEntryI.hasNext()) {
+                        return false;
+                    }
+
+                    final Map.Entry<Uri, NanopublicationPart> headEntry = headEntryI.next();
+                    final Uri nanopublicationUri = headEntry.getKey();
+                    final NanopublicationPart head = headEntry.getValue();
+
+                    try {
+                        // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasAssertion [A] [H]', which identifies [A] as the assertion URI
+                        final NanopublicationPart assertion = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasAssertion, unusedDatasetModelNames);
+                        // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasProvenance [P] [H]', which identifies [P] as the provenance URI
+                        final NanopublicationPart provenance = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasProvenance, unusedDatasetModelNames);
+                        // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
+                        final NanopublicationPart publicationInfo = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasPublicationInfo, unusedDatasetModelNames);
+
+                        nanopublication = new NanopublicationFactory(dialect).createNanopublicationFromParts(assertion, head, provenance, publicationInfo, nanopublicationUri);
+                        return true;
+                    } catch (final MalformedNanopublicationException e) {
+                        throw new MalformedNanopublicationRuntimeException(e);
+                    }
+                }
+
+                @Override
+                public Nanopublication next() {
+                    final Nanopublication nanopublication = checkNotNull(this.nanopublication);
+                    this.nanopublication = null;
+                    return nanopublication;
+                }
+            };
         }
 
         /**
@@ -184,7 +240,7 @@ public final class NanopublicationFactory {
          * @return a map of nanopublication URI -> head
          * @throws MalformedNanopublicationException
          */
-        private Map<Uri, NanopublicationPart> getHeads() throws MalformedNanopublicationException {
+        private Map<Uri, NanopublicationPart> getHeads(final Set<String> unusedDatasetModelNames) throws MalformedNanopublicationException {
             final Map<Uri, NanopublicationPart> headsByNanopublicationUri = new HashMap<>();
             for (final Iterator<String> unusedDatasetModelNameI = unusedDatasetModelNames.iterator(); unusedDatasetModelNameI.hasNext(); ) {
                 final String modelName = unusedDatasetModelNameI.next();
@@ -213,38 +269,13 @@ public final class NanopublicationFactory {
             return headsByNanopublicationUri;
         }
 
-        ImmutableList<Nanopublication> createNanopublications() throws MalformedNanopublicationException {
-            // All triples must be placed in one of [H] or [A] or [P] or [I]
-            //        if (dataset.getDefaultModel().isEmpty()) {
-            //            dataset.getDefaultModel().write(System.out, "TURTLE");
-            //            throw new MalformedNanopublicationException("default model is not empty");
-            //        }
-
-            final ImmutableList.Builder<Nanopublication> nanopublicationsBuilder = ImmutableList.builder();
-            for (final Map.Entry<Uri, NanopublicationPart> headEntry : getHeads().entrySet()) {
-                final Uri nanopublicationUri = headEntry.getKey();
-                final NanopublicationPart head = headEntry.getValue();
-
-                // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasAssertion [A] [H]', which identifies [A] as the assertion URI
-                final NanopublicationPart assertion = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasAssertion, transaction);
-                // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasProvenance [P] [H]', which identifies [P] as the provenance URI
-                final NanopublicationPart provenance = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasProvenance, transaction);
-                // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
-                final NanopublicationPart publicationInfo = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasPublicationInfo, transaction);
-
-                final Nanopublication nanopublication = createNanopublicationFromParts(assertion, head, provenance, publicationInfo, nanopublicationUri);
-                nanopublicationsBuilder.add(nanopublication);
-            }
-            return nanopublicationsBuilder.build();
-        }
-
         /**
          * Get the named model in a dataset that correspond to part of a nanopublication e.g., the named assertion graph.
          * The dataset contains
          * <nanopublication URI> nanopub:hasAssertion <assertion graph URI> .
          * The same goes for nanopub:hasProvenance and nanopub:hasPublicationInfo.
          */
-        private NanopublicationPart getNanopublicationPart(final NanopublicationPart head, final Uri nanopublicationUri, final Property partProperty, final DatasetTransaction transaction) throws MalformedNanopublicationException {
+        private NanopublicationPart getNanopublicationPart(final NanopublicationPart head, final Uri nanopublicationUri, final Property partProperty, final Set<String> unusedDatasetModelNames) throws MalformedNanopublicationException {
             final List<RDFNode> partRdfNodes = head.getModel().listObjectsOfProperty(ResourceFactory.createResource(nanopublicationUri.toString()), partProperty).toList();
 
             switch (partRdfNodes.size()) {
@@ -291,6 +322,11 @@ public final class NanopublicationFactory {
             final Uri partModelUri = Uri.parse(partModelName);
 
             return new NanopublicationPart(partModel, partModelUri);
+        }
+
+        @Override
+        public void close() {
+            transaction.close();
         }
     }
 }

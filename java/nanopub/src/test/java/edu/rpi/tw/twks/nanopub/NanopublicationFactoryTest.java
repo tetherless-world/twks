@@ -50,6 +50,18 @@ public final class NanopublicationFactoryTest {
     }
 
     @Test
+    public void testIterateNanopublicationsFromDataset() throws Exception {
+        final Dataset dataset = DatasetFactory.create();
+        new NanopublicationParser().parseOne(testData.assertionOnlyFilePath).toDataset(dataset);
+        sut.createNanopublicationFromDataset(testData.specNanopublicationDataset).toDataset(dataset);
+        assertEquals(8, ImmutableList.copyOf(dataset.listNames()).size());
+        try (final NanopublicationFactory.DatasetNanopublications nanopublicationsIterable = NanopublicationFactory.DEFAULT.iterateNanopublicationsFromDataset(dataset)) {
+            final ImmutableList<Nanopublication> nanopublications = ImmutableList.copyOf(nanopublicationsIterable);
+            assertEquals(2, nanopublications.size());
+        }
+    }
+
+    @Test
     public void testMultipleUniqueNanopublications() throws Exception {
         final ImmutableList<Nanopublication> nanopublications = NanopublicationFactory.DEFAULT.createNanopublicationsFromDataset(testData.uniqueNanopublicationsDataset);
         assertEquals(2, nanopublications.size());
