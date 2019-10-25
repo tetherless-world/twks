@@ -72,6 +72,10 @@ public final class NanopublicationFactory {
         return new DatasetNanopublications(dataset);
     }
 
+    public final DatasetNanopublications iterateNanopublicationsFromDataset(final Dataset dataset, final DatasetTransaction transaction) {
+        return new DatasetNanopublications(dataset, transaction);
+    }
+
     public final Nanopublication createNanopublicationFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
         final ImmutableList<Nanopublication> nanopublications = createNanopublicationsFromDataset(dataset);
 
@@ -168,11 +172,21 @@ public final class NanopublicationFactory {
      */
     public final class DatasetNanopublications implements AutoCloseable, Iterable<Nanopublication> {
         private final Dataset dataset;
+        private final boolean ownTransaction;
         private final DatasetTransaction transaction;
 
         public DatasetNanopublications(final Dataset dataset) {
+            this(dataset, true, new DatasetTransaction(dataset, ReadWrite.READ));
+        }
+
+        public DatasetNanopublications(final Dataset dataset, final DatasetTransaction transaction) {
+            this(dataset, false, transaction);
+        }
+
+        private DatasetNanopublications(final Dataset dataset, final boolean ownTransaction, final DatasetTransaction transaction) {
             this.dataset = checkNotNull(dataset);
-            this.transaction = new DatasetTransaction(dataset, ReadWrite.READ);
+            this.ownTransaction = ownTransaction;
+            this.transaction = checkNotNull(transaction);
         }
 
         @Override
@@ -326,7 +340,9 @@ public final class NanopublicationFactory {
 
         @Override
         public void close() {
-            transaction.close();
+            if (ownTransaction) {
+                transaction.close();
+            }
         }
     }
 }
