@@ -9,6 +9,7 @@ import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.test.TestData;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -40,8 +41,19 @@ public abstract class AbstractResourceTest extends JerseyTest {
         }
     }
 
-    protected static String toTrigString(final Nanopublication nanopublication) {
-        final Dataset dataset = nanopublication.toDataset();
+    protected static Entity<String> toTrigEntity(final Nanopublication... nanopublications) {
+        return Entity.entity(toTrigString(nanopublications), Lang.TRIG.getContentType().getContentType());
+    }
+
+    protected static Entity<String> toTrigEntity(final Model model) {
+        return Entity.entity(toTrigString(model), Lang.TRIG.getContentType().getContentType());
+    }
+
+    protected static String toTrigString(final Nanopublication... nanopublications) {
+        final Dataset dataset = DatasetFactory.create();
+        for (final Nanopublication nanopublication : nanopublications) {
+            nanopublication.toDataset(dataset);
+        }
         final StringWriter stringWriter = new StringWriter();
         RDFDataMgr.write(stringWriter, dataset, Lang.TRIG);
         return stringWriter.toString();
@@ -51,33 +63,6 @@ public abstract class AbstractResourceTest extends JerseyTest {
         final StringWriter stringWriter = new StringWriter();
         RDFDataMgr.write(stringWriter, model, Lang.TRIG);
         return stringWriter.toString();
-    }
-
-    protected static Entity<String> toTrigEntity(final Nanopublication nanopublication) {
-        return Entity.entity(toTrigString(nanopublication), Lang.TRIG.getContentType().getContentType());
-    }
-
-    protected static Entity<String> toTrigEntity(final Model model) {
-        return Entity.entity(toTrigString(model), Lang.TRIG.getContentType().getContentType());
-    }
-
-    protected final Path getTempDirPath() {
-        return tempDirPath;
-    }
-
-    @After
-    public final void deleteTempDir() throws Exception {
-        assertNotSame(null, tempDirPath);
-        MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
-        tempDirPath = null;
-    }
-
-    protected final Twks getTwks() {
-        return checkNotNull(twks);
-    }
-
-    protected final TestData getTestData() {
-        return testData;
     }
 
     @Override
@@ -93,6 +78,25 @@ public abstract class AbstractResourceTest extends JerseyTest {
         this.twks = TwksFactory.getInstance().createTwks(TwksFactoryConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build());
         config.registerInstances(newResource(twks));
         return config;
+    }
+
+    @After
+    public final void deleteTempDir() throws Exception {
+        assertNotSame(null, tempDirPath);
+        MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
+        tempDirPath = null;
+    }
+
+    protected final Path getTempDirPath() {
+        return tempDirPath;
+    }
+
+    protected final TestData getTestData() {
+        return testData;
+    }
+
+    protected final Twks getTwks() {
+        return checkNotNull(twks);
     }
 
     protected abstract Object newResource(Twks twks);

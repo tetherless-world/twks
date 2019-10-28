@@ -36,15 +36,6 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     private SystemUnderTestT sut;
     private Path tempDirPath;
 
-    protected final static TestData getTestData() {
-        return testData;
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        testData = new TestData();
-    }
-
     public static void checkDump(final Path dumpDirectoryPath) throws IOException {
         final List<Path> filePaths = Files.walk(dumpDirectoryPath).collect(Collectors.toList());
 
@@ -60,13 +51,26 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         fail();
     }
 
-    protected final Path getTempDirPath() {
-        return tempDirPath;
+    protected final static TestData getTestData() {
+        return testData;
     }
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        testData = new TestData();
+    }
+
+    protected abstract void closeSystemUnderTest(SystemUnderTestT sut);
 
     protected final SystemUnderTestT getSystemUnderTest() {
         return sut;
     }
+
+    protected final Path getTempDirPath() {
+        return tempDirPath;
+    }
+
+    protected abstract SystemUnderTestT openSystemUnderTest() throws Exception;
 
     @Before
     public final void setUp() throws Exception {
@@ -82,8 +86,6 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
     }
 
-    protected abstract void closeSystemUnderTest(SystemUnderTestT sut);
-
     @Test
     public void testDeleteNanopublicationAbsent() {
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
@@ -94,16 +96,6 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         sut.putNanopublication(testData.specNanopublication);
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, sut.deleteNanopublication(testData.specNanopublication.getUri()));
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
-    }
-
-    @Test
-    public void testDeleteNanopublicationsPresent() throws Exception {
-        sut.putNanopublication(getTestData().specNanopublication);
-        sut.putNanopublication(getTestData().secondNanopublication);
-        final ImmutableList<NanopublicationCrudApi.DeleteNanopublicationResult> results = sut.deleteNanopublications(ImmutableList.of(testData.specNanopublication.getUri(), testData.secondNanopublication.getUri()));
-        assertEquals(2, results.size());
-        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(0));
-        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(1));
     }
 
     @Test
@@ -121,6 +113,16 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         assertEquals(2, results.size());
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(0));
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.NOT_FOUND, results.get(1));
+    }
+
+    @Test
+    public void testDeleteNanopublicationsPresent() throws Exception {
+        sut.putNanopublication(getTestData().specNanopublication);
+        sut.putNanopublication(getTestData().secondNanopublication);
+        final ImmutableList<NanopublicationCrudApi.DeleteNanopublicationResult> results = sut.deleteNanopublications(ImmutableList.of(testData.specNanopublication.getUri(), testData.secondNanopublication.getUri()));
+        assertEquals(2, results.size());
+        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(0));
+        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(1));
     }
 
     @Test
@@ -172,6 +174,37 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     }
 
     @Test
+    public void testPutNanopublicationAbsent() {
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, sut.putNanopublication(testData.specNanopublication));
+    }
+
+    @Test
+    public void testPutNanopublicationPresent() {
+        sut.putNanopublication(testData.specNanopublication);
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, sut.putNanopublication(testData.specNanopublication));
+    }
+
+    @Test
+    public void testPutNanopublicationsAbsent() {
+        final ImmutableList<NanopublicationCrudApi.PutNanopublicationResult> results = sut.putNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
+        assertEquals(ImmutableList.of(NanopublicationCrudApi.PutNanopublicationResult.CREATED, NanopublicationCrudApi.PutNanopublicationResult.CREATED), results);
+    }
+
+    @Test
+    public void testPutNanopublicationsMixed() {
+        sut.putNanopublication(testData.specNanopublication);
+        final ImmutableList<NanopublicationCrudApi.PutNanopublicationResult> results = sut.putNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
+        assertEquals(ImmutableList.of(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, NanopublicationCrudApi.PutNanopublicationResult.CREATED), results);
+    }
+
+    @Test
+    public void testPutNanopublicationsPresent() {
+        sut.putNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
+        final ImmutableList<NanopublicationCrudApi.PutNanopublicationResult> results = sut.putNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
+        assertEquals(ImmutableList.of(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE), results);
+    }
+
+    @Test
     public void testQueryAssertions() {
         if (!(sut instanceof QueryApi)) {
             return;
@@ -219,11 +252,4 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
         assertTrue(actual.isIsomorphicWith(testData.specNanopublication));
     }
-
-    @Test
-    public void testPutNanopublication() {
-        sut.putNanopublication(testData.specNanopublication);
-    }
-
-    protected abstract SystemUnderTestT openSystemUnderTest() throws Exception;
 }
