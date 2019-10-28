@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.abc;
 
+import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.*;
@@ -89,6 +90,11 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             getDataset().removeNamedModel(nanopublicationGraphName);
         }
         return DeleteNanopublicationResult.DELETED;
+    }
+
+    @Override
+    public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
+        return uris.stream().map(uri -> deleteNanopublication(uri)).collect(ImmutableList.toImmutableList());
     }
 
     @Override

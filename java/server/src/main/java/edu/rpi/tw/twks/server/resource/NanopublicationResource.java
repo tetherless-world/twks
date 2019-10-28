@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.server.resource;
 
 import com.google.common.collect.ImmutableList;
+import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.StringReader;
@@ -25,6 +27,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Optional;
 
 @Path("nanopublication")
@@ -56,6 +59,17 @@ public class NanopublicationResource extends AbstractResource {
             default:
                 throw new IllegalStateException();
         }
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<NanopublicationCrudApi.DeleteNanopublicationResult>
+    deleteNanopublications(
+            @QueryParam("uri") final List<String> nanopublicationUriStrings
+    ) {
+        final ImmutableList<Uri> nanopublicationUris = nanopublicationUriStrings.stream().map(uriString -> Uri.parse(uriString)).collect(ImmutableList.toImmutableList());
+
+        return getTwks().deleteNanopublications(nanopublicationUris);
     }
 
     @GET

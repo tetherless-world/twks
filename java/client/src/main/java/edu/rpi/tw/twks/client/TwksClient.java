@@ -2,8 +2,12 @@ package edu.rpi.tw.twks.client;
 
 import com.google.api.client.http.*;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
+import com.google.api.client.json.JsonObjectParser;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+import com.google.common.reflect.TypeToken;
 import edu.rpi.tw.twks.api.BulkReadApi;
 import edu.rpi.tw.twks.api.BulkWriteApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
@@ -25,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -50,34 +55,11 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
     public TwksClient(final TwksClientConfiguration configuration) {
         this.serverBaseUrl = checkNotNull(configuration.getServerBaseUrl());
         httpTransport = new ApacheHttpTransport();
-        httpRequestFactory = httpTransport.createRequestFactory();
+        httpRequestFactory = httpTransport.createRequestFactory(request -> {
+            request.setParser(new JsonObjectParser(new JacksonFactory()));
+        });
     }
 
-    @Override
-    public void dump() {
-        try {
-            httpRequestFactory.buildPostRequest(new GenericUrl(serverBaseUrl + "/dump"), new EmptyContent()).execute();
-        } catch (final HttpResponseException e) {
-            throw wrapException(e);
-        } catch (final IOException e) {
-            throw wrapException(e);
-        }
-    }
-
-    @Override
-    public final Model getAssertions() {
-        try {
-            final HttpResponse response = httpRequestFactory.buildGetRequest(new GenericUrl(serverBaseUrl + "/assertions")).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
-            try (final InputStream inputStream = response.getContent()) {
-                final Model model = ModelFactory.createDefaultModel();
-                setNsPrefixes(model);
-                RDFParserBuilder.create().source(inputStream).lang(Lang.TRIG).parse(model);
-                return model;
-            }
-        } catch (final IOException e) {
-            throw wrapException(e);
-        }
-    }
 
     @Override
     public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
@@ -97,6 +79,33 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
         return DeleteNanopublicationResult.DELETED;
     }
 
+    @Override
+    public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
+        try {
+            final GenericUrl url = new GenericUrl(serverBaseUrl + "/nanopublication/");
+            url.set("uri", uris);
+            final HttpResponse response = httpRequestFactory.buildDeleteRequest(url).execute();
+            final List<String> resultStrings = (List<String>) response.parseAs(new TypeToken<List<String>>() {
+            }.getType());
+            return resultStrings.stream().map(resultString -> DeleteNanopublicationResult.valueOf(resultString)).collect(ImmutableList.toImmutableList());
+        } catch (final HttpResponseException e) {
+            throw wrapException(e);
+        } catch (final IOException e) {
+            throw wrapException(e);
+        }
+    }
+
+    @Override
+    public void dump() {
+        try {
+            httpRequestFactory.buildPostRequest(new GenericUrl(serverBaseUrl + "/dump"), new EmptyContent()).execute();
+        } catch (final HttpResponseException e) {
+            throw wrapException(e);
+        } catch (final IOException e) {
+            throw wrapException(e);
+        }
+    }
+
     private RuntimeException wrapException(final IOException e) {
         return new RuntimeException(e);
     }
@@ -106,6 +115,21 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
             return new GenericUrl(serverBaseUrl + "/nanopublication/" + URLEncoder.encode(nanopublicationUri.toString(), "UTF-8"));
         } catch (final UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public final Model getAssertions() {
+        try {
+            final HttpResponse response = httpRequestFactory.buildGetRequest(new GenericUrl(serverBaseUrl + "/assertions")).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
+            try (final InputStream inputStream = response.getContent()) {
+                final Model model = ModelFactory.createDefaultModel();
+                setNsPrefixes(model);
+                RDFParserBuilder.create().source(inputStream).lang(Lang.TRIG).parse(model);
+                return model;
+            }
+        } catch (final IOException e) {
+            throw wrapException(e);
         }
     }
 
