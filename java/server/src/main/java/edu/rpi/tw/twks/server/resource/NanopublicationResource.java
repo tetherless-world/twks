@@ -149,6 +149,18 @@ public class NanopublicationResource extends AbstractResource {
         }
     }
 
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<NanopublicationCrudApi.PutNanopublicationResult>
+    postNanopublications(
+            @HeaderParam("Content-Type") @Nullable final String contentType,
+            @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
+            final String requestBody
+    ) {
+        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, nanopublicationDialectString, requestBody);
+        return getTwks().postNanopublications(nanopublications);
+    }
+
     @PUT
     public Response
     putNanopublication(
@@ -164,7 +176,7 @@ public class NanopublicationResource extends AbstractResource {
         }
         final Nanopublication nanopublication = nanopublications.get(0);
 
-        final Twks.PutNanopublicationResult result = getTwks().putNanopublication(nanopublication);
+        final NanopublicationCrudApi.PutNanopublicationResult result = getTwks().putNanopublication(nanopublication);
 
         final URI location;
         try {
@@ -182,5 +194,4 @@ public class NanopublicationResource extends AbstractResource {
                 throw new IllegalStateException();
         }
     }
-
 }
