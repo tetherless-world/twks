@@ -16,9 +16,7 @@ import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.uri.Uri;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
@@ -58,6 +56,18 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
         httpRequestFactory = httpTransport.createRequestFactory(request -> {
             request.setParser(new JsonObjectParser(new JacksonFactory()));
         });
+    }
+
+    private static HttpContent toContent(final Nanopublication... nanopublications) {
+        final StringWriter contentStringWriter = new StringWriter();
+        final Dataset dataset = DatasetFactory.create();
+        for (final Nanopublication nanopublication : nanopublications) {
+            nanopublication.toDataset(dataset);
+        }
+        RDFDataMgr.write(contentStringWriter, dataset, Lang.TRIG);
+        final String contentString = contentStringWriter.toString();
+        final byte[] contentBytes = contentString.getBytes(Charsets.UTF_8);
+        return new ByteArrayContent("text/trig; charset=utf-8", contentBytes);
     }
 
     @Override
@@ -155,19 +165,24 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
 
     @Override
     public final ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
-        throw new UnsupportedOperationException();
+        try {
+            final GenericUrl url = new GenericUrl(serverBaseUrl + "/nanopublication/");
+            final HttpResponse response = httpRequestFactory.buildPostRequest(url, toContent(nanopublications.toArray(new Nanopublication[nanopublications.size()]))).execute();
+            final List<String> resultStrings = (List<String>) response.parseAs(new TypeToken<List<String>>() {
+            }.getType());
+            return resultStrings.stream().map(resultString -> PutNanopublicationResult.valueOf(resultString)).collect(ImmutableList.toImmutableList());
+        } catch (final HttpResponseException e) {
+            throw wrapException(e);
+        } catch (final IOException e) {
+            throw wrapException(e);
+        }
     }
 
     @Override
     public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
-        final StringWriter contentStringWriter = new StringWriter();
-        RDFDataMgr.write(contentStringWriter, nanopublication.toDataset(), Lang.TRIG);
-        final String contentString = contentStringWriter.toString();
-        final byte[] contentBytes = contentString.getBytes(Charsets.UTF_8);
-
         final HttpResponse response;
         try {
-            response = httpRequestFactory.buildPutRequest(new GenericUrl(serverBaseUrl + "/nanopublication/"), new ByteArrayContent("text/trig; charset=utf-8", contentBytes)).execute();
+            response = httpRequestFactory.buildPutRequest(new GenericUrl(serverBaseUrl + "/nanopublication/"), toContent(nanopublication)).execute();
         } catch (final IOException e) {
             throw wrapException(e);
         }

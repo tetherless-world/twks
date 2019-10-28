@@ -104,7 +104,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
                 target()
                         .path("/nanopublication/")
                         .request()
-                        .put(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
+                        .post(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
         final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
         });
         assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, results.get(0));
@@ -118,7 +118,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
                 target()
                         .path("/nanopublication/")
                         .request()
-                        .put(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
+                        .post(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
         final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
         });
         assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, results.get(0));
@@ -133,7 +133,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
                 target()
                         .path("/nanopublication/")
                         .request()
-                        .put(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
+                        .post(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
         final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
         });
         assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, results.get(0));
