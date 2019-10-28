@@ -44,7 +44,9 @@ public abstract class AbstractTwks implements Twks {
     @Override
     public ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
-            return transaction.deleteNanopublications(uris);
+            final ImmutableList<DeleteNanopublicationResult> results = transaction.deleteNanopublications(uris);
+            transaction.commit();
+            return results;
         }
     }
 
