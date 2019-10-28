@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.abc;
 
+import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.rpi.tw.twks.api.TwksTransaction;
@@ -39,6 +40,13 @@ public abstract class AbstractTwks implements Twks {
     }
 
     protected abstract TwksTransaction _beginTransaction(ReadWrite readWrite);
+
+    @Override
+    public ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
+        try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
+            return transaction.deleteNanopublications(uris);
+        }
+    }
 
     @Override
     public final void dump() throws IOException {

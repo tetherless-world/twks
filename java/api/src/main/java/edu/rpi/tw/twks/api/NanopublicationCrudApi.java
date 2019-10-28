@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.api;
 
+import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 
@@ -11,8 +12,6 @@ import java.util.Optional;
 public interface NanopublicationCrudApi {
     /**
      * Delete a nanopublication.
-     * <p>
-     * Starts a new transaction and delegates to deleteNanopublication(Uri, TwksTransaction).
      *
      * @param uri URI of the nanopublication
      * @return true if the nanopublication was present, otherwise false
@@ -20,9 +19,15 @@ public interface NanopublicationCrudApi {
     DeleteNanopublicationResult deleteNanopublication(Uri uri);
 
     /**
+     * Delete nanopublications.
+     *
+     * @param uris list of nanopublication URIs
+     * @return a list of results, guaranteed to be the same size as the input list
+     */
+    ImmutableList<DeleteNanopublicationResult> deleteNanopublications(ImmutableList<Uri> uris);
+
+    /**
      * Get a nanopublication.
-     * <p>
-     * Starts a new transaction and delegates to getNanopublication(Uri, TwksTransaction).
      *
      * @param uri URI of the nanopublication.
      * @return Optional.of(the nanopublication) if it exists in the store, otherwise Optional.empty
@@ -31,8 +36,6 @@ public interface NanopublicationCrudApi {
 
     /**
      * Put a new nanopublication, overwriting an existing nanopublication with the same URI if necessary.
-     * <p>
-     * Starts a new transaction and delegates to putNanopublication(Nanopublication, TwksTransaction).
      *
      * @param nanopublication nanopublication to put.
      */

@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.abc;
 
+import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
@@ -41,6 +42,11 @@ public class ForwardingTwksTransaction implements TwksTransaction {
     @Override
     public void commit() {
         delegate.commit();
+    }
+
+    @Override
+    public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
+        return delegate.deleteNanopublications(uris);
     }
 
     @Override

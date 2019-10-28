@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.client;
 import com.google.api.client.http.*;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.api.BulkReadApi;
 import edu.rpi.tw.twks.api.BulkWriteApi;
@@ -51,6 +52,11 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
         this.serverBaseUrl = checkNotNull(configuration.getServerBaseUrl());
         httpTransport = new ApacheHttpTransport();
         httpRequestFactory = httpTransport.createRequestFactory();
+    }
+
+    @Override
+    public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
