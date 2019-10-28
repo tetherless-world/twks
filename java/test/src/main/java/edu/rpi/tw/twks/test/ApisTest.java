@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.BulkReadApi;
@@ -93,6 +94,33 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         sut.putNanopublication(testData.specNanopublication);
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, sut.deleteNanopublication(testData.specNanopublication.getUri()));
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
+    }
+
+    @Test
+    public void testDeleteNanopublicationsPresent() throws Exception {
+        sut.putNanopublication(getTestData().specNanopublication);
+        sut.putNanopublication(getTestData().secondNanopublication);
+        final ImmutableList<NanopublicationCrudApi.DeleteNanopublicationResult> results = sut.deleteNanopublications(ImmutableList.of(testData.specNanopublication.getUri(), testData.secondNanopublication.getUri()));
+        assertEquals(2, results.size());
+        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(0));
+        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(1));
+    }
+
+    @Test
+    public void testDeleteNanopublicationsAbsent() throws Exception {
+        final ImmutableList<NanopublicationCrudApi.DeleteNanopublicationResult> results = sut.deleteNanopublications(ImmutableList.of(testData.specNanopublication.getUri(), testData.secondNanopublication.getUri()));
+        assertEquals(2, results.size());
+        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.NOT_FOUND, results.get(0));
+        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.NOT_FOUND, results.get(1));
+    }
+
+    @Test
+    public void testDeleteNanopublicationsMixed() {
+        sut.putNanopublication(getTestData().specNanopublication);
+        final ImmutableList<NanopublicationCrudApi.DeleteNanopublicationResult> results = sut.deleteNanopublications(ImmutableList.of(testData.specNanopublication.getUri(), testData.secondNanopublication.getUri()));
+        assertEquals(2, results.size());
+        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(0));
+        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.NOT_FOUND, results.get(1));
     }
 
     @Test
