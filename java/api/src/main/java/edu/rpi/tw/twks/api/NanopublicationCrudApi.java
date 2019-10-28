@@ -35,20 +35,20 @@ public interface NanopublicationCrudApi {
     Optional<Nanopublication> getNanopublication(Uri uri);
 
     /**
+     * Put a list of nanopublications. See putNanopublication for semantics.
+     *
+     * @param nanopublications nanopublications to put
+     * @return list of results, guaranteed to be the same size as the input list
+     */
+    ImmutableList<PutNanopublicationResult> postNanopublications(ImmutableList<Nanopublication> nanopublications);
+
+    /**
      * Put a new nanopublication, overwriting an existing nanopublication with the same URI if necessary.
      *
      * @param nanopublication nanopublication to put.
      * @return result of the operation
      */
     PutNanopublicationResult putNanopublication(Nanopublication nanopublication);
-
-    /**
-     * Put a list of nanopublications. See putNanopublication for semantics.
-     *
-     * @param nanopublications nanopublications to put
-     * @return list of results, guaranteed to be the same size as the input list
-     */
-    ImmutableList<PutNanopublicationResult> putNanopublications(ImmutableList<Nanopublication> nanopublications);
 
     enum DeleteNanopublicationResult {
         DELETED, NOT_FOUND

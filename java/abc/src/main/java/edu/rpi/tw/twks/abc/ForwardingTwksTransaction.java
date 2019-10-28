@@ -70,13 +70,13 @@ public class ForwardingTwksTransaction implements TwksTransaction {
     }
 
     @Override
-    public PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
-        return delegate.putNanopublication(nanopublication);
+    public ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
+        return delegate.postNanopublications(nanopublications);
     }
 
     @Override
-    public ImmutableList<PutNanopublicationResult> putNanopublications(final ImmutableList<Nanopublication> nanopublications) {
-        return delegate.putNanopublications(nanopublications);
+    public PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
+        return delegate.putNanopublication(nanopublication);
     }
 
     @Override

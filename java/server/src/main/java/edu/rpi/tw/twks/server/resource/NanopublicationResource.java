@@ -98,37 +98,31 @@ public class NanopublicationResource extends AbstractResource {
         return responseBuilder.build();
     }
 
-    @PUT
-    public Response
-    putNanopublications(
-            @HeaderParam("Content-Type") @Nullable final String contentType,
-            @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
-            final String requestBody,
-            @Context final UriInfo uriInfo
-    ) {
-        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, nanopublicationDialectString, requestBody);
-
-        if (nanopublications.size() != 1) {
-            throw new UnsupportedOperationException("only a single nanopublication can be PUT currently");
+    private Lang parseLang(@Nullable final String contentType) {
+        if (contentType == null || contentType.isEmpty()) {
+            throw new WebApplicationException("Missing Content-Type", Response.Status.BAD_REQUEST);
         }
-        final Nanopublication nanopublication = nanopublications.get(0);
 
-        final Twks.PutNanopublicationResult result = getTwks().putNanopublication(nanopublication);
+        final ContentType contentTypeParsed = ContentType.create(contentType);
 
-        final URI location;
+        @Nullable final Lang lang = RDFLanguages.contentTypeToLang(contentTypeParsed);
+        if (lang == null) {
+            logger.error("non-RDF Content-Type: {}", contentType);
+            throw new WebApplicationException("non-RDF Content-Type: " + contentType, Response.Status.BAD_REQUEST);
+        }
+
+        return lang;
+    }
+
+    private Optional<NanopublicationDialect> parseNanopublicationDialect(@Nullable final String nanopublicationDialectString) {
+        if (nanopublicationDialectString == null) {
+            return Optional.empty();
+        }
+
         try {
-            location = uriInfo.getAbsolutePathBuilder().path(URLEncoder.encode(nanopublication.getUri().toString(), "UTF-8")).build();
-        } catch (final UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-
-        switch (result) {
-            case CREATED:
-                return Response.created(location).build();
-            case OVERWROTE:
-                return Response.noContent().header("Location", location.toString()).build();
-            default:
-                throw new IllegalStateException();
+            return Optional.of(NanopublicationDialect.valueOf(nanopublicationDialectString.toUpperCase()));
+        } catch (final IllegalArgumentException e) {
+            throw new WebApplicationException("Unknown nanopublication dialect: " + nanopublicationDialectString, Response.Status.BAD_REQUEST);
         }
     }
 
@@ -155,31 +149,37 @@ public class NanopublicationResource extends AbstractResource {
         }
     }
 
-    private Lang parseLang(@Nullable final String contentType) {
-        if (contentType == null || contentType.isEmpty()) {
-            throw new WebApplicationException("Missing Content-Type", Response.Status.BAD_REQUEST);
+    @PUT
+    public Response
+    putNanopublication(
+            @HeaderParam("Content-Type") @Nullable final String contentType,
+            @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
+            final String requestBody,
+            @Context final UriInfo uriInfo
+    ) {
+        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, nanopublicationDialectString, requestBody);
+
+        if (nanopublications.size() != 1) {
+            return Response.status(400, "Only a single nanopublication can be PUT").build();
         }
+        final Nanopublication nanopublication = nanopublications.get(0);
 
-        final ContentType contentTypeParsed = ContentType.create(contentType);
+        final Twks.PutNanopublicationResult result = getTwks().putNanopublication(nanopublication);
 
-        @Nullable final Lang lang = RDFLanguages.contentTypeToLang(contentTypeParsed);
-        if (lang == null) {
-            logger.error("non-RDF Content-Type: {}", contentType);
-            throw new WebApplicationException("non-RDF Content-Type: " + contentType, Response.Status.BAD_REQUEST);
-        }
-
-        return lang;
-    }
-
-    private Optional<NanopublicationDialect> parseNanopublicationDialect(@Nullable final String nanopublicationDialectString) {
-        if (nanopublicationDialectString == null) {
-            return Optional.empty();
-        }
-
+        final URI location;
         try {
-            return Optional.of(NanopublicationDialect.valueOf(nanopublicationDialectString.toUpperCase()));
-        } catch (final IllegalArgumentException e) {
-            throw new WebApplicationException("Unknown nanopublication dialect: " + nanopublicationDialectString, Response.Status.BAD_REQUEST);
+            location = uriInfo.getAbsolutePathBuilder().path(URLEncoder.encode(nanopublication.getUri().toString(), "UTF-8")).build();
+        } catch (final UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+
+        switch (result) {
+            case CREATED:
+                return Response.created(location).build();
+            case OVERWROTE:
+                return Response.noContent().header("Location", location.toString()).build();
+            default:
+                throw new IllegalStateException();
         }
     }
 

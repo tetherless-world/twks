@@ -198,15 +198,15 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
     }
 
     @Override
+    public final ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
+        return nanopublications.stream().map(nanopublication -> putNanopublication(nanopublication)).collect(ImmutableList.toImmutableList());
+    }
+
+    @Override
     public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
         final DeleteNanopublicationResult deleteResult = deleteNanopublication(nanopublication.getUri());
         nanopublication.toDataset(getDataset(), getDatasetTransaction());
         return deleteResult == DeleteNanopublicationResult.DELETED ? PutNanopublicationResult.OVERWROTE : PutNanopublicationResult.CREATED;
-    }
-
-    @Override
-    public final ImmutableList<PutNanopublicationResult> putNanopublications(final ImmutableList<Nanopublication> nanopublications) {
-        return nanopublications.stream().map(nanopublication -> putNanopublication(nanopublication)).collect(ImmutableList.toImmutableList());
     }
 
     @Override

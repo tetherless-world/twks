@@ -174,6 +174,26 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     }
 
     @Test
+    public void testPostNanopublicationsAbsent() {
+        final ImmutableList<NanopublicationCrudApi.PutNanopublicationResult> results = sut.postNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
+        assertEquals(ImmutableList.of(NanopublicationCrudApi.PutNanopublicationResult.CREATED, NanopublicationCrudApi.PutNanopublicationResult.CREATED), results);
+    }
+
+    @Test
+    public void testPostNanopublicationsMixed() {
+        sut.putNanopublication(testData.specNanopublication);
+        final ImmutableList<NanopublicationCrudApi.PutNanopublicationResult> results = sut.postNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
+        assertEquals(ImmutableList.of(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, NanopublicationCrudApi.PutNanopublicationResult.CREATED), results);
+    }
+
+    @Test
+    public void testPostNanopublicationsPresent() {
+        sut.postNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
+        final ImmutableList<NanopublicationCrudApi.PutNanopublicationResult> results = sut.postNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
+        assertEquals(ImmutableList.of(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE), results);
+    }
+
+    @Test
     public void testPutNanopublicationAbsent() {
         assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, sut.putNanopublication(testData.specNanopublication));
     }
@@ -182,26 +202,6 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     public void testPutNanopublicationPresent() {
         sut.putNanopublication(testData.specNanopublication);
         assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, sut.putNanopublication(testData.specNanopublication));
-    }
-
-    @Test
-    public void testPutNanopublicationsAbsent() {
-        final ImmutableList<NanopublicationCrudApi.PutNanopublicationResult> results = sut.putNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
-        assertEquals(ImmutableList.of(NanopublicationCrudApi.PutNanopublicationResult.CREATED, NanopublicationCrudApi.PutNanopublicationResult.CREATED), results);
-    }
-
-    @Test
-    public void testPutNanopublicationsMixed() {
-        sut.putNanopublication(testData.specNanopublication);
-        final ImmutableList<NanopublicationCrudApi.PutNanopublicationResult> results = sut.putNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
-        assertEquals(ImmutableList.of(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, NanopublicationCrudApi.PutNanopublicationResult.CREATED), results);
-    }
-
-    @Test
-    public void testPutNanopublicationsPresent() {
-        sut.putNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
-        final ImmutableList<NanopublicationCrudApi.PutNanopublicationResult> results = sut.putNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
-        assertEquals(ImmutableList.of(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE), results);
     }
 
     @Test

@@ -99,6 +99,48 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    public void testPostNanopublicationsAbsent() {
+        final Response response =
+                target()
+                        .path("/nanopublication/")
+                        .request()
+                        .put(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
+        final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
+        });
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, results.get(0));
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, results.get(1));
+    }
+
+    @Test
+    public void testPostNanopublicationsMixed() {
+        getTwks().putNanopublication(getTestData().specNanopublication);
+        final Response response =
+                target()
+                        .path("/nanopublication/")
+                        .request()
+                        .put(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
+        final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
+        });
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, results.get(0));
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, results.get(1));
+    }
+
+    @Test
+    public void testPostNanopublicationsPresent() {
+        getTwks().putNanopublication(getTestData().specNanopublication);
+        getTwks().putNanopublication(getTestData().secondNanopublication);
+        final Response response =
+                target()
+                        .path("/nanopublication/")
+                        .request()
+                        .put(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
+        final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
+        });
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, results.get(0));
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, results.get(1));
+    }
+
+    @Test
     public void testPutAssertions() {
         final Response response =
                 target()
@@ -136,47 +178,5 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
         final String location = response.getHeaderString("Location");
         assertTrue(location.contains("/nanopublication/" + URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8")));
         assertTrue(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
-    }
-
-    @Test
-    public void testPutNanopublicationsAbsent() {
-        final Response response =
-                target()
-                        .path("/nanopublication/")
-                        .request()
-                        .put(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
-        final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
-        });
-        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, results.get(0));
-        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, results.get(1));
-    }
-
-    @Test
-    public void testPutNanopublicationsMixed() {
-        getTwks().putNanopublication(getTestData().specNanopublication);
-        final Response response =
-                target()
-                        .path("/nanopublication/")
-                        .request()
-                        .put(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
-        final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
-        });
-        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, results.get(0));
-        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, results.get(1));
-    }
-
-    @Test
-    public void testPutNanopublicationsPresent() {
-        getTwks().putNanopublication(getTestData().specNanopublication);
-        getTwks().putNanopublication(getTestData().secondNanopublication);
-        final Response response =
-                target()
-                        .path("/nanopublication/")
-                        .request()
-                        .put(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
-        final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
-        });
-        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, results.get(0));
-        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, results.get(1));
     }
 }

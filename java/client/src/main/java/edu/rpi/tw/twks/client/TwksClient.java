@@ -154,6 +154,11 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
     }
 
     @Override
+    public final ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
         final StringWriter contentStringWriter = new StringWriter();
         RDFDataMgr.write(contentStringWriter, nanopublication.toDataset(), Lang.TRIG);
@@ -175,11 +180,6 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
             default:
                 throw new IllegalStateException();
         }
-    }
-
-    @Override
-    public final ImmutableList<PutNanopublicationResult> putNanopublications(final ImmutableList<Nanopublication> nanopublications) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

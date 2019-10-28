@@ -85,20 +85,20 @@ public abstract class AbstractTwks implements Twks {
     }
 
     @Override
+    public ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
+        try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
+            final ImmutableList<PutNanopublicationResult> results = transaction.postNanopublications(nanopublications);
+            transaction.commit();
+            return results;
+        }
+    }
+
+    @Override
     public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
             final PutNanopublicationResult result = transaction.putNanopublication(nanopublication);
             transaction.commit();
             return result;
-        }
-    }
-
-    @Override
-    public ImmutableList<PutNanopublicationResult> putNanopublications(final ImmutableList<Nanopublication> nanopublications) {
-        try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
-            final ImmutableList<PutNanopublicationResult> results = transaction.putNanopublications(nanopublications);
-            transaction.commit();
-            return results;
         }
     }
 
