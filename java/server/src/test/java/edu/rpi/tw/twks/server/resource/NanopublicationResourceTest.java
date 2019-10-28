@@ -20,17 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public final class NanopublicationResourceTest extends AbstractResourceTest {
-    @Test
-    public void testDeleteNanopublicationPresent() throws Exception {
-        getTwks().putNanopublication(getTestData().specNanopublication);
-        final Response response =
-                target()
-                        .path("/nanopublication/")
-                        .path(URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8"))
-                        .request(Lang.TRIG.getContentType().getContentType())
-                        .delete();
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        assertFalse(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+    @Override
+    protected Object newResource(final Twks twks) {
+        return new NanopublicationResource(twks);
     }
 
     @Test
@@ -45,14 +37,16 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
     }
 
     @Test
-    public void testDeleteNanopublicationsPresent() throws Exception {
+    public void testDeleteNanopublicationPresent() throws Exception {
         getTwks().putNanopublication(getTestData().specNanopublication);
-        getTwks().putNanopublication(getTestData().secondNanopublication);
-        final List<NanopublicationCrudApi.DeleteNanopublicationResult> results = target().path("/nanopublication/").queryParam("uri", getTestData().specNanopublication.getUri().toString(), getTestData().secondNanopublication.getUri().toString()).request(MediaType.APPLICATION_JSON).delete(new GenericType<List<NanopublicationCrudApi.DeleteNanopublicationResult>>() {
-        });
-        assertEquals(2, results.size());
-        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(0));
-        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(1));
+        final Response response =
+                target()
+                        .path("/nanopublication/")
+                        .path(URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8"))
+                        .request(Lang.TRIG.getContentType().getContentType())
+                        .delete();
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertFalse(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
     }
 
     @Test
@@ -75,12 +69,14 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
     }
 
     @Test
-    public void testGetNanopublicationPresent() throws Exception {
-        final Nanopublication expected = getTestData().specNanopublication;
-        getTwks().putNanopublication(expected);
-        final String responseBody = target().path("/nanopublication/").path(URLEncoder.encode(expected.getUri().toString(), "UTF-8")).request(Lang.TRIG.getContentType().getContentType()).get(String.class);
-        final Nanopublication actual = new NanopublicationParser().setLang(Lang.TRIG).parseOne(new StringReader(responseBody));
-        assertTrue(expected.isIsomorphicWith(actual));
+    public void testDeleteNanopublicationsPresent() throws Exception {
+        getTwks().putNanopublication(getTestData().specNanopublication);
+        getTwks().putNanopublication(getTestData().secondNanopublication);
+        final List<NanopublicationCrudApi.DeleteNanopublicationResult> results = target().path("/nanopublication/").queryParam("uri", getTestData().specNanopublication.getUri().toString(), getTestData().secondNanopublication.getUri().toString()).request(MediaType.APPLICATION_JSON).delete(new GenericType<List<NanopublicationCrudApi.DeleteNanopublicationResult>>() {
+        });
+        assertEquals(2, results.size());
+        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(0));
+        assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.DELETED, results.get(1));
     }
 
     @Test
@@ -93,22 +89,55 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
-    @Override
-    protected Object newResource(final Twks twks) {
-        return new NanopublicationResource(twks);
+    @Test
+    public void testGetNanopublicationPresent() throws Exception {
+        final Nanopublication expected = getTestData().specNanopublication;
+        getTwks().putNanopublication(expected);
+        final String responseBody = target().path("/nanopublication/").path(URLEncoder.encode(expected.getUri().toString(), "UTF-8")).request(Lang.TRIG.getContentType().getContentType()).get(String.class);
+        final Nanopublication actual = new NanopublicationParser().setLang(Lang.TRIG).parseOne(new StringReader(responseBody));
+        assertTrue(expected.isIsomorphicWith(actual));
     }
 
     @Test
-    public void testPutNanopublication() throws Exception {
+    public void testPostNanopublicationsAbsent() {
         final Response response =
                 target()
                         .path("/nanopublication/")
                         .request()
-                        .put(toTrigEntity(getTestData().specNanopublication));
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        final String location = response.getHeaderString("Location");
-        assertTrue(location.contains("/nanopublication/" + URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8")));
-        assertTrue(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+                        .post(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
+        final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
+        });
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, results.get(0));
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, results.get(1));
+    }
+
+    @Test
+    public void testPostNanopublicationsMixed() {
+        getTwks().putNanopublication(getTestData().specNanopublication);
+        final Response response =
+                target()
+                        .path("/nanopublication/")
+                        .request()
+                        .post(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
+        final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
+        });
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, results.get(0));
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.CREATED, results.get(1));
+    }
+
+    @Test
+    public void testPostNanopublicationsPresent() {
+        getTwks().putNanopublication(getTestData().specNanopublication);
+        getTwks().putNanopublication(getTestData().secondNanopublication);
+        final Response response =
+                target()
+                        .path("/nanopublication/")
+                        .request()
+                        .post(toTrigEntity(getTestData().specNanopublication, getTestData().secondNanopublication));
+        final List<NanopublicationCrudApi.PutNanopublicationResult> results = response.readEntity(new GenericType<List<NanopublicationCrudApi.PutNanopublicationResult>>() {
+        });
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, results.get(0));
+        assertEquals(NanopublicationCrudApi.PutNanopublicationResult.OVERWROTE, results.get(1));
     }
 
     @Test
@@ -122,5 +151,32 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
         final String location = response.getHeaderString("Location");
         assertTrue(location.contains("/nanopublication/urn"));
         assertFalse(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+    }
+
+    @Test
+    public void testPutNanopublicationAbsent() throws Exception {
+        final Response response =
+                target()
+                        .path("/nanopublication/")
+                        .request()
+                        .put(toTrigEntity(getTestData().specNanopublication));
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        final String location = response.getHeaderString("Location");
+        assertTrue(location.contains("/nanopublication/" + URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8")));
+        assertTrue(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+    }
+
+    @Test
+    public void testPutNanopublicationPresent() throws Exception {
+        getTwks().putNanopublication(getTestData().specNanopublication);
+        final Response response =
+                target()
+                        .path("/nanopublication/")
+                        .request()
+                        .put(toTrigEntity(getTestData().specNanopublication));
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        final String location = response.getHeaderString("Location");
+        assertTrue(location.contains("/nanopublication/" + URLEncoder.encode(getTestData().specNanopublication.getUri().toString(), "UTF-8")));
+        assertTrue(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
     }
 }

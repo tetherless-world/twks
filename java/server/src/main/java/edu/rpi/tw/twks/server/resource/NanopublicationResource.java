@@ -98,63 +98,6 @@ public class NanopublicationResource extends AbstractResource {
         return responseBuilder.build();
     }
 
-    @PUT
-    public Response
-    putNanopublications(
-            @HeaderParam("Content-Type") @Nullable final String contentType,
-            @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
-            final String requestBody,
-            @Context final UriInfo uriInfo
-    ) {
-        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, nanopublicationDialectString, requestBody);
-
-        if (nanopublications.size() != 1) {
-            throw new UnsupportedOperationException("only a single nanopublication can be PUT currently");
-        }
-        final Nanopublication nanopublication = nanopublications.get(0);
-
-        final Twks.PutNanopublicationResult result = getTwks().putNanopublication(nanopublication);
-
-        final URI location;
-        try {
-            location = uriInfo.getAbsolutePathBuilder().path(URLEncoder.encode(nanopublication.getUri().toString(), "UTF-8")).build();
-        } catch (final UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-
-        switch (result) {
-            case CREATED:
-                return Response.created(location).build();
-            case OVERWROTE:
-                return Response.noContent().header("Location", location.toString()).build();
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    private ImmutableList<Nanopublication> parseNanopublications(
-            @Nullable final String contentType,
-            @Nullable final String nanopublicationDialectString,
-            final String requestBody
-    ) {
-        final Lang lang = parseLang(contentType);
-
-        final NanopublicationParser parser = new NanopublicationParser();
-        parser.setLang(lang);
-
-        final Optional<NanopublicationDialect> dialect = parseNanopublicationDialect(nanopublicationDialectString);
-        if (dialect.isPresent()) {
-            parser.setDialect(dialect.get());
-        }
-
-        try {
-            return parser.parseAll(new StringReader(requestBody));
-        } catch (final MalformedNanopublicationException e) {
-            logger.info("error parsing nanopublication: ", e);
-            throw new WebApplicationException("Malformed nanopublication", Response.Status.BAD_REQUEST);
-        }
-    }
-
     private Lang parseLang(@Nullable final String contentType) {
         if (contentType == null || contentType.isEmpty()) {
             throw new WebApplicationException("Missing Content-Type", Response.Status.BAD_REQUEST);
@@ -183,4 +126,72 @@ public class NanopublicationResource extends AbstractResource {
         }
     }
 
+    private ImmutableList<Nanopublication> parseNanopublications(
+            @Nullable final String contentType,
+            @Nullable final String nanopublicationDialectString,
+            final String requestBody
+    ) {
+        final Lang lang = parseLang(contentType);
+
+        final NanopublicationParser parser = new NanopublicationParser();
+        parser.setLang(lang);
+
+        final Optional<NanopublicationDialect> dialect = parseNanopublicationDialect(nanopublicationDialectString);
+        if (dialect.isPresent()) {
+            parser.setDialect(dialect.get());
+        }
+
+        try {
+            return parser.parseAll(new StringReader(requestBody));
+        } catch (final MalformedNanopublicationException e) {
+            logger.info("error parsing nanopublication: ", e);
+            throw new WebApplicationException("Malformed nanopublication", Response.Status.BAD_REQUEST);
+        }
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<NanopublicationCrudApi.PutNanopublicationResult>
+    postNanopublications(
+            @HeaderParam("Content-Type") @Nullable final String contentType,
+            @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
+            final String requestBody
+    ) {
+        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, nanopublicationDialectString, requestBody);
+        return getTwks().postNanopublications(nanopublications);
+    }
+
+    @PUT
+    public Response
+    putNanopublication(
+            @HeaderParam("Content-Type") @Nullable final String contentType,
+            @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
+            final String requestBody,
+            @Context final UriInfo uriInfo
+    ) {
+        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, nanopublicationDialectString, requestBody);
+
+        if (nanopublications.size() != 1) {
+            return Response.status(400, "Only a single nanopublication can be PUT").build();
+        }
+        final Nanopublication nanopublication = nanopublications.get(0);
+
+        final NanopublicationCrudApi.PutNanopublicationResult result = getTwks().putNanopublication(nanopublication);
+
+        final URI location;
+        try {
+            location = uriInfo.getAbsolutePathBuilder().path(URLEncoder.encode(nanopublication.getUri().toString(), "UTF-8")).build();
+        } catch (final UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+
+        switch (result) {
+            case CREATED:
+                return Response.created(location).build();
+            case OVERWROTE:
+                return Response.noContent().header("Location", location.toString()).build();
+            default:
+                throw new IllegalStateException();
+        }
+    }
 }

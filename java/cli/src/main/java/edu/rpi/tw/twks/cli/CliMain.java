@@ -7,7 +7,7 @@ import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.cli.command.Command;
 import edu.rpi.tw.twks.cli.command.DumpCommand;
-import edu.rpi.tw.twks.cli.command.PutNanopublicationsCommand;
+import edu.rpi.tw.twks.cli.command.PostNanopublicationsCommand;
 import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.client.TwksClientConfiguration;
 import edu.rpi.tw.twks.factory.TwksFactory;
@@ -26,7 +26,7 @@ import java.util.Properties;
 public final class CliMain {
     private final static Command[] commands = {
             new DumpCommand(),
-            new PutNanopublicationsCommand()
+            new PostNanopublicationsCommand()
     };
     private final static Logger logger = LoggerFactory.getLogger(CliMain.class);
 

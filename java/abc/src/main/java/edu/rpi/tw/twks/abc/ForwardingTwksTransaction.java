@@ -25,10 +25,6 @@ public class ForwardingTwksTransaction implements TwksTransaction {
         this.delegate = checkNotNull(delegate);
     }
 
-    protected final TwksTransaction delegate() {
-        return delegate;
-    }
-
     @Override
     public void abort() {
         delegate.abort();
@@ -44,8 +40,17 @@ public class ForwardingTwksTransaction implements TwksTransaction {
         delegate.commit();
     }
 
+    protected final TwksTransaction delegate() {
+        return delegate;
+    }
+
     @Override
-    public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
+    public DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
+        return delegate.deleteNanopublication(uri);
+    }
+
+    @Override
+    public ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
         return delegate.deleteNanopublications(uris);
     }
 
@@ -60,13 +65,13 @@ public class ForwardingTwksTransaction implements TwksTransaction {
     }
 
     @Override
-    public DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
-        return delegate.deleteNanopublication(uri);
+    public Optional<Nanopublication> getNanopublication(final Uri uri) {
+        return delegate.getNanopublication(uri);
     }
 
     @Override
-    public Optional<Nanopublication> getNanopublication(final Uri uri) {
-        return delegate.getNanopublication(uri);
+    public ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
+        return delegate.postNanopublications(nanopublications);
     }
 
     @Override

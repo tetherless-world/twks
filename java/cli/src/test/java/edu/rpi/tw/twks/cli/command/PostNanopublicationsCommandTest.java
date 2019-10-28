@@ -16,13 +16,13 @@ import java.util.Optional;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public final class PutNanopublicationsCommandTest extends AbstractCommandTest {
-    private PutNanopublicationsCommand command;
+public final class PostNanopublicationsCommandTest extends AbstractCommandTest {
+    private PostNanopublicationsCommand command;
     private InputStream originalSystemIn;
 
     @Before
     public void setUp() {
-        command = new PutNanopublicationsCommand();
+        command = new PostNanopublicationsCommand();
         originalSystemIn = System.in;
     }
 

@@ -22,20 +22,25 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class PutNanopublicationsCommand extends Command {
-    private final static String NAME = "put-nanopublications";
-    private final static String[] ALIASES = {"put"};
-    private final static Logger logger = LoggerFactory.getLogger(PutNanopublicationsCommand.class);
+public final class PostNanopublicationsCommand extends Command {
+    private final static String[] ALIASES = {"post", "put", "put-nanopublications"};
+    private final static String NAME = "post-nanopublications";
+    private final static Logger logger = LoggerFactory.getLogger(PostNanopublicationsCommand.class);
     private final Args args = new Args();
-
-    @Override
-    public String getName() {
-        return NAME;
-    }
 
     @Override
     public String[] getAliases() {
         return ALIASES;
+    }
+
+    @Override
+    public Args getArgs() {
+        return args;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     @Override
@@ -56,33 +61,23 @@ public final class PutNanopublicationsCommand extends Command {
 
         final SourceParser sourceParser = new SourceParser(dialect, lang);
 
-        final List<Nanopublication> nanopublications;
+        final ImmutableList<Nanopublication> nanopublications;
 
         if (args.sources.isEmpty()) {
             nanopublications = sourceParser.parseStdin();
         } else {
-            nanopublications = new ArrayList<>();
+            final ImmutableList.Builder<Nanopublication> nanopublicationsBuilder = ImmutableList.builder();
             for (final String source : args.sources) {
-                nanopublications.addAll(sourceParser.parse(source));
+                nanopublicationsBuilder.addAll(sourceParser.parse(source));
             }
+            nanopublications = nanopublicationsBuilder.build();
         }
 
         logger.info("parsed {} nanopublication(s) total", nanopublications.size());
 
-        for (int nanopublicationI = 0; nanopublicationI < nanopublications.size(); nanopublicationI++) {
-            final Nanopublication nanopublication = nanopublications.get(nanopublicationI);
-            apis.getNanopublicationCrudApi().putNanopublication(nanopublication);
-            if (nanopublicationI > 0 && (nanopublicationI + 1) % 10 == 0) {
-                logger.info("put {} nanopublication(s)", nanopublicationI + 1);
-            }
-        }
+        apis.getNanopublicationCrudApi().postNanopublications(nanopublications);
 
-        logger.info("put {} nanopublication(s) total", nanopublications.size());
-    }
-
-    @Override
-    public Args getArgs() {
-        return args;
+        logger.info("post {} nanopublication(s) total", nanopublications.size());
     }
 
     public final static class Args {
@@ -105,6 +100,20 @@ public final class PutNanopublicationsCommand extends Command {
             this.lang = checkNotNull(lang);
         }
 
+        private NanopublicationParser newNanopublicationParser() {
+            final NanopublicationParser parser = new NanopublicationParser();
+            if (dialect != null) {
+                parser.setDialect(dialect);
+                if (dialect == NanopublicationDialect.WHYIS) {
+                    parser.setLang(Lang.TRIG);
+                }
+            }
+            if (lang.isPresent()) {
+                parser.setLang(lang.get());
+            }
+            return parser;
+        }
+
         public final ImmutableList<Nanopublication> parse(final String source) {
             if (source.equals("-")) {
                 return parseStdin();
@@ -118,30 +127,6 @@ public final class PutNanopublicationsCommand extends Command {
             }
 
             return parseUri(Uri.parse(source));
-        }
-
-        public final ImmutableList<Nanopublication> parseStdin() {
-            try {
-                final byte[] trigBytes = ByteStreams.toByteArray(System.in);
-                final String trigString = new String(trigBytes);
-                final ImmutableList<Nanopublication> result = newNanopublicationParser().parseAll(new StringReader(trigString));
-                logger.info("parsed {} nanopublications from stdin", result.size());
-                return result;
-            } catch (final IOException | MalformedNanopublicationException e) {
-                logger.error("error parsing stdin: ", e);
-                return ImmutableList.of();
-            }
-        }
-
-        public final ImmutableList<Nanopublication> parseFile(final File sourceFilePath) {
-            try {
-                final ImmutableList<Nanopublication> result = newNanopublicationParser().parseAll(sourceFilePath);
-                logger.info("parsed {} nanopublications from {}", result.size(), sourceFilePath);
-                return result;
-            } catch (final MalformedNanopublicationException e) {
-                logger.error("error parsing {}: ", sourceFilePath, e);
-                return ImmutableList.of();
-            }
         }
 
         public final ImmutableList<Nanopublication> parseDirectory(File sourceDirectoryPath) {
@@ -194,6 +179,30 @@ public final class PutNanopublicationsCommand extends Command {
             return result;
         }
 
+        public final ImmutableList<Nanopublication> parseFile(final File sourceFilePath) {
+            try {
+                final ImmutableList<Nanopublication> result = newNanopublicationParser().parseAll(sourceFilePath);
+                logger.info("parsed {} nanopublications from {}", result.size(), sourceFilePath);
+                return result;
+            } catch (final MalformedNanopublicationException e) {
+                logger.error("error parsing {}: ", sourceFilePath, e);
+                return ImmutableList.of();
+            }
+        }
+
+        public final ImmutableList<Nanopublication> parseStdin() {
+            try {
+                final byte[] trigBytes = ByteStreams.toByteArray(System.in);
+                final String trigString = new String(trigBytes);
+                final ImmutableList<Nanopublication> result = newNanopublicationParser().parseAll(new StringReader(trigString));
+                logger.info("parsed {} nanopublications from stdin", result.size());
+                return result;
+            } catch (final IOException | MalformedNanopublicationException e) {
+                logger.error("error parsing stdin: ", e);
+                return ImmutableList.of();
+            }
+        }
+
         public final ImmutableList<Nanopublication> parseUri(final Uri sourceUri) {
             try {
                 final ImmutableList<Nanopublication> result = newNanopublicationParser().parseAll(sourceUri);
@@ -203,20 +212,6 @@ public final class PutNanopublicationsCommand extends Command {
                 logger.error("error parsing {}: ", sourceUri, e);
                 return ImmutableList.of();
             }
-        }
-
-        private NanopublicationParser newNanopublicationParser() {
-            final NanopublicationParser parser = new NanopublicationParser();
-            if (dialect != null) {
-                parser.setDialect(dialect);
-                if (dialect == NanopublicationDialect.WHYIS) {
-                    parser.setLang(Lang.TRIG);
-                }
-            }
-            if (lang.isPresent()) {
-                parser.setLang(lang.get());
-            }
-            return parser;
         }
     }
 }

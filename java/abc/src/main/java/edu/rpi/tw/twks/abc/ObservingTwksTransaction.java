@@ -55,19 +55,6 @@ final class ObservingTwksTransaction extends ForwardingTwksTransaction {
         abstract void notifyObservers(TwksObservers observers);
     }
 
-    private final class PutNanopublicationObservedOperation extends ObservedOperation {
-        private final Nanopublication nanopublication;
-
-        PutNanopublicationObservedOperation(final Nanopublication nanopublication) {
-            this.nanopublication = checkNotNull(nanopublication);
-        }
-
-        @Override
-        void notifyObservers(final TwksObservers observers) {
-            observers.onPutNanopublication(nanopublication);
-        }
-    }
-
     private final class DeleteNanopublicationObservedOperation extends ObservedOperation {
         private final Uri nanopublicationUri;
 
@@ -78,6 +65,19 @@ final class ObservingTwksTransaction extends ForwardingTwksTransaction {
         @Override
         void notifyObservers(final TwksObservers observers) {
             observers.onDeleteNanopublication(nanopublicationUri);
+        }
+    }
+
+    private final class PutNanopublicationObservedOperation extends ObservedOperation {
+        private final Nanopublication nanopublication;
+
+        PutNanopublicationObservedOperation(final Nanopublication nanopublication) {
+            this.nanopublication = checkNotNull(nanopublication);
+        }
+
+        @Override
+        void notifyObservers(final TwksObservers observers) {
+            observers.onPutNanopublication(nanopublication);
         }
     }
 }

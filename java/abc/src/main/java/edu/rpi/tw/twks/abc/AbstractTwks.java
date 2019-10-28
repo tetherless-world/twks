@@ -19,27 +19,32 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractTwks implements Twks {
-    private final TwksObservers observers = new TwksObservers(this);
     private final TwksConfiguration configuration;
+    private final TwksObservers observers = new TwksObservers(this);
 
     protected AbstractTwks(final TwksConfiguration configuration) {
         this.configuration = checkNotNull(configuration);
     }
 
-    protected final TwksConfiguration getConfiguration() {
-        return configuration;
-    }
-
-    protected final TwksObservers getObservers() {
-        return observers;
-    }
+    protected abstract TwksTransaction _beginTransaction(ReadWrite readWrite);
 
     @Override
     public final TwksTransaction beginTransaction(final ReadWrite readWrite) {
         return new ObservingTwksTransaction(this, _beginTransaction(readWrite), observers);
     }
 
-    protected abstract TwksTransaction _beginTransaction(ReadWrite readWrite);
+    @Override
+    public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
+        try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
+            final DeleteNanopublicationResult result = transaction.deleteNanopublication(uri);
+            if (result == DeleteNanopublicationResult.DELETED) {
+                transaction.commit();
+            } else {
+                transaction.abort();
+            }
+            return result;
+        }
+    }
 
     @Override
     public ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
@@ -64,23 +69,27 @@ public abstract class AbstractTwks implements Twks {
         }
     }
 
-    @Override
-    public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
-        try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
-            final DeleteNanopublicationResult result = transaction.deleteNanopublication(uri);
-            if (result == DeleteNanopublicationResult.DELETED) {
-                transaction.commit();
-            } else {
-                transaction.abort();
-            }
-            return result;
-        }
+    protected final TwksConfiguration getConfiguration() {
+        return configuration;
     }
 
     @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.READ)) {
             return transaction.getNanopublication(uri);
+        }
+    }
+
+    protected final TwksObservers getObservers() {
+        return observers;
+    }
+
+    @Override
+    public ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
+        try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
+            final ImmutableList<PutNanopublicationResult> results = transaction.postNanopublications(nanopublications);
+            transaction.commit();
+            return results;
         }
     }
 
