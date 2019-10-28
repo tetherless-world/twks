@@ -18,6 +18,6 @@ public final class Tdb2Twks extends DatasetTwks {
 
     @Override
     protected final TwksTransaction _beginTransaction(final ReadWrite readWrite) {
-        return new Tdb2TwksTransaction(getDataset(), readWrite);
+        return new Tdb2TwksTransaction(getConfiguration(), getDataset(), readWrite);
     }
 }

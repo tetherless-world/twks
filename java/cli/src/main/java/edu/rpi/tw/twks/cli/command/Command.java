@@ -1,8 +1,7 @@
 package edu.rpi.tw.twks.cli.command;
 
-import edu.rpi.tw.twks.api.BulkReadApi;
-import edu.rpi.tw.twks.api.NanopublicationCrudApi;
-import edu.rpi.tw.twks.api.QueryApi;
+import edu.rpi.tw.twks.api.*;
+import edu.rpi.tw.twks.client.TwksClient;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -19,17 +18,31 @@ public abstract class Command {
 
     public final static class Apis {
         private final BulkReadApi bulkReadApi;
+        private final BulkWriteApi bulkWriteApi;
         private final NanopublicationCrudApi nanopublicationCrudApi;
         private final QueryApi queryApi;
 
-        public Apis(final BulkReadApi bulkReadApi, final NanopublicationCrudApi nanopublicationCrudApi, final QueryApi queryApi) {
+        public Apis(final TwksClient client) {
+            this(client, client, client, client);
+        }
+
+        public Apis(final TwksTransaction transaction) {
+            this(transaction, transaction, transaction, transaction);
+        }
+
+        private Apis(final BulkReadApi bulkReadApi, final BulkWriteApi bulkWriteApi, final NanopublicationCrudApi nanopublicationCrudApi, final QueryApi queryApi) {
             this.bulkReadApi = checkNotNull(bulkReadApi);
+            this.bulkWriteApi = checkNotNull(bulkWriteApi);
             this.nanopublicationCrudApi = checkNotNull(nanopublicationCrudApi);
             this.queryApi = checkNotNull(queryApi);
         }
 
         public final BulkReadApi getBulkReadApi() {
             return bulkReadApi;
+        }
+
+        public final BulkWriteApi getBulkWriteApi() {
+            return bulkWriteApi;
         }
 
         public final NanopublicationCrudApi getNanopublicationCrudApi() {

@@ -7,6 +7,7 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.rdf.model.Model;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -40,6 +41,11 @@ public class ForwardingTwksTransaction implements TwksTransaction {
     @Override
     public void commit() {
         delegate.commit();
+    }
+
+    @Override
+    public void dump() throws IOException {
+        delegate.dump();
     }
 
     @Override
