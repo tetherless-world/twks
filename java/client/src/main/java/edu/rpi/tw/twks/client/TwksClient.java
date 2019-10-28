@@ -60,7 +60,6 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
         });
     }
 
-
     @Override
     public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
         final HttpResponse response;
@@ -176,6 +175,11 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
             default:
                 throw new IllegalStateException();
         }
+    }
+
+    @Override
+    public final ImmutableList<PutNanopublicationResult> putNanopublications(final ImmutableList<Nanopublication> nanopublications) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

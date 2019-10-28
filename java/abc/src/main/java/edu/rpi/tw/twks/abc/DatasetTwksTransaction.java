@@ -33,7 +33,13 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             "}";
 
     private final static Query GET_ASSERTION_GRAPH_NAMES_QUERY = QueryFactory.create(GET_ASSERTION_GRAPH_NAMES_QUERY_STRING);
-
+    private final static String GET_NANOPUBLICATION_DATASET_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
+            "prefix : <%s>\n" +
+            "select ?G ?S ?P ?O where {\n" +
+            "  {graph ?G {: a np:Nanopublication}} union\n" +
+            "  {graph ?H {: a np:Nanopublication {: np:hasAssertion ?G} union {: np:hasProvenance ?G} union {: np:hasPublicationInfo ?G}}}\n" +
+            "  graph ?G {?S ?P ?O}\n" +
+            "}";
     // http://nanopub.org/guidelines/working_draft/
     private final static String GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "prefix : <%s>\n" +
@@ -42,19 +48,11 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             "  {graph ?H {: a np:Nanopublication {: np:hasAssertion ?G} union {: np:hasProvenance ?G} union {: np:hasPublicationInfo ?G}}}\n" +
             "  graph ?G {?S ?P ?O}\n" +
             "}";
-
-    private final static String GET_NANOPUBLICATION_DATASET_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
-            "prefix : <%s>\n" +
-            "select ?G ?S ?P ?O where {\n" +
-            "  {graph ?G {: a np:Nanopublication}} union\n" +
-            "  {graph ?H {: a np:Nanopublication {: np:hasAssertion ?G} union {: np:hasProvenance ?G} union {: np:hasPublicationInfo ?G}}}\n" +
-            "  graph ?G {?S ?P ?O}\n" +
-            "}";
     private final static Logger logger = LoggerFactory.getLogger(DatasetTwksTransaction.class);
 
     private final TwksConfiguration configuration;
-    private final DatasetTransaction datasetTransaction;
     private final Dataset dataset;
+    private final DatasetTransaction datasetTransaction;
 
     protected DatasetTwksTransaction(final TwksConfiguration configuration, final Dataset dataset, final ReadWrite readWrite) {
         this.configuration = checkNotNull(configuration);
@@ -145,10 +143,6 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
         return assertionGraphNames;
     }
 
-    public final DatasetTransaction getDatasetTransaction() {
-        return datasetTransaction;
-    }
-
     @Override
     public final Model getAssertions() {
         final Set<String> assertionGraphNames = getAssertionGraphNames();
@@ -162,6 +156,14 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             assertions.add(assertion);
         }
         return assertions;
+    }
+
+    protected final Dataset getDataset() {
+        return dataset;
+    }
+
+    public final DatasetTransaction getDatasetTransaction() {
+        return datasetTransaction;
     }
 
     @Override
@@ -203,7 +205,12 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
     }
 
     @Override
-    public QueryExecution queryAssertions(final Query query) {
+    public final ImmutableList<PutNanopublicationResult> putNanopublications(final ImmutableList<Nanopublication> nanopublications) {
+        return nanopublications.stream().map(nanopublication -> putNanopublication(nanopublication)).collect(ImmutableList.toImmutableList());
+    }
+
+    @Override
+    public final QueryExecution queryAssertions(final Query query) {
         // https://jena.apache.org/documentation/tdb/dynamic_datasets.html
         // Using one or more FROM clauses, causes the default graph of the dataset to be the union of those graphs.
         final Set<String> assertionGraphNames = getAssertionGraphNames();
@@ -215,10 +222,6 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             query.addGraphURI(assertionGraphName);
         }
         return QueryExecutionFactory.create(query, dataset);
-    }
-
-    protected final Dataset getDataset() {
-        return dataset;
     }
 
     @Override
