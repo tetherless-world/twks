@@ -16,10 +16,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public abstract class AbstractCommandTest {
+public abstract class AbstractCommandTest<CommandT extends Command> {
     private final TestData testData;
-    private Twks twks;
+    protected CommandT command;
     private Path tempDirPath;
+    private Twks twks;
     private TwksFactoryConfiguration twksConfiguration;
 
     protected AbstractCommandTest() {
@@ -30,34 +31,37 @@ public abstract class AbstractCommandTest {
         }
     }
 
-    @Before
-    public final void newTwks() throws IOException {
-        tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
-        twksConfiguration = TwksFactoryConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build();
-        twks = TwksFactory.getInstance().createTwks(twksConfiguration);
-    }
-
     @After
     public final void deleteTempDir() throws IOException {
         MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
-    }
-
-    protected final TwksFactoryConfiguration getTwksConfiguration() {
-        return twksConfiguration;
-    }
-
-    protected final Twks getTwks() {
-        return twks;
     }
 
     protected final TestData getTestData() {
         return testData;
     }
 
+    protected final Twks getTwks() {
+        return twks;
+    }
+
+    protected final TwksFactoryConfiguration getTwksConfiguration() {
+        return twksConfiguration;
+    }
+
+    protected abstract CommandT newCommand();
+
     protected final void runCommand(final Command command) {
         try (final TwksTransaction transaction = twks.beginTransaction(ReadWrite.WRITE)) {
             command.run(new Command.Apis(transaction));
             transaction.commit();
         }
+    }
+
+    @Before
+    public final void setUp() throws IOException {
+        command = newCommand();
+        tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
+        twksConfiguration = TwksFactoryConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build();
+        twks = TwksFactory.getInstance().createTwks(twksConfiguration);
     }
 }

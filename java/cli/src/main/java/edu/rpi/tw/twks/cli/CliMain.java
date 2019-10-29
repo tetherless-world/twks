@@ -6,6 +6,7 @@ import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.cli.command.Command;
+import edu.rpi.tw.twks.cli.command.DeleteNanopublicationsCommand;
 import edu.rpi.tw.twks.cli.command.DumpCommand;
 import edu.rpi.tw.twks.cli.command.PostNanopublicationsCommand;
 import edu.rpi.tw.twks.client.TwksClient;
@@ -25,6 +26,7 @@ import java.util.Properties;
 
 public final class CliMain {
     private final static Command[] commands = {
+            new DeleteNanopublicationsCommand(),
             new DumpCommand(),
             new PostNanopublicationsCommand()
     };

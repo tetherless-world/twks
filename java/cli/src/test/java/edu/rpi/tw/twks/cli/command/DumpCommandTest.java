@@ -1,17 +1,14 @@
 package edu.rpi.tw.twks.cli.command;
 
 import edu.rpi.tw.twks.test.ApisTest;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 
-public final class DumpCommandTest extends AbstractCommandTest {
-    private DumpCommand command;
-
-    @Before
-    public void setUp() {
-        command = new DumpCommand();
+public final class DumpCommandTest extends AbstractCommandTest<DumpCommand> {
+    @Override
+    protected DumpCommand newCommand() {
+        return new DumpCommand();
     }
 
     @Test
