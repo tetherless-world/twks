@@ -17,8 +17,8 @@ public abstract class Command {
     public abstract void run(Apis apis);
 
     public final static class Apis {
+        private final AdministrationApi administrationApi;
         private final BulkReadApi bulkReadApi;
-        private final AdministrationApi bulkWriteApi;
         private final NanopublicationCrudApi nanopublicationCrudApi;
         private final QueryApi queryApi;
 
@@ -30,19 +30,19 @@ public abstract class Command {
             this(transaction, transaction, transaction, transaction);
         }
 
-        private Apis(final BulkReadApi bulkReadApi, final AdministrationApi bulkWriteApi, final NanopublicationCrudApi nanopublicationCrudApi, final QueryApi queryApi) {
+        private Apis(final BulkReadApi bulkReadApi, final AdministrationApi administrationApi, final NanopublicationCrudApi nanopublicationCrudApi, final QueryApi queryApi) {
             this.bulkReadApi = checkNotNull(bulkReadApi);
-            this.bulkWriteApi = checkNotNull(bulkWriteApi);
+            this.administrationApi = checkNotNull(administrationApi);
             this.nanopublicationCrudApi = checkNotNull(nanopublicationCrudApi);
             this.queryApi = checkNotNull(queryApi);
         }
 
-        public final BulkReadApi getBulkReadApi() {
-            return bulkReadApi;
+        public final AdministrationApi getAdministrationApi() {
+            return administrationApi;
         }
 
-        public final AdministrationApi getBulkWriteApi() {
-            return bulkWriteApi;
+        public final BulkReadApi getBulkReadApi() {
+            return bulkReadApi;
         }
 
         public final NanopublicationCrudApi getNanopublicationCrudApi() {
