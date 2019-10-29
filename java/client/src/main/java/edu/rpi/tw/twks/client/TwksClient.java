@@ -37,7 +37,7 @@ import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 /**
  * Client for a TWKS server.
  */
-public final class TwksClient implements GetAssertionsApi, AdministrationApi, NanopublicationCrudApi, QueryApi {
+public final class TwksClient implements AdministrationApi, GetAssertionsApi, NanopublicationCrudApi, QueryApi {
     private final static Logger logger = LoggerFactory.getLogger(TwksClient.class);
     private final HttpRequestFactory httpRequestFactory;
     private final ApacheHttpTransport httpTransport;
