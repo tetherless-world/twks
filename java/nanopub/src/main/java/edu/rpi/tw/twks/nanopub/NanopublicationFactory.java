@@ -19,6 +19,7 @@ import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 public final class NanopublicationFactory {
     public final static NanopublicationFactory DEFAULT = new NanopublicationFactory();
     private final NanopublicationDialect dialect;
+    private final NanopublicationValidator validator;
 
     public NanopublicationFactory() {
         this(NanopublicationDialect.SPECIFICATION);
@@ -26,6 +27,7 @@ public final class NanopublicationFactory {
 
     public NanopublicationFactory(final NanopublicationDialect dialect) {
         this.dialect = checkNotNull(dialect);
+        this.validator = new NanopublicationValidator(dialect);
     }
 
     /**
@@ -83,57 +85,33 @@ public final class NanopublicationFactory {
     /**
      * Create a nanopublication from its parts.
      * <p>
+     * The caller must supply a URI/name for the head part, but the graph of the head will be automatically constructed.
+     * <p>
      * Validates the parts but does not modify them. This method does most of the work of validating the contents of the nanopublication parts against the specification.
      */
-    public final Nanopublication createNanopublicationFromParts(final NanopublicationPart assertion, final NanopublicationPart head, final NanopublicationPart provenance, final NanopublicationPart publicationInfo, final Uri uri) throws MalformedNanopublicationException {
-        checkNotNull(assertion);
-        checkNotNull(dialect);
-        checkNotNull(head);
-        checkNotNull(provenance);
-        checkNotNull(publicationInfo);
+    public final Nanopublication createNanopublicationFromParts(final NanopublicationPart assertion, final Uri headUri, final Uri nanopublicationUri, final NanopublicationPart provenance, final NanopublicationPart publicationInfo) throws MalformedNanopublicationException {
+        final NanopublicationPart head =
+                new NanopublicationPart(
+                        createNanopublicationHead(assertion.getName(), nanopublicationUri, provenance.getName(), publicationInfo.getName()),
+                        headUri
+                );
+        return createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
+    }
 
-        // The URIs for [N], [H], [A], [P], [I] must all be different
-        final Set<Uri> partUrisSet = new HashSet<>(5);
-        final Uri[] uniquePartUris;
-        switch (dialect) {
-            case SPECIFICATION:
-                uniquePartUris = new Uri[]{uri, head.getName(), assertion.getName(), provenance.getName(), publicationInfo.getName()};
-                break;
-            case WHYIS:
-                uniquePartUris = new Uri[]{uri, assertion.getName(), provenance.getName(), publicationInfo.getName()};
-                if (!uri.equals(head.getName())) {
-                    throw new MalformedNanopublicationException(String.format("expected Whyis head URI to be the same as the nanopublication URI (%s vs. %s)", head.getName(), uri));
-                }
-                break;
-            default:
-                throw new UnsupportedOperationException();
-        }
-        for (final Uri partUri : uniquePartUris) {
-            if (partUrisSet.contains(partUri)) {
-                throw new MalformedNanopublicationException(String.format("duplicate part URI %s", partUri));
-            }
-            partUrisSet.add(partUri);
-        }
-
-        if (dialect != NanopublicationDialect.WHYIS) {
-            // Triples in [P] have at least one reference to [A]
-            if (!provenance.getModel().listStatements(ResourceFactory.createResource(assertion.getName().toString()), null, (String) null).hasNext()) {
-                throw new MalformedNanopublicationException("provenance does not reference assertion graph");
-            }
-        }
-
-        // Triples in [I] have at least one reference to [N]
-        if (!publicationInfo.getModel().listStatements(ResourceFactory.createResource(uri.toString()), null, (String) null).hasNext()) {
-            throw new MalformedNanopublicationException("publication info does not reference nanopublication");
-        }
-
-        return new Nanopublication(assertion, head, provenance, publicationInfo, uri);
+    /**
+     * Create a nanopublication from parts.
+     * <p>
+     * This method is private because we don't want to allow callers to supply a head graph. We want to construct it.
+     */
+    private final Nanopublication createNanopublicationFromParts(final NanopublicationPart assertion, final NanopublicationPart head, final Uri nanopublicationUri, final NanopublicationPart provenance, final NanopublicationPart publicationInfo) throws MalformedNanopublicationException {
+        validator.validateNanopublicationParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
+        return new Nanopublication(assertion, head, provenance, publicationInfo, nanopublicationUri);
     }
 
     /**
      * Create the head part of a nanopublication from the other parts' URIs and the nanopublication URI.
      */
-    public final Model createNanopublicationHead(final Uri assertionUri, final Uri nanopublicationUri, final Uri provenanceUri, final Uri publicationInfoUri) {
+    private final Model createNanopublicationHead(final Uri assertionUri, final Uri nanopublicationUri, final Uri provenanceUri, final Uri publicationInfoUri) {
         checkNotNull(assertionUri);
         checkNotNull(nanopublicationUri);
         checkNotNull(provenanceUri);
@@ -363,7 +341,7 @@ public final class NanopublicationFactory {
                         // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
                         final NanopublicationPart publicationInfo = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasPublicationInfo, unusedDatasetModelNames);
 
-                        nanopublication = createNanopublicationFromParts(assertion, head, provenance, publicationInfo, nanopublicationUri);
+                        nanopublication = createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
                         return true;
                     } catch (final MalformedNanopublicationException e) {
                         throw new MalformedNanopublicationRuntimeException(e);

@@ -30,17 +30,12 @@ public final class NanopublicationBuilder {
         final Uri nanopublicationUri = this.uri != null ? this.uri : this.generatedUri;
 
         final NanopublicationPart assertion = assertionBuilder.build();
+        final Uri headUri = Uri.parse(generatedUri.toString() + "#head");
         final NanopublicationPart provenance = provenanceBuilder.build(assertion.getName());
         final NanopublicationPart publicationInfo = publicationInfoBuilder.build(nanopublicationUri);
 
-        final NanopublicationPart head =
-                new NanopublicationPart(
-                        NanopublicationFactory.DEFAULT.createNanopublicationHead(assertion.getName(), nanopublicationUri, provenance.getName(), publicationInfo.getName()),
-                        Uri.parse(generatedUri.toString() + "#head")
-                );
-
         try {
-            return NanopublicationFactory.DEFAULT.createNanopublicationFromParts(assertion, head, provenance, publicationInfo, nanopublicationUri);
+            return NanopublicationFactory.DEFAULT.createNanopublicationFromParts(assertion, headUri, nanopublicationUri, provenance, publicationInfo);
         } catch (final MalformedNanopublicationException e) {
             throw new IllegalStateException(e);
         }
