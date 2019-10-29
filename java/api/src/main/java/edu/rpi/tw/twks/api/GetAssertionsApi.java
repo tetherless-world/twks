@@ -28,5 +28,5 @@ public interface GetAssertionsApi {
      * @param ontologyUris set of ontology URIs (?x)
      * @return Model containing assertions about the given ontologies
      */
-    Model getAssertionsByOntology(ImmutableSet<Uri> ontologyUris);
+    Model getOntologyAssertions(ImmutableSet<Uri> ontologyUris);
 }

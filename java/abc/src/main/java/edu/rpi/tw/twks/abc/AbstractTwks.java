@@ -70,13 +70,6 @@ public abstract class AbstractTwks implements Twks {
         }
     }
 
-    @Override
-    public Model getAssertionsByOntology(final ImmutableSet<Uri> ontologyUris) {
-        try (final TwksTransaction transaction = beginTransaction(ReadWrite.READ)) {
-            return transaction.getAssertionsByOntology(ontologyUris);
-        }
-    }
-
     protected final TwksConfiguration getConfiguration() {
         return configuration;
     }
@@ -90,6 +83,13 @@ public abstract class AbstractTwks implements Twks {
 
     protected final TwksObservers getObservers() {
         return observers;
+    }
+
+    @Override
+    public Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
+        try (final TwksTransaction transaction = beginTransaction(ReadWrite.READ)) {
+            return transaction.getOntologyAssertions(ontologyUris);
+        }
     }
 
     @Override

@@ -66,13 +66,13 @@ public class ForwardingTwksTransaction implements TwksTransaction {
     }
 
     @Override
-    public Model getAssertionsByOntology(final ImmutableSet<Uri> ontologyUris) {
-        return delegate.getAssertionsByOntology(ontologyUris);
+    public Optional<Nanopublication> getNanopublication(final Uri uri) {
+        return delegate.getNanopublication(uri);
     }
 
     @Override
-    public Optional<Nanopublication> getNanopublication(final Uri uri) {
-        return delegate.getNanopublication(uri);
+    public Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
+        return delegate.getOntologyAssertions(ontologyUris);
     }
 
     @Override

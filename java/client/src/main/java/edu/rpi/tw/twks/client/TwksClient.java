@@ -132,11 +132,6 @@ public final class TwksClient implements AdministrationApi, GetAssertionsApi, Na
     }
 
     @Override
-    public final Model getAssertionsByOntology(final ImmutableSet<Uri> ontologyUris) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
         try {
             final HttpResponse response = httpRequestFactory.buildGetRequest(newNanopublicationUrl(uri)).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
@@ -159,6 +154,11 @@ public final class TwksClient implements AdministrationApi, GetAssertionsApi, Na
         } catch (final IOException e) {
             throw wrapException(e);
         }
+    }
+
+    @Override
+    public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
+        throw new UnsupportedOperationException();
     }
 
     private GenericUrl newNanopublicationUrl(final Uri nanopublicationUri) {
