@@ -18,9 +18,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Tetherless World Knowledge Store (TWKS)'
-copyright = '2019, Tetherless World Constellation'
+copyright = '2019, Rensselaer Polytechnic Institute'
 author = 'Tetherless World Constellation'
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -38,7 +37,6 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
-
 
 # -- Options for HTML output -------------------------------------------------
 
