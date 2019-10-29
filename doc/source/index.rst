@@ -8,3 +8,4 @@ Tetherless World Knowledge Store (TWKS)
    docker
    java
    py
+   script
