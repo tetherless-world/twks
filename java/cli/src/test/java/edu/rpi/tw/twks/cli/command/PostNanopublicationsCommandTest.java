@@ -16,19 +16,22 @@ import java.util.Optional;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public final class PostNanopublicationsCommandTest extends AbstractCommandTest {
-    private PostNanopublicationsCommand command;
+public final class PostNanopublicationsCommandTest extends AbstractCommandTest<PostNanopublicationsCommand> {
     private InputStream originalSystemIn;
 
-    @Before
-    public void setUp() {
-        command = new PostNanopublicationsCommand();
-        originalSystemIn = System.in;
+    @Override
+    protected PostNanopublicationsCommand newCommand() {
+        return new PostNanopublicationsCommand();
     }
 
     @After
-    public void tearDown() {
+    public void restoreSystemIn() {
         System.setIn(originalSystemIn);
+    }
+
+    @Before
+    public void saveSystemIn() {
+        originalSystemIn = System.in;
     }
 
     @Test
