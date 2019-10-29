@@ -2,12 +2,12 @@ package edu.rpi.tw.twks.nanopub;
 
 import edu.rpi.tw.twks.uri.Uri;
 import edu.rpi.tw.twks.vocabulary.PROV;
+import edu.rpi.tw.twks.vocabulary.SIO;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.*;
+import org.apache.jena.vocabulary.OWL;
+import org.apache.jena.vocabulary.RDF;
 
 import java.util.Calendar;
 import java.util.UUID;
@@ -33,7 +33,7 @@ public final class NanopublicationBuilder {
         final NanopublicationPart assertion = assertionBuilder.build();
         final Uri headUri = Uri.parse(generatedUri.toString() + "#head");
         final NanopublicationPart provenance = provenanceBuilder.build(assertion.getName());
-        final NanopublicationPart publicationInfo = publicationInfoBuilder.build(nanopublicationUri);
+        final NanopublicationPart publicationInfo = publicationInfoBuilder.build(assertion.getModel(), nanopublicationUri);
 
         try {
             return NanopublicationFactory.DEFAULT.createNanopublicationFromParts(assertion, headUri, nanopublicationUri, provenance, publicationInfo);
@@ -145,11 +145,29 @@ public final class NanopublicationBuilder {
         private NanopublicationPublicationInfoBuilder() {
         }
 
-        NanopublicationPart build(final Uri nanopublicationUri) {
+        NanopublicationPart build(final Model assertionModel, final Uri nanopublicationUri) {
             final Resource nanopublicationResource = ResourceFactory.createResource(nanopublicationUri.toString());
+
+            // Reproducing Whyis functionality: if the assertions contain a statement of the form (?x a owl:Ontology), the publication info should have a statement (?np sio:isAbout ?x).
+            {
+                for (final StmtIterator ontologyStatements = assertionModel.listStatements(null, RDF.type, OWL.Ontology); ontologyStatements.hasNext(); ) {
+                    final Statement ontologyStatement = ontologyStatements.nextStatement();
+                    final Resource ontologyResource = ontologyStatement.getSubject();
+                    if (ontologyResource.getURI() == null) {
+                        continue;
+                    }
+                    final StmtIterator isAboutStatements = getModel().listStatements(nanopublicationResource, SIO.isAbout, ontologyResource);
+                    if (!isAboutStatements.hasNext()) {
+                        getModel().add(nanopublicationResource, SIO.isAbout, ontologyResource);
+                    }
+                }
+            }
+
             if (!getModel().listStatements(nanopublicationResource, null, (String) null).hasNext()) {
                 getModel().add(nanopublicationResource, PROV.generatedAtTime, ResourceFactory.createTypedLiteral(new XSDDateTime(Calendar.getInstance())));
             }
+
+
             return new NanopublicationPart(getModel(), getOrGenerateName());
         }
 
