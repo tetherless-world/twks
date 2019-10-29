@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
@@ -40,30 +41,51 @@ public final class Nanopublication {
         this.uri = checkNotNull(uri);
     }
 
+    /**
+     * Create a blank slate builder for a new nanopublication.
+     */
     public static NanopublicationBuilder builder() {
         return new NanopublicationBuilder();
     }
 
+    /**
+     * Get the assertion part of the nanopublication.
+     */
     public final NanopublicationPart getAssertion() {
         return assertion;
     }
 
+    @VisibleForTesting
     final NanopublicationPart getHead() {
         return head;
     }
 
+    /**
+     * Get the provenance part of the nanopublication.
+     */
     public final NanopublicationPart getProvenance() {
         return provenance;
     }
 
+    /**
+     * Get the publication info part of the nanopublication.
+     */
     public final NanopublicationPart getPublicationInfo() {
         return publicationInfo;
     }
 
+    /**
+     * Get the URI of the nanopublication (?n a np:Nanopublication).
+     */
     public final Uri getUri() {
         return uri;
     }
 
+    /**
+     * Is this nanopublication isomorphic with another nanopublication?
+     * <p>
+     * Tests isomorphism for each part.
+     */
     public final boolean isIsomorphicWith(final Nanopublication other) {
         checkNotNull(other);
 
@@ -90,12 +112,18 @@ public final class Nanopublication {
         return true;
     }
 
+    /**
+     * Create a new, default Dataset and add this nanopublication's parts (named graphs) to it.
+     */
     public final Dataset toDataset() {
         final Dataset dataset = DatasetFactory.create();
         toDataset(dataset);
         return dataset;
     }
 
+    /**
+     * Add this nanopublication's parts to an existing Dataset.
+     */
     public final void toDataset(final Dataset dataset) {
         checkNotNull(dataset);
 
@@ -105,6 +133,9 @@ public final class Nanopublication {
         }
     }
 
+    /**
+     * Add this nanopublication's parts to an existing Dataset within the scope of an existing Dataset transaction.
+     */
     public final void toDataset(final Dataset dataset, final DatasetTransaction transaction) {
         checkNotNull(dataset);
         checkNotNull(transaction);
@@ -118,21 +149,6 @@ public final class Nanopublication {
         }
     }
 
-    public final void write(final OutputStream outputStream) {
-        RDFDataMgr.write(outputStream, toDataset(), Lang.TRIG);
-    }
-
-    public final void write(final StringWriter writer) {
-        RDFDataMgr.write(writer, toDataset(), Lang.TRIG);
-    }
-
-    public final String writeToString() throws IOException {
-        try (final StringWriter stringWriter = new StringWriter()) {
-            write(stringWriter);
-            return stringWriter.toString();
-        }
-    }
-
     @Override
     public final String toString() {
         return MoreObjects.toStringHelper(this)
@@ -142,5 +158,29 @@ public final class Nanopublication {
                 .add("provenance", getProvenance())
                 .add("publicationInfo", getPublicationInfo())
                 .toString();
+    }
+
+    /**
+     * Serialize this nanopublication in Trig format.
+     */
+    public final void write(final OutputStream outputStream) {
+        RDFDataMgr.write(outputStream, toDataset(), Lang.TRIG);
+    }
+
+    /**
+     * Serialize this nanopublication in Trig format.
+     */
+    public final void write(final StringWriter writer) {
+        RDFDataMgr.write(writer, toDataset(), Lang.TRIG);
+    }
+
+    /**
+     * Serialize this nanopublication in Trig format.
+     */
+    public final String writeToString() throws IOException {
+        try (final StringWriter stringWriter = new StringWriter()) {
+            write(stringWriter);
+            return stringWriter.toString();
+        }
     }
 }
