@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.google.common.reflect.TypeToken;
 import edu.rpi.tw.twks.api.AdministrationApi;
-import edu.rpi.tw.twks.api.BulkReadApi;
+import edu.rpi.tw.twks.api.GetAssertionsApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
@@ -37,7 +37,7 @@ import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 /**
  * Client for a TWKS server.
  */
-public final class TwksClient implements BulkReadApi, AdministrationApi, NanopublicationCrudApi, QueryApi {
+public final class TwksClient implements GetAssertionsApi, AdministrationApi, NanopublicationCrudApi, QueryApi {
     private final static Logger logger = LoggerFactory.getLogger(TwksClient.class);
     private final HttpRequestFactory httpRequestFactory;
     private final ApacheHttpTransport httpTransport;

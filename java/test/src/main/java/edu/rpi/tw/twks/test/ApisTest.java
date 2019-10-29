@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.AdministrationApi;
-import edu.rpi.tw.twks.api.BulkReadApi;
+import edu.rpi.tw.twks.api.GetAssertionsApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
@@ -140,21 +140,21 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     @Test
     public void testGetAssertions() {
-        if (!(sut instanceof BulkReadApi)) {
+        if (!(sut instanceof GetAssertionsApi)) {
             return;
         }
 
 //        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
         sut.putNanopublication(testData.specNanopublication);
         {
-            final Model assertions = ((BulkReadApi) sut).getAssertions();
+            final Model assertions = ((GetAssertionsApi) sut).getAssertions();
             if (!assertions.isIsomorphicWith(testData.specNanopublication.getAssertion().getModel())) {
 //                assertions.write(System.out, Lang.TRIG.getName());
                 fail();
             }
         }
         sut.putNanopublication(testData.secondNanopublication);
-        assertFalse(((BulkReadApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
+        assertFalse(((GetAssertionsApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
     }
 
     @Test
