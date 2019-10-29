@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.*;
@@ -40,7 +41,6 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             "  {graph ?H {: a np:Nanopublication {: np:hasAssertion ?G} union {: np:hasProvenance ?G} union {: np:hasPublicationInfo ?G}}}\n" +
             "  graph ?G {?S ?P ?O}\n" +
             "}";
-    // http://nanopub.org/guidelines/working_draft/
     private final static String GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "prefix : <%s>\n" +
             "select ?G where {\n" +
@@ -48,6 +48,14 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             "  {graph ?H {: a np:Nanopublication {: np:hasAssertion ?G} union {: np:hasProvenance ?G} union {: np:hasPublicationInfo ?G}}}\n" +
             "  graph ?G {?S ?P ?O}\n" +
             "}";
+    private final static String GET_ONTOLOGY_ASSERTION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
+            "prefix sio: <http://semanticscience.org/resource/>\n" +
+            "select ?A where {\n" +
+            "  graph ?H { ?NP a np:Nanopublication . ?NP np:hasAssertion ?A . ?NP np:hasPublicationInfo ?I . }\n" +
+            "  graph ?I { ?NP sio:isAbout <%s> }\n" +
+            "  graph ?A {?S ?P ?O}\n" +
+            "}";
+
     private final static Logger logger = LoggerFactory.getLogger(DatasetTwksTransaction.class);
 
     private final TwksConfiguration configuration;
@@ -185,9 +193,9 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
         }
     }
 
-    private Set<String> getNanopublicationGraphNames(final Uri uri) {
+    private Set<String> getNanopublicationGraphNames(final Uri nanopublicationUri) {
         final Set<String> nanopublicationGraphNames = new HashSet<>();
-        try (final QueryExecution queryExecution = queryNanopublications(QueryFactory.create(String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, uri)))) {
+        try (final QueryExecution queryExecution = queryNanopublications(QueryFactory.create(String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, nanopublicationUri)))) {
             for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
                 final QuerySolution querySolution = resultSet.nextSolution();
                 final Resource g = querySolution.getResource("G");
@@ -195,6 +203,31 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             }
         }
         return nanopublicationGraphNames;
+    }
+
+    private Set<String> getOntologyAssertionGraphNames(final Uri ontologyUri) {
+        final Set<String> assertionGraphNames = new HashSet<>();
+        try (final QueryExecution queryExecution = queryNanopublications(QueryFactory.create(String.format(GET_ONTOLOGY_ASSERTION_GRAPH_NAMES_QUERY_STRING, ontologyUri)))) {
+            for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
+                final QuerySolution querySolution = resultSet.nextSolution();
+                final Resource g = querySolution.getResource("A");
+                assertionGraphNames.add(g.getURI());
+            }
+        }
+        return assertionGraphNames;
+    }
+
+    @Override
+    public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
+        final Model assertions = ModelFactory.createDefaultModel();
+        setNsPrefixes(assertions);
+        for (final Uri ontologyUri : ontologyUris) {
+            for (final String assertionGraphName : getOntologyAssertionGraphNames(ontologyUri)) {
+                final Model assertion = getDataset().getNamedModel(assertionGraphName);
+                assertions.add(assertion);
+            }
+        }
+        return assertions;
     }
 
     @Override

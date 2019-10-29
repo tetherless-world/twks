@@ -6,10 +6,11 @@ import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.google.common.reflect.TypeToken;
-import edu.rpi.tw.twks.api.BulkReadApi;
-import edu.rpi.tw.twks.api.BulkWriteApi;
+import edu.rpi.tw.twks.api.AdministrationApi;
+import edu.rpi.tw.twks.api.GetAssertionsApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
@@ -37,7 +38,7 @@ import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 /**
  * Client for a TWKS server.
  */
-public final class TwksClient implements BulkReadApi, BulkWriteApi, NanopublicationCrudApi, QueryApi {
+public final class TwksClient implements AdministrationApi, GetAssertionsApi, NanopublicationCrudApi, QueryApi {
     private final static Logger logger = LoggerFactory.getLogger(TwksClient.class);
     private final HttpRequestFactory httpRequestFactory;
     private final ApacheHttpTransport httpTransport;
@@ -118,7 +119,16 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
     @Override
     public final Model getAssertions() {
         try {
-            final HttpResponse response = httpRequestFactory.buildGetRequest(new GenericUrl(serverBaseUrl + "/assertions")).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
+            return getAssertions(httpRequestFactory.buildGetRequest(new GenericUrl(serverBaseUrl + "/assertions")));
+        } catch (final IOException e) {
+            throw wrapException(e);
+        }
+    }
+
+    private Model getAssertions(final HttpRequest request) {
+        request.setHeaders(new HttpHeaders().setAccept("text/trig"));
+        try {
+            final HttpResponse response = request.execute();
             try (final InputStream inputStream = response.getContent()) {
                 final Model model = ModelFactory.createDefaultModel();
                 setNsPrefixes(model);
@@ -150,6 +160,17 @@ public final class TwksClient implements BulkReadApi, BulkWriteApi, Nanopublicat
             } else {
                 throw wrapException(e);
             }
+        } catch (final IOException e) {
+            throw wrapException(e);
+        }
+    }
+
+    @Override
+    public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
+        try {
+            final GenericUrl url = new GenericUrl(serverBaseUrl + "/assertions/ontology");
+            url.set("uri", ontologyUris);
+            return getAssertions(httpRequestFactory.buildGetRequest(url));
         } catch (final IOException e) {
             throw wrapException(e);
         }

@@ -6,19 +6,19 @@ import edu.rpi.tw.twks.client.TwksClient;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class Command {
-    public abstract Object getArgs();
-
     public String[] getAliases() {
         return new String[0];
     }
+
+    public abstract Object getArgs();
 
     public abstract String getName();
 
     public abstract void run(Apis apis);
 
     public final static class Apis {
-        private final BulkReadApi bulkReadApi;
-        private final BulkWriteApi bulkWriteApi;
+        private final AdministrationApi administrationApi;
+        private final GetAssertionsApi getAssertionsApi;
         private final NanopublicationCrudApi nanopublicationCrudApi;
         private final QueryApi queryApi;
 
@@ -30,19 +30,19 @@ public abstract class Command {
             this(transaction, transaction, transaction, transaction);
         }
 
-        private Apis(final BulkReadApi bulkReadApi, final BulkWriteApi bulkWriteApi, final NanopublicationCrudApi nanopublicationCrudApi, final QueryApi queryApi) {
-            this.bulkReadApi = checkNotNull(bulkReadApi);
-            this.bulkWriteApi = checkNotNull(bulkWriteApi);
+        private Apis(final GetAssertionsApi getAssertionsApi, final AdministrationApi administrationApi, final NanopublicationCrudApi nanopublicationCrudApi, final QueryApi queryApi) {
+            this.getAssertionsApi = checkNotNull(getAssertionsApi);
+            this.administrationApi = checkNotNull(administrationApi);
             this.nanopublicationCrudApi = checkNotNull(nanopublicationCrudApi);
             this.queryApi = checkNotNull(queryApi);
         }
 
-        public final BulkReadApi getBulkReadApi() {
-            return bulkReadApi;
+        public final AdministrationApi getAdministrationApi() {
+            return administrationApi;
         }
 
-        public final BulkWriteApi getBulkWriteApi() {
-            return bulkWriteApi;
+        public final GetAssertionsApi getGetAssertionsApi() {
+            return getAssertionsApi;
         }
 
         public final NanopublicationCrudApi getNanopublicationCrudApi() {

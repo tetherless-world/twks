@@ -12,8 +12,13 @@ import java.io.StringReader;
 import static org.junit.Assert.assertTrue;
 
 public final class AssertionsResourceTest extends AbstractResourceTest {
+    @Override
+    protected Object newResource(final Twks twks) {
+        return new AssertionsResource(twks);
+    }
+
     @Test
-    public void testGetAssertions() throws Exception {
+    public void testGetAssertions() {
         getTwks().putNanopublication(getTestData().specNanopublication);
         final String responseBody =
                 target()
@@ -25,8 +30,17 @@ public final class AssertionsResourceTest extends AbstractResourceTest {
         assertTrue(getTestData().specNanopublication.getAssertion().getModel().isIsomorphicWith(actual));
     }
 
-    @Override
-    protected Object newResource(final Twks twks) {
-        return new AssertionsResource(twks);
+    @Test
+    public void testGetOntologyAssertions() {
+        getTwks().putNanopublication(getTestData().ontologyNanopublication);
+        final String responseBody =
+                target()
+                        .path("/assertions/ontology")
+                        .queryParam("uri", getTestData().ontologyUri.toString())
+                        .request(Lang.TRIG.getContentType().getContentType())
+                        .get(String.class);
+        final Model actual = ModelFactory.createDefaultModel();
+        actual.read(new StringReader(responseBody), "", Lang.TRIG.getName());
+        assertTrue(getTestData().ontologyNanopublication.getAssertion().getModel().isIsomorphicWith(actual));
     }
 }

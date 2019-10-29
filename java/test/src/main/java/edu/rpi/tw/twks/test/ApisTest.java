@@ -1,16 +1,18 @@
 package edu.rpi.tw.twks.test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
-import edu.rpi.tw.twks.api.BulkReadApi;
-import edu.rpi.tw.twks.api.BulkWriteApi;
+import edu.rpi.tw.twks.api.AdministrationApi;
+import edu.rpi.tw.twks.api.GetAssertionsApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.MoreDatasetFactory;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
+import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -80,8 +82,12 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     @After
     public final void tearDown() throws Exception {
-        sut.deleteNanopublication(testData.secondNanopublication.getUri());
-        sut.deleteNanopublication(testData.specNanopublication.getUri());
+        sut.deleteNanopublications(ImmutableList.of(
+                testData.ontologyNanopublication.getUri(),
+                testData.secondNanopublication.getUri(),
+                testData.secondOntologyNanopublication.getUri(),
+                testData.specNanopublication.getUri()
+        ));
         closeSystemUnderTest(sut);
         MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
     }
@@ -127,34 +133,34 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     @Test
     public void testDump() throws Exception {
-        if (!(sut instanceof BulkWriteApi)) {
+        if (!(sut instanceof AdministrationApi)) {
             return;
         }
 
         sut.putNanopublication(testData.specNanopublication);
 
-        ((BulkWriteApi) sut).dump();
+        ((AdministrationApi) sut).dump();
 
         checkDump(tempDirPath);
     }
 
     @Test
     public void testGetAssertions() {
-        if (!(sut instanceof BulkReadApi)) {
+        if (!(sut instanceof GetAssertionsApi)) {
             return;
         }
 
 //        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
         sut.putNanopublication(testData.specNanopublication);
         {
-            final Model assertions = ((BulkReadApi) sut).getAssertions();
+            final Model assertions = ((GetAssertionsApi) sut).getAssertions();
             if (!assertions.isIsomorphicWith(testData.specNanopublication.getAssertion().getModel())) {
 //                assertions.write(System.out, Lang.TRIG.getName());
                 fail();
             }
         }
         sut.putNanopublication(testData.secondNanopublication);
-        assertFalse(((BulkReadApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
+        assertFalse(((GetAssertionsApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
     }
 
     @Test
@@ -171,6 +177,56 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         assertNotSame(expected, actual);
 //        RDFDataMgr.write(System.out, actual.toDataset(), Lang.TRIG);
         assertTrue(actual.isIsomorphicWith(expected));
+    }
+
+    @Test
+    public void testGetOntologyAssertionsEmpty() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        sut.putNanopublication(testData.specNanopublication);
+        final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(Uri.parse("http://example.com/nonextant")));
+        assertTrue(assertions.listStatements().toList().isEmpty());
+    }
+
+    @Test
+    public void testGetOntologyAssertionsMixed() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        sut.putNanopublication(testData.specNanopublication); // No ontology
+        sut.putNanopublication(testData.secondNanopublication); // No ontology
+        sut.putNanopublication(testData.ontologyNanopublication);
+        final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
+        assertTrue(assertions.isIsomorphicWith(testData.ontologyNanopublication.getAssertion().getModel()));
+    }
+
+    @Test
+    public void testGetOntologyAssertionsOne() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        sut.putNanopublication(testData.ontologyNanopublication);
+        final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
+        assertTrue(assertions.isIsomorphicWith(testData.ontologyNanopublication.getAssertion().getModel()));
+        assertEquals(2, assertions.listStatements().toList().size());
+    }
+
+    @Test
+    public void testGetOntologyAssertionsTwo() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        sut.putNanopublication(testData.ontologyNanopublication);
+        sut.putNanopublication(testData.secondOntologyNanopublication);
+
+        final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
+        assertTrue(assertions.isIsomorphicWith(testData.ontologyNanopublication.getAssertion().getModel()));
+        assertEquals(2, assertions.listStatements().toList().size());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.rpi.tw.twks.api.TwksTransaction;
@@ -85,6 +86,13 @@ public abstract class AbstractTwks implements Twks {
     }
 
     @Override
+    public Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
+        try (final TwksTransaction transaction = beginTransaction(ReadWrite.READ)) {
+            return transaction.getOntologyAssertions(ontologyUris);
+        }
+    }
+
+    @Override
     public ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
             final ImmutableList<PutNanopublicationResult> results = transaction.postNanopublications(nanopublications);
@@ -92,6 +100,7 @@ public abstract class AbstractTwks implements Twks {
             return results;
         }
     }
+
 
     @Override
     public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
