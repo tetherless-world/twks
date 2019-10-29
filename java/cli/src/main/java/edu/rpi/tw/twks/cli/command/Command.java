@@ -6,11 +6,11 @@ import edu.rpi.tw.twks.client.TwksClient;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class Command {
-    public abstract Object getArgs();
-
     public String[] getAliases() {
         return new String[0];
     }
+
+    public abstract Object getArgs();
 
     public abstract String getName();
 
@@ -18,7 +18,7 @@ public abstract class Command {
 
     public final static class Apis {
         private final BulkReadApi bulkReadApi;
-        private final BulkWriteApi bulkWriteApi;
+        private final AdministrationApi bulkWriteApi;
         private final NanopublicationCrudApi nanopublicationCrudApi;
         private final QueryApi queryApi;
 
@@ -30,7 +30,7 @@ public abstract class Command {
             this(transaction, transaction, transaction, transaction);
         }
 
-        private Apis(final BulkReadApi bulkReadApi, final BulkWriteApi bulkWriteApi, final NanopublicationCrudApi nanopublicationCrudApi, final QueryApi queryApi) {
+        private Apis(final BulkReadApi bulkReadApi, final AdministrationApi bulkWriteApi, final NanopublicationCrudApi nanopublicationCrudApi, final QueryApi queryApi) {
             this.bulkReadApi = checkNotNull(bulkReadApi);
             this.bulkWriteApi = checkNotNull(bulkWriteApi);
             this.nanopublicationCrudApi = checkNotNull(nanopublicationCrudApi);
@@ -41,7 +41,7 @@ public abstract class Command {
             return bulkReadApi;
         }
 
-        public final BulkWriteApi getBulkWriteApi() {
+        public final AdministrationApi getBulkWriteApi() {
             return bulkWriteApi;
         }
 

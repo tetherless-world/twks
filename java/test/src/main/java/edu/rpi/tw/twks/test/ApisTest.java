@@ -3,8 +3,8 @@ package edu.rpi.tw.twks.test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
+import edu.rpi.tw.twks.api.AdministrationApi;
 import edu.rpi.tw.twks.api.BulkReadApi;
-import edu.rpi.tw.twks.api.BulkWriteApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
@@ -127,13 +127,13 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     @Test
     public void testDump() throws Exception {
-        if (!(sut instanceof BulkWriteApi)) {
+        if (!(sut instanceof AdministrationApi)) {
             return;
         }
 
         sut.putNanopublication(testData.specNanopublication);
 
-        ((BulkWriteApi) sut).dump();
+        ((AdministrationApi) sut).dump();
 
         checkDump(tempDirPath);
     }
