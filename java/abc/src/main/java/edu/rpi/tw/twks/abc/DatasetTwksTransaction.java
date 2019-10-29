@@ -51,7 +51,7 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
     private final static String GET_ONTOLOGY_ASSERTION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "prefix sio: <http://semanticscience.org/resource/>\n" +
             "select ?A where {\n" +
-            "  graph ?H { ?NP np:hasAssertion ?A . ?NP np:hasPublicationInfo ?I . }\n" +
+            "  graph ?H { ?NP a np:Nanopublication . ?NP np:hasAssertion ?A . ?NP np:hasPublicationInfo ?I . }\n" +
             "  graph ?I { ?NP sio:isAbout <%s> }\n" +
             "  graph ?A {?S ?P ?O}\n" +
             "}";
