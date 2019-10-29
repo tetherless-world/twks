@@ -75,6 +75,7 @@ public final class TestData {
     public final Nanopublication ontologyNanopublication;
     public final Uri ontologyUri = Uri.parse("http://example.com/ontology");
     public final Nanopublication secondNanopublication;
+    public final Nanopublication secondOntologyNanopublication;
     public final Nanopublication specNanopublication;
 //    public final File whyisNanopublicationFilePath;
 
@@ -93,6 +94,12 @@ public final class TestData {
             final Model ontologyNanopublicationAssertions = ModelFactory.createDefaultModel().add(specNanopublication.getAssertion().getModel());
             ontologyNanopublicationAssertions.add(ResourceFactory.createResource(ontologyUri.toString()), RDF.type, OWL.Ontology);
             ontologyNanopublication = Nanopublication.builder().getAssertionBuilder().setModel(ontologyNanopublicationAssertions).getNanopublicationBuilder().build();
+        }
+
+        {
+            final Model ontologyNanopublicationAssertions = ModelFactory.createDefaultModel().add(secondNanopublication.getAssertion().getModel());
+            ontologyNanopublicationAssertions.add(ResourceFactory.createResource("http://example.com/ontology2"), RDF.type, OWL.Ontology);
+            secondOntologyNanopublication = Nanopublication.builder().getAssertionBuilder().setModel(ontologyNanopublicationAssertions).getNanopublicationBuilder().build();
         }
     }
 

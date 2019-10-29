@@ -18,11 +18,7 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.vocabulary.OWL;
-import org.apache.jena.vocabulary.RDF;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -86,8 +82,12 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     @After
     public final void tearDown() throws Exception {
-        sut.deleteNanopublication(testData.secondNanopublication.getUri());
-        sut.deleteNanopublication(testData.specNanopublication.getUri());
+        sut.deleteNanopublications(ImmutableList.of(
+                testData.ontologyNanopublication.getUri(),
+                testData.secondNanopublication.getUri(),
+                testData.secondOntologyNanopublication.getUri(),
+                testData.specNanopublication.getUri()
+        ));
         closeSystemUnderTest(sut);
         MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
     }
@@ -222,12 +222,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         }
 
         sut.putNanopublication(testData.ontologyNanopublication);
-        {
-            final Model ontologyNanopublicationAssertions = ModelFactory.createDefaultModel().add(testData.secondNanopublication.getAssertion().getModel());
-            ontologyNanopublicationAssertions.add(ResourceFactory.createResource("http://example.com/ontology2"), RDF.type, OWL.Ontology);
-            final Nanopublication secondOntologyNanopublication = Nanopublication.builder().getAssertionBuilder().setModel(ontologyNanopublicationAssertions).getNanopublicationBuilder().build();
-            sut.putNanopublication(secondOntologyNanopublication);
-        }
+        sut.putNanopublication(testData.secondOntologyNanopublication);
 
         final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
         assertTrue(assertions.isIsomorphicWith(testData.ontologyNanopublication.getAssertion().getModel()));
