@@ -125,6 +125,7 @@ public final class NanopublicationFactory {
         final Resource provenanceResource = headModel.createResource(provenanceUri.toString());
         final Resource publicationInfoResource = headModel.createResource(publicationInfoUri.toString());
 
+        // Specification:
         // :head {
         //    ex:pub1 a np:Nanopublication .
         //    ex:pub1 np:hasAssertion :assertion .
@@ -143,7 +144,6 @@ public final class NanopublicationFactory {
 
         return headModel;
     }
-
 
     /**
      * Create one or more nanopublications from a Dataset containing the nanopublication parts' named graphs.
@@ -236,7 +236,7 @@ public final class NanopublicationFactory {
                         unusedDatasetModelNameI.remove();
                         break;
                     default:
-                        // There is exactly one quad of the form '[N] rdf:type np:Nanopublication [H]', which identifies [N] as the nanopublication URI, and [H] as the head URI
+                        // Specification: There is exactly one quad of the form '[N] rdf:type np:Nanopublication [H]', which identifies [N] as the nanopublication URI, and [H] as the head URI
                         throw new MalformedNanopublicationException(String.format("nanopublication head graph %s has more than one rdf:type Nanopublication", modelName));
                 }
             }
@@ -334,11 +334,11 @@ public final class NanopublicationFactory {
                     final NanopublicationPart head = headEntry.getValue();
 
                     try {
-                        // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasAssertion [A] [H]', which identifies [A] as the assertion URI
+                        // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasAssertion [A] [H]', which identifies [A] as the assertion URI
                         final NanopublicationPart assertion = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasAssertion, unusedDatasetModelNames);
-                        // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasProvenance [P] [H]', which identifies [P] as the provenance URI
+                        // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasProvenance [P] [H]', which identifies [P] as the provenance URI
                         final NanopublicationPart provenance = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasProvenance, unusedDatasetModelNames);
-                        // Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
+                        // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
                         final NanopublicationPart publicationInfo = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasPublicationInfo, unusedDatasetModelNames);
 
                         nanopublication = createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
