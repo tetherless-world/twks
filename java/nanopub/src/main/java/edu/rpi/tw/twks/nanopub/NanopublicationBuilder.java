@@ -23,16 +23,7 @@ public final class NanopublicationBuilder {
     private @Nullable
     Uri uri = null;
 
-    public final NanopublicationAssertionBuilder getAssertionBuilder() {
-        return assertionBuilder;
-    }
-
-    public final NanopublicationProvenanceBuilder getProvenanceBuilder() {
-        return provenanceBuilder;
-    }
-
-    public final NanopublicationPublicationInfoBuilder getPublicationInfoBuilder() {
-        return publicationInfoBuilder;
+    NanopublicationBuilder() {
     }
 
     public final Nanopublication build() {
@@ -53,6 +44,18 @@ public final class NanopublicationBuilder {
         } catch (final MalformedNanopublicationException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public final NanopublicationAssertionBuilder getAssertionBuilder() {
+        return assertionBuilder;
+    }
+
+    public final NanopublicationProvenanceBuilder getProvenanceBuilder() {
+        return provenanceBuilder;
+    }
+
+    public final NanopublicationPublicationInfoBuilder getPublicationInfoBuilder() {
+        return publicationInfoBuilder;
     }
 
     public final NanopublicationBuilder setUri(@Nullable final Uri uri) {
@@ -81,6 +84,41 @@ public final class NanopublicationBuilder {
         @Override
         protected final NanopublicationPartType getType() {
             return NanopublicationPartType.ASSERTION;
+        }
+    }
+
+    private abstract class NanopublicationPartBuilder<NanopublicationPartBuilderT extends NanopublicationPartBuilder<?>> {
+        private Model model = ModelFactory.createDefaultModel();
+        private @Nullable
+        Uri name = null;
+
+        public final Model getModel() {
+            return model;
+        }
+
+        @SuppressWarnings("unchecked")
+        public NanopublicationPartBuilderT setModel(final Model model) {
+            this.model = checkNotNull(model);
+            return (NanopublicationPartBuilderT) this;
+        }
+
+        public final NanopublicationBuilder getNanopublicationBuilder() {
+            return NanopublicationBuilder.this;
+        }
+
+        protected final Uri getOrGenerateName() {
+            if (this.name != null) {
+                return this.name;
+            }
+            return Uri.parse(NanopublicationBuilder.this.generatedUri.toString() + "#" + getType().name().toLowerCase());
+        }
+
+        protected abstract NanopublicationPartType getType();
+
+        @SuppressWarnings("unchecked")
+        public final NanopublicationPartBuilderT setName(final Uri name) {
+            this.name = checkNotNull(name);
+            return (NanopublicationPartBuilderT) this;
         }
     }
 
@@ -118,40 +156,5 @@ public final class NanopublicationBuilder {
         protected final NanopublicationPartType getType() {
             return NanopublicationPartType.PUBLICATION_INFO;
         }
-    }
-
-    private abstract class NanopublicationPartBuilder<NanopublicationPartBuilderT extends NanopublicationPartBuilder<?>> {
-        private Model model = ModelFactory.createDefaultModel();
-        private @Nullable
-        Uri name = null;
-
-        public final Model getModel() {
-            return model;
-        }
-
-        @SuppressWarnings("unchecked")
-        public NanopublicationPartBuilderT setModel(final Model model) {
-            this.model = checkNotNull(model);
-            return (NanopublicationPartBuilderT) this;
-        }
-
-        public final NanopublicationBuilder getNanopublicationBuilder() {
-            return NanopublicationBuilder.this;
-        }
-
-        protected final Uri getOrGenerateName() {
-            if (this.name != null) {
-                return this.name;
-            }
-            return Uri.parse(NanopublicationBuilder.this.generatedUri.toString() + "#" + getType().name().toLowerCase());
-        }
-
-        @SuppressWarnings("unchecked")
-        public final NanopublicationPartBuilderT setName(final Uri name) {
-            this.name = checkNotNull(name);
-            return (NanopublicationPartBuilderT) this;
-        }
-
-        protected abstract NanopublicationPartType getType();
     }
 }

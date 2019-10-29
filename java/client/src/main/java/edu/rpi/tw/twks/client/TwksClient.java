@@ -6,6 +6,7 @@ import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.google.common.reflect.TypeToken;
 import edu.rpi.tw.twks.api.AdministrationApi;
@@ -128,6 +129,11 @@ public final class TwksClient implements AdministrationApi, GetAssertionsApi, Na
         } catch (final IOException e) {
             throw wrapException(e);
         }
+    }
+
+    @Override
+    public final Model getAssertionsByOntology(final ImmutableSet<Uri> ontologyUris) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

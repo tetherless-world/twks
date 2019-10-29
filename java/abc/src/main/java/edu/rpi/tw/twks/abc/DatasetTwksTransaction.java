@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.*;
@@ -156,6 +157,11 @@ public abstract class DatasetTwksTransaction implements TwksTransaction {
             assertions.add(assertion);
         }
         return assertions;
+    }
+
+    @Override
+    public final Model getAssertionsByOntology(final ImmutableSet<Uri> ontologyUris) {
+        throw new UnsupportedOperationException();
     }
 
     protected final Dataset getDataset() {

@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.AdministrationApi;
@@ -11,6 +12,7 @@ import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.MoreDatasetFactory;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
+import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -155,6 +157,41 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         }
         sut.putNanopublication(testData.secondNanopublication);
         assertFalse(((GetAssertionsApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
+    }
+
+    @Test
+    public void testGetAssertionsByOntologyEmpty() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        sut.putNanopublication(testData.specNanopublication);
+        final Model assertions = ((GetAssertionsApi) sut).getAssertionsByOntology(ImmutableSet.of(Uri.parse("http://example.com/nonextant")));
+        assertTrue(assertions.listStatements().toList().isEmpty());
+    }
+
+    @Test
+    public void testGetAssertionsByOntologyMixed() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        sut.putNanopublication(testData.specNanopublication); // No ontology
+        sut.putNanopublication(testData.secondNanopublication); // No ontology
+        sut.putNanopublication(testData.ontologyNanopublication);
+        final Model assertions = ((GetAssertionsApi) sut).getAssertionsByOntology(ImmutableSet.of(testData.ontologyUri));
+        assertTrue(assertions.isIsomorphicWith(testData.ontologyNanopublication.getAssertion().getModel()));
+    }
+
+    @Test
+    public void testGetAssertionsByOntologyOne() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        sut.putNanopublication(testData.ontologyNanopublication);
+        final Model assertions = ((GetAssertionsApi) sut).getAssertionsByOntology(ImmutableSet.of(testData.ontologyUri));
+        assertTrue(assertions.isIsomorphicWith(testData.ontologyNanopublication.getAssertion().getModel()));
     }
 
     @Test
