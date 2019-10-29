@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 
 public final class NanopublicationBuilder {
     private final NanopublicationAssertionBuilder assertionBuilder = new NanopublicationAssertionBuilder();
@@ -83,9 +84,13 @@ public final class NanopublicationBuilder {
     }
 
     private abstract class NanopublicationPartBuilder<NanopublicationPartBuilderT extends NanopublicationPartBuilder<?>> {
-        private Model model = ModelFactory.createDefaultModel();
+        private Model model;
         private @Nullable
         Uri name = null;
+
+        private NanopublicationPartBuilder() {
+            this.setModel(ModelFactory.createDefaultModel());
+        }
 
         public final Model getModel() {
             return model;
@@ -94,6 +99,7 @@ public final class NanopublicationBuilder {
         @SuppressWarnings("unchecked")
         public NanopublicationPartBuilderT setModel(final Model model) {
             this.model = checkNotNull(model);
+            setNsPrefixes(model);
             return (NanopublicationPartBuilderT) this;
         }
 

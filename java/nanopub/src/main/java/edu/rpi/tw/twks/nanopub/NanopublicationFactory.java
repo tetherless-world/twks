@@ -3,9 +3,7 @@ package edu.rpi.tw.twks.nanopub;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.rpi.tw.twks.vocabulary.NANOPUB;
-import edu.rpi.tw.twks.vocabulary.PROV;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -28,40 +26,6 @@ public final class NanopublicationFactory {
     public NanopublicationFactory(final NanopublicationDialect dialect) {
         this.dialect = checkNotNull(dialect);
         this.validator = new NanopublicationValidator(dialect);
-    }
-
-    /**
-     * Create a nanopublication from an assertions model. Fills in the provenance and publication info parts.
-     * <p>
-     * Does not modify the assertions Model, although it is passed to the Nanopublication as-is and may be modified from there.
-     */
-    public final Nanopublication createNanopublicationFromAssertions(final Model assertions) {
-        // Can't assume the source URI can be extended with fragments, so create a new URI.
-        final String nanopublicationUriString = "urn:uuid:" + UUID.randomUUID().toString();
-        final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
-
-        final Literal generatedAtTime = ResourceFactory.createTypedLiteral(new XSDDateTime(Calendar.getInstance()));
-
-        setNsPrefixes(assertions);
-        final String assertionUriString = nanopublicationUriString + "#assertion";
-        final Uri assertionUri = Uri.parse(assertionUriString);
-
-        final Model provenanceModel = ModelFactory.createDefaultModel();
-        setNsPrefixes(provenanceModel);
-        provenanceModel.createResource(assertionUriString).addProperty(PROV.generatedAtTime, generatedAtTime);
-        final Uri provenanceUri = Uri.parse(nanopublicationUriString + "#provenance");
-
-        final Model publicationInfoModel = ModelFactory.createDefaultModel();
-        setNsPrefixes(publicationInfoModel);
-        final String publicationInfoUriString = nanopublicationUriString + "#publicationInfo";
-        final Uri publicationInfoUri = Uri.parse(publicationInfoUriString);
-        publicationInfoModel.createResource(nanopublicationUriString).addProperty(PROV.generatedAtTime, generatedAtTime);
-
-        final String headUriString = nanopublicationUriString + "#head";
-        final Uri headUri = Uri.parse(headUriString);
-        final Model headModel = createNanopublicationHead(assertionUri, nanopublicationUri, provenanceUri, publicationInfoUri);
-
-        return new Nanopublication(new NanopublicationPart(assertions, assertionUri), new NanopublicationPart(headModel, headUri), new NanopublicationPart(provenanceModel, provenanceUri), new NanopublicationPart(publicationInfoModel, publicationInfoUri), nanopublicationUri);
     }
 
     /**
@@ -137,7 +101,7 @@ public final class NanopublicationFactory {
         nanopublicationResource.addProperty(NANOPUB.hasProvenance, provenanceResource);
         nanopublicationResource.addProperty(NANOPUB.hasPublicationInfo, publicationInfoResource);
 
-        // Explicit type statements that help storage
+        // Reproducing Whyis functionality: explicit type statements that help storage
         assertionResource.addProperty(RDF.type, NANOPUB.Assertion);
         provenanceResource.addProperty(RDF.type, NANOPUB.Provenance);
         publicationInfoResource.addProperty(RDF.type, NANOPUB.PublicationInfo);
@@ -151,6 +115,13 @@ public final class NanopublicationFactory {
      * Does not modify the Dataset or its underlying Models, although they are passed as-is into Nanopublication and may be modified from there.
      */
     public final ImmutableList<Nanopublication> createNanopublicationsFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
+        // Specification: All triples must be placed in one of [H] or [A] or [P] or [I]
+        if (dialect != NanopublicationDialect.WHYIS) {
+            if (!dataset.getDefaultModel().isEmpty()) {
+                throw new MalformedNanopublicationException("dataset contains statements in the default model");
+            }
+        }
+
         // This method keeps a lot of state through a lot of logic, so delegate to a temporary instance that has all of the state
         try (final DatasetNanopublications delegate = new DatasetNanopublications(dataset)) {
             try {

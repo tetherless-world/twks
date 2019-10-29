@@ -17,16 +17,6 @@ public final class NanopublicationParser {
     private final RDFParserBuilder rdfParserBuilder = RDFParserBuilder.create();
     private NanopublicationDialect dialect = NanopublicationDialect.SPECIFICATION;
 
-    public NanopublicationParser setDialect(final NanopublicationDialect dialect) {
-        this.dialect = checkNotNull(dialect);
-        return this;
-    }
-
-    public final NanopublicationParser setLang(final Lang lang) {
-        rdfParserBuilder.lang(checkNotNull(lang));
-        return this;
-    }
-
     public final ImmutableList<Nanopublication> parseAll(final File filePath) throws MalformedNanopublicationException {
         final Uri nanopublicationUri = Uri.parse(checkNotNull(filePath).toURI().toString());
         rdfParserBuilder.source(filePath.getPath());
@@ -47,6 +37,20 @@ public final class NanopublicationParser {
         return parseAllDelegate(sourceUri);
     }
 
+    private ImmutableList<Nanopublication> parseAllDelegate(final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
+        final Dataset dataset = DatasetFactory.create();
+        rdfParserBuilder.parse(dataset);
+
+        final NanopublicationFactory factory = new NanopublicationFactory(dialect);
+
+        // Dataset has named graphs, assume it's a well-formed nanopublication.
+        if (dataset.listNames().hasNext()) {
+            return factory.createNanopublicationsFromDataset(dataset);
+        }
+
+        return ImmutableList.of(Nanopublication.builder().getAssertionBuilder().setModel(dataset.getDefaultModel()).getNanopublicationBuilder().build());
+    }
+
     public final Nanopublication parseOne(final File filePath) throws MalformedNanopublicationException {
         return parseOneDelegate(parseAll(filePath));
     }
@@ -63,20 +67,6 @@ public final class NanopublicationParser {
         return parseOneDelegate(parseAll(stringReader, sourceUri));
     }
 
-    private ImmutableList<Nanopublication> parseAllDelegate(final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
-        final Dataset dataset = DatasetFactory.create();
-        rdfParserBuilder.parse(dataset);
-
-        final NanopublicationFactory factory = new NanopublicationFactory(dialect);
-
-        // Dataset has named graphs, assume it's a well-formed nanopublication.
-        if (dataset.listNames().hasNext()) {
-            return factory.createNanopublicationsFromDataset(dataset);
-        }
-
-        return ImmutableList.of(factory.createNanopublicationFromAssertions(dataset.getDefaultModel()));
-    }
-
     private Nanopublication parseOneDelegate(final ImmutableList<Nanopublication> nanopublications) throws MalformedNanopublicationException {
         switch (nanopublications.size()) {
             case 0:
@@ -86,5 +76,15 @@ public final class NanopublicationParser {
             default:
                 throw new MalformedNanopublicationException("more than one nanopublication parsed");
         }
+    }
+
+    public NanopublicationParser setDialect(final NanopublicationDialect dialect) {
+        this.dialect = checkNotNull(dialect);
+        return this;
+    }
+
+    public final NanopublicationParser setLang(final Lang lang) {
+        rdfParserBuilder.lang(checkNotNull(lang));
+        return this;
     }
 }
