@@ -119,7 +119,16 @@ public final class TwksClient implements AdministrationApi, GetAssertionsApi, Na
     @Override
     public final Model getAssertions() {
         try {
-            final HttpResponse response = httpRequestFactory.buildGetRequest(new GenericUrl(serverBaseUrl + "/assertions")).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
+            return getAssertions(httpRequestFactory.buildGetRequest(new GenericUrl(serverBaseUrl + "/assertions")));
+        } catch (final IOException e) {
+            throw wrapException(e);
+        }
+    }
+
+    private Model getAssertions(final HttpRequest request) {
+        request.setHeaders(new HttpHeaders().setAccept("text/trig"));
+        try {
+            final HttpResponse response = request.execute();
             try (final InputStream inputStream = response.getContent()) {
                 final Model model = ModelFactory.createDefaultModel();
                 setNsPrefixes(model);
@@ -158,7 +167,13 @@ public final class TwksClient implements AdministrationApi, GetAssertionsApi, Na
 
     @Override
     public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
-        throw new UnsupportedOperationException();
+        try {
+            final GenericUrl url = new GenericUrl(serverBaseUrl + "/assertions/ontology");
+            url.set("uri", ontologyUris);
+            return getAssertions(httpRequestFactory.buildGetRequest(url));
+        } catch (final IOException e) {
+            throw wrapException(e);
+        }
     }
 
     private GenericUrl newNanopublicationUrl(final Uri nanopublicationUri) {
