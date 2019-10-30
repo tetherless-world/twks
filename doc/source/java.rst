@@ -92,6 +92,8 @@ Java examples
 The repository contains a `number of examples of using TWKS from Java <https://github.com/tetherless-world/twks/tree/master/java/examples>`_.
 
 
+.. _java-client:
+
 Using the Java client
 ---------------------
 
