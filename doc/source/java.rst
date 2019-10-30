@@ -80,7 +80,7 @@ Then use a dependency as:
        <dependency>
            <groupId>edu.rpi.tw.twks</groupId>
            <artifactId>twks-api</artifactId>
-           <version>1.0.0-SNAPSHOT</version>
+           <version>1.0.2-SNAPSHOT</version>
        </dependency>
 
 
