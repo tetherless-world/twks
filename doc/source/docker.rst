@@ -1,5 +1,3 @@
-.. _docker:
-
 Using TWKS from Docker
 ======================
 
