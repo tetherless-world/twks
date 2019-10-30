@@ -136,7 +136,7 @@ You can parse nanopublications or loose assertion graphs with the `Nanopublicati
 
 
 Java library development
-^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 The TWKS public-facing library API is in the class `Twks <https://github.com/tetherless-world/twks/blob/master/java/api/src/main/java/edu/rpi/tw/twks/api/Twks.java>`_.
 

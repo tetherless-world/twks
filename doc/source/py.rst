@@ -30,6 +30,7 @@ Using the Python client
 `TwksClient <https://github.com/tetherless-world/twks/blob/master/py/twks/client/twks_client.py>`_ is the entry point class.
 
 The client API mirrors that of the TWKS server:
+
 * CRUD operations on nanopublications
 * querying assertions and nanopublications via SPARQL
 
