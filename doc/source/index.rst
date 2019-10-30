@@ -5,7 +5,7 @@ Tetherless World Knowledge Store (TWKS)
    :maxdepth: 2
    :caption: Contents:
 
-   features
+   overview
    docker
    java
    py

@@ -1,9 +1,10 @@
+.. _py:
+
 Using TWKS from Python
 ======================
 
 Prerequisites
 -------------
-
 
 * `Python 3 <https://www.python.org/>`_
 
@@ -19,6 +20,9 @@ Install the library:
 
 
 Or add a dependency from PyPI: `\ ``twks-client`` <https://pypi.org/project/twks-client/>`_.
+
+
+.. _py-client:
 
 Client use
 ----------

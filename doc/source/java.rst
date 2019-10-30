@@ -1,3 +1,5 @@
+.. _java:
+
 Using TWKS from Java
 ====================
 
@@ -18,7 +20,7 @@ The public-facing Java modules are:
 * ``twks-api``\ : public-facing Java library API, including the store library API ``Twks``
 * ``twks-client``\ : public-facing Java client API
 * ``twks-nanopub``\ : library for working with nanopublications, independently of TWKS
-* `twks-tdb`: [Jena TDB2](https://jena.apache.org/documentation/tdb2/) implementation of the ``Twks`` API
+* ``twks-tdb``: `Jena TDB2 <https://jena.apache.org/documentation/tdb2/>`_ implementation of the ``Twks`` API
 * ``twks-uri``\ : tiny type for URIs
 * ``twks-vocabulary``\ : RDF vocabulary singletons, similar to ``org.apache.jena.vocabulary``
 
@@ -82,12 +84,14 @@ Then use a dependency like:
        </dependency>
 
 
+.. _java-client:
+
 Use as a client
 ---------------
 
 The preferred way to access the store is over the network, as a client of the TWKS server. This allows the server implementation to be isolated.
 
-A Java client library is provided, `\ ``TwksClient`` <client/src/main/java/edu/rpi/tw/twks/client/TwksClient.java>`_. It is available via the following Maven dependency:
+A Java client library is provided, `TwksClient <https://github.com/tetherless-world/twks/blob/master/java/client/src/main/java/edu/rpi/tw/twks/client/TwksClient.java>`_. It is available via the following Maven dependency:
 
 .. code-block::
 
@@ -99,6 +103,9 @@ A Java client library is provided, `\ ``TwksClient`` <client/src/main/java/edu/r
 
 
 See the `\ ``examples`` <examples/>`_ directory for a client example.
+
+
+.. _java-lib:
 
 Use as a library
 ----------------
