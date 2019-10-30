@@ -10,6 +10,8 @@ Docker prerequisites
 2. `Docker Compose <https://docs.docker.com/compose/install/>`_
 
 
+.. _docker-server:
+
 Running the TWKS server in Docker
 ---------------------------------
 
@@ -36,6 +38,8 @@ which mounts the volumes at the paths listed above. You can add an additional bi
 
 and then copy files from the host to the appropriate ``twks-server`` volume e.g., ``cp /host/my-spi.jar /extcp``.
 
+
+.. _docker-cli:
 
 Running the TWKS command line interface with Docker
 ---------------------------------------------------

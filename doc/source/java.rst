@@ -131,8 +131,11 @@ See `\ ``TwksTest.java`` <test/src/main/java/edu/rpi/tw/twks/test/TwksTest.java>
 Like Jena ``Model`` and ``Dataset``\ , ``Twks`` has multiple implementations. For example, `\ ``Tdb2Twks`` <tdb/src/main/java/edu/rpi/tw/twks/tdb/Tdb2Twks.java>`_.
 You can instantiate an implementation directly, or indirectly through `\ ``TwksFactory`` <factory/src/main/java/edu/rpi/tw/twks/factory/TwksFactory.java>`_\ ), which is what the server and command line interfaces do.
 
-Command line use
-----------------
+
+.. _java-cli:
+
+Java command line use
+---------------------
 
 A command-line interface provides various sub-commands for manipulating TWKSs. After building, run:
 
@@ -145,8 +148,11 @@ To see the available sub-commands and their options.
 
 Note that TDB2 is a single process store, so you will not be able to access it separate library-using, command line, and/or server processes concurrently.
 
-Running the server
-------------------
+
+.. _java-server:
+
+Running the TWKS server directly on the host
+--------------------------------------------
 
 You can run the server directly on your host machine in one of two ways:
 
