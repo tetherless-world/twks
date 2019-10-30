@@ -3,13 +3,13 @@
 Using TWKS from Python
 ======================
 
-Prerequisites
--------------
+Python prerequisites
+--------------------
 
 * `Python 3 <https://www.python.org/>`_
 
-One-time setup
---------------
+One-time Python setup
+---------------------
 
 Install the library:
 
@@ -19,25 +19,21 @@ Install the library:
    python3 setup.py install
 
 
-Or add a dependency from PyPI: `\ ``twks-client`` <https://pypi.org/project/twks-client/>`_.
+Or add a dependency from PyPI: `twks-client <https://pypi.org/project/twks-client/>`_.
 
 
 .. _py-client:
 
-Client use
-----------
+Using the Python client
+-----------------------
 
-`\ ``TwksClient`` <twks/client/twks_client.py>`_ is the entry point class. It is a client of the `TWKS server <../docker/README.md>`_.
+`TwksClient <https://github.com/tetherless-world/twks/blob/master/py/twks/client/twks_client.py>`_ is the entry point class.
 
-The client API mirrors the primary TWKS API in `\ ``Twks.java`` <../java/api/src/main/java/edu/rpi/tw/twks/api/Twks.java>`_\ :
-
-
+The client API mirrors that of the TWKS server:
 * CRUD operations on nanopublications
 * querying assertions and nanopublications via SPARQL
 
-See `\ ``test_twks_client.py`` <tests/twks_test/client/test_twks_client.py>`_ for examples of using the client.
+Python examples
+---------------
 
-Other examples
---------------
-
-See the `\ ``examples`` <examples/>`_ directory for other examples.
+The repository contains a `number of examples of using TWKS from Python <https://github.com/tetherless-world/twks/tree/master/py/examples>`_.
