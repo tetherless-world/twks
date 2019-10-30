@@ -2,12 +2,10 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <artifactId>twks-parent</artifactId>
-    <description>Tetherless World Knowledge Store (TWKS)</description>
     <groupId>edu.rpi.tw.twks</groupId>
     <modelVersion>4.0.0</modelVersion>
-    <name>twks</name>
     <packaging>pom</packaging>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
 
     <build>
         <pluginManagement>
