@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <artifactId>twks-parent</artifactId>
     <description>Tetherless World Knowledge Store (TWKS)</description>
     <groupId>edu.rpi.tw.twks</groupId>
@@ -148,18 +149,18 @@
                                 <propertyPrefix>parsedVersion</propertyPrefix>
                             </configuration>
                         </execution>
-                        <execution>
-                            <id>add-source</id>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>add-source</goal>
-                            </goals>
-                            <configuration>
-                                <sources>
-                                    <source>${project.basedir}/src/gen/java</source>
-                                </sources>
-                            </configuration>
-                        </execution>
+                        <!--                        <execution>-->
+                        <!--                            <id>add-source</id>-->
+                        <!--                            <phase>generate-sources</phase>-->
+                        <!--                            <goals>-->
+                        <!--                                <goal>add-source</goal>-->
+                        <!--                            </goals>-->
+                        <!--                            <configuration>-->
+                        <!--                                <sources>-->
+                        <!--                                    <source>${project.basedir}/src/gen/java</source>-->
+                        <!--                                </sources>-->
+                        <!--                            </configuration>-->
+                        <!--                        </execution>-->
                     </executions>
                 </plugin>
                 <plugin>
