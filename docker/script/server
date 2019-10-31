@@ -6,4 +6,5 @@ cd "$(dirname "$0")/.."
 
 script/update
 
+cd compose/default
 docker-compose up twks-server
