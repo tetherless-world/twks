@@ -5,12 +5,11 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public final class TwksVersion {
-    public final static int INCREMENTAL;
-    public final static int MAJOR;
-    public final static int MINOR;
-    public final static String STRING;
+    private final static TwksVersion instance = new TwksVersion();
+    private final int incremental, major, minor;
+    private final String string;
 
-    static {
+    private TwksVersion() {
         int incremental;
         int major;
         int minor;
@@ -28,9 +27,30 @@ public final class TwksVersion {
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        INCREMENTAL = incremental;
-        MAJOR = major;
-        MINOR = minor;
-        STRING = string;
+        this.incremental = incremental;
+        this.major = major;
+        this.minor = minor;
+        this.string = string;
+    }
+
+    public final static TwksVersion getInstance() {
+        return instance;
+    }
+
+    public final int getIncremental() {
+        return incremental;
+    }
+
+    public final int getMajor() {
+        return major;
+    }
+
+    public final int getMinor() {
+        return minor;
+    }
+
+    @Override
+    public final String toString() {
+        return string;
     }
 }

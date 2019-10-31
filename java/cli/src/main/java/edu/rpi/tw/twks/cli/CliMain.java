@@ -5,6 +5,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
+import edu.rpi.tw.twks.api.TwksVersion;
 import edu.rpi.tw.twks.cli.command.Command;
 import edu.rpi.tw.twks.cli.command.DeleteNanopublicationsCommand;
 import edu.rpi.tw.twks.cli.command.DumpCommand;
@@ -34,6 +35,7 @@ public final class CliMain {
 
     public static void main(final String[] argv) {
         final JCommander.Builder jCommanderBuilder = JCommander.newBuilder();
+        jCommanderBuilder.programName("twks-cli " + TwksVersion.getInstance());
 
         final GlobalArgs globalArgs = new GlobalArgs();
         jCommanderBuilder.addObject(globalArgs);
@@ -51,6 +53,11 @@ public final class CliMain {
 
         if (globalArgs.help) {
             jCommander.usage();
+            return;
+        }
+
+        if (globalArgs.version) {
+            System.out.println(TwksVersion.getInstance());
             return;
         }
 
@@ -105,5 +112,8 @@ public final class CliMain {
 
         @Parameter(names = {"-h", "--help"})
         boolean help = false;
+
+        @Parameter(names = {"-v", "--version"})
+        boolean version = false;
     }
 }
