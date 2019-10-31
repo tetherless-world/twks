@@ -1,5 +1,4 @@
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <artifactId>twks-cli</artifactId>
     <description>${product} Command Line Interface (CLI)</description>
     <modelVersion>4.0.0</modelVersion>
@@ -8,7 +7,7 @@
     <parent>
         <groupId>edu.rpi.tw.twks</groupId>
         <artifactId>twks-parent</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.2</version>
     </parent>
 
     <build>
@@ -28,8 +27,7 @@
                         </filter>
                     </filters>
                     <transformers>
-                        <transformer
-                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>edu.rpi.tw.twks.cli.CliMain</mainClass>
                         </transformer>
                     </transformers>
@@ -40,8 +38,7 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <configuration>
                     <tasks>
-                        <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                              tofile="${project.build.directory}/../../dist/${project.artifactId}-current.jar"/>
+                        <copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.build.directory}/../../dist/${project.artifactId}-current.jar" />
                     </tasks>
                 </configuration>
             </plugin>
