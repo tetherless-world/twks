@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public final class TwksVersion {
-    private final static TwksVersion instance = new TwksVersion();
+    private static TwksVersion instance;
     private final int incremental, major, minor;
     private final String string;
 
@@ -14,7 +14,7 @@ public final class TwksVersion {
         int major;
         int minor;
         String string;
-        try (final InputStream inputStream = TwksVersion.class.getResourceAsStream("./version.properties")) {
+        try (final InputStream inputStream = getClass().getResourceAsStream("version.properties")) {
             final Properties properties = new Properties();
             properties.load(inputStream);
             incremental = Integer.parseInt(properties.getProperty("incrementalVersion"));
@@ -33,7 +33,10 @@ public final class TwksVersion {
         this.string = string;
     }
 
-    public final static TwksVersion getInstance() {
+    public final static synchronized TwksVersion getInstance() {
+        if (instance == null) {
+            instance = new TwksVersion();
+        }
         return instance;
     }
 
