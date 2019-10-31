@@ -1,2 +1,3 @@
 #!/bin/bash
-mvn -DskipTests -Darguments=-DskipTests -P release release:perform
+# release:perform automatically activates the release profile
+mvn -DskipTests -Darguments=-DskipTests release:perform

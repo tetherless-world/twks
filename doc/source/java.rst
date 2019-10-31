@@ -36,7 +36,7 @@ Release dependencies can be added directly to your Maven/Gradle/SBT configuratio
        <dependency>
            <groupId>edu.rpi.tw.twks</groupId>
            <artifactId>twks-api</artifactId>
-           <version>1.0.0</version>
+           <version>1.0.2</version>
        </dependency>
 
 
@@ -80,7 +80,7 @@ Then use a dependency as:
        <dependency>
            <groupId>edu.rpi.tw.twks</groupId>
            <artifactId>twks-api</artifactId>
-           <version>1.0.0-SNAPSHOT</version>
+           <version>1.0.3-SNAPSHOT</version>
        </dependency>
 
 
