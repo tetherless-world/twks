@@ -6,7 +6,7 @@
     <name>twks</name>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
 
     <build>
         <pluginManagement>
@@ -369,6 +369,6 @@
         <url>https://github.com/tetherless-world/twks</url>
         <connection>scm:git:git@github.com:tetherless-world/twks.git</connection>
         <developerConnection>scm:git:git@github.com:tetherless-world/twks.git</developerConnection>
-        <tag>1.0.2.2</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
