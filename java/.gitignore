@@ -26,5 +26,6 @@ hs_err_pid*
 dependency-reduced-pom.xml
 /dump/
 /out/
+/release.properties
 /site/
 target/
