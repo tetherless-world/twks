@@ -1,2 +1,2 @@
 #!/bin/bash
-mvn -DskipTests -Darguments=-DskipTests -P release release:rollback
+mvn -DskipTests -Darguments=-DskipTests release:rollback
