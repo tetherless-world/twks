@@ -7,7 +7,7 @@ FROM jetty:9.4.18-jre11
 USER jetty
 RUN mkdir /var/lib/jetty/tw-webapps
 COPY --from=build-java /twks/java/dist/twks-server-current.war /var/lib/jetty/tw-webapps
-COPY /docker/server/twks-server.xml /var/lib/jetty/webapps
+COPY /docker/image/server/twks-server.xml /var/lib/jetty/webapps
 
 USER root
 RUN mkdir /data && mkdir /dump && mkdir /extfs

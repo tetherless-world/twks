@@ -31,11 +31,11 @@ jobs:
             mv ~/.m2 java/
       - run:
           name: Build Docker images
-          command: cd docker && docker-compose build
+          command: cd docker/compose/ci && docker-compose build
       - run:
           name: Run the server
           command: |
-            cd docker
+            cd docker/compose/ci
             docker-compose up -d twks-java twks-py twks-server
             docker exec twks-py bash -c "curl --retry-connrefused --retry 90 --retry-delay 1 http://twks-server:8080"
       # Cache ~/.m2 before building Java examples, since that installs our libraries into ~/.m2
@@ -90,7 +90,7 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
-              cd docker && docker-compose push twks-cli twks-server
+              cd docker/compose/ci && docker-compose push twks-cli twks-server
             fi
       - run:
           name: Push Java artifacts (master only)

@@ -1,0 +1,34 @@
+version: '3'
+services:
+  twks-cli:
+    build:
+      context: ../../..
+      dockerfile: docker/image/cli/Dockerfile
+    container_name: "twks-cli"
+    depends_on:
+      - twks-java
+    image: tetherlessworld/twks-cli
+    links:
+      - twks-server
+  twks-java:
+    build:
+      context: ../../..
+      dockerfile: docker/image/java/Dockerfile
+    command: ["tail", "-f", "/dev/null"]
+    container_name: "twks-java"
+    image: "twks-java"
+  twks-py:
+    build:
+      context: ../../..
+      dockerfile: docker/image/py/Dockerfile
+    command: ["tail", "-f", "/dev/null"]
+    container_name: "twks-py"
+    image: "twks-py"
+  twks-server:
+    build:
+      context: ../../..
+      dockerfile: docker/image/server/Dockerfile
+    container_name: "twks-server"
+    depends_on:
+      - twks-java
+    image: tetherlessworld/twks-server

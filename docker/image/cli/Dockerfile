@@ -7,7 +7,7 @@ FROM twks-java as build-java
 FROM openjdk:11-jre-slim-buster
 
 COPY --from=build-java /twks/java/dist/twks-cli-current.jar /
-COPY /docker/cli/twks-cli-stub /
+COPY /docker/image/cli/twks-cli-stub /
 RUN cat /twks-cli-stub /twks-cli-current.jar >/twks-cli && chmod +x /twks-cli && rm /twks-cli-stub /twks-cli-current.jar
 
 ENTRYPOINT ["/twks-cli"]
