@@ -27,6 +27,8 @@ services:
       context: ../../..
       dockerfile: docker/image/server/Dockerfile
     container_name: "twks-server"
+    environment:
+      - JAVA_OPTIONS=-Dtwks.extfs=/extfs -Dtwks.tdbLocation=/data
     depends_on:
       - twks-java
     image: tetherlessworld/twks-server
