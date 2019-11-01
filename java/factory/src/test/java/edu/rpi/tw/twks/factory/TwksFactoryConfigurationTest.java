@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.factory;
 
+import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -11,10 +12,10 @@ public final class TwksFactoryConfigurationTest {
     @Test
     public void testSetFromProperties() {
         final TwksFactoryConfiguration.Builder builder = TwksFactoryConfiguration.builder();
-        assertFalse(builder.getTdb2Location().isPresent());
+        assertFalse(builder.getTdb2Configuration().isPresent());
         final Properties properties = new Properties();
-        properties.setProperty(TwksFactoryConfiguration.PropertyKeys.TDB2_LOCATION, "test");
+        properties.setProperty(Tdb2TwksConfiguration.PropertyKeys.LOCATION, "test");
         builder.setFromProperties(properties);
-        assertEquals("test", builder.build().getTdb2Location().get());
+        assertEquals("test", builder.build().getTdb2Configuration().get().getLocation().get());
     }
 }

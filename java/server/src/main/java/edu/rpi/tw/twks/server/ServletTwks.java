@@ -16,12 +16,12 @@ public final class ServletTwks {
     private final static Logger logger = LoggerFactory.getLogger(ServletTwks.class);
     private static ServletTwks instance = null;
     private final ClasspathExtensions classpathExtensions;
-    private final Twks twks;
     private final FileSystemExtensions fileSystemExtensions;
+    private final Twks twks;
 
     private ServletTwks(final ServletConfiguration configuration) {
         logger.info("creating servlet Twks instance with configuration {}", configuration);
-        twks = TwksFactory.getInstance().createTwks(configuration);
+        twks = TwksFactory.getInstance().createTwks(configuration.getFactoryConfiguration());
         classpathExtensions = new ClasspathExtensions(configuration.getExtcpDirectoryPath(), twks);
         fileSystemExtensions = new FileSystemExtensions(configuration.getExtfsDirectoryPath(), Optional.of(configuration.getServerBaseUrl()), twks);
 
@@ -35,21 +35,21 @@ public final class ServletTwks {
         }
     }
 
+    public final synchronized static ServletTwks getInstance() {
+        return checkNotNull(instance);
+    }
+
     synchronized static void initializeInstance(final ServletConfiguration configuration) {
         checkState(instance == null);
         instance = new ServletTwks(configuration);
     }
 
-    public final synchronized static ServletTwks getInstance() {
-        return checkNotNull(instance);
+    private void destroy() {
+        classpathExtensions.destroy();
+        fileSystemExtensions.destroy();
     }
 
     public final Twks getTwks() {
         return twks;
-    }
-
-    private void destroy() {
-        classpathExtensions.destroy();
-        fileSystemExtensions.destroy();
     }
 }

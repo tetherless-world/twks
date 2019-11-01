@@ -1,85 +1,83 @@
 package edu.rpi.tw.twks.factory;
 
 import com.google.common.base.MoreObjects;
-import edu.rpi.tw.twks.api.TwksConfiguration;
+import edu.rpi.tw.twks.api.AbstractConfiguration;
+import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
 
-import javax.annotation.Nullable;
-import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
-public class TwksFactoryConfiguration extends TwksConfiguration {
-    private final Optional<String> tdb2Location;
+public final class TwksFactoryConfiguration extends AbstractConfiguration<TwksFactoryConfiguration> {
+    private final Optional<Tdb2TwksConfiguration> tdb2Configuration;
 
-    protected TwksFactoryConfiguration(final Path dumpDirectoryPath, final Optional<String> tdb2Location) {
-        super(dumpDirectoryPath);
-        this.tdb2Location = checkNotNull(tdb2Location);
+    private TwksFactoryConfiguration(final Optional<Tdb2TwksConfiguration> tdb2Configuration) {
+        this.tdb2Configuration = checkNotNull(tdb2Configuration);
+        if (tdb2Configuration.isPresent()) {
+            checkState(!tdb2Configuration.get().isEmpty());
+        }
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public final Optional<String> getTdb2Location() {
-        return tdb2Location;
+    public final Optional<Tdb2TwksConfiguration> getTdb2Configuration() {
+        return tdb2Configuration;
     }
 
     public final boolean isEmpty() {
-        return !getTdb2Location().isPresent();
+        if (getTdb2Configuration().isPresent()) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     protected MoreObjects.ToStringHelper toStringHelper() {
         return super.toStringHelper()
-                .add("tdb2Location", tdb2Location.orElse(null));
+                .add("tdb2Configuration", tdb2Configuration.orElse(null));
     }
 
-    public static class Builder extends TwksConfiguration.Builder {
-        private Optional<String> tdb2Location = Optional.empty();
+    public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksFactoryConfiguration> {
+        private Optional<Tdb2TwksConfiguration> tdb2Configuration = Optional.empty();
 
         protected Builder() {
         }
 
         @Override
-        public Builder setDumpDirectoryPath(final Path dumpDirectoryPath) {
-            return (Builder) super.setDumpDirectoryPath(dumpDirectoryPath);
+        public final TwksFactoryConfiguration build() {
+            return new TwksFactoryConfiguration(tdb2Configuration);
         }
 
-        @Override
-        public TwksFactoryConfiguration build() {
-            return new TwksFactoryConfiguration(getDumpDirectoryPath(), tdb2Location);
+        public final Optional<Tdb2TwksConfiguration> getTdb2Configuration() {
+            return tdb2Configuration;
         }
 
-        public final Optional<String> getTdb2Location() {
-            return tdb2Location;
+        public final Builder setTdb2Configuration(final Optional<Tdb2TwksConfiguration> tdb2Configuration) {
+            this.tdb2Configuration = checkNotNull(tdb2Configuration);
+            return this;
         }
 
-        public final Builder setTdb2Location(final Optional<String> tdb2Location) {
-            this.tdb2Location = checkNotNull(tdb2Location);
+        public final Builder setTdb2Configuration(final Tdb2TwksConfiguration tdb2Configuration) {
+            this.tdb2Configuration = Optional.of(tdb2Configuration);
             return this;
         }
 
         @Override
-        public Builder setFromSystemProperties() {
+        public final Builder setFromProperties(final Properties properties) {
+            final Tdb2TwksConfiguration tdb2Configuration = Tdb2TwksConfiguration.builder().setFromProperties(properties).build();
+            if (!tdb2Configuration.isEmpty()) {
+                this.tdb2Configuration = Optional.of(tdb2Configuration);
+            }
+            return this;
+        }
+
+        @Override
+        public final Builder setFromSystemProperties() {
             return (Builder) super.setFromSystemProperties();
         }
-
-        @Override
-        public Builder setFromProperties(final Properties properties) {
-            super.setFromProperties(properties);
-
-            @Nullable final String tdb2Location = properties.getProperty(PropertyKeys.TDB2_LOCATION);
-            if (tdb2Location != null) {
-                setTdb2Location(Optional.of(tdb2Location));
-            }
-
-            return this;
-        }
-    }
-
-    public static class PropertyKeys extends TwksConfiguration.PropertyKeys {
-        public final static String TDB2_LOCATION = "twks.tdbLocation";
     }
 }

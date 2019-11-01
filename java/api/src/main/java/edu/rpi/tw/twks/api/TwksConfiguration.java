@@ -9,7 +9,7 @@ import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class TwksConfiguration {
+public class TwksConfiguration extends AbstractConfiguration<TwksConfiguration> {
     private final static Path DUMP_DIRECTORY_PATH_DEFAULT = Paths.get("/dump");
     private final Path dumpDirectoryPath;
 
@@ -26,18 +26,15 @@ public class TwksConfiguration {
     }
 
     @Override
-    public final String toString() {
-        return toStringHelper().toString();
-    }
-
     protected MoreObjects.ToStringHelper toStringHelper() {
-        return MoreObjects.toStringHelper(this).omitNullValues()
+        return super.toStringHelper()
                 .add("dumpDirectoryPath", dumpDirectoryPath);
     }
 
-    public static class Builder {
+    public static class Builder extends AbstractConfiguration.Builder<Builder, TwksConfiguration> {
         private Path dumpDirectoryPath = DUMP_DIRECTORY_PATH_DEFAULT;
 
+        @Override
         public TwksConfiguration build() {
             return new TwksConfiguration(dumpDirectoryPath);
         }
@@ -51,10 +48,7 @@ public class TwksConfiguration {
             return this;
         }
 
-        public Builder setFromSystemProperties() {
-            return setFromProperties(System.getProperties());
-        }
-
+        @Override
         public Builder setFromProperties(final Properties properties) {
             @Nullable final String dumpDirectoryPath = properties.getProperty(PropertyKeys.DUMP_DIRECTORY_PATH);
             if (dumpDirectoryPath != null) {
@@ -62,6 +56,11 @@ public class TwksConfiguration {
             }
 
             return this;
+        }
+
+        @Override
+        public Builder setFromSystemProperties() {
+            return setFromProperties(System.getProperties());
         }
     }
 
