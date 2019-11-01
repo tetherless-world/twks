@@ -1,0 +1,8 @@
+version: '3'
+services:
+  twks-server:
+    build:
+      context: ../../..
+      dockerfile: docker/image/server/Dockerfile
+    container_name: "twks-server"
+    image: tetherlessworld/twks-server

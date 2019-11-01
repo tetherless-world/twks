@@ -19,5 +19,10 @@ services:
     shm_size: 1g
     volumes:
       - ./data:/data
-#    volumes_from:
-#      - agraph-data
+  #    volumes_from:
+  #      - agraph-data
+  twks-server:
+    container_name: "twks-server"
+    environment:
+      - JAVA_OPTIONS=-Dtwks.extfs=/extfs -Dtwks.tdbLocation=/data
+    image: tetherlessworld/twks-server
