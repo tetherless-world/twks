@@ -250,6 +250,7 @@
             <!-- All modules active by default -->
             <modules>
                 <module>abc</module>
+                <module>agraph</module>
                 <module>api</module>
                 <module>cli</module>
                 <module>client</module>
@@ -291,6 +292,7 @@
             <modules>
                 <!-- Copied from complete modules list, selectively commented out: cli, ext, server -->
                 <module>abc</module>
+                <module>agraph</module>
                 <module>api</module>
                 <!--                <module>cli</module>-->
                 <module>client</module>
