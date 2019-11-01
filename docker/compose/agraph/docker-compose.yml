@@ -1,6 +1,10 @@
 # docker-compose version 3 doesn't support volumes_from, which is why we're using 2
-version: '2'
+version: '3'
 services:
+  #  agraph-data:
+  #    command: ["tail", "-f", "/dev/null"]
+  #    container_name: agraph-data
+  #    image: franzinc/agraph-data:latest
   agraph:
     container_name: agraph
     #    deploy:
@@ -11,11 +15,9 @@ services:
       - 10000-10035
     image: franzinc/agraph:v6.6.0
     ports:
-      - 10000-10035
+      - "10000-10035:10000-10035"
     shm_size: 1g
-    volumes_from:
-      - agraph-data
-  agraph-data:
-    command: ["tail", "-f", "/dev/null"]
-    container_name: agraph-data
-    image: franzinc/agraph-data:latest
+    volumes:
+      - ./data:/data
+#    volumes_from:
+#      - agraph-data
