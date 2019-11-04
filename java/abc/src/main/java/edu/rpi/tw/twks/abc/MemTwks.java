@@ -7,7 +7,7 @@ import org.apache.jena.query.ReadWrite;
 /**
  * A Twks implementation backed by the default in-memory Dataset.
  */
-public final class MemTwks extends DatasetTwks {
+public final class MemTwks extends DatasetTwks<MemTwksConfiguration> {
     public MemTwks(final MemTwksConfiguration configuration) {
         super(configuration, DatasetFactory.createTxnMem());
     }

@@ -27,7 +27,7 @@ final class AllegroGraphTwksTransaction implements TwksTransaction {
 
     @Override
     public void abort() {
-        throw new UnsupportedOperationException();
+        // TODO: throw away observed operations
     }
 
     @Override
@@ -38,7 +38,6 @@ final class AllegroGraphTwksTransaction implements TwksTransaction {
 
     @Override
     public void commit() {
-        throw new UnsupportedOperationException();
     }
 
     @Override

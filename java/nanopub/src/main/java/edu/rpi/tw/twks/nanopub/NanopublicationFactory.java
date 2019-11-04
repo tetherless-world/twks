@@ -153,7 +153,7 @@ public final class NanopublicationFactory {
     /**
      * Helper class that facilitates iterating over the nanopublications within a Dataset within the confines of a Dataset transaction.
      */
-    public final class DatasetNanopublications implements AutoCloseable, Iterable<Nanopublication> {
+    public final class DatasetNanopublications implements AutoCloseableIterable<Nanopublication> {
         private final Dataset dataset;
         private final boolean ownTransaction;
         private final DatasetTransaction transaction;
