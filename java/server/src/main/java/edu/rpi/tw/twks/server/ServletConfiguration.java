@@ -12,7 +12,7 @@ import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class ServletConfiguration extends AbstractConfiguration<ServletConfiguration> {
+public final class ServletConfiguration extends AbstractConfiguration {
     private final Optional<Path> extcpDirectoryPath;
     private final Path extfsDirectoryPath;
     private final TwksFactoryConfiguration factoryConfiguration;

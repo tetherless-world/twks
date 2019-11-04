@@ -11,7 +11,7 @@ import java.util.Properties;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public final class TwksFactoryConfiguration extends AbstractConfiguration<TwksFactoryConfiguration> {
+public final class TwksFactoryConfiguration extends AbstractConfiguration {
     private final Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration;
     private final Optional<Tdb2TwksConfiguration> tdb2Configuration;
 

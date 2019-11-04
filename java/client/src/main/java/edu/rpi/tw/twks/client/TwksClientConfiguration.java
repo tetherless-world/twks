@@ -7,7 +7,7 @@ import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class TwksClientConfiguration extends AbstractConfiguration<TwksClientConfiguration> {
+public final class TwksClientConfiguration extends AbstractConfiguration {
     private final String serverBaseUrl;
 
     private TwksClientConfiguration(final String serverBaseUrl) {

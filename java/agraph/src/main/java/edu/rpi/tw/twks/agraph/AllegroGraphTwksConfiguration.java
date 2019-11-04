@@ -30,7 +30,7 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
         return super.toStringHelper().add("serverUrl", serverUrl).add("username", username);
     }
 
-    public final static class Builder extends TwksConfiguration.Builder {
+    public final static class Builder extends TwksConfiguration.Builder<Builder, AllegroGraphTwksConfiguration> {
         private String password = FieldDefinitions.PASSWORD.getDefault();
         private String serverUrl = null;
         private String username = FieldDefinitions.USERNAME.getDefault();
@@ -83,12 +83,7 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
                 }
             }
             setUsername(properties.getProperty(FieldDefinitions.USERNAME.getPropertyKey(), username));
-            return (Builder) super.setFromProperties(properties);
-        }
-
-        @Override
-        public final Builder setFromSystemProperties() {
-            return (Builder) super.setFromSystemProperties();
+            return super.setFromProperties(properties);
         }
     }
 

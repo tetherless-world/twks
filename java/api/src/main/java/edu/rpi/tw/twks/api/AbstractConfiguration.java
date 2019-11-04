@@ -6,7 +6,7 @@ import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class AbstractConfiguration<ConfigurationT extends AbstractConfiguration<?>> {
+public abstract class AbstractConfiguration {
     protected AbstractConfiguration() {
     }
 
@@ -19,7 +19,7 @@ public abstract class AbstractConfiguration<ConfigurationT extends AbstractConfi
         return MoreObjects.toStringHelper(this).omitNullValues();
     }
 
-    public abstract static class Builder<BuilderT extends Builder, ConfigurationT extends AbstractConfiguration<?>> {
+    public abstract static class Builder<BuilderT extends Builder, ConfigurationT extends AbstractConfiguration> {
         public abstract ConfigurationT build();
 
         public abstract BuilderT setFromProperties(final Properties properties);

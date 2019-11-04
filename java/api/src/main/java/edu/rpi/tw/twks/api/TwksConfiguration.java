@@ -9,15 +9,11 @@ import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class TwksConfiguration extends AbstractConfiguration<TwksConfiguration> {
+public abstract class TwksConfiguration extends AbstractConfiguration {
     private final Path dumpDirectoryPath;
 
     protected TwksConfiguration(final Path dumpDirectoryPath) {
         this.dumpDirectoryPath = checkNotNull(dumpDirectoryPath);
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public final Path getDumpDirectoryPath() {
@@ -30,35 +26,33 @@ public class TwksConfiguration extends AbstractConfiguration<TwksConfiguration> 
                 .add("dumpDirectoryPath", dumpDirectoryPath);
     }
 
-    public static class Builder extends AbstractConfiguration.Builder<Builder, TwksConfiguration> {
+    public abstract static class Builder<BuilderT extends Builder, TwksConfigurationT extends TwksConfiguration> extends AbstractConfiguration.Builder<BuilderT, TwksConfigurationT> {
         private Path dumpDirectoryPath = FieldDefinitions.DUMP_DIRECTORY_PATH.getDefault();
 
         @Override
-        public TwksConfiguration build() {
-            return new TwksConfiguration(dumpDirectoryPath);
-        }
+        public abstract TwksConfigurationT build();
 
         public final Path getDumpDirectoryPath() {
             return dumpDirectoryPath;
         }
 
-        public Builder setDumpDirectoryPath(final Path dumpDirectoryPath) {
+        public BuilderT setDumpDirectoryPath(final Path dumpDirectoryPath) {
             this.dumpDirectoryPath = dumpDirectoryPath;
-            return this;
+            return (BuilderT) this;
         }
 
         @Override
-        public Builder setFromProperties(final Properties properties) {
+        public BuilderT setFromProperties(final Properties properties) {
             @Nullable final String dumpDirectoryPath = properties.getProperty(FieldDefinitions.DUMP_DIRECTORY_PATH.getPropertyKey());
             if (dumpDirectoryPath != null) {
                 this.dumpDirectoryPath = Paths.get(dumpDirectoryPath);
             }
 
-            return this;
+            return (BuilderT) this;
         }
 
         @Override
-        public Builder setFromSystemProperties() {
+        public BuilderT setFromSystemProperties() {
             return setFromProperties(System.getProperties());
         }
     }
