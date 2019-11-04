@@ -4,6 +4,8 @@ import com.google.common.base.MoreObjects;
 
 import java.util.Properties;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class AbstractConfiguration<ConfigurationT extends AbstractConfiguration<?>> {
     protected AbstractConfiguration() {
     }
@@ -24,6 +26,31 @@ public abstract class AbstractConfiguration<ConfigurationT extends AbstractConfi
 
         public BuilderT setFromSystemProperties() {
             return setFromProperties(System.getProperties());
+        }
+    }
+
+    protected static class ConfigurationFieldDefinition {
+        private final String propertyKey;
+
+        public ConfigurationFieldDefinition(final String propertyKey) {
+            this.propertyKey = checkNotNull(propertyKey);
+        }
+
+        public final String getPropertyKey() {
+            return propertyKey;
+        }
+    }
+
+    protected final static class ConfigurationFieldDefinitionWithDefault<T> extends ConfigurationFieldDefinition {
+        private final T default_;
+
+        public ConfigurationFieldDefinitionWithDefault(final T default_, final String propertyKey) {
+            super(propertyKey);
+            this.default_ = checkNotNull(default_);
+        }
+
+        public final T getDefault() {
+            return default_;
         }
     }
 }

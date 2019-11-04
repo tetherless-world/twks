@@ -44,12 +44,12 @@ public final class TwksClientExample {
             "}\n";
 
     public static void main(final String[] argv) throws IOException, MalformedNanopublicationException {
-        final TwksClientConfiguration clientConfiguration = new TwksClientConfiguration();
+        final TwksClientConfiguration.Builder clientConfigurationBuilder = TwksClientConfiguration.builder();
         // Set the configuration from system properties. See that class for documentation.
-        clientConfiguration.setFromSystemProperties();
-        // Can also call setters directly on the configururation
+        clientConfigurationBuilder.setFromSystemProperties();
+        // Can also call setters directly on the configuration builder.
 
-        final TwksClient client = new TwksClient(clientConfiguration);
+        final TwksClient client = new TwksClient(clientConfigurationBuilder.build());
 
         // Parse a nanopublication to use
         // The parser may return more than one, but we know there's only one.

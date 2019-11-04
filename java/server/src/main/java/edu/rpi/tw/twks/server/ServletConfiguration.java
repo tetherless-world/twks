@@ -13,8 +13,6 @@ import java.util.Properties;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class ServletConfiguration extends AbstractConfiguration<ServletConfiguration> {
-    public final static Path EXTFS_DIRECTORY_PATH_DEFAULT = Paths.get("/extfs");
-    public final static String SERVER_BASE_URL_DEFAULT = "http://localhost:8080";
     private final Optional<Path> extcpDirectoryPath;
     private final Path extfsDirectoryPath;
     private final TwksFactoryConfiguration factoryConfiguration;
@@ -54,9 +52,9 @@ public final class ServletConfiguration extends AbstractConfiguration<ServletCon
 
     public final static class Builder extends AbstractConfiguration.Builder<Builder, ServletConfiguration> {
         private Optional<Path> extcpDirectoryPath = Optional.empty();
-        private Path extfsDirectoryPath = EXTFS_DIRECTORY_PATH_DEFAULT;
+        private Path extfsDirectoryPath = FieldDefinitions.EXTFS_DIRECTORY_PATH.getDefault();
         private TwksFactoryConfiguration factoryConfiguration = TwksFactoryConfiguration.builder().build();
-        private String serverBaseUrl = SERVER_BASE_URL_DEFAULT;
+        private String serverBaseUrl = FieldDefinitions.SERVER_BASE_URL.getDefault();
 
         private Builder() {
         }
@@ -112,20 +110,20 @@ public final class ServletConfiguration extends AbstractConfiguration<ServletCon
             }
 
             {
-                @Nullable final String value = properties.getProperty(PropertyKeys.EXTCP_DIRECTORY_PATH);
+                @Nullable final String value = properties.getProperty(FieldDefinitions.EXTCP_DIRECTORY_PATH.getPropertyKey());
                 if (value != null) {
                     setExtcpDirectoryPath(Optional.of(Paths.get(value)));
                 }
             }
 
             {
-                @Nullable final String value = properties.getProperty(PropertyKeys.EXTFS_DIRECTORY_PATH);
+                @Nullable final String value = properties.getProperty(FieldDefinitions.EXTFS_DIRECTORY_PATH.getPropertyKey());
                 if (value != null) {
                     setExtfsDirectoryPath(Paths.get(value));
                 }
             }
 
-            setServerBaseUrl(properties.getProperty(PropertyKeys.SERVER_BASE_URL, serverBaseUrl));
+            setServerBaseUrl(properties.getProperty(FieldDefinitions.SERVER_BASE_URL.getPropertyKey(), serverBaseUrl));
 
             return this;
         }
@@ -136,9 +134,9 @@ public final class ServletConfiguration extends AbstractConfiguration<ServletCon
         }
     }
 
-    public final static class PropertyKeys {
-        public final static String EXTCP_DIRECTORY_PATH = "twks.extcp";
-        public final static String EXTFS_DIRECTORY_PATH = "twks.extfs";
-        public final static String SERVER_BASE_URL = "twks.serverBaseUrl";
+    private final static class FieldDefinitions {
+        public final static ConfigurationFieldDefinition EXTCP_DIRECTORY_PATH = new ConfigurationFieldDefinition("twks.extcp");
+        public final static ConfigurationFieldDefinitionWithDefault<Path> EXTFS_DIRECTORY_PATH = new ConfigurationFieldDefinitionWithDefault<>(Paths.get("/extfs"), "twks.extfs");
+        public final static ConfigurationFieldDefinitionWithDefault<String> SERVER_BASE_URL = new ConfigurationFieldDefinitionWithDefault<>("http://localhost:8080", "twks.serverBaseUrl");
     }
 }

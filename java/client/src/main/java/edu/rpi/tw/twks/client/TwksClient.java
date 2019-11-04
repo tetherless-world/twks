@@ -44,8 +44,11 @@ public final class TwksClient implements AdministrationApi, GetAssertionsApi, Na
     private final ApacheHttpTransport httpTransport;
     private final String serverBaseUrl;
 
+    /**
+     * Construct a new TWKS client with a default configuration.
+     */
     public TwksClient() {
-        this(new TwksClientConfiguration());
+        this(TwksClientConfiguration.builder().build());
     }
 
     /**

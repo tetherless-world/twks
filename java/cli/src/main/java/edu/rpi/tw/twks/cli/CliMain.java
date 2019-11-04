@@ -94,8 +94,7 @@ public final class CliMain {
         }
 
         {
-            final TwksClientConfiguration clientConfiguration = new TwksClientConfiguration();
-            clientConfiguration.setFromSystemProperties().setFromProperties(configurationProperties);
+            final TwksClientConfiguration clientConfiguration = TwksClientConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties).build();
             final TwksClient client = new TwksClient(clientConfiguration);
             logger.info("using client with configuration {}", clientConfiguration);
 

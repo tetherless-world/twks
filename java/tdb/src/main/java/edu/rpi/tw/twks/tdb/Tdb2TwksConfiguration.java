@@ -65,7 +65,7 @@ public class Tdb2TwksConfiguration extends TwksConfiguration {
         public Builder setFromProperties(final Properties properties) {
             super.setFromProperties(properties);
 
-            @Nullable final String location = properties.getProperty(PropertyKeys.LOCATION);
+            @Nullable final String location = properties.getProperty(FieldDefinitions.LOCATION.getPropertyKey());
             if (location != null) {
                 setLocation(Optional.of(location));
             }
@@ -79,7 +79,7 @@ public class Tdb2TwksConfiguration extends TwksConfiguration {
         }
     }
 
-    public static class PropertyKeys extends TwksConfiguration.PropertyKeys {
-        public final static String LOCATION = "twks.tdbLocation";
+    private final static class FieldDefinitions {
+        public final static ConfigurationFieldDefinition LOCATION = new ConfigurationFieldDefinition("twks.tdbLocation");
     }
 }

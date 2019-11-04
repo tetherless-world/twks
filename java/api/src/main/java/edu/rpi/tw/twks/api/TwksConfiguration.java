@@ -10,7 +10,6 @@ import java.util.Properties;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TwksConfiguration extends AbstractConfiguration<TwksConfiguration> {
-    private final static Path DUMP_DIRECTORY_PATH_DEFAULT = Paths.get("/dump");
     private final Path dumpDirectoryPath;
 
     protected TwksConfiguration(final Path dumpDirectoryPath) {
@@ -32,7 +31,7 @@ public class TwksConfiguration extends AbstractConfiguration<TwksConfiguration> 
     }
 
     public static class Builder extends AbstractConfiguration.Builder<Builder, TwksConfiguration> {
-        private Path dumpDirectoryPath = DUMP_DIRECTORY_PATH_DEFAULT;
+        private Path dumpDirectoryPath = FieldDefinitions.DUMP_DIRECTORY_PATH.getDefault();
 
         @Override
         public TwksConfiguration build() {
@@ -50,7 +49,7 @@ public class TwksConfiguration extends AbstractConfiguration<TwksConfiguration> 
 
         @Override
         public Builder setFromProperties(final Properties properties) {
-            @Nullable final String dumpDirectoryPath = properties.getProperty(PropertyKeys.DUMP_DIRECTORY_PATH);
+            @Nullable final String dumpDirectoryPath = properties.getProperty(FieldDefinitions.DUMP_DIRECTORY_PATH.getPropertyKey());
             if (dumpDirectoryPath != null) {
                 this.dumpDirectoryPath = Paths.get(dumpDirectoryPath);
             }
@@ -64,7 +63,7 @@ public class TwksConfiguration extends AbstractConfiguration<TwksConfiguration> 
         }
     }
 
-    public static class PropertyKeys {
-        public final static String DUMP_DIRECTORY_PATH = "twks.dump";
+    private final static class FieldDefinitions {
+        public final static ConfigurationFieldDefinitionWithDefault<Path> DUMP_DIRECTORY_PATH = new ConfigurationFieldDefinitionWithDefault<>(Paths.get("/dump"), "twks.dump");
     }
 }
