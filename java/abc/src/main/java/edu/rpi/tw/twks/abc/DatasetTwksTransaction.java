@@ -1,22 +1,18 @@
 package edu.rpi.tw.twks.abc;
 
-import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.rpi.tw.twks.nanopub.AutoCloseableIterable;
 import edu.rpi.tw.twks.nanopub.DatasetTransaction;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
-import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 
 /**
  * A TwksTransaction that wraps a DatasetTransaction.
@@ -49,33 +45,18 @@ public abstract class DatasetTwksTransaction extends AbstractTwksTransaction {
     }
 
     @Override
-    public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
-        final Set<String> nanopublicationGraphNames = getNanopublicationGraphNames(uri);
-        if (nanopublicationGraphNames.isEmpty()) {
-            return DeleteNanopublicationResult.NOT_FOUND;
-        }
-        if (nanopublicationGraphNames.size() != 4) {
-            throw new IllegalStateException();
-        }
+    protected final void deleteNanopublication(final Set<String> nanopublicationGraphNames) {
         for (final String nanopublicationGraphName : nanopublicationGraphNames) {
             getDataset().removeNamedModel(nanopublicationGraphName);
         }
-        return DeleteNanopublicationResult.DELETED;
     }
 
     @Override
-    public final Model getAssertions() {
-        final Set<String> assertionGraphNames = getAssertionGraphNames();
-        final Model assertions = ModelFactory.createDefaultModel();
-        if (assertionGraphNames.isEmpty()) {
-            return assertions;
-        }
-        setNsPrefixes(assertions);
+    protected final void getAssertions(final Set<String> assertionGraphNames, final Model assertions) {
         for (final String assertionGraphName : assertionGraphNames) {
             final Model assertion = getDataset().getNamedModel(assertionGraphName);
             assertions.add(assertion);
         }
-        return assertions;
     }
 
     protected final Dataset getDataset() {
@@ -84,19 +65,6 @@ public abstract class DatasetTwksTransaction extends AbstractTwksTransaction {
 
     public final DatasetTransaction getDatasetTransaction() {
         return datasetTransaction;
-    }
-
-    @Override
-    public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
-        final Model assertions = ModelFactory.createDefaultModel();
-        setNsPrefixes(assertions);
-        for (final Uri ontologyUri : ontologyUris) {
-            for (final String assertionGraphName : getOntologyAssertionGraphNames(ontologyUri)) {
-                final Model assertion = getDataset().getNamedModel(assertionGraphName);
-                assertions.add(assertion);
-            }
-        }
-        return assertions;
     }
 
     @Override

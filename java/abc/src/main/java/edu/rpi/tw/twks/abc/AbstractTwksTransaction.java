@@ -1,12 +1,14 @@
 package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.slf4j.Logger;
@@ -19,6 +21,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 
 public abstract class AbstractTwksTransaction implements TwksTransaction {
     private final static String GET_ASSERTION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
@@ -56,6 +59,21 @@ public abstract class AbstractTwksTransaction implements TwksTransaction {
     protected AbstractTwksTransaction(final TwksConfiguration configuration) {
         this.configuration = checkNotNull(configuration);
     }
+
+    @Override
+    public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
+        final Set<String> nanopublicationGraphNames = getNanopublicationGraphNames(uri);
+        if (nanopublicationGraphNames.isEmpty()) {
+            return DeleteNanopublicationResult.NOT_FOUND;
+        }
+        if (nanopublicationGraphNames.size() != 4) {
+            throw new IllegalStateException();
+        }
+        deleteNanopublication(nanopublicationGraphNames);
+        return DeleteNanopublicationResult.DELETED;
+    }
+
+    protected abstract void deleteNanopublication(final Set<String> nanopublicationGraphNames);
 
     @Override
     public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
@@ -110,6 +128,23 @@ public abstract class AbstractTwksTransaction implements TwksTransaction {
         return assertionGraphNames;
     }
 
+    @Override
+    public final Model getAssertions() {
+        return getAssertions(getAssertionGraphNames());
+    }
+
+    private final Model getAssertions(final Set<String> assertionGraphNames) {
+        final Model assertions = ModelFactory.createDefaultModel();
+        if (assertionGraphNames.isEmpty()) {
+            return assertions;
+        }
+        setNsPrefixes(assertions);
+        getAssertions(assertionGraphNames, assertions);
+        return assertions;
+    }
+
+    protected abstract void getAssertions(Set<String> assertionGraphNames, Model assertions);
+
     protected final TwksConfiguration getConfiguration() {
         return configuration;
     }
@@ -145,16 +180,23 @@ public abstract class AbstractTwksTransaction implements TwksTransaction {
         return nanopublicationGraphNames;
     }
 
-    protected final Set<String> getOntologyAssertionGraphNames(final Uri ontologyUri) {
+    protected final Set<String> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris) {
         final Set<String> assertionGraphNames = new HashSet<>();
-        try (final QueryExecution queryExecution = queryNanopublications(QueryFactory.create(String.format(GET_ONTOLOGY_ASSERTION_GRAPH_NAMES_QUERY_STRING, ontologyUri)))) {
-            for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
-                final QuerySolution querySolution = resultSet.nextSolution();
-                final Resource g = querySolution.getResource("A");
-                assertionGraphNames.add(g.getURI());
+        for (final Uri ontologyUri : ontologyUris) {
+            try (final QueryExecution queryExecution = queryNanopublications(QueryFactory.create(String.format(GET_ONTOLOGY_ASSERTION_GRAPH_NAMES_QUERY_STRING, ontologyUri)))) {
+                for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
+                    final QuerySolution querySolution = resultSet.nextSolution();
+                    final Resource g = querySolution.getResource("A");
+                    assertionGraphNames.add(g.getURI());
+                }
             }
         }
         return assertionGraphNames;
+    }
+
+    @Override
+    public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
+        return getAssertions(getOntologyAssertionGraphNames(ontologyUris));
     }
 
     protected abstract AutoCloseableIterable<Nanopublication> iterateNanopublications();
