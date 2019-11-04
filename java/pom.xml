@@ -310,7 +310,7 @@
 
     <properties>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-        <jena.version>3.13.0</jena.version>
+        <jena.version>3.13.1</jena.version>
         <junit.version>4.12</junit.version>
         <product>Tetherless World Knowledge Store (TWKS)</product>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
