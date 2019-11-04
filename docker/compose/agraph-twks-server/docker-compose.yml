@@ -11,8 +11,8 @@ services:
     #      resources:
     #        limits:
     #          memory: 1g
-    expose:
-      - 10000-10035
+    #    expose:
+    #      - 10000-10035
     image: franzinc/agraph:v6.6.0
     ports:
       - "10000-10035:10000-10035"

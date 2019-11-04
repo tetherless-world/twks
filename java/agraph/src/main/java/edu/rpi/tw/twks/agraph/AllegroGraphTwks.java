@@ -29,7 +29,7 @@ public final class AllegroGraphTwks extends AbstractTwks<AllegroGraphTwksConfigu
 
     private final synchronized AGCatalog getCatalog() {
         if (catalog == null) {
-            catalog = getServer().getCatalog(getConfiguration().getCatalogId());
+            catalog = getServer().createCatalog(getConfiguration().getCatalogId());
         }
         return catalog;
     }
