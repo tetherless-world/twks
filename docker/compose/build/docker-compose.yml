@@ -1,11 +1,13 @@
 version: '3'
 services:
-  agraph:
+  twks-agraph:
     build:
       context: ../../..
       dockerfile: docker/image/agraph/Dockerfile
     container_name: twks-agraph
     image: tetherlessworld/twks-agraph
+    ports:
+      - "10000-10035:10000-10035"
     shm_size: 1g
   twks-cli:
     build:

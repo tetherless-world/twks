@@ -24,8 +24,9 @@ trap "echo Caught signal; terminate" SIGINT SIGTERM SIGQUIT
 /app/agraph/bin/agraph-control --config /data/etc/agraph.cfg start
 
 # MG: entrypoint customization
-/app/agraph/bin/agtool user add twks twks
-/app/agraph/bin/agtool user permissions twks super
+set +e
+sudo -u agraph /app/agraph/bin/agtool user add twks twks
+sudo -u agraph /app/agraph/bin/agtool user permissions twks super
 
 # Monitor the logfile.
 # This pattern (& to put the process in the background and
