@@ -101,7 +101,6 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
         }
     }
 
-
     @Override
     public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
