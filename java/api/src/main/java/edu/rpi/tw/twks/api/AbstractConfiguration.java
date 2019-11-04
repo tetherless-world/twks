@@ -24,7 +24,7 @@ public abstract class AbstractConfiguration {
 
         public abstract BuilderT setFromProperties(final Properties properties);
 
-        public BuilderT setFromSystemProperties() {
+        public final BuilderT setFromSystemProperties() {
             return setFromProperties(System.getProperties());
         }
     }

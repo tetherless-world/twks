@@ -36,7 +36,8 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
             return dumpDirectoryPath;
         }
 
-        public BuilderT setDumpDirectoryPath(final Path dumpDirectoryPath) {
+        @SuppressWarnings("unchecked")
+        public final BuilderT setDumpDirectoryPath(final Path dumpDirectoryPath) {
             this.dumpDirectoryPath = dumpDirectoryPath;
             return (BuilderT) this;
         }
@@ -49,11 +50,6 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
             }
 
             return (BuilderT) this;
-        }
-
-        @Override
-        public BuilderT setFromSystemProperties() {
-            return setFromProperties(System.getProperties());
         }
     }
 

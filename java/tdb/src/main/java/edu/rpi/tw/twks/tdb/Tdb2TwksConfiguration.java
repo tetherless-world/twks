@@ -36,7 +36,7 @@ public class Tdb2TwksConfiguration extends TwksConfiguration {
                 .add("tdb2Location", location.orElse(null));
     }
 
-    public static class Builder extends TwksConfiguration.Builder {
+    public static class Builder extends TwksConfiguration.Builder<Builder, Tdb2TwksConfiguration> {
         private Optional<String> location = Optional.empty();
 
         protected Builder() {
@@ -57,11 +57,6 @@ public class Tdb2TwksConfiguration extends TwksConfiguration {
         }
 
         @Override
-        public Builder setDumpDirectoryPath(final Path dumpDirectoryPath) {
-            return (Builder) super.setDumpDirectoryPath(dumpDirectoryPath);
-        }
-
-        @Override
         public Builder setFromProperties(final Properties properties) {
             super.setFromProperties(properties);
 
@@ -71,11 +66,6 @@ public class Tdb2TwksConfiguration extends TwksConfiguration {
             }
 
             return this;
-        }
-
-        @Override
-        public Builder setFromSystemProperties() {
-            return (Builder) super.setFromSystemProperties();
         }
     }
 

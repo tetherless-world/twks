@@ -127,11 +127,6 @@ public final class ServletConfiguration extends AbstractConfiguration {
 
             return this;
         }
-
-        @Override
-        public Builder setFromSystemProperties() {
-            return (Builder) super.setFromSystemProperties();
-        }
     }
 
     private final static class FieldDefinitions {

@@ -108,10 +108,5 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
 
             return this;
         }
-
-        @Override
-        public final Builder setFromSystemProperties() {
-            return (Builder) super.setFromSystemProperties();
-        }
     }
 }
