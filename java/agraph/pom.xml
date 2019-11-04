@@ -38,5 +38,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- The version of Jena that agraph-java-client depends on (3.3.0) also depended on Xerces. agraph-java-client uses a class from the latter -->
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.11.0</version>
+        </dependency>
     </dependencies>
 </project>

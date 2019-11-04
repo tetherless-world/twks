@@ -1,8 +1,6 @@
 package edu.rpi.tw.twks.agraph;
 
-import com.franz.agraph.jena.AGGraph;
-import com.franz.agraph.jena.AGGraphMaker;
-import com.franz.agraph.jena.AGModel;
+import com.franz.agraph.jena.*;
 import com.franz.agraph.repository.AGRepositoryConnection;
 import edu.rpi.tw.twks.abc.AbstractTwksTransaction;
 import edu.rpi.tw.twks.nanopub.AutoCloseableIterable;
@@ -10,7 +8,11 @@ import edu.rpi.tw.twks.nanopub.Nanopublication;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.Syntax;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.shared.DoesNotExistException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -18,6 +20,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
+    private final static Logger logger = LoggerFactory.getLogger(AllegroGraphTwksTransaction.class);
     private final AGGraphMaker graphMaker;
     private final AGRepositoryConnection repositoryConnection;
 
@@ -46,14 +49,20 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
     @Override
     protected void deleteNanopublication(final Set<String> nanopublicationGraphNames) {
         for (final String graphName : nanopublicationGraphNames) {
-            graphMaker.removeGraph(graphName);
+            try {
+                // Must open a graph locally before removing it
+                graphMaker.openGraph(graphName, false);
+                graphMaker.removeGraph(graphName);
+            } catch (final DoesNotExistException e) {
+                logger.warn("tried to delete non-extant graph {}", graphName);
+            }
         }
     }
 
     @Override
     protected final void getAssertions(final Set<String> assertionGraphNames, final Model assertions) {
         for (final String graphName : assertionGraphNames) {
-            final AGGraph graph = graphMaker.openGraph(graphName, true);
+            final AGGraph graph = graphMaker.openGraph(graphName, false);
             assertions.add(new AGModel(graph));
         }
     }
@@ -81,6 +90,7 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
 
     @Override
     public QueryExecution queryNanopublications(final Query query) {
-        throw new UnsupportedOperationException();
+        final AGQuery agraphQuery = AGQueryFactory.create(query.toString(Syntax.syntaxSPARQL_11));
+        return AGQueryExecutionFactory.create(agraphQuery, new AGModel(graphMaker.createGraph()));
     }
 }
