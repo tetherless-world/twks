@@ -10,13 +10,17 @@ import java.util.Properties;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
+    private final String catalogId;
     private final String password;
+    private final String repositoryId;
     private final String serverUrl;
     private final String username;
 
-    private AllegroGraphTwksConfiguration(final Path dumpDirectoryPath, final String password, final String serverUrl, final String username) {
+    private AllegroGraphTwksConfiguration(final String catalogId, final Path dumpDirectoryPath, final String password, final String repositoryId, final String serverUrl, final String username) {
         super(dumpDirectoryPath);
+        this.catalogId = checkNotNull(catalogId);
         this.password = checkNotNull(password);
+        this.repositoryId = checkNotNull(repositoryId);
         this.serverUrl = checkNotNull(serverUrl);
         this.username = checkNotNull(username);
     }
@@ -25,20 +29,51 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
         return new Builder();
     }
 
+    public final String getCatalogId() {
+        return catalogId;
+    }
+
+    public final String getPassword() {
+        return password;
+    }
+
+    public final String getRepositoryId() {
+        return repositoryId;
+    }
+
+    public final String getServerUrl() {
+        return serverUrl;
+    }
+
+    public final String getUsername() {
+        return username;
+    }
+
     @Override
     protected final MoreObjects.ToStringHelper toStringHelper() {
-        return super.toStringHelper().add("serverUrl", serverUrl).add("username", username);
+        return super.toStringHelper().add("catalogId", catalogId).add("serverUrl", serverUrl).add("username", username);
     }
 
     public final static class Builder extends TwksConfiguration.Builder<Builder, AllegroGraphTwksConfiguration> {
+        private String catalogId = FieldDefinitions.CATALOG_ID.getDefault();
         private String password = FieldDefinitions.PASSWORD.getDefault();
+        private String repositoryId = FieldDefinitions.REPOSITORY_ID.getDefault();
         private String serverUrl = null;
         private String username = FieldDefinitions.USERNAME.getDefault();
 
         @Override
         public final AllegroGraphTwksConfiguration build() {
             checkNotNull(serverUrl, "must set server URL");
-            return new AllegroGraphTwksConfiguration(getDumpDirectoryPath(), password, serverUrl, username);
+            return new AllegroGraphTwksConfiguration(catalogId, getDumpDirectoryPath(), password, repositoryId, serverUrl, username);
+        }
+
+        public final String getCatalogId() {
+            return catalogId;
+        }
+
+        public final Builder setCatalogId(final String catalogId) {
+            this.catalogId = checkNotNull(catalogId);
+            return this;
         }
 
         public final String getPassword() {
@@ -47,6 +82,15 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
 
         public final Builder setPassword(final String password) {
             this.password = checkNotNull(password);
+            return this;
+        }
+
+        public final String getRepositoryId() {
+            return repositoryId;
+        }
+
+        public final Builder setRepositoryId(final String repositoryId) {
+            this.repositoryId = checkNotNull(repositoryId);
             return this;
         }
 
@@ -75,6 +119,7 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
 
         @Override
         public final Builder setFromProperties(final Properties properties) {
+            setCatalogId(properties.getProperty(FieldDefinitions.CATALOG_ID.getPropertyKey(), catalogId));
             setPassword(properties.getProperty(FieldDefinitions.PASSWORD.getPropertyKey(), password));
             {
                 @Nullable final String value = properties.getProperty(FieldDefinitions.SERVER_URL.getPropertyKey());
@@ -88,7 +133,9 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
     }
 
     private final static class FieldDefinitions {
+        public final static ConfigurationFieldDefinitionWithDefault<String> CATALOG_ID = new ConfigurationFieldDefinitionWithDefault<>("twks-catalog", "twks.agraphCatalogId");
         public final static ConfigurationFieldDefinitionWithDefault<String> PASSWORD = new ConfigurationFieldDefinitionWithDefault<>("xyzzy", "twks.agraphPassword");
+        public final static ConfigurationFieldDefinitionWithDefault<String> REPOSITORY_ID = new ConfigurationFieldDefinitionWithDefault<>("twks-repository", "twks.agraphRepositoryId");
         public final static ConfigurationFieldDefinition SERVER_URL = new ConfigurationFieldDefinition("twks.agraphServerUrl");
         public final static ConfigurationFieldDefinitionWithDefault<String> USERNAME = new ConfigurationFieldDefinitionWithDefault<>("test", "twks.agraphUsername");
     }

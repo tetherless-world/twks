@@ -1,5 +1,7 @@
 package edu.rpi.tw.twks.agraph;
 
+import com.franz.agraph.jena.AGGraphMaker;
+import com.franz.agraph.repository.AGRepositoryConnection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.TwksTransaction;
@@ -7,7 +9,6 @@ import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
 
 import java.io.IOException;
@@ -16,10 +17,12 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 final class AllegroGraphTwksTransaction implements TwksTransaction {
-    private final AllegroGraphTwksConfiguration configuration;
+    private final AGGraphMaker graphMaker;
+    private final AGRepositoryConnection repositoryConnection;
 
-    public AllegroGraphTwksTransaction(final AllegroGraphTwksConfiguration configuration, final ReadWrite readWrite) {
-        this.configuration = checkNotNull(configuration);
+    public AllegroGraphTwksTransaction(final AGRepositoryConnection repositoryConnection) {
+        this.repositoryConnection = checkNotNull(repositoryConnection);
+        graphMaker = new AGGraphMaker(repositoryConnection);
     }
 
     @Override
@@ -29,7 +32,8 @@ final class AllegroGraphTwksTransaction implements TwksTransaction {
 
     @Override
     public void close() {
-        throw new UnsupportedOperationException();
+        graphMaker.close();
+        repositoryConnection.close();
     }
 
     @Override
