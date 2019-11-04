@@ -28,11 +28,12 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
         super(configuration);
         this.repositoryConnection = checkNotNull(repositoryConnection);
         graphMaker = new AGGraphMaker(repositoryConnection);
+        repositoryConnection.begin();
     }
 
     @Override
     public void abort() {
-        // TODO: throw away observed operations
+        repositoryConnection.rollback();
     }
 
     @Override
@@ -43,7 +44,7 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
 
     @Override
     public void commit() {
-        // TODO: execute observed operations
+        repositoryConnection.commit();
     }
 
     @Override
