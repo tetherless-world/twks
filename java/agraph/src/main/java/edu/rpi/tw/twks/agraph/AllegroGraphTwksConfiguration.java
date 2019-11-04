@@ -1,6 +1,8 @@
 package edu.rpi.tw.twks.agraph;
 
+import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.api.TwksConfiguration;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.Properties;
@@ -19,13 +21,23 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
         this.username = checkNotNull(username);
     }
 
+    public final static Builder builder() {
+        return new Builder();
+    }
+
+    @Override
+    protected final MoreObjects.ToStringHelper toStringHelper() {
+        return super.toStringHelper().add("serverUrl", serverUrl).add("username", username);
+    }
+
     public final static class Builder extends TwksConfiguration.Builder {
         private String password = FieldDefinitions.PASSWORD.getDefault();
-        private String serverUrl = FieldDefinitions.SERVER_URL.getDefault();
+        private String serverUrl = null;
         private String username = FieldDefinitions.USERNAME.getDefault();
 
         @Override
         public final AllegroGraphTwksConfiguration build() {
+            checkNotNull(serverUrl, "must set server URL");
             return new AllegroGraphTwksConfiguration(getDumpDirectoryPath(), password, serverUrl, username);
         }
 
@@ -38,7 +50,8 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
             return this;
         }
 
-        public final String getServerUrl() {
+        public final @Nullable
+        String getServerUrl() {
             return serverUrl;
         }
 
@@ -56,10 +69,19 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
             return this;
         }
 
+        public final boolean isValid() {
+            return serverUrl != null;
+        }
+
         @Override
         public final Builder setFromProperties(final Properties properties) {
             setPassword(properties.getProperty(FieldDefinitions.PASSWORD.getPropertyKey(), password));
-            setServerUrl(properties.getProperty(FieldDefinitions.SERVER_URL.getPropertyKey(), serverUrl));
+            {
+                @Nullable final String value = properties.getProperty(FieldDefinitions.SERVER_URL.getPropertyKey());
+                if (value != null) {
+                    setServerUrl(value);
+                }
+            }
             setUsername(properties.getProperty(FieldDefinitions.USERNAME.getPropertyKey(), username));
             return (Builder) super.setFromProperties(properties);
         }
@@ -72,7 +94,7 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
 
     private final static class FieldDefinitions {
         public final static ConfigurationFieldDefinitionWithDefault<String> PASSWORD = new ConfigurationFieldDefinitionWithDefault<>("xyzzy", "twks.agraphPassword");
-        public final static ConfigurationFieldDefinitionWithDefault<String> SERVER_URL = new ConfigurationFieldDefinitionWithDefault<>("http://localhost:10035", "twks.agraphServerUrl");
+        public final static ConfigurationFieldDefinition SERVER_URL = new ConfigurationFieldDefinition("twks.agraphServerUrl");
         public final static ConfigurationFieldDefinitionWithDefault<String> USERNAME = new ConfigurationFieldDefinitionWithDefault<>("test", "twks.agraphUsername");
     }
 }
