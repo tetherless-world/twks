@@ -6,7 +6,7 @@ import edu.rpi.tw.twks.test.TwksTest;
 import java.nio.file.Path;
 
 public final class AllegroGraphTwksTest extends TwksTest {
-    final static String SERVER_URL = "http://agraph:10035";
+    final static String SERVER_URL = "http://twks-agraph:10035";
 
     @Override
     protected Twks newTwks(final Path dumpDirectoryPath) {

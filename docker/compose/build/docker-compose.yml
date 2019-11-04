@@ -1,10 +1,11 @@
 version: '3'
 services:
   agraph:
-    container_name: agraph
-    expose:
-      - 10000-10035
-    image: franzinc/agraph:v6.6.0
+    build:
+      context: ../../..
+      dockerfile: docker/image/agraph/Dockerfile
+    container_name: twks-agraph
+    image: tetherlessworld/twks-agraph
     shm_size: 1g
   twks-cli:
     build:

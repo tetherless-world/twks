@@ -6,14 +6,14 @@ services:
   #    container_name: agraph-data
   #    image: franzinc/agraph-data:latest
   agraph:
-    container_name: agraph
+    container_name: twks-agraph
     #    deploy:
     #      resources:
     #        limits:
     #          memory: 1g
     #    expose:
     #      - 10000-10035
-    image: franzinc/agraph:v6.6.0
+    image: tetherlessworld/twks-agraph
     ports:
       - "10000-10035:10000-10035"
     shm_size: 1g
@@ -24,5 +24,5 @@ services:
   twks-server:
     container_name: "twks-server"
     environment:
-      - JAVA_OPTIONS=-Dtwks.agraphServerUrl=http://agraph:100035 -Dtwks.dump=/dump -Dtwks.extcp=/extcp -Dtwks.extfs=/extfs
+      - JAVA_OPTIONS=-Dtwks.agraphServerUrl=http://twks-agraph:100035 -Dtwks.dump=/dump -Dtwks.extcp=/extcp -Dtwks.extfs=/extfs
     image: tetherlessworld/twks-server

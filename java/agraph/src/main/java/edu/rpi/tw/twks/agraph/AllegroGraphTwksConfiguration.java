@@ -134,9 +134,9 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
 
     private final static class FieldDefinitions {
         public final static ConfigurationFieldDefinitionWithDefault<String> CATALOG_ID = new ConfigurationFieldDefinitionWithDefault<>("twks-catalog", "twks.agraphCatalogId");
-        public final static ConfigurationFieldDefinitionWithDefault<String> PASSWORD = new ConfigurationFieldDefinitionWithDefault<>("xyzzy", "twks.agraphPassword");
+        public final static ConfigurationFieldDefinitionWithDefault<String> PASSWORD = new ConfigurationFieldDefinitionWithDefault<>("twks", "twks.agraphPassword");
         public final static ConfigurationFieldDefinitionWithDefault<String> REPOSITORY_ID = new ConfigurationFieldDefinitionWithDefault<>("twks-repository", "twks.agraphRepositoryId");
         public final static ConfigurationFieldDefinition SERVER_URL = new ConfigurationFieldDefinition("twks.agraphServerUrl");
-        public final static ConfigurationFieldDefinitionWithDefault<String> USERNAME = new ConfigurationFieldDefinitionWithDefault<>("test", "twks.agraphUsername");
+        public final static ConfigurationFieldDefinitionWithDefault<String> USERNAME = new ConfigurationFieldDefinitionWithDefault<>("twks", "twks.agraphUsername");
     }
 }
