@@ -180,6 +180,7 @@ public abstract class AbstractTwksTransaction implements TwksTransaction {
         return nanopublicationGraphNames;
     }
 
+
     protected final Set<String> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris) {
         final Set<String> assertionGraphNames = new HashSet<>();
         for (final Uri ontologyUri : ontologyUris) {

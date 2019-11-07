@@ -3,12 +3,10 @@ package edu.rpi.tw.twks.agraph;
 import com.franz.agraph.jena.*;
 import com.franz.agraph.repository.AGRepositoryConnection;
 import edu.rpi.tw.twks.abc.AbstractTwksTransaction;
-import edu.rpi.tw.twks.nanopub.AutoCloseableIterable;
-import edu.rpi.tw.twks.nanopub.Nanopublication;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.Syntax;
+import edu.rpi.tw.twks.nanopub.*;
+import edu.rpi.tw.twks.uri.Uri;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.shared.DoesNotExistException;
 import org.slf4j.Logger;
@@ -20,6 +18,16 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
+    private final static String ITERATE_NANOPUBLICATIONS_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
+            "select ?A ?H ?I ?np ?P where {\n" +
+            "graph ?H {\n" +
+            "  ?np a np:Nanopublication .\n" +
+            "  ?np np:hasAssertion ?A .\n" +
+            "  ?np np:hasProvenance ?P .\n" +
+            "  ?np np:hasPublicationInfo ?I .\n" +
+            "}}";
+    private final static AGQuery ITERATE_NANOPUBLICATIONS_QUERY = AGQueryFactory.create(ITERATE_NANOPUBLICATIONS_QUERY_STRING);
+
     private final static Logger logger = LoggerFactory.getLogger(AllegroGraphTwksTransaction.class);
     private final AGGraphMaker graphMaker;
     private final AGRepositoryConnection repositoryConnection;
@@ -70,7 +78,61 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
 
     @Override
     protected AutoCloseableIterable<Nanopublication> iterateNanopublications() {
-        throw new UnsupportedOperationException();
+        return new AutoCloseableIterable<Nanopublication>() {
+            private @Nullable
+            QueryExecution queryExecution = null;
+
+            @Override
+            public void close() {
+                if (queryExecution != null) {
+                    queryExecution.close();
+                }
+            }
+
+            @Override
+            public Iterator<Nanopublication> iterator() {
+                if (queryExecution != null) {
+                    queryExecution.close();
+                }
+                queryExecution = queryNanopublications(ITERATE_NANOPUBLICATIONS_QUERY);
+                final ResultSet resultSet = queryExecution.execSelect();
+
+                return new Iterator<Nanopublication>() {
+                    private NanopublicationPart getNanopublicationPart(final String nanopublicationPartName) {
+                        final AGGraph graph = graphMaker.openGraph(nanopublicationPartName, false);
+                        final AGModel model = new AGModel(graph);
+                        return new NanopublicationPart(model, Uri.parse(nanopublicationPartName));
+                    }
+
+                    @Override
+                    public boolean hasNext() {
+                        return resultSet.hasNext();
+                    }
+
+                    @Override
+                    public Nanopublication next() {
+                        final QuerySolution querySolution = resultSet.nextSolution();
+                        final String nanopublicationAssertionGraphName = querySolution.getResource("A").getURI();
+                        final String nanopublicationHeadGraphName = querySolution.getResource("H").getURI();
+                        final String nanopublicationProvenanceGraphName = querySolution.getResource("P").getURI();
+                        final String nanopublicationPublicationInfoGraphName = querySolution.getResource("I").getURI();
+                        final String nanopublicationUri = querySolution.getResource("np").getURI();
+
+                        try {
+                            return NanopublicationFactory.DEFAULT.createNanopublicationFromParts(
+                                    getNanopublicationPart(nanopublicationAssertionGraphName),
+                                    Uri.parse(nanopublicationHeadGraphName),
+                                    Uri.parse(nanopublicationUri),
+                                    getNanopublicationPart(nanopublicationProvenanceGraphName),
+                                    getNanopublicationPart(nanopublicationPublicationInfoGraphName)
+                            );
+                        } catch (final MalformedNanopublicationException e) {
+                            throw new MalformedNanopublicationRuntimeException(e);
+                        }
+                    }
+                };
+            }
+        };
     }
 
     @Override
@@ -92,6 +154,10 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
     @Override
     public QueryExecution queryNanopublications(final Query query) {
         final AGQuery agraphQuery = AGQueryFactory.create(query.toString(Syntax.syntaxSPARQL_11));
-        return AGQueryExecutionFactory.create(agraphQuery, new AGModel(graphMaker.createGraph()));
+        return queryNanopublications(agraphQuery);
+    }
+
+    private QueryExecution queryNanopublications(final AGQuery query) {
+        return AGQueryExecutionFactory.create(query, new AGModel(graphMaker.createGraph()));
     }
 }
