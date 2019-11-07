@@ -4,7 +4,7 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-script/update
+# script/update
 
-cd compose/default
-docker-compose up twks-server
+cd compose/tdb-twks-server
+docker-compose up

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+# script/update
+
+cd compose/cli
+docker-compose run twks-cli $*

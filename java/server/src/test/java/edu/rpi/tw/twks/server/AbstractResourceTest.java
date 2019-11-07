@@ -7,6 +7,7 @@ import edu.rpi.tw.twks.factory.TwksFactory;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
 import edu.rpi.tw.twks.test.TestData;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -75,7 +76,7 @@ public abstract class AbstractResourceTest extends JerseyTest {
         }
 
         final ResourceConfig config = new ResourceConfig();
-        this.twks = TwksFactory.getInstance().createTwks(TwksFactoryConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build());
+        this.twks = TwksFactory.getInstance().createTwks(TwksFactoryConfiguration.builder().setTdb2Configuration(Tdb2TwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build()).build());
         config.registerInstances(newResource(twks));
         return config;
     }

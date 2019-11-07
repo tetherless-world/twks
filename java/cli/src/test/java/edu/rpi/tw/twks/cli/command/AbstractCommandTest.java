@@ -7,6 +7,7 @@ import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.factory.TwksFactory;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
+import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
 import edu.rpi.tw.twks.test.TestData;
 import org.apache.jena.query.ReadWrite;
 import org.junit.After;
@@ -61,7 +62,7 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
     public final void setUp() throws IOException {
         command = newCommand();
         tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
-        twksConfiguration = TwksFactoryConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build();
+        twksConfiguration = TwksFactoryConfiguration.builder().setTdb2Configuration(Tdb2TwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build()).build();
         twks = TwksFactory.getInstance().createTwks(twksConfiguration);
     }
 }

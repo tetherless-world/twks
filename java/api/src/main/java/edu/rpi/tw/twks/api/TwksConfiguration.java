@@ -9,16 +9,11 @@ import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class TwksConfiguration {
-    private final static Path DUMP_DIRECTORY_PATH_DEFAULT = Paths.get("/dump");
+public abstract class TwksConfiguration extends AbstractConfiguration {
     private final Path dumpDirectoryPath;
 
     protected TwksConfiguration(final Path dumpDirectoryPath) {
         this.dumpDirectoryPath = checkNotNull(dumpDirectoryPath);
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public final Path getDumpDirectoryPath() {
@@ -26,46 +21,39 @@ public class TwksConfiguration {
     }
 
     @Override
-    public final String toString() {
-        return toStringHelper().toString();
-    }
-
     protected MoreObjects.ToStringHelper toStringHelper() {
-        return MoreObjects.toStringHelper(this).omitNullValues()
+        return super.toStringHelper()
                 .add("dumpDirectoryPath", dumpDirectoryPath);
     }
 
-    public static class Builder {
-        private Path dumpDirectoryPath = DUMP_DIRECTORY_PATH_DEFAULT;
+    public abstract static class Builder<BuilderT extends Builder, TwksConfigurationT extends TwksConfiguration> extends AbstractConfiguration.Builder<BuilderT, TwksConfigurationT> {
+        private Path dumpDirectoryPath = FieldDefinitions.DUMP_DIRECTORY_PATH.getDefault();
 
-        public TwksConfiguration build() {
-            return new TwksConfiguration(dumpDirectoryPath);
-        }
+        @Override
+        public abstract TwksConfigurationT build();
 
         public final Path getDumpDirectoryPath() {
             return dumpDirectoryPath;
         }
 
-        public Builder setDumpDirectoryPath(final Path dumpDirectoryPath) {
+        @SuppressWarnings("unchecked")
+        public final BuilderT setDumpDirectoryPath(final Path dumpDirectoryPath) {
             this.dumpDirectoryPath = dumpDirectoryPath;
-            return this;
+            return (BuilderT) this;
         }
 
-        public Builder setFromSystemProperties() {
-            return setFromProperties(System.getProperties());
-        }
-
-        public Builder setFromProperties(final Properties properties) {
-            @Nullable final String dumpDirectoryPath = properties.getProperty(PropertyKeys.DUMP_DIRECTORY_PATH);
+        @Override
+        public BuilderT setFromProperties(final Properties properties) {
+            @Nullable final String dumpDirectoryPath = properties.getProperty(FieldDefinitions.DUMP_DIRECTORY_PATH.getPropertyKey());
             if (dumpDirectoryPath != null) {
                 this.dumpDirectoryPath = Paths.get(dumpDirectoryPath);
             }
 
-            return this;
+            return (BuilderT) this;
         }
     }
 
-    public static class PropertyKeys {
-        public final static String DUMP_DIRECTORY_PATH = "twks.dump";
+    private final static class FieldDefinitions {
+        public final static ConfigurationFieldDefinitionWithDefault<Path> DUMP_DIRECTORY_PATH = new ConfigurationFieldDefinitionWithDefault<>(Paths.get("/dump"), "twks.dump");
     }
 }

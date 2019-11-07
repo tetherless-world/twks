@@ -1,39 +1,56 @@
 package edu.rpi.tw.twks.client;
 
 import com.google.common.base.MoreObjects;
+import edu.rpi.tw.twks.api.AbstractConfiguration;
 
 import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class TwksClientConfiguration {
-    public final static String SERVER_BASE_URL_DEFAULT = "http://localhost:8080";
+public final class TwksClientConfiguration extends AbstractConfiguration {
+    private final String serverBaseUrl;
 
-    private String serverBaseUrl = SERVER_BASE_URL_DEFAULT;
+    private TwksClientConfiguration(final String serverBaseUrl) {
+        this.serverBaseUrl = checkNotNull(serverBaseUrl);
+    }
+
+    public final static Builder builder() {
+        return new Builder();
+    }
 
     public final String getServerBaseUrl() {
         return serverBaseUrl;
     }
 
-    public final TwksClientConfiguration setServerBaseUrl(final String serverBaseUrl) {
-        this.serverBaseUrl = checkNotNull(serverBaseUrl);
-        return this;
-    }
-
-    public final TwksClientConfiguration setFromSystemProperties() {
-        return setFromProperties(System.getProperties());
-    }
-
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).add("serverBaseUrl", serverBaseUrl).toString();
+    protected MoreObjects.ToStringHelper toStringHelper() {
+        return super.toStringHelper().add("serverBaseUrl", serverBaseUrl);
     }
 
-    public final TwksClientConfiguration setFromProperties(final Properties properties) {
-        return setServerBaseUrl(properties.getProperty(PropertyKeys.SERVER_BASE_URL, serverBaseUrl));
+    public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksClientConfiguration> {
+        private String serverBaseUrl = FieldDefinitions.SERVER_BASE_URL.getDefault();
+
+        @Override
+        public final TwksClientConfiguration build() {
+            return new TwksClientConfiguration(serverBaseUrl);
+        }
+
+        public final String getServerBaseUrl() {
+            return serverBaseUrl;
+        }
+
+        public final Builder setServerBaseUrl(final String serverBaseUrl) {
+            this.serverBaseUrl = serverBaseUrl;
+            return this;
+        }
+
+        @Override
+        public final Builder setFromProperties(final Properties properties) {
+            return setServerBaseUrl(properties.getProperty(FieldDefinitions.SERVER_BASE_URL.getPropertyKey(), serverBaseUrl));
+        }
     }
 
-    public final static class PropertyKeys {
-        public final static String SERVER_BASE_URL = "twks.serverBaseUrl";
+    private final static class FieldDefinitions {
+        public final static ConfigurationFieldDefinitionWithDefault<String> SERVER_BASE_URL = new ConfigurationFieldDefinitionWithDefault<>("http://localhost:8080", "twks.serverBaseUrl");
     }
 }

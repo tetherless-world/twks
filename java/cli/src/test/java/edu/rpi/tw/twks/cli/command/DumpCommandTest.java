@@ -15,6 +15,6 @@ public final class DumpCommandTest extends AbstractCommandTest<DumpCommand> {
     public void testRun() throws IOException {
         getTwks().putNanopublication(getTestData().specNanopublication);
         runCommand(command);
-        ApisTest.checkDump(getTwksConfiguration().getDumpDirectoryPath());
+        ApisTest.checkDump(getTwksConfiguration().getTdb2Configuration().get().getDumpDirectoryPath());
     }
 }

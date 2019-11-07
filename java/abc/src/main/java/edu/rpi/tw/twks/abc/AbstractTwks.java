@@ -19,11 +19,11 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class AbstractTwks implements Twks {
-    private final TwksConfiguration configuration;
+public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration> implements Twks {
+    private final TwksConfigurationT configuration;
     private final TwksObservers observers = new TwksObservers(this);
 
-    protected AbstractTwks(final TwksConfiguration configuration) {
+    protected AbstractTwks(final TwksConfigurationT configuration) {
         this.configuration = checkNotNull(configuration);
     }
 
@@ -70,7 +70,7 @@ public abstract class AbstractTwks implements Twks {
         }
     }
 
-    protected final TwksConfiguration getConfiguration() {
+    protected final TwksConfigurationT getConfiguration() {
         return configuration;
     }
 
@@ -100,7 +100,6 @@ public abstract class AbstractTwks implements Twks {
             return results;
         }
     }
-
 
     @Override
     public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {

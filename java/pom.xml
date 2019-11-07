@@ -250,6 +250,7 @@
             <!-- All modules active by default -->
             <modules>
                 <module>abc</module>
+                <module>agraph</module>
                 <module>api</module>
                 <module>cli</module>
                 <module>client</module>
@@ -291,6 +292,7 @@
             <modules>
                 <!-- Copied from complete modules list, selectively commented out: cli, ext, server -->
                 <module>abc</module>
+                <module>agraph</module>
                 <module>api</module>
                 <!--                <module>cli</module>-->
                 <module>client</module>
@@ -308,7 +310,7 @@
 
     <properties>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-        <jena.version>3.13.0</jena.version>
+        <jena.version>3.13.1</jena.version>
         <junit.version>4.12</junit.version>
         <product>Tetherless World Knowledge Store (TWKS)</product>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -4,5 +4,5 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-cd compose/default
+cd compose/build
 docker-compose build

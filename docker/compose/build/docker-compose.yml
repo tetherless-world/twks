@@ -1,5 +1,14 @@
 version: '3'
 services:
+  twks-agraph:
+    build:
+      context: ../../..
+      dockerfile: docker/image/agraph/Dockerfile
+    container_name: twks-agraph
+    image: tetherlessworld/twks-agraph
+    ports:
+      - "10000-10035:10000-10035"
+    shm_size: 1g
   twks-cli:
     build:
       context: ../../..
@@ -14,12 +23,14 @@ services:
     build:
       context: ../../..
       dockerfile: docker/image/java/Dockerfile
+    command: ["tail", "-f", "/dev/null"]
     container_name: "twks-java"
     image: "twks-java"
   twks-py:
     build:
       context: ../../..
       dockerfile: docker/image/py/Dockerfile
+    command: ["tail", "-f", "/dev/null"]
     container_name: "twks-py"
     image: "twks-py"
   twks-server:

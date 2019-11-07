@@ -1,0 +1,7 @@
+version: '3'
+services:
+  twks-cli:
+    container_name: "twks-cli"
+    image: tetherlessworld/twks-cli
+    external_links:
+      - twks-server

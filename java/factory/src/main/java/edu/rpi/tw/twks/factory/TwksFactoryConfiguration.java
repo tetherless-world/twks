@@ -1,85 +1,108 @@
 package edu.rpi.tw.twks.factory;
 
 import com.google.common.base.MoreObjects;
-import edu.rpi.tw.twks.api.TwksConfiguration;
+import edu.rpi.tw.twks.agraph.AllegroGraphTwksConfiguration;
+import edu.rpi.tw.twks.api.AbstractConfiguration;
+import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
 
-import javax.annotation.Nullable;
-import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class TwksFactoryConfiguration extends TwksConfiguration {
-    private final Optional<String> tdb2Location;
+public final class TwksFactoryConfiguration extends AbstractConfiguration {
+    private final Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration;
+    private final Optional<Tdb2TwksConfiguration> tdb2Configuration;
 
-    protected TwksFactoryConfiguration(final Path dumpDirectoryPath, final Optional<String> tdb2Location) {
-        super(dumpDirectoryPath);
-        this.tdb2Location = checkNotNull(tdb2Location);
+    private TwksFactoryConfiguration(final Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration, final Optional<Tdb2TwksConfiguration> tdb2Configuration) {
+        this.allegroGraphConfiguration = checkNotNull(allegroGraphConfiguration);
+        this.tdb2Configuration = checkNotNull(tdb2Configuration);
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public final Optional<String> getTdb2Location() {
-        return tdb2Location;
+    public final Optional<AllegroGraphTwksConfiguration> getAllegroGraphConfiguration() {
+        return allegroGraphConfiguration;
+    }
+
+    public final Optional<Tdb2TwksConfiguration> getTdb2Configuration() {
+        return tdb2Configuration;
     }
 
     public final boolean isEmpty() {
-        return !getTdb2Location().isPresent();
+        if (getAllegroGraphConfiguration().isPresent()) {
+            return false;
+        }
+        if (getTdb2Configuration().isPresent()) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     protected MoreObjects.ToStringHelper toStringHelper() {
         return super.toStringHelper()
-                .add("tdb2Location", tdb2Location.orElse(null));
+                .add("allegroGraphConfiguration", allegroGraphConfiguration.orElse(null))
+                .add("tdb2Configuration", tdb2Configuration.orElse(null));
     }
 
-    public static class Builder extends TwksConfiguration.Builder {
-        private Optional<String> tdb2Location = Optional.empty();
+    public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksFactoryConfiguration> {
+        private Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration = Optional.empty();
+        private Optional<Tdb2TwksConfiguration> tdb2Configuration = Optional.empty();
 
         protected Builder() {
         }
 
         @Override
-        public Builder setDumpDirectoryPath(final Path dumpDirectoryPath) {
-            return (Builder) super.setDumpDirectoryPath(dumpDirectoryPath);
+        public final TwksFactoryConfiguration build() {
+            return new TwksFactoryConfiguration(allegroGraphConfiguration, tdb2Configuration);
         }
 
-        @Override
-        public TwksFactoryConfiguration build() {
-            return new TwksFactoryConfiguration(getDumpDirectoryPath(), tdb2Location);
+        public final Optional<AllegroGraphTwksConfiguration> getAllegroGraphConfiguration() {
+            return allegroGraphConfiguration;
         }
 
-        public final Optional<String> getTdb2Location() {
-            return tdb2Location;
-        }
-
-        public final Builder setTdb2Location(final Optional<String> tdb2Location) {
-            this.tdb2Location = checkNotNull(tdb2Location);
+        public final Builder setAllegroGraphConfiguration(final Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration) {
+            this.allegroGraphConfiguration = checkNotNull(allegroGraphConfiguration);
             return this;
         }
 
-        @Override
-        public Builder setFromSystemProperties() {
-            return (Builder) super.setFromSystemProperties();
+        public final Builder setAllegroGraphConfiguration(final AllegroGraphTwksConfiguration allegroGraphConfiguration) {
+            return setAllegroGraphConfiguration(Optional.of(allegroGraphConfiguration));
+        }
+
+        public final Optional<Tdb2TwksConfiguration> getTdb2Configuration() {
+            return tdb2Configuration;
+        }
+
+        public final Builder setTdb2Configuration(final Optional<Tdb2TwksConfiguration> tdb2Configuration) {
+            this.tdb2Configuration = checkNotNull(tdb2Configuration);
+            return this;
+        }
+
+        public final Builder setTdb2Configuration(final Tdb2TwksConfiguration tdb2Configuration) {
+            return setTdb2Configuration(Optional.of(tdb2Configuration));
         }
 
         @Override
-        public Builder setFromProperties(final Properties properties) {
-            super.setFromProperties(properties);
+        public final Builder setFromProperties(final Properties properties) {
+            {
+                final AllegroGraphTwksConfiguration.Builder allegroGraphConfigurationBuilder = AllegroGraphTwksConfiguration.builder().setFromProperties(properties);
+                if (allegroGraphConfigurationBuilder.isValid()) {
+                    setAllegroGraphConfiguration(allegroGraphConfigurationBuilder.build());
+                }
+            }
 
-            @Nullable final String tdb2Location = properties.getProperty(PropertyKeys.TDB2_LOCATION);
-            if (tdb2Location != null) {
-                setTdb2Location(Optional.of(tdb2Location));
+            {
+                final Tdb2TwksConfiguration tdb2Configuration = Tdb2TwksConfiguration.builder().setFromProperties(properties).build();
+                if (!tdb2Configuration.isEmpty()) {
+                    setTdb2Configuration(tdb2Configuration);
+                }
             }
 
             return this;
         }
-    }
-
-    public static class PropertyKeys extends TwksConfiguration.PropertyKeys {
-        public final static String TDB2_LOCATION = "twks.tdbLocation";
     }
 }
