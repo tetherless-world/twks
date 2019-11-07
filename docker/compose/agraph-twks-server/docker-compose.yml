@@ -5,7 +5,7 @@ services:
   #    command: ["tail", "-f", "/dev/null"]
   #    container_name: agraph-data
   #    image: franzinc/agraph-data:latest
-  agraph:
+  twks-agraph:
     container_name: twks-agraph
     #    deploy:
     #      resources:
@@ -19,8 +19,6 @@ services:
     shm_size: 1g
     volumes:
       - ./data:/data
-  #    volumes_from:
-  #      - agraph-data
   twks-server:
     container_name: "twks-server"
     environment:
