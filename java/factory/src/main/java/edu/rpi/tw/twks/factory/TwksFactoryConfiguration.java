@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 public final class TwksFactoryConfiguration extends AbstractConfiguration {
     private final Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration;
@@ -18,9 +17,6 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
     private TwksFactoryConfiguration(final Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration, final Optional<Tdb2TwksConfiguration> tdb2Configuration) {
         this.allegroGraphConfiguration = checkNotNull(allegroGraphConfiguration);
         this.tdb2Configuration = checkNotNull(tdb2Configuration);
-        if (tdb2Configuration.isPresent()) {
-            checkState(!tdb2Configuration.get().isEmpty());
-        }
     }
 
     public static Builder builder() {
