@@ -5,6 +5,7 @@ import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.server.AcceptLists;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.swagger.v3.oas.annotations.Operation;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -27,6 +28,9 @@ public class AssertionsResource extends AbstractResource {
     }
 
     @GET
+    @Operation(
+            summary = "Get all assertions in the store"
+    )
     public Response getAssertions(
             @HeaderParam("Accept") @Nullable final String accept
     ) {
@@ -47,6 +51,9 @@ public class AssertionsResource extends AbstractResource {
     }
 
     @GET
+    @Operation(
+            summary = "Get assertions that are associated with a specific set of ontologies"
+    )
     @Path("ontology")
     public Response getOntologyAssertions(
             @HeaderParam("Accept") @Nullable final String accept,
