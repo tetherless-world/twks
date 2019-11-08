@@ -49,6 +49,13 @@ public final class Nanopublication {
     }
 
     /**
+     * Create a blank slate builder for a new nanopublication, with a custom URI.
+     */
+    public static NanopublicationBuilder builder(final Uri nanopublicationUri) {
+        return new NanopublicationBuilder(nanopublicationUri);
+    }
+
+    /**
      * Get the assertion part of the nanopublication.
      */
     public final NanopublicationPart getAssertion() {
