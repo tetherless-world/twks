@@ -24,9 +24,9 @@ public final class NanopublicationBuilderTest {
         builder.getAssertionBuilder().getModel().add(assertionStatement);
         final Nanopublication nanopublication = builder.build();
         assertEquals(uri, nanopublication.getUri());
-        assertTrue(nanopublication.getAssertion().getName().toString().startsWith("urn:uuid:"));
-        assertTrue(nanopublication.getHead().getName().toString().startsWith("urn:uuid:"));
-        assertTrue(nanopublication.getProvenance().getName().toString().startsWith("urn:uuid:"));
-        assertTrue(nanopublication.getPublicationInfo().getName().toString().startsWith("urn:uuid:"));
+        assertTrue(nanopublication.getAssertion().getName().toString().startsWith(nanopublication.getUri().toString()) && nanopublication.getAssertion().getName().toString().endsWith("#assertion"));
+//        assertTrue(nanopublication.getHead().getName().toString().startsWith("urn:uuid:"));
+//        assertTrue(nanopublication.getProvenance().getName().toString().startsWith("urn:uuid:"));
+//        assertTrue(nanopublication.getPublicationInfo().getName().toString().startsWith("urn:uuid:"));
     }
 }
