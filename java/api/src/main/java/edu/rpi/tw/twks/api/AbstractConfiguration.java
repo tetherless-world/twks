@@ -19,7 +19,7 @@ public abstract class AbstractConfiguration {
         return MoreObjects.toStringHelper(this).omitNullValues();
     }
 
-    public abstract static class Builder<BuilderT extends Builder, ConfigurationT extends AbstractConfiguration> {
+    public abstract static class Builder<BuilderT extends Builder<?, ?>, ConfigurationT extends AbstractConfiguration> {
         public abstract ConfigurationT build();
 
         public abstract BuilderT setFromProperties(final Properties properties);
