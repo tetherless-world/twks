@@ -3,7 +3,6 @@ package edu.rpi.tw.twks.nanopub;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.rpi.tw.twks.vocabulary.PROV;
 import edu.rpi.tw.twks.vocabulary.SIO;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.OWL;
@@ -16,27 +15,44 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 
 public final class NanopublicationBuilder {
-    private final NanopublicationAssertionBuilder assertionBuilder = new NanopublicationAssertionBuilder();
-    // Generate a URI to use for the nanopublication and/or parts whose URIs aren't set explicitly.
-    private final Uri generatedUri = Uri.parse("urn:uuid:" + UUID.randomUUID().toString());
-    private final NanopublicationProvenanceBuilder provenanceBuilder = new NanopublicationProvenanceBuilder();
-    private final NanopublicationPublicationInfoBuilder publicationInfoBuilder = new NanopublicationPublicationInfoBuilder();
-    private @Nullable
-    Uri uri = null;
+    private final NanopublicationAssertionBuilder assertionBuilder;
+    private final Resource assertionResource;
+    private final Resource nanopublicationResource;
+    private final Uri nanopublicationUri;
+    private final NanopublicationProvenanceBuilder provenanceBuilder;
+    private final Resource provenanceResource;
+    private final NanopublicationPublicationInfoBuilder publicationInfoBuilder;
+    private final Resource publicationInfoResource;
 
     NanopublicationBuilder() {
+        this(Uri.parse("urn:uuid:" + UUID.randomUUID().toString()));
+    }
+
+    NanopublicationBuilder(final Uri nanopublicationUri) {
+        // The nanopublication part names (URIs) are all dereived from the nanopublication URI.
+        // Allowing custom part URIs is not needed in what's supposed to be a convenience builder.
+        this.nanopublicationUri = checkNotNull(nanopublicationUri);
+
+        nanopublicationResource = ResourceFactory.createResource(nanopublicationUri.toString());
+
+        assertionResource = ResourceFactory.createResource(nanopublicationUri.toString() + "#assertion");
+        assertionBuilder = new NanopublicationAssertionBuilder();
+
+        provenanceResource = ResourceFactory.createResource(nanopublicationUri.toString() + "#provenance");
+        provenanceBuilder = new NanopublicationProvenanceBuilder();
+
+        publicationInfoResource = ResourceFactory.createResource(nanopublicationUri.toString() + "#publicationInfo");
+        publicationInfoBuilder = new NanopublicationPublicationInfoBuilder();
     }
 
     public final Nanopublication build() {
-        final Uri nanopublicationUri = this.uri != null ? this.uri : this.generatedUri;
-
         final NanopublicationPart assertion = assertionBuilder.build();
-        final Uri headUri = Uri.parse(generatedUri.toString() + "#head");
-        final NanopublicationPart provenance = provenanceBuilder.build(assertion.getName());
-        final NanopublicationPart publicationInfo = publicationInfoBuilder.build(assertion.getModel(), nanopublicationUri);
+        final Uri headUri = Uri.parse(nanopublicationUri.toString() + "#head");
+        final NanopublicationPart provenance = provenanceBuilder.build();
+        final NanopublicationPart publicationInfo = publicationInfoBuilder.build(assertion.getModel());
 
         try {
-            return NanopublicationFactory.DEFAULT.createNanopublicationFromParts(assertion, headUri, nanopublicationUri, provenance, publicationInfo);
+            return NanopublicationFactory.DEFAULT.createNanopublicationFromParts(assertion, headUri, this.nanopublicationUri, provenance, publicationInfo);
         } catch (final MalformedNanopublicationException e) {
             throw new IllegalStateException(e);
         }
@@ -54,11 +70,6 @@ public final class NanopublicationBuilder {
         return publicationInfoBuilder;
     }
 
-    public final NanopublicationBuilder setUri(@Nullable final Uri uri) {
-        this.uri = checkNotNull(uri);
-        return this;
-    }
-
     private enum NanopublicationPartType {
         ASSERTION,
         PROVENANCE,
@@ -74,7 +85,7 @@ public final class NanopublicationBuilder {
                 throw new IllegalArgumentException("no assertion statements");
             }
 
-            return new NanopublicationPart(getModel(), getOrGenerateName());
+            return new NanopublicationPart(getModel(), Uri.parse(assertionResource.getURI()));
         }
 
         @Override
@@ -85,8 +96,6 @@ public final class NanopublicationBuilder {
 
     private abstract class NanopublicationPartBuilder<NanopublicationPartBuilderT extends NanopublicationPartBuilder<?>> {
         private Model model;
-        private @Nullable
-        Uri name = null;
 
         private NanopublicationPartBuilder() {
             this.setModel(ModelFactory.createDefaultModel());
@@ -107,37 +116,28 @@ public final class NanopublicationBuilder {
             return NanopublicationBuilder.this;
         }
 
-        protected final Uri getOrGenerateName() {
-            if (this.name != null) {
-                return this.name;
-            }
-            return Uri.parse(NanopublicationBuilder.this.generatedUri.toString() + "#" + getType().name().toLowerCase());
-        }
-
         protected abstract NanopublicationPartType getType();
-
-        @SuppressWarnings("unchecked")
-        public final NanopublicationPartBuilderT setName(final Uri name) {
-            this.name = checkNotNull(name);
-            return (NanopublicationPartBuilderT) this;
-        }
     }
 
     public final class NanopublicationProvenanceBuilder extends NanopublicationPartBuilder<NanopublicationProvenanceBuilder> {
         private NanopublicationProvenanceBuilder() {
         }
 
-        NanopublicationPart build(final Uri assertionName) {
-            final Resource assertionResource = ResourceFactory.createResource(assertionName.toString());
+        NanopublicationPart build() {
             if (!getModel().listStatements(assertionResource, null, (String) null).hasNext()) {
                 getModel().add(assertionResource, PROV.generatedAtTime, ResourceFactory.createTypedLiteral(new XSDDateTime(Calendar.getInstance())));
             }
-            return new NanopublicationPart(getModel(), getOrGenerateName());
+            return new NanopublicationPart(getModel(), Uri.parse(provenanceResource.getURI()));
         }
 
         @Override
         protected final NanopublicationPartType getType() {
             return NanopublicationPartType.PROVENANCE;
+        }
+
+        public final NanopublicationProvenanceBuilder wasDerivedFrom(final Uri uri) {
+            getModel().add(assertionResource, PROV.wasDerivedFrom, getModel().createResource(uri.toString()));
+            return this;
         }
     }
 
@@ -145,9 +145,7 @@ public final class NanopublicationBuilder {
         private NanopublicationPublicationInfoBuilder() {
         }
 
-        NanopublicationPart build(final Model assertionModel, final Uri nanopublicationUri) {
-            final Resource nanopublicationResource = ResourceFactory.createResource(nanopublicationUri.toString());
-
+        NanopublicationPart build(final Model assertionModel) {
             // Reproducing Whyis functionality: if the assertions contain a statement of the form (?x a owl:Ontology), the publication info should have a statement (?np sio:isAbout ?x).
             {
                 for (final StmtIterator ontologyStatements = assertionModel.listStatements(null, RDF.type, OWL.Ontology); ontologyStatements.hasNext(); ) {
@@ -168,7 +166,7 @@ public final class NanopublicationBuilder {
             }
 
 
-            return new NanopublicationPart(getModel(), getOrGenerateName());
+            return new NanopublicationPart(getModel(), Uri.parse(publicationInfoResource.getURI()));
         }
 
         @Override

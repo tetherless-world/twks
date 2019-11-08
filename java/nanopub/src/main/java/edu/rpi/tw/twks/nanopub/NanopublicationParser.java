@@ -48,7 +48,12 @@ public final class NanopublicationParser {
             return factory.createNanopublicationsFromDataset(dataset);
         }
 
-        return ImmutableList.of(Nanopublication.builder().getAssertionBuilder().setModel(dataset.getDefaultModel()).getNanopublicationBuilder().build());
+        final NanopublicationBuilder nanopublicationBuilder = Nanopublication.builder();
+        nanopublicationBuilder.getAssertionBuilder().setModel(dataset.getDefaultModel());
+        if (sourceUri.isPresent()) {
+            nanopublicationBuilder.getProvenanceBuilder().wasDerivedFrom(sourceUri.get());
+        }
+        return ImmutableList.of(nanopublicationBuilder.build());
     }
 
     public final Nanopublication parseOne(final File filePath) throws MalformedNanopublicationException {

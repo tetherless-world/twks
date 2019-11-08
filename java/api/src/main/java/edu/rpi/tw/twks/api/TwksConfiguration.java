@@ -26,7 +26,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
                 .add("dumpDirectoryPath", dumpDirectoryPath);
     }
 
-    public abstract static class Builder<BuilderT extends Builder, TwksConfigurationT extends TwksConfiguration> extends AbstractConfiguration.Builder<BuilderT, TwksConfigurationT> {
+    public abstract static class Builder<BuilderT extends Builder<?, ?>, TwksConfigurationT extends TwksConfiguration> extends AbstractConfiguration.Builder<BuilderT, TwksConfigurationT> {
         private Path dumpDirectoryPath = FieldDefinitions.DUMP_DIRECTORY_PATH.getDefault();
 
         @Override
@@ -43,6 +43,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public BuilderT setFromProperties(final Properties properties) {
             @Nullable final String dumpDirectoryPath = properties.getProperty(FieldDefinitions.DUMP_DIRECTORY_PATH.getPropertyKey());
             if (dumpDirectoryPath != null) {
