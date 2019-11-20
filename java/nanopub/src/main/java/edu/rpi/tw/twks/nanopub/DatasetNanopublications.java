@@ -236,7 +236,18 @@ public final class DatasetNanopublications implements AutoCloseableIterable<Nano
                     // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
                     final NanopublicationPart publicationInfo = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasPublicationInfo, unusedDatasetModelNames);
 
-                    nanopublication = SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
+                    if (dialect == NanopublicationDialect.SPECIFICATION) {
+                        nanopublication = SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
+                    } else {
+                        // Don't respect the part names of non-specification dialects. Causes too many problems if the dialect differs too much from the spec.
+                        // Take the part models and create a new nanopublication from scratch.
+                        final NanopublicationBuilder nanopublicationBuilder = Nanopublication.builder();
+                        nanopublicationBuilder.getAssertionBuilder().setModel(assertion.getModel());
+                        nanopublicationBuilder.getProvenanceBuilder().setModel(provenance.getModel());
+                        nanopublicationBuilder.getPublicationInfoBuilder().setModel(publicationInfo.getModel());
+                        nanopublication = nanopublicationBuilder.build();
+                    }
+
                     return true;
                 } catch (final MalformedNanopublicationException e) {
                     throw new MalformedNanopublicationRuntimeException(e);
