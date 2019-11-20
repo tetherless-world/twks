@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <artifactId>twks-cli</artifactId>
     <description>${product} Command Line Interface (CLI)</description>
     <modelVersion>4.0.0</modelVersion>
@@ -27,7 +28,8 @@
                         </filter>
                     </filters>
                     <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>edu.rpi.tw.twks.cli.CliMain</mainClass>
                         </transformer>
                     </transformers>
@@ -38,7 +40,8 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <configuration>
                     <tasks>
-                        <copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.build.directory}/../../dist/${project.artifactId}-current.jar" />
+                        <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                              tofile="${project.build.directory}/../../dist/${project.artifactId}-current.jar"/>
                     </tasks>
                 </configuration>
             </plugin>
@@ -66,6 +69,11 @@
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
             <version>1.78</version>
+        </dependency>
+        <dependency>
+            <groupId>io.methvin</groupId>
+            <artifactId>directory-watcher</artifactId>
+            <version>0.9.6</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
