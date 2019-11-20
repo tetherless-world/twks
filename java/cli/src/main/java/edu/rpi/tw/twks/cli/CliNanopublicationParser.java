@@ -46,9 +46,6 @@ public final class CliNanopublicationParser {
         final NanopublicationParserBuilder parserBuilder = NanopublicationParser.builder();
         if (dialect != null) {
             parserBuilder.setDialect(dialect);
-            if (dialect == NanopublicationDialect.WHYIS) {
-                parserBuilder.setLang(Lang.NQUADS);
-            }
         }
         if (lang.isPresent()) {
             parserBuilder.setLang(lang.get());

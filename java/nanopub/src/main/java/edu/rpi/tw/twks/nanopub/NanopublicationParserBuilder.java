@@ -13,9 +13,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class NanopublicationParserBuilder {
     private final RDFParserBuilder rdfParserBuilder = RDFParserBuilder.create();
     private NanopublicationDialect dialect = NanopublicationDialect.SPECIFICATION;
+    private Optional<Lang> lang = Optional.empty();
     private Optional<Uri> sourceUri = Optional.empty();
 
     public final NanopublicationParser build() {
+        if (!lang.isPresent()) {
+            rdfParserBuilder.lang(dialect.getDefaultLang());
+        }
         return new NanopublicationParser(dialect, rdfParserBuilder.build(), sourceUri);
     }
 
@@ -25,7 +29,8 @@ public final class NanopublicationParserBuilder {
     }
 
     public final NanopublicationParserBuilder setLang(final Lang lang) {
-        rdfParserBuilder.lang(checkNotNull(lang));
+        this.lang = Optional.of(lang);
+        rdfParserBuilder.lang(lang);
         return this;
     }
 

@@ -3,10 +3,31 @@ package edu.rpi.tw.twks.nanopub;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.riot.Lang;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class SpecificationNanopublicationDialect extends NanopublicationDialect {
+    @Override
+    final boolean allowDefaultModelStatements() {
+        return false;
+    }
+
+    @Override
+    final boolean allowEmptyPart() {
+        return false;
+    }
+
+    @Override
+    final boolean allowPartUriReuse() {
+        return false;
+    }
+
+    @Override
+    public final Lang getDefaultLang() {
+        return Lang.TRIG;
+    }
+
     @Override
     final void validateNanopublicationParts(final NanopublicationPart assertion, final NanopublicationPart head, final Uri nanopublicationUri, final NanopublicationPart provenance, final NanopublicationPart publicationInfo) throws MalformedNanopublicationException {
         checkNotNull(assertion);

@@ -4,6 +4,7 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 
@@ -26,6 +27,12 @@ public abstract class NanopublicationDialect {
                 throw new IllegalArgumentException(name);
         }
     }
+
+    abstract boolean allowDefaultModelStatements();
+
+    abstract boolean allowEmptyPart();
+
+    abstract boolean allowPartUriReuse();
 
     protected final void checkOntology(final NanopublicationPart assertion) throws MalformedNanopublicationException {
         // Reproducing Whyis functionality: if the assertions contain a statement of the form (?x a owl:Ontology), the publication info should have a statement (?np sio:isAbout ?x).
@@ -52,6 +59,8 @@ public abstract class NanopublicationDialect {
             partUrisSet.add(partUri);
         }
     }
+
+    public abstract Lang getDefaultLang();
 
     abstract void validateNanopublicationParts(final NanopublicationPart assertion, final NanopublicationPart head, final Uri nanopublicationUri, final NanopublicationPart provenance, final NanopublicationPart publicationInfo) throws MalformedNanopublicationException;
 }

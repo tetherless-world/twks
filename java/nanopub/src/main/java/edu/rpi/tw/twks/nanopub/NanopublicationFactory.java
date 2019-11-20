@@ -114,10 +114,8 @@ public final class NanopublicationFactory {
      */
     public final ImmutableList<Nanopublication> createNanopublicationsFromDataset(final Dataset dataset) throws MalformedNanopublicationException {
         // Specification: All triples must be placed in one of [H] or [A] or [P] or [I]
-        if (dialect != NanopublicationDialect.WHYIS) {
-            if (!dataset.getDefaultModel().isEmpty()) {
-                throw new MalformedNanopublicationException("dataset contains statements in the default model");
-            }
+        if (!dialect.allowDefaultModelStatements() && !dataset.getDefaultModel().isEmpty()) {
+            throw new MalformedNanopublicationException("dataset contains statements in the default model");
         }
 
         // This method keeps a lot of state through a lot of logic, so delegate to a temporary instance that has all of the state
@@ -249,17 +247,12 @@ public final class NanopublicationFactory {
                 throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to a missing named graph (%s)", nanopublicationUri, partProperty, partResource));
             }
 
-            if (!unusedDatasetModelNames.remove(partModelName)) {
-                if (dialect != NanopublicationDialect.WHYIS) {
-                    throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to a named graph that has already been used by another nanopublication", nanopublicationUri, partProperty, partResource));
-                }
+            if (!unusedDatasetModelNames.remove(partModelName) && !dialect.allowPartUriReuse()) {
+                throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to a named graph that has already been used by another nanopublication", nanopublicationUri, partProperty, partResource));
             }
 
-            if (partModel.isEmpty()) {
-                if (dialect != NanopublicationDialect.WHYIS) {
-                    // Whyis nanopublications refer to parts (named graphs) that aren't present in the Dataset/.trig file.
-                    throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to an empty named graph (%s)", nanopublicationUri, partProperty, partResource));
-                }
+            if (partModel.isEmpty() && !dialect.allowEmptyPart()) {
+                throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to an empty named graph (%s)", nanopublicationUri, partProperty, partResource));
             }
 
             final Uri partModelUri = Uri.parse(partModelName);
