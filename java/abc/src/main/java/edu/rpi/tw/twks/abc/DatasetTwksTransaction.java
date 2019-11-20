@@ -2,9 +2,9 @@ package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.rpi.tw.twks.nanopub.AutoCloseableIterable;
+import edu.rpi.tw.twks.nanopub.DatasetNanopublications;
 import edu.rpi.tw.twks.nanopub.DatasetTransaction;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
-import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.slf4j.Logger;
@@ -69,7 +69,7 @@ public abstract class DatasetTwksTransaction extends AbstractTwksTransaction {
 
     @Override
     protected final AutoCloseableIterable<Nanopublication> iterateNanopublications() {
-        return new NanopublicationFactory().iterateNanopublicationsFromDataset(getDataset(), getDatasetTransaction());
+        return new DatasetNanopublications(getDataset(), getDatasetTransaction());
     }
 
     @Override

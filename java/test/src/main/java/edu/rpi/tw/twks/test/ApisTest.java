@@ -8,10 +8,10 @@ import edu.rpi.tw.twks.api.AdministrationApi;
 import edu.rpi.tw.twks.api.GetAssertionsApi;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.QueryApi;
+import edu.rpi.tw.twks.nanopub.DatasetNanopublications;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.MoreDatasetFactory;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
-import edu.rpi.tw.twks.nanopub.NanopublicationFactory;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
@@ -304,7 +304,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         try (final QueryExecution queryExecution = ((QueryApi) sut).queryNanopublications(query)) {
             actualDataset = MoreDatasetFactory.createDatasetFromResultSet(queryExecution.execSelect());
         }
-        final Nanopublication actual = NanopublicationFactory.DEFAULT.createNanopublicationFromDataset(actualDataset);
+        final Nanopublication actual = DatasetNanopublications.copyOne(actualDataset);
 
         assertTrue(actual.isIsomorphicWith(testData.specNanopublication));
     }

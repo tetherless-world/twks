@@ -156,7 +156,7 @@ public abstract class AbstractTwksTransaction implements TwksTransaction {
             return Optional.empty();
         }
         try {
-            return Optional.of(NanopublicationFactory.DEFAULT.createNanopublicationFromDataset(nanopublicationDataset));
+            return Optional.of(DatasetNanopublications.copyOne(nanopublicationDataset));
         } catch (final MalformedNanopublicationException e) {
             throw new IllegalStateException(e);
         }

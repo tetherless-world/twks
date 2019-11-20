@@ -35,11 +35,9 @@ public final class NanopublicationParser {
             throw new MalformedNanopublicationException(e);
         }
 
-        final NanopublicationFactory factory = new NanopublicationFactory(dialect);
-
         // Dataset has named graphs, assume it's a well-formed nanopublication.
         if (dataset.listNames().hasNext()) {
-            return factory.createNanopublicationsFromDataset(dataset);
+            return DatasetNanopublications.copyAll(dataset, dialect);
         }
 
         final NanopublicationBuilder nanopublicationBuilder = Nanopublication.builder();

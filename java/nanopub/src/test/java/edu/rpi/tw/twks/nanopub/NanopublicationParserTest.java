@@ -24,7 +24,7 @@ public final class NanopublicationParserTest {
         assertEquals(1, nanopublication.getProvenance().getModel().listStatements().toList().size());
         assertEquals(1, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
         // Test that we can decompose nanopublications we generate
-        NanopublicationFactory.DEFAULT.createNanopublicationFromDataset(nanopublication.toDataset());
+//        NanopublicationFactory.DEFAULT.createNanopublicationFromDataset(nanopublication.toDataset());
     }
 
     @Test
@@ -35,7 +35,7 @@ public final class NanopublicationParserTest {
         assertEquals(3, nanopublication.getProvenance().getModel().listStatements().toList().size());
         assertEquals(2, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
         // Test that we can decompose nanopublications we generate
-        NanopublicationFactory.DEFAULT.createNanopublicationsFromDataset(nanopublication.toDataset());
+//        NanopublicationFactory.DEFAULT.createNanopublicationsFromDataset(nanopublication.toDataset());
     }
 
     @Test
@@ -46,7 +46,7 @@ public final class NanopublicationParserTest {
         assertEquals(0, nanopublication.getProvenance().getModel().listStatements().toList().size());
         assertEquals(5, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
         // Test that we can decompose nanopublications we generate
-        new NanopublicationFactory(NanopublicationDialect.WHYIS).createNanopublicationsFromDataset(nanopublication.toDataset());
+//        new NanopublicationFactory(NanopublicationDialect.WHYIS).createNanopublicationsFromDataset(nanopublication.toDataset());
     }
 }
 
