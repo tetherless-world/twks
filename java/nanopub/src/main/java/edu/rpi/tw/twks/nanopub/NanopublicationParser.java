@@ -5,6 +5,7 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.riot.RDFParser;
+import org.apache.jena.riot.RiotException;
 
 import java.util.Optional;
 
@@ -27,7 +28,12 @@ public final class NanopublicationParser {
 
     public final ImmutableList<Nanopublication> parseAll() throws MalformedNanopublicationException {
         final Dataset dataset = DatasetFactory.create();
-        rdfParser.parse(dataset);
+
+        try {
+            rdfParser.parse(dataset);
+        } catch (final RiotException e) {
+            throw new MalformedNanopublicationException(e);
+        }
 
         final NanopublicationFactory factory = new NanopublicationFactory(dialect);
 
