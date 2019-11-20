@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.cli;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Path;
 import java.util.Optional;
 
 public final class CliNanopublicationParser {
@@ -62,19 +64,19 @@ public final class CliNanopublicationParser {
         if (sourceFile.isFile()) {
             return parseFile(sourceFile);
         } else if (sourceFile.isDirectory()) {
-            return parseDirectory(sourceFile);
+            return ImmutableList.copyOf(parseDirectory(sourceFile).values());
         }
 
         return parseUri(Uri.parse(source));
     }
 
-    public final ImmutableList<Nanopublication> parseDirectory(File sourceDirectoryPath) {
-        final ImmutableList.Builder<Nanopublication> resultBuilder = ImmutableList.builder();
+    public final ImmutableMultimap<Path, Nanopublication> parseDirectory(File sourceDirectoryPath) {
+        final ImmutableMultimap.Builder<Path, Nanopublication> resultBuilder = ImmutableMultimap.builder();
         if (dialect == NanopublicationDialect.SPECIFICATION) {
             // Assume it's a directory where every .trig file is a nanopublication.
             final File[] sourceFiles = sourceDirectoryPath.listFiles();
             if (sourceFiles == null) {
-                return ImmutableList.of();
+                return ImmutableMultimap.of();
             }
             for (final File trigFile : sourceFiles) {
                 if (!trigFile.isFile()) {
@@ -83,7 +85,7 @@ public final class CliNanopublicationParser {
                 if (!trigFile.getName().endsWith(".trig")) {
                     continue;
                 }
-                resultBuilder.addAll(parseFile(trigFile));
+                resultBuilder.putAll(trigFile.toPath(), parseFile(trigFile));
             }
         } else if (dialect == NanopublicationDialect.WHYIS) {
             if (sourceDirectoryPath.getName().equals("data")) {
@@ -93,21 +95,23 @@ public final class CliNanopublicationParser {
                 // Trawl all of the subdirectories of /data/nanopublications
                 final File[] nanopublicationSubdirectories = sourceDirectoryPath.listFiles();
                 if (nanopublicationSubdirectories == null) {
-                    return ImmutableList.of();
+                    return ImmutableMultimap.of();
                 }
 
                 for (final File nanopublicationSubdirectory : nanopublicationSubdirectories) {
                     if (!nanopublicationSubdirectory.isDirectory()) {
                         continue;
                     }
-                    resultBuilder.addAll(parseFile(new File(nanopublicationSubdirectory, "file")));
+                    final File file = new File(nanopublicationSubdirectory, "file");
+                    resultBuilder.putAll(file.toPath(), parseFile(file));
                 }
             } else {
                 // Assume the directory contains a single nanopublication
-                resultBuilder.addAll(parseFile(new File(sourceDirectoryPath, "file")));
+                final File file = new File(sourceDirectoryPath, "file");
+                resultBuilder.putAll(file.toPath(), parseFile(file));
             }
         }
-        final ImmutableList<Nanopublication> result = resultBuilder.build();
+        final ImmutableMultimap<Path, Nanopublication> result = resultBuilder.build();
         logger.info("parsed {} nanopublications from {}", result.size(), sourceDirectoryPath);
         return result;
     }
