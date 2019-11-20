@@ -73,47 +73,41 @@ public final class CliNanopublicationParser {
 
     public final ImmutableList<Nanopublication> parseDirectory(File sourceDirectoryPath) {
         final ImmutableList.Builder<Nanopublication> resultBuilder = ImmutableList.builder();
-        switch (dialect) {
-            case SPECIFICATION: {
-                // Assume it's a directory where every .trig file is a nanopublication.
-                final File[] sourceFiles = sourceDirectoryPath.listFiles();
-                if (sourceFiles == null) {
+        if (dialect == NanopublicationDialect.SPECIFICATION) {
+            // Assume it's a directory where every .trig file is a nanopublication.
+            final File[] sourceFiles = sourceDirectoryPath.listFiles();
+            if (sourceFiles == null) {
+                return ImmutableList.of();
+            }
+            for (final File trigFile : sourceFiles) {
+                if (!trigFile.isFile()) {
+                    continue;
+                }
+                if (!trigFile.getName().endsWith(".trig")) {
+                    continue;
+                }
+                resultBuilder.addAll(parseFile(trigFile));
+            }
+        } else if (dialect == NanopublicationDialect.WHYIS) {
+            if (sourceDirectoryPath.getName().equals("data")) {
+                sourceDirectoryPath = new File(sourceDirectoryPath, "nanopublications");
+            }
+            if (sourceDirectoryPath.getName().equals("nanopublications")) {
+                // Trawl all of the subdirectories of /data/nanopublications
+                final File[] nanopublicationSubdirectories = sourceDirectoryPath.listFiles();
+                if (nanopublicationSubdirectories == null) {
                     return ImmutableList.of();
                 }
-                for (final File trigFile : sourceFiles) {
-                    if (!trigFile.isFile()) {
+
+                for (final File nanopublicationSubdirectory : nanopublicationSubdirectories) {
+                    if (!nanopublicationSubdirectory.isDirectory()) {
                         continue;
                     }
-                    if (!trigFile.getName().endsWith(".trig")) {
-                        continue;
-                    }
-                    resultBuilder.addAll(parseFile(trigFile));
+                    resultBuilder.addAll(parseFile(new File(nanopublicationSubdirectory, "file")));
                 }
-
-                break;
-            }
-            case WHYIS: {
-                if (sourceDirectoryPath.getName().equals("data")) {
-                    sourceDirectoryPath = new File(sourceDirectoryPath, "nanopublications");
-                }
-                if (sourceDirectoryPath.getName().equals("nanopublications")) {
-                    // Trawl all of the subdirectories of /data/nanopublications
-                    final File[] nanopublicationSubdirectories = sourceDirectoryPath.listFiles();
-                    if (nanopublicationSubdirectories == null) {
-                        return ImmutableList.of();
-                    }
-
-                    for (final File nanopublicationSubdirectory : nanopublicationSubdirectories) {
-                        if (!nanopublicationSubdirectory.isDirectory()) {
-                            continue;
-                        }
-                        resultBuilder.addAll(parseFile(new File(nanopublicationSubdirectory, "file")));
-                    }
-                } else {
-                    // Assume the directory contains a single nanopublication
-                    resultBuilder.addAll(parseFile(new File(sourceDirectoryPath, "file")));
-                }
-                break;
+            } else {
+                // Assume the directory contains a single nanopublication
+                resultBuilder.addAll(parseFile(new File(sourceDirectoryPath, "file")));
             }
         }
         final ImmutableList<Nanopublication> result = resultBuilder.build();

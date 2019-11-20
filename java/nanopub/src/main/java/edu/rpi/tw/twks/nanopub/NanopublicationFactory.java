@@ -17,7 +17,6 @@ import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 public final class NanopublicationFactory {
     public final static NanopublicationFactory DEFAULT = new NanopublicationFactory();
     private final NanopublicationDialect dialect;
-    private final NanopublicationValidator validator;
 
     public NanopublicationFactory() {
         this(NanopublicationDialect.SPECIFICATION);
@@ -25,7 +24,6 @@ public final class NanopublicationFactory {
 
     public NanopublicationFactory(final NanopublicationDialect dialect) {
         this.dialect = checkNotNull(dialect);
-        this.validator = new NanopublicationValidator(dialect);
     }
 
     /**
@@ -68,7 +66,7 @@ public final class NanopublicationFactory {
      * This method is private because we don't want to allow callers to supply a head graph. We want to construct it.
      */
     private final Nanopublication createNanopublicationFromParts(final NanopublicationPart assertion, final NanopublicationPart head, final Uri nanopublicationUri, final NanopublicationPart provenance, final NanopublicationPart publicationInfo) throws MalformedNanopublicationException {
-        validator.validateNanopublicationParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
+        dialect.validateNanopublicationParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
         return new Nanopublication(assertion, head, provenance, publicationInfo, nanopublicationUri);
     }
 
@@ -253,7 +251,7 @@ public final class NanopublicationFactory {
 
             if (!unusedDatasetModelNames.remove(partModelName)) {
                 if (dialect != NanopublicationDialect.WHYIS) {
-                    throw new MalformedNanopublicationException(String.format("nanopublication %s %s refern to a named graph that has already been used by another nanopublication", nanopublicationUri, partProperty, partResource));
+                    throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to a named graph that has already been used by another nanopublication", nanopublicationUri, partProperty, partResource));
                 }
             }
 
