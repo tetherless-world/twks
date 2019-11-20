@@ -12,6 +12,7 @@ import org.apache.jena.vocabulary.RDF;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Helper class that facilitates iterating over the nanopublications within a Dataset within the confines of a Dataset transaction.
@@ -220,8 +221,31 @@ public final class DatasetNanopublications implements AutoCloseableIterable<Nano
                     return true;
                 }
 
+                nanopublication = tryNext();
+
+                return nanopublication != null;
+            }
+
+            @Override
+            public Nanopublication next() {
+                if (nanopublication == null) {
+                    nanopublication = tryNext();
+                    if (nanopublication == null) {
+                        throw new NoSuchElementException();
+                    }
+                }
+
+                final Nanopublication nanopublication = this.nanopublication;
+                this.nanopublication = null;
+                return nanopublication;
+            }
+
+            private @Nullable
+            Nanopublication tryNext() {
+                checkState(nanopublication == null);
+
                 if (!headEntryI.hasNext()) {
-                    return false;
+                    return null;
                 }
 
                 final Map.Entry<Uri, NanopublicationPart> headEntry = headEntryI.next();
@@ -237,7 +261,7 @@ public final class DatasetNanopublications implements AutoCloseableIterable<Nano
                     final NanopublicationPart publicationInfo = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasPublicationInfo, unusedDatasetModelNames);
 
                     if (dialect == NanopublicationDialect.SPECIFICATION) {
-                        nanopublication = SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
+                        return SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
                     } else {
                         // Don't respect the part names of non-specification dialects. Causes too many problems if the dialect differs too much from the spec.
                         // Take the part models and create a new nanopublication from scratch.
@@ -245,20 +269,11 @@ public final class DatasetNanopublications implements AutoCloseableIterable<Nano
                         nanopublicationBuilder.getAssertionBuilder().setModel(assertion.getModel());
                         nanopublicationBuilder.getProvenanceBuilder().setModel(provenance.getModel());
                         nanopublicationBuilder.getPublicationInfoBuilder().setModel(publicationInfo.getModel());
-                        nanopublication = nanopublicationBuilder.build();
+                        return nanopublicationBuilder.build();
                     }
-
-                    return true;
                 } catch (final MalformedNanopublicationException e) {
                     throw new MalformedNanopublicationRuntimeException(e);
                 }
-            }
-
-            @Override
-            public Nanopublication next() {
-                final Nanopublication nanopublication = checkNotNull(this.nanopublication);
-                this.nanopublication = null;
-                return nanopublication;
             }
         };
     }
