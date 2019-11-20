@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public final class CliNanopublicationParser {
     private final static Logger logger = LoggerFactory.getLogger(CliNanopublicationParser.class);
     private final NanopublicationDialect dialect;
@@ -39,17 +37,17 @@ public final class CliNanopublicationParser {
         this.lang = lang;
     }
 
-    public CliNanopublicationParser(final NanopublicationDialect dialect, final Optional<Lang> lang) {
-        this.dialect = checkNotNull(dialect);
-        this.lang = checkNotNull(lang);
-    }
+//    public CliNanopublicationParser(final NanopublicationDialect dialect, final Optional<Lang> lang) {
+//        this.dialect = checkNotNull(dialect);
+//        this.lang = checkNotNull(lang);
+//    }
 
     private NanopublicationParserBuilder newNanopublicationParserBuilder() {
         final NanopublicationParserBuilder parserBuilder = NanopublicationParser.builder();
         if (dialect != null) {
             parserBuilder.setDialect(dialect);
             if (dialect == NanopublicationDialect.WHYIS) {
-                parserBuilder.setLang(Lang.TRIG);
+                parserBuilder.setLang(Lang.NQUADS);
             }
         }
         if (lang.isPresent()) {

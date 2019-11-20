@@ -6,10 +6,7 @@ import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.api.TwksVersion;
-import edu.rpi.tw.twks.cli.command.Command;
-import edu.rpi.tw.twks.cli.command.DeleteNanopublicationsCommand;
-import edu.rpi.tw.twks.cli.command.DumpCommand;
-import edu.rpi.tw.twks.cli.command.PostNanopublicationsCommand;
+import edu.rpi.tw.twks.cli.command.*;
 import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.client.TwksClientConfiguration;
 import edu.rpi.tw.twks.factory.TwksFactory;
@@ -29,7 +26,8 @@ public final class CliMain {
     private final static Command[] commands = {
             new DeleteNanopublicationsCommand(),
             new DumpCommand(),
-            new PostNanopublicationsCommand()
+            new PostNanopublicationsCommand(),
+            new WatchNanopublicationsCommand()
     };
     private final static Logger logger = LoggerFactory.getLogger(CliMain.class);
 

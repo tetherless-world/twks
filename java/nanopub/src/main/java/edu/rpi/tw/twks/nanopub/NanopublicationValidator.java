@@ -1,7 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
 import edu.rpi.tw.twks.uri.Uri;
-import edu.rpi.tw.twks.vocabulary.SIO;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
@@ -57,10 +56,13 @@ public final class NanopublicationValidator {
             }
         }
 
-        // Specification: Triples in [I] have at least one reference to [N]
         final Resource nanopublicationResource = ResourceFactory.createResource(nanopublicationUri.toString());
-        if (!publicationInfo.getModel().listStatements(nanopublicationResource, null, (String) null).hasNext()) {
-            throw new MalformedNanopublicationException("publication info does not reference nanopublication");
+
+        if (dialect != NanopublicationDialect.WHYIS) {
+            // Specification: Triples in [I] have at least one reference to [N]
+            if (!publicationInfo.getModel().listStatements(nanopublicationResource, null, (String) null).hasNext()) {
+                throw new MalformedNanopublicationException("publication info does not reference nanopublication");
+            }
         }
 
         // Reproducing Whyis functionality: if the assertions contain a statement of the form (?x a owl:Ontology), the publication info should have a statement (?np sio:isAbout ?x).
@@ -71,10 +73,11 @@ public final class NanopublicationValidator {
                 if (ontologyResource.getURI() == null) {
                     throw new MalformedNanopublicationException("assertion ?o a owl:Ontology must be about a non-blank node");
                 }
-                final StmtIterator isAboutStatements = publicationInfo.getModel().listStatements(nanopublicationResource, SIO.isAbout, ontologyResource);
-                if (!isAboutStatements.hasNext()) {
-                    throw new MalformedNanopublicationException(String.format("assertion <%s> a owl:Ontology does not have corresponding publication info statement <%s> sio:isAbout <%s>", ontologyResource.getURI(), nanopublicationUri, ontologyResource.getURI()));
-                }
+                // 20191120: the sio:isAbout statement is no longer present.
+//                final StmtIterator isAboutStatements = publicationInfo.getModel().listStatements(nanopublicationResource, SIO.isAbout, ontologyResource);
+//                if (!isAboutStatements.hasNext()) {
+//                    throw new MalformedNanopublicationException(String.format("assertion <%s> a owl:Ontology does not have corresponding publication info statement <%s> sio:isAbout <%s>", ontologyResource.getURI(), nanopublicationUri, ontologyResource.getURI()));
+//                }
             }
         }
     }
