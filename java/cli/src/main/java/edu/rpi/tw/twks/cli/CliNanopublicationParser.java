@@ -3,10 +3,7 @@ package edu.rpi.tw.twks.cli;
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
-import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
-import edu.rpi.tw.twks.nanopub.Nanopublication;
-import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
-import edu.rpi.tw.twks.nanopub.NanopublicationParser;
+import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
@@ -47,18 +44,18 @@ public final class CliNanopublicationParser {
         this.lang = checkNotNull(lang);
     }
 
-    private NanopublicationParser newNanopublicationParser() {
-        final NanopublicationParser parser = new NanopublicationParser();
+    private NanopublicationParserBuilder newNanopublicationParserBuilder() {
+        final NanopublicationParserBuilder parserBuilder = NanopublicationParser.builder();
         if (dialect != null) {
-            parser.setDialect(dialect);
+            parserBuilder.setDialect(dialect);
             if (dialect == NanopublicationDialect.WHYIS) {
-                parser.setLang(Lang.TRIG);
+                parserBuilder.setLang(Lang.TRIG);
             }
         }
         if (lang.isPresent()) {
-            parser.setLang(lang.get());
+            parserBuilder.setLang(lang.get());
         }
-        return parser;
+        return parserBuilder;
     }
 
     public final ImmutableList<Nanopublication> parse(final String source) {
@@ -128,7 +125,7 @@ public final class CliNanopublicationParser {
 
     public final ImmutableList<Nanopublication> parseFile(final File sourceFilePath) {
         try {
-            final ImmutableList<Nanopublication> result = newNanopublicationParser().parseAll(sourceFilePath);
+            final ImmutableList<Nanopublication> result = newNanopublicationParserBuilder().setSource(sourceFilePath).build().parseAll();
             logger.info("parsed {} nanopublications from {}", result.size(), sourceFilePath);
             return result;
         } catch (final MalformedNanopublicationException e) {
@@ -141,7 +138,7 @@ public final class CliNanopublicationParser {
         try {
             final byte[] trigBytes = ByteStreams.toByteArray(System.in);
             final String trigString = new String(trigBytes);
-            final ImmutableList<Nanopublication> result = newNanopublicationParser().parseAll(new StringReader(trigString));
+            final ImmutableList<Nanopublication> result = newNanopublicationParserBuilder().setSource(new StringReader(trigString)).build().parseAll();
             logger.info("parsed {} nanopublications from stdin", result.size());
             return result;
         } catch (final IOException | MalformedNanopublicationException e) {
@@ -152,7 +149,7 @@ public final class CliNanopublicationParser {
 
     public final ImmutableList<Nanopublication> parseUri(final Uri sourceUri) {
         try {
-            final ImmutableList<Nanopublication> result = newNanopublicationParser().parseAll(sourceUri);
+            final ImmutableList<Nanopublication> result = newNanopublicationParserBuilder().setSource(sourceUri).build().parseAll();
             logger.info("parsed {} nanopublications from {}", result.size(), sourceUri);
             return result;
         } catch (final MalformedNanopublicationException e) {

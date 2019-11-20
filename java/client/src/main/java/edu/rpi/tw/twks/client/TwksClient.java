@@ -151,7 +151,7 @@ public final class TwksClient implements AdministrationApi, GetAssertionsApi, Na
             try (final InputStream inputStream = response.getContent()) {
                 final byte[] contentBytes = ByteStreams.toByteArray(inputStream);
                 try {
-                    return Optional.of(new NanopublicationParser().setLang(Lang.TRIG).parseOne(new StringReader(new String(contentBytes, "UTF-8"))));
+                    return Optional.of(NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(new String(contentBytes, "UTF-8"))).build().parseOne());
                 } catch (final MalformedNanopublicationException e) {
                     logger.error("malformed nanopublication from server: ", e);
                     return Optional.empty();

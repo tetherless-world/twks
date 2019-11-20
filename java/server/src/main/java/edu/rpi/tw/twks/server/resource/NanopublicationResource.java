@@ -3,10 +3,7 @@ package edu.rpi.tw.twks.server.resource;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
-import edu.rpi.tw.twks.nanopub.Nanopublication;
-import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
-import edu.rpi.tw.twks.nanopub.NanopublicationParser;
+import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.server.AcceptLists;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -133,16 +130,18 @@ public class NanopublicationResource extends AbstractResource {
     ) {
         final Lang lang = parseLang(contentType);
 
-        final NanopublicationParser parser = new NanopublicationParser();
-        parser.setLang(lang);
+        final NanopublicationParserBuilder parserBuilder = NanopublicationParser.builder();
+        parserBuilder.setLang(lang);
 
         final Optional<NanopublicationDialect> dialect = parseNanopublicationDialect(nanopublicationDialectString);
         if (dialect.isPresent()) {
-            parser.setDialect(dialect.get());
+            parserBuilder.setDialect(dialect.get());
         }
 
+        parserBuilder.setSource(new StringReader(requestBody));
+
         try {
-            return parser.parseAll(new StringReader(requestBody));
+            return parserBuilder.build().parseAll();
         } catch (final MalformedNanopublicationException e) {
             logger.info("error parsing nanopublication: ", e);
             throw new WebApplicationException("Malformed nanopublication", Response.Status.BAD_REQUEST);

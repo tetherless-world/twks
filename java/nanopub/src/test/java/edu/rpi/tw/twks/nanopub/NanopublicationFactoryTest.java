@@ -23,15 +23,6 @@ public final class NanopublicationFactoryTest {
     }
 
     @Test
-    public void testDuplicateNanopublications() {
-        try {
-            sut.createNanopublicationsFromDataset(testData.duplicateNanopublicationsDataset);
-            fail();
-        } catch (final MalformedNanopublicationException e) {
-        }
-    }
-
-    @Test
     public void testCreateNanopublicationFromDataset() throws MalformedNanopublicationException {
         final Nanopublication nanopublication = sut.createNanopublicationFromDataset(testData.specNanopublicationDataset);
         assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
@@ -42,7 +33,7 @@ public final class NanopublicationFactoryTest {
     @Test
     public void testCreateNanopublicationsFromDataset() throws MalformedNanopublicationException, IOException {
         final Dataset dataset = DatasetFactory.create();
-        new NanopublicationParser().parseOne(testData.assertionOnlyFilePath).toDataset(dataset);
+        NanopublicationParser.builder().setSource(testData.assertionOnlyFilePath).build().parseOne().toDataset(dataset);
         sut.createNanopublicationFromDataset(testData.specNanopublicationDataset).toDataset(dataset);
         assertEquals(8, ImmutableList.copyOf(dataset.listNames()).size());
         final ImmutableList<Nanopublication> nanopublications = NanopublicationFactory.DEFAULT.createNanopublicationsFromDataset(dataset);
@@ -50,9 +41,18 @@ public final class NanopublicationFactoryTest {
     }
 
     @Test
+    public void testDuplicateNanopublications() {
+        try {
+            sut.createNanopublicationsFromDataset(testData.duplicateNanopublicationsDataset);
+            fail();
+        } catch (final MalformedNanopublicationException e) {
+        }
+    }
+
+    @Test
     public void testIterateNanopublicationsFromDataset() throws Exception {
         final Dataset dataset = DatasetFactory.create();
-        new NanopublicationParser().parseOne(testData.assertionOnlyFilePath).toDataset(dataset);
+        NanopublicationParser.builder().setSource(testData.assertionOnlyFilePath).build().parseOne().toDataset(dataset);
         sut.createNanopublicationFromDataset(testData.specNanopublicationDataset).toDataset(dataset);
         assertEquals(8, ImmutableList.copyOf(dataset.listNames()).size());
         try (final NanopublicationFactory.DatasetNanopublications nanopublicationsIterable = NanopublicationFactory.DEFAULT.iterateNanopublicationsFromDataset(dataset)) {

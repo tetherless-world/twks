@@ -64,19 +64,19 @@ public final class NanopublicationTest {
 
     @Test
     public void testWrite() throws Exception {
-        final Nanopublication expected = new NanopublicationParser().parseOne(testData.specNanopublicationFilePath);
+        final Nanopublication expected = NanopublicationParser.builder().setSource(testData.specNanopublicationFilePath).build().parseOne();
         final ByteArrayOutputStream bos = new ByteArrayOutputStream();
         expected.write(bos);
         final String actualString = new String(bos.toByteArray(), Charsets.UTF_8);
-        final Nanopublication actual = new NanopublicationParser().setLang(Lang.TRIG).parseOne(new StringReader(actualString));
+        final Nanopublication actual = NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(actualString)).build().parseOne();
         Assert.assertTrue(expected.isIsomorphicWith(actual));
     }
 
     @Test
     public void testWriteToString() throws Exception {
-        final Nanopublication expected = new NanopublicationParser().parseOne(testData.specNanopublicationFilePath);
+        final Nanopublication expected = NanopublicationParser.builder().setSource(testData.specNanopublicationFilePath).build().parseOne();
         final String actualString = expected.writeToString();
-        final Nanopublication actual = new NanopublicationParser().setLang(Lang.TRIG).parseOne(new StringReader(actualString));
+        final Nanopublication actual = NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(actualString)).build().parseOne();
         Assert.assertTrue(expected.isIsomorphicWith(actual));
     }
 }

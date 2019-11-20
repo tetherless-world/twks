@@ -94,7 +94,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
         final Nanopublication expected = getTestData().specNanopublication;
         getTwks().putNanopublication(expected);
         final String responseBody = target().path("/nanopublication/").path(URLEncoder.encode(expected.getUri().toString(), "UTF-8")).request(Lang.TRIG.getContentType().getContentType()).get(String.class);
-        final Nanopublication actual = new NanopublicationParser().setLang(Lang.TRIG).parseOne(new StringReader(responseBody));
+        final Nanopublication actual = NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(responseBody)).build().parseOne();
         assertTrue(expected.isIsomorphicWith(actual));
     }
 

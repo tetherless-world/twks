@@ -4,42 +4,30 @@ import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFParserBuilder;
+import org.apache.jena.riot.RDFParser;
 
-import java.io.File;
-import java.io.StringReader;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class NanopublicationParser {
-    private final RDFParserBuilder rdfParserBuilder = RDFParserBuilder.create();
-    private NanopublicationDialect dialect = NanopublicationDialect.SPECIFICATION;
+    private final NanopublicationDialect dialect;
+    private final RDFParser rdfParser;
+    private final Optional<Uri> sourceUri;
 
-    public final ImmutableList<Nanopublication> parseAll(final File filePath) throws MalformedNanopublicationException {
-        final Uri nanopublicationUri = Uri.parse(checkNotNull(filePath).toURI().toString());
-        rdfParserBuilder.source(filePath.getPath());
-        return parseAllDelegate(Optional.of(nanopublicationUri));
+    NanopublicationParser(final NanopublicationDialect dialect, final RDFParser rdfParser, final Optional<Uri> sourceUri) {
+        this.dialect = checkNotNull(dialect);
+        this.rdfParser = checkNotNull(rdfParser);
+        this.sourceUri = checkNotNull(sourceUri);
     }
 
-    public final ImmutableList<Nanopublication> parseAll(final Uri url) throws MalformedNanopublicationException {
-        rdfParserBuilder.source(url.toString());
-        return parseAllDelegate(Optional.of(url));
+    public final static NanopublicationParserBuilder builder() {
+        return new NanopublicationParserBuilder();
     }
 
-    public final ImmutableList<Nanopublication> parseAll(final StringReader stringReader) throws MalformedNanopublicationException {
-        return parseAll(stringReader, Optional.empty());
-    }
-
-    public final ImmutableList<Nanopublication> parseAll(final StringReader stringReader, final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
-        rdfParserBuilder.source(stringReader);
-        return parseAllDelegate(sourceUri);
-    }
-
-    private ImmutableList<Nanopublication> parseAllDelegate(final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
+    public final ImmutableList<Nanopublication> parseAll() throws MalformedNanopublicationException {
         final Dataset dataset = DatasetFactory.create();
-        rdfParserBuilder.parse(dataset);
+        rdfParser.parse(dataset);
 
         final NanopublicationFactory factory = new NanopublicationFactory(dialect);
 
@@ -56,23 +44,9 @@ public final class NanopublicationParser {
         return ImmutableList.of(nanopublicationBuilder.build());
     }
 
-    public final Nanopublication parseOne(final File filePath) throws MalformedNanopublicationException {
-        return parseOneDelegate(parseAll(filePath));
-    }
+    public final Nanopublication parseOne() throws MalformedNanopublicationException {
+        final ImmutableList<Nanopublication> nanopublications = parseAll();
 
-    public final Nanopublication parseOne(final Uri url) throws MalformedNanopublicationException {
-        return parseOneDelegate(parseAll(url));
-    }
-
-    public final Nanopublication parseOne(final StringReader stringReader) throws MalformedNanopublicationException {
-        return parseOne(stringReader, Optional.empty());
-    }
-
-    public final Nanopublication parseOne(final StringReader stringReader, final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
-        return parseOneDelegate(parseAll(stringReader, sourceUri));
-    }
-
-    private Nanopublication parseOneDelegate(final ImmutableList<Nanopublication> nanopublications) throws MalformedNanopublicationException {
         switch (nanopublications.size()) {
             case 0:
                 throw new IllegalStateException();
@@ -81,15 +55,5 @@ public final class NanopublicationParser {
             default:
                 throw new MalformedNanopublicationException("more than one nanopublication parsed");
         }
-    }
-
-    public NanopublicationParser setDialect(final NanopublicationDialect dialect) {
-        this.dialect = checkNotNull(dialect);
-        return this;
-    }
-
-    public final NanopublicationParser setLang(final Lang lang) {
-        rdfParserBuilder.lang(checkNotNull(lang));
-        return this;
     }
 }
