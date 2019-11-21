@@ -119,7 +119,7 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
                         final String nanopublicationUri = querySolution.getResource("np").getURI();
 
                         try {
-                            return NanopublicationFactory.DEFAULT.createNanopublicationFromParts(
+                            return SpecificationNanopublicationDialect.createNanopublicationFromParts(
                                     getNanopublicationPart(nanopublicationAssertionGraphName),
                                     Uri.parse(nanopublicationHeadGraphName),
                                     Uri.parse(nanopublicationUri),

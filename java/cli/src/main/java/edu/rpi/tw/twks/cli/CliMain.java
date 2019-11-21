@@ -4,17 +4,13 @@ import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.api.TwksVersion;
-import edu.rpi.tw.twks.cli.command.Command;
-import edu.rpi.tw.twks.cli.command.DeleteNanopublicationsCommand;
-import edu.rpi.tw.twks.cli.command.DumpCommand;
-import edu.rpi.tw.twks.cli.command.PostNanopublicationsCommand;
+import edu.rpi.tw.twks.cli.command.*;
+import edu.rpi.tw.twks.client.RestTwksClient;
+import edu.rpi.tw.twks.client.RestTwksClientConfiguration;
 import edu.rpi.tw.twks.client.TwksClient;
-import edu.rpi.tw.twks.client.TwksClientConfiguration;
 import edu.rpi.tw.twks.factory.TwksFactory;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
-import org.apache.jena.query.ReadWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +25,8 @@ public final class CliMain {
     private final static Command[] commands = {
             new DeleteNanopublicationsCommand(),
             new DumpCommand(),
-            new PostNanopublicationsCommand()
+            new PostNanopublicationsCommand(),
+            new WatchNanopublicationsCommand()
     };
     private final static Logger logger = LoggerFactory.getLogger(CliMain.class);
 
@@ -86,19 +83,17 @@ public final class CliMain {
                 final Twks twks = TwksFactory.getInstance().createTwks(configuration);
                 logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);
 
-                try (final TwksTransaction transaction = twks.beginTransaction(ReadWrite.READ)) {
-                    command.run(new Command.Apis(transaction));
-                }
+                command.run(new InProcessTwksClient(twks));
                 return;
             }
         }
 
         {
-            final TwksClientConfiguration clientConfiguration = TwksClientConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties).build();
-            final TwksClient client = new TwksClient(clientConfiguration);
+            final RestTwksClientConfiguration clientConfiguration = RestTwksClientConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties).build();
+            final TwksClient client = new RestTwksClient(clientConfiguration);
             logger.info("using client with configuration {}", clientConfiguration);
 
-            command.run(new Command.Apis(client));
+            command.run(client);
         }
     }
 

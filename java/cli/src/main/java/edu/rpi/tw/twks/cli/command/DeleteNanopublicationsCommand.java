@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableList;
+import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.uri.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +32,9 @@ public final class DeleteNanopublicationsCommand extends Command {
     }
 
     @Override
-    public void run(final Apis apis) {
+    public void run(final TwksClient client) {
         final ImmutableList<Uri> nanopublicationUris = args.nanopublicationUris.stream().map(uri -> Uri.parse(uri)).collect(ImmutableList.toImmutableList());
-        apis.getNanopublicationCrudApi().deleteNanopublications(nanopublicationUris);
+        client.deleteNanopublications(nanopublicationUris);
         logger.info("deleted {} nanopublication(s)", nanopublicationUris.size());
     }
 

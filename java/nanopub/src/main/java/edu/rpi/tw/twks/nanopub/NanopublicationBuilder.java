@@ -52,7 +52,7 @@ public final class NanopublicationBuilder {
         final NanopublicationPart publicationInfo = publicationInfoBuilder.build(assertion.getModel());
 
         try {
-            return NanopublicationFactory.DEFAULT.createNanopublicationFromParts(assertion, headUri, this.nanopublicationUri, provenance, publicationInfo);
+            return SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, headUri, this.nanopublicationUri, provenance, publicationInfo);
         } catch (final MalformedNanopublicationException e) {
             throw new IllegalStateException(e);
         }

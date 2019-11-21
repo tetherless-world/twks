@@ -1,8 +1,29 @@
 package edu.rpi.tw.twks.nanopub;
 
-public enum NanopublicationDialect {
+import org.apache.jena.riot.Lang;
+
+public abstract class NanopublicationDialect {
     // http://nanopub.org/guidelines/working_draft/
-    SPECIFICATION,
+    public final static NanopublicationDialect SPECIFICATION = new SpecificationNanopublicationDialect();
     // https://github.com/tetherless-world/whyis
-    WHYIS
+    public final static NanopublicationDialect WHYIS = new WhyisNanopublicationDialect();
+
+    public static NanopublicationDialect valueOf(final String name) {
+        switch (name.toUpperCase()) {
+            case "SPECIFICATION":
+                return SPECIFICATION;
+            case "WHYIS":
+                return WHYIS;
+            default:
+                throw new IllegalArgumentException(name);
+        }
+    }
+
+    abstract boolean allowDefaultModelStatements();
+
+    abstract boolean allowEmptyPart();
+
+    abstract boolean allowPartUriReuse();
+
+    public abstract Lang getDefaultLang();
 }

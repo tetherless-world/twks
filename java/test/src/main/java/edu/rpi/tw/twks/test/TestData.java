@@ -104,7 +104,7 @@ public final class TestData {
     }
 
     private Nanopublication parseNanopublicationFromString(final String trig) throws IOException, MalformedNanopublicationException {
-        return new NanopublicationParser().setLang(Lang.TRIG).parseOne(new StringReader(trig));
+        return NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(trig)).build().parseOne();
     }
 
 //    private Nanopublication parseNanopublicationFromResource(final String fileName) throws IOException, MalformedNanopublicationException {
