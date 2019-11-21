@@ -1,7 +1,8 @@
 package edu.rpi.tw.twks.examples.client;
 
+import edu.rpi.tw.twks.client.RestTwksClient;
+import edu.rpi.tw.twks.client.RestTwksClientConfiguration;
 import edu.rpi.tw.twks.client.TwksClient;
-import edu.rpi.tw.twks.client.TwksClientConfiguration;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
@@ -44,12 +45,12 @@ public final class TwksClientExample {
             "}\n";
 
     public static void main(final String[] argv) throws IOException, MalformedNanopublicationException {
-        final TwksClientConfiguration.Builder clientConfigurationBuilder = TwksClientConfiguration.builder();
+        final RestTwksClientConfiguration.Builder clientConfigurationBuilder = RestTwksClientConfiguration.builder();
         // Set the configuration from system properties. See that class for documentation.
         clientConfigurationBuilder.setFromSystemProperties();
         // Can also call setters directly on the configuration builder.
 
-        final TwksClient client = new TwksClient(clientConfigurationBuilder.build());
+        final TwksClient client = new RestTwksClient(clientConfigurationBuilder.build());
 
         // Parse a nanopublication to use
         // The parser may return more than one, but we know there's only one.

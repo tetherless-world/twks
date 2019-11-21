@@ -12,12 +12,17 @@ import edu.rpi.tw.twks.test.TestData;
 import org.apache.jena.query.ReadWrite;
 import org.junit.After;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class AbstractCommandTest<CommandT extends Command> {
+    protected final Logger logger;
     private final TestData testData;
     protected CommandT command;
     private Path tempDirPath;
@@ -25,6 +30,7 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
     private TwksFactoryConfiguration twksConfiguration;
 
     protected AbstractCommandTest() {
+        logger = LoggerFactory.getLogger(getClass());
         try {
             this.testData = new TestData();
         } catch (final IOException | MalformedNanopublicationException e) {
@@ -34,7 +40,15 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
 
     @After
     public final void deleteTempDir() throws IOException {
-        MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
+        if (tempDirPath != null) {
+            MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
+            logger.info("deleted temp directory {}", tempDirPath);
+            tempDirPath = null;
+        }
+    }
+
+    protected final Path getTempDirPath() {
+        return checkNotNull(tempDirPath);
     }
 
     protected final TestData getTestData() {
@@ -60,9 +74,10 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
 
     @Before
     public final void setUp() throws IOException {
-        command = newCommand();
         tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
         twksConfiguration = TwksFactoryConfiguration.builder().setTdb2Configuration(Tdb2TwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build()).build();
         twks = TwksFactory.getInstance().createTwks(twksConfiguration);
+        // Order is important.
+        command = newCommand();
     }
 }

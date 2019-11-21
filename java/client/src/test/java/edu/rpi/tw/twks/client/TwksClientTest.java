@@ -2,18 +2,13 @@ package edu.rpi.tw.twks.client;
 
 import edu.rpi.tw.twks.test.ApisTest;
 
-public final class TwksClientTest extends ApisTest<TwksClient> {
+public abstract class TwksClientTest<TwksClientT extends TwksClient> extends ApisTest<TwksClientT> {
     @Override
-    protected void closeSystemUnderTest(final TwksClient sut) {
+    protected void closeSystemUnderTest(final TwksClientT sut) {
     }
 
     @Override
-    protected TwksClient openSystemUnderTest() throws Exception {
-        return new TwksClient(TwksClientConfiguration.builder().setFromSystemProperties().build());
-    }
-
-    @Override
-    public void testDump() throws Exception {
+    public final void testDump() throws Exception {
         getSystemUnderTest().putNanopublication(getTestData().specNanopublication);
 
         getSystemUnderTest().dump();

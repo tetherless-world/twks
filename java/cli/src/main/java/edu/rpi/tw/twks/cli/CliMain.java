@@ -7,8 +7,9 @@ import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.api.TwksVersion;
 import edu.rpi.tw.twks.cli.command.*;
+import edu.rpi.tw.twks.client.RestTwksClient;
+import edu.rpi.tw.twks.client.RestTwksClientConfiguration;
 import edu.rpi.tw.twks.client.TwksClient;
-import edu.rpi.tw.twks.client.TwksClientConfiguration;
 import edu.rpi.tw.twks.factory.TwksFactory;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
 import org.apache.jena.query.ReadWrite;
@@ -92,8 +93,8 @@ public final class CliMain {
         }
 
         {
-            final TwksClientConfiguration clientConfiguration = TwksClientConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties).build();
-            final TwksClient client = new TwksClient(clientConfiguration);
+            final RestTwksClientConfiguration clientConfiguration = RestTwksClientConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties).build();
+            final TwksClient client = new RestTwksClient(clientConfiguration);
             logger.info("using client with configuration {}", clientConfiguration);
 
             command.run(new Command.Apis(client));

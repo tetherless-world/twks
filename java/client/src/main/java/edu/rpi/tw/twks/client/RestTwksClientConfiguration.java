@@ -7,10 +7,10 @@ import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class TwksClientConfiguration extends AbstractConfiguration {
+public final class RestTwksClientConfiguration extends AbstractConfiguration {
     private final String serverBaseUrl;
 
-    private TwksClientConfiguration(final String serverBaseUrl) {
+    private RestTwksClientConfiguration(final String serverBaseUrl) {
         this.serverBaseUrl = checkNotNull(serverBaseUrl);
     }
 
@@ -27,12 +27,12 @@ public final class TwksClientConfiguration extends AbstractConfiguration {
         return super.toStringHelper().add("serverBaseUrl", serverBaseUrl);
     }
 
-    public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksClientConfiguration> {
+    public final static class Builder extends AbstractConfiguration.Builder<Builder, RestTwksClientConfiguration> {
         private String serverBaseUrl = FieldDefinitions.SERVER_BASE_URL.getDefault();
 
         @Override
-        public final TwksClientConfiguration build() {
-            return new TwksClientConfiguration(serverBaseUrl);
+        public final RestTwksClientConfiguration build() {
+            return new RestTwksClientConfiguration(serverBaseUrl);
         }
 
         public final String getServerBaseUrl() {
