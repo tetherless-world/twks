@@ -6,6 +6,7 @@ import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.cli.CliNanopublicationParser;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.methvin.watcher.DirectoryChangeEvent;
 import io.methvin.watcher.DirectoryChangeListener;
 import io.methvin.watcher.DirectoryWatcher;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -26,32 +28,35 @@ public final class WatchNanopublicationsCommand extends Command {
     private final static String NAME = "watch-nanopublications";
     private final static Logger logger = LoggerFactory.getLogger(WatchNanopublicationsCommand.class);
     private final Args args = new Args();
+    private @Nullable
+    NanopublicationsDirectoryWatcher watcher = null;
 
     @Override
-    public String[] getAliases() {
+    public final String[] getAliases() {
         return ALIASES;
     }
 
     @Override
-    public Args getArgs() {
+    public final Args getArgs() {
         return args;
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return NAME;
     }
 
     @Override
-    public void run(final Apis apis) {
+    public final void run(final Apis apis) {
         final Path directoryPath = Paths.get(args.directoryPath);
         final CliNanopublicationParser nanopublicationParser = new CliNanopublicationParser(args);
 
         final ImmutableMultimap<Path, Nanopublication> initialNanopublicationsByPath = nanopublicationParser.parseDirectory(directoryPath.toFile());
-        apis.getNanopublicationCrudApi().postNanopublications(ImmutableList.copyOf(initialNanopublicationsByPath.values()));
-        logger.info("posted {} initial nanopublications", initialNanopublicationsByPath.size());
+        if (!initialNanopublicationsByPath.isEmpty()) {
+            apis.getNanopublicationCrudApi().postNanopublications(ImmutableList.copyOf(initialNanopublicationsByPath.values()));
+            logger.info("posted {} initial nanopublications", initialNanopublicationsByPath.size());
+        }
 
-        NanopublicationsDirectoryWatcher watcher = null;
         try {
             watcher = new NanopublicationsDirectoryWatcher(directoryPath, initialNanopublicationsByPath, apis.getNanopublicationCrudApi(), nanopublicationParser);
         } catch (final IOException e) {
@@ -59,6 +64,19 @@ public final class WatchNanopublicationsCommand extends Command {
             return;
         }
         watcher.watch();
+    }
+
+    public final void stop() {
+        if (watcher == null) {
+            return;
+        }
+
+        try {
+            watcher.close();
+        } catch (final IOException e) {
+            logger.error("error closing directory watcher: ", e);
+        }
+        watcher = null;
     }
 
     public final static class Args extends CliNanopublicationParser.Args {
@@ -85,8 +103,12 @@ public final class WatchNanopublicationsCommand extends Command {
             this.nanopublicationParser = checkNotNull(nanopublicationParser);
         }
 
+        public final void close() throws IOException {
+            directoryWatcher.close();
+        }
+
         @Override
-        public synchronized void onEvent(final DirectoryChangeEvent event) throws IOException {
+        public final synchronized void onEvent(final DirectoryChangeEvent event) throws IOException {
             logger.info("directory change event: {}", event);
 
             final Set<Path> currentNanopublicationPaths = currentNanopublicationUrisByPath.keySet();
@@ -140,9 +162,14 @@ public final class WatchNanopublicationsCommand extends Command {
             }
         }
 
-        public void watch() {
+        public final void watch() {
             logger.info("watching {} for nanopublication changes", directoryPath);
-            directoryWatcher.watch();
+            try {
+                directoryWatcher.watch();
+            } catch (final ClosedWatchServiceException e) {
+                logger.debug("watcher closed");
+            }
+            logger.info("exited watch of {} for nanopublication changes", directoryPath);
         }
     }
 }
