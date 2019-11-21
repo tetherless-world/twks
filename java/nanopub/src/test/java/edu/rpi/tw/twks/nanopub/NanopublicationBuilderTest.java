@@ -11,14 +11,14 @@ public final class NanopublicationBuilderTest {
     private final Statement assertionStatement = ResourceFactory.createStatement(ResourceFactory.createResource("http://example.org/trastuzumab"), ResourceFactory.createProperty("is-indicated-for"), ResourceFactory.createResource("breast-cancer"));
 
     @Test
-    public void testMinimal() {
+    public void testMinimal() throws MalformedNanopublicationException {
         final NanopublicationBuilder builder = new NanopublicationBuilder();
         builder.getAssertionBuilder().getModel().add(assertionStatement);
         assertNotSame(builder.build(), null);
     }
 
     @Test
-    public void testSetNanopublicationUri() {
+    public void testSetNanopublicationUri() throws MalformedNanopublicationException {
         final Uri uri = Uri.parse("http://example.com/pub1");
         final NanopublicationBuilder builder = Nanopublication.builder(uri);
         builder.getAssertionBuilder().getModel().add(assertionStatement);

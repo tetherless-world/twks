@@ -45,17 +45,12 @@ public final class NanopublicationBuilder {
         publicationInfoBuilder = new NanopublicationPublicationInfoBuilder();
     }
 
-    public final Nanopublication build() {
+    public final Nanopublication build() throws MalformedNanopublicationException {
         final NanopublicationPart assertion = assertionBuilder.build();
         final Uri headUri = Uri.parse(nanopublicationUri.toString() + "#head");
         final NanopublicationPart provenance = provenanceBuilder.build();
         final NanopublicationPart publicationInfo = publicationInfoBuilder.build(assertion.getModel());
-
-        try {
-            return SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, headUri, this.nanopublicationUri, provenance, publicationInfo);
-        } catch (final MalformedNanopublicationException e) {
-            throw new IllegalStateException(e);
-        }
+        return SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, headUri, this.nanopublicationUri, provenance, publicationInfo);
     }
 
     public final NanopublicationAssertionBuilder getAssertionBuilder() {
@@ -80,9 +75,9 @@ public final class NanopublicationBuilder {
         private NanopublicationAssertionBuilder() {
         }
 
-        private NanopublicationPart build() {
+        private NanopublicationPart build() throws MalformedNanopublicationException {
             if (!getModel().listStatements().hasNext()) {
-                throw new IllegalArgumentException("no assertion statements");
+                throw new MalformedNanopublicationException("no assertion statements");
             }
 
             return new NanopublicationPart(getModel(), Uri.parse(assertionResource.getURI()));
