@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.cli.command;
 
+import edu.rpi.tw.twks.client.TwksClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +28,9 @@ public final class DumpCommand extends Command {
     }
 
     @Override
-    public void run(final Apis apis) {
+    public void run(final TwksClient client) {
         try {
-            apis.getAdministrationApi().dump();
+            client.dump();
         } catch (final IOException e) {
             logger.error("I/O exception:", e);
         }

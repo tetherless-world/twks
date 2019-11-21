@@ -2,8 +2,8 @@ package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.*;
-import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.cli.CliNanopublicationParser;
+import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -47,18 +47,18 @@ public final class WatchNanopublicationsCommand extends Command {
     }
 
     @Override
-    public final void run(final Apis apis) {
+    public final void run(final TwksClient client) {
         final Path directoryPath = Paths.get(args.directoryPath);
         final CliNanopublicationParser nanopublicationParser = new CliNanopublicationParser(args);
 
         final ImmutableMultimap<Path, Nanopublication> initialNanopublicationsByPath = nanopublicationParser.parseDirectory(directoryPath.toFile());
         if (!initialNanopublicationsByPath.isEmpty()) {
-            apis.getNanopublicationCrudApi().postNanopublications(ImmutableList.copyOf(initialNanopublicationsByPath.values()));
+            client.postNanopublications(ImmutableList.copyOf(initialNanopublicationsByPath.values()));
             logger.info("posted {} initial nanopublications", initialNanopublicationsByPath.size());
         }
 
         try {
-            watcher = new NanopublicationsDirectoryWatcher(directoryPath, initialNanopublicationsByPath, apis.getNanopublicationCrudApi(), nanopublicationParser);
+            watcher = new NanopublicationsDirectoryWatcher(client, directoryPath, initialNanopublicationsByPath, nanopublicationParser);
         } catch (final IOException e) {
             logger.error("error setting up directory watcher: ", e);
             return;
@@ -85,21 +85,21 @@ public final class WatchNanopublicationsCommand extends Command {
     }
 
     private final class NanopublicationsDirectoryWatcher implements DirectoryChangeListener {
+        private final TwksClient client;
         private final Multimap<Path, Uri> currentNanopublicationUrisByPath = ArrayListMultimap.create();
         private final File directoryFile;
         private final Path directoryPath;
         private final DirectoryWatcher directoryWatcher;
-        private final NanopublicationCrudApi nanopublicationCrudApi;
         private final CliNanopublicationParser nanopublicationParser;
 
-        NanopublicationsDirectoryWatcher(final Path directoryPath, final ImmutableMultimap<Path, Nanopublication> initialNanopublicationsByPath, final NanopublicationCrudApi nanopublicationCrudApi, final CliNanopublicationParser nanopublicationParser) throws IOException {
+        NanopublicationsDirectoryWatcher(final TwksClient client, final Path directoryPath, final ImmutableMultimap<Path, Nanopublication> initialNanopublicationsByPath, final CliNanopublicationParser nanopublicationParser) throws IOException {
+            this.client = checkNotNull(client);
             this.directoryPath = checkNotNull(directoryPath);
             this.directoryFile = this.directoryPath.toFile();
             this.directoryWatcher = DirectoryWatcher.builder().path(this.directoryPath).listener(this).build();
             for (final Map.Entry<Path, Nanopublication> entry : initialNanopublicationsByPath.entries()) {
                 currentNanopublicationUrisByPath.put(entry.getKey(), entry.getValue().getUri());
             }
-            this.nanopublicationCrudApi = checkNotNull(nanopublicationCrudApi);
             this.nanopublicationParser = checkNotNull(nanopublicationParser);
         }
 
@@ -133,7 +133,7 @@ public final class WatchNanopublicationsCommand extends Command {
                         final ImmutableList<Nanopublication> nanopublications = ImmutableList.copyOf(nanopublicationsByPath.values());
                         final ImmutableList<Uri> nanopublicationUris = nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
 
-                        nanopublicationCrudApi.postNanopublications(nanopublications);
+                        client.postNanopublications(nanopublications);
                         logger.info("posted {} nanopublications from {} files after {}: {}", nanopublications.size(), nanopublicationPaths.size(), event.eventType(), nanopublicationUris);
                         break;
                     }
@@ -147,7 +147,7 @@ public final class WatchNanopublicationsCommand extends Command {
                             deletedNanopublicationUrisBuilder.addAll(currentNanopublicationUrisByPath.get(deletedNanopublicationPath));
                         }
                         final ImmutableList<Uri> deletedNanopublicationUris = deletedNanopublicationUrisBuilder.build();
-                        nanopublicationCrudApi.deleteNanopublications(deletedNanopublicationUris);
+                        client.deleteNanopublications(deletedNanopublicationUris);
                         logger.info("deleted {} nanopublications from {} files after {}: {}", deletedNanopublicationUris.size(), deletedNanopublicationPaths.size(), event.eventType(), deletedNanopublicationUris);
                         break;
                     }

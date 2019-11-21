@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.cli.command;
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.cli.CliNanopublicationParser;
+import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public final class PostNanopublicationsCommand extends Command {
     }
 
     @Override
-    public void run(final Apis apis) {
+    public void run(final TwksClient client) {
         final CliNanopublicationParser parser = new CliNanopublicationParser(args);
 
         final ImmutableList<Nanopublication> nanopublications;
@@ -49,7 +50,7 @@ public final class PostNanopublicationsCommand extends Command {
 
         logger.info("parsed {} nanopublication(s) total", nanopublications.size());
 
-        apis.getNanopublicationCrudApi().postNanopublications(nanopublications);
+        client.postNanopublications(nanopublications);
 
         logger.info("post {} nanopublication(s) total", nanopublications.size());
     }

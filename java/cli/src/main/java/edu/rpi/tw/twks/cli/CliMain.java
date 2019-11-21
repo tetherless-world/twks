@@ -4,7 +4,6 @@ import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.api.TwksVersion;
 import edu.rpi.tw.twks.cli.command.*;
 import edu.rpi.tw.twks.client.RestTwksClient;
@@ -12,7 +11,6 @@ import edu.rpi.tw.twks.client.RestTwksClientConfiguration;
 import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.factory.TwksFactory;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
-import org.apache.jena.query.ReadWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,9 +83,7 @@ public final class CliMain {
                 final Twks twks = TwksFactory.getInstance().createTwks(configuration);
                 logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);
 
-                try (final TwksTransaction transaction = twks.beginTransaction(ReadWrite.READ)) {
-                    command.run(new Command.Apis(transaction));
-                }
+                command.run(new InProcessTwksClient(twks));
                 return;
             }
         }
@@ -97,7 +93,7 @@ public final class CliMain {
             final TwksClient client = new RestTwksClient(clientConfiguration);
             logger.info("using client with configuration {}", clientConfiguration);
 
-            command.run(new Command.Apis(client));
+            command.run(client);
         }
     }
 
