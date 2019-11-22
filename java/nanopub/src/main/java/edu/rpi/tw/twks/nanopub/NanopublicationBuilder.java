@@ -19,35 +19,42 @@ public final class NanopublicationBuilder {
     private final Resource assertionResource;
     private final Resource nanopublicationResource;
     private final Uri nanopublicationUri;
+    private final String partUriBase;
     private final NanopublicationProvenanceBuilder provenanceBuilder;
     private final Resource provenanceResource;
     private final NanopublicationPublicationInfoBuilder publicationInfoBuilder;
     private final Resource publicationInfoResource;
 
     NanopublicationBuilder() {
-        this(Uri.parse("urn:uuid:" + UUID.randomUUID().toString()));
+        // Use the nanopublication URI as a base for the part URIs
+        this(Uri.parse("urn:uuid:" + UUID.randomUUID().toString()), true);
     }
 
     NanopublicationBuilder(final Uri nanopublicationUri) {
-        // The nanopublication part names (URIs) are all dereived from the nanopublication URI.
-        // Allowing custom part URIs is not needed in what's supposed to be a convenience builder.
+        // Don't use the nanopublication URI as a base for the part URIs
+        this(nanopublicationUri, false);
+    }
+
+    private NanopublicationBuilder(final Uri nanopublicationUri, final boolean useNanopublicationUriAsPartUriBase) {
         this.nanopublicationUri = checkNotNull(nanopublicationUri);
 
         nanopublicationResource = ResourceFactory.createResource(nanopublicationUri.toString());
 
-        assertionResource = ResourceFactory.createResource(nanopublicationUri.toString() + "#assertion");
+        partUriBase = useNanopublicationUriAsPartUriBase ? nanopublicationUri.toString() : "urn:uuid:" + UUID.randomUUID().toString();
+
+        assertionResource = ResourceFactory.createResource(partUriBase + "#assertion");
         assertionBuilder = new NanopublicationAssertionBuilder();
 
-        provenanceResource = ResourceFactory.createResource(nanopublicationUri.toString() + "#provenance");
+        provenanceResource = ResourceFactory.createResource(partUriBase + "#provenance");
         provenanceBuilder = new NanopublicationProvenanceBuilder();
 
-        publicationInfoResource = ResourceFactory.createResource(nanopublicationUri.toString() + "#publicationInfo");
+        publicationInfoResource = ResourceFactory.createResource(partUriBase + "#publicationInfo");
         publicationInfoBuilder = new NanopublicationPublicationInfoBuilder();
     }
 
     public final Nanopublication build() throws MalformedNanopublicationException {
         final NanopublicationPart assertion = assertionBuilder.build();
-        final Uri headUri = Uri.parse(nanopublicationUri.toString() + "#head");
+        final Uri headUri = Uri.parse(partUriBase + "#head");
         final NanopublicationPart provenance = provenanceBuilder.build();
         final NanopublicationPart publicationInfo = publicationInfoBuilder.build(assertion.getModel());
         return SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, headUri, this.nanopublicationUri, provenance, publicationInfo);
