@@ -11,8 +11,6 @@ import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -29,8 +27,6 @@ import java.util.Optional;
 
 @Path("nanopublication")
 public class NanopublicationResource extends AbstractResource {
-    private final static Logger logger = LoggerFactory.getLogger(NanopublicationResource.class);
-
     public NanopublicationResource() {
     }
 

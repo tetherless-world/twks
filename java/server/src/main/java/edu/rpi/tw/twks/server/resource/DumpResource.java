@@ -1,8 +1,6 @@
 package edu.rpi.tw.twks.server.resource;
 
 import edu.rpi.tw.twks.api.Twks;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -11,8 +9,6 @@ import java.io.IOException;
 
 @Path("dump")
 public class DumpResource extends AbstractResource {
-    private final static Logger logger = LoggerFactory.getLogger(DumpResource.class);
-
     public DumpResource() {
     }
 
