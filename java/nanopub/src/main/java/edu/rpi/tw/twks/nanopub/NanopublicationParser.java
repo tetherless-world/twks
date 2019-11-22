@@ -5,7 +5,7 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.riot.RDFParser;
-import org.apache.jena.riot.RiotException;
+import org.apache.jena.riot.RiotParseException;
 
 import java.util.Optional;
 
@@ -31,7 +31,7 @@ public final class NanopublicationParser {
 
         try {
             rdfParser.parse(dataset);
-        } catch (final RiotException e) {
+        } catch (final RiotParseException e) {
             throw new MalformedNanopublicationException(e);
         }
 

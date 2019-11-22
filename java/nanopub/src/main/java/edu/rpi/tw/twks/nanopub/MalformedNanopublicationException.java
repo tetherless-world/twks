@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
-import org.apache.jena.riot.RiotException;
+import org.apache.jena.riot.RiotParseException;
 
 @SuppressWarnings("serializable")
 public final class MalformedNanopublicationException extends Exception {
@@ -8,7 +8,7 @@ public final class MalformedNanopublicationException extends Exception {
         super(message);
     }
 
-    public MalformedNanopublicationException(final RiotException cause) {
+    public MalformedNanopublicationException(final RiotParseException cause) {
         super(cause);
     }
 }
