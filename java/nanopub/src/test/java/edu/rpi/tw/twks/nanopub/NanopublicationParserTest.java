@@ -1,10 +1,13 @@
 package edu.rpi.tw.twks.nanopub;
 
+import org.apache.jena.riot.RiotNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.io.File;
+import java.io.StringReader;
+
+import static org.junit.Assert.*;
 
 public final class NanopublicationParserTest {
     private NanopublicationParser sut;
@@ -13,6 +16,24 @@ public final class NanopublicationParserTest {
     @Before
     public void setUp() throws Exception {
         this.testData = new TestData();
+    }
+
+    @Test
+    public void testBrokenRdf() {
+        try {
+            NanopublicationParser.builder().setSource(new StringReader("broken RDF")).build().parseOne();
+            fail();
+        } catch (final MalformedNanopublicationException e) {
+        }
+    }
+
+    @Test
+    public void testMissingFile() throws Exception {
+        try {
+            NanopublicationParser.builder().setSource(new File("nonextantfile")).build().parseOne();
+            fail();
+        } catch (final RiotNotFoundException e) {
+        }
     }
 
     @Test
