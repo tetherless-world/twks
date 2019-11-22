@@ -40,6 +40,33 @@ abstract class AbstractSparqlResource extends AbstractResource {
         return uris;
     }
 
+    protected final Response
+    doGet(
+            @Nullable final String accept,
+            @Nullable final List<String> defaultGraphUriStrings,
+            @Nullable final List<String> namedGraphUriStrings,
+            @Nullable final String queryString
+    ) {
+        return service(accept, defaultGraphUriStrings, namedGraphUriStrings, queryString);
+    }
+
+    protected final Response
+    doPost(
+            @Nullable final String accept,
+            @Nullable final String contentType,
+            @Nullable final List<String> defaultGraphUriStrings,
+            @Nullable final List<String> namedGraphUriStrings,
+            @Nullable final String queryString,
+            final String requestBody
+    ) {
+        if (contentType != null && contentType.equalsIgnoreCase("application/sparql-query")) {
+            // POST directly, query is the body
+            return service(accept, defaultGraphUriStrings, namedGraphUriStrings, requestBody);
+        } else {
+            return service(accept, defaultGraphUriStrings, namedGraphUriStrings, queryString);
+        }
+    }
+
     protected abstract QueryExecution query(Query query, TwksTransaction transaction);
 
     protected Response
@@ -122,5 +149,4 @@ abstract class AbstractSparqlResource extends AbstractResource {
 
         return responseBuilder.build();
     }
-
 }

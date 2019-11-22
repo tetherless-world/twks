@@ -27,7 +27,7 @@ public final class AssertionsSparqlResource extends AbstractSparqlResource {
             @QueryParam("named-graph-uri") @Nullable final List<String> namedGraphUriStrings,
             @QueryParam("query") @Nullable final String queryString
     ) {
-        return service(accept, defaultGraphUriStrings, namedGraphUriStrings, queryString);
+        return doGet(accept, defaultGraphUriStrings, namedGraphUriStrings, queryString);
     }
 
     @POST
@@ -40,12 +40,7 @@ public final class AssertionsSparqlResource extends AbstractSparqlResource {
             @QueryParam("query") @Nullable final String queryString,
             final String requestBody
     ) {
-        if (contentType != null && contentType.equalsIgnoreCase("application/sparql-query")) {
-            // POST directly, query is the body
-            return service(accept, defaultGraphUriStrings, namedGraphUriStrings, requestBody);
-        } else {
-            return service(accept, defaultGraphUriStrings, namedGraphUriStrings, queryString);
-        }
+        return doPost(accept, contentType, defaultGraphUriStrings, namedGraphUriStrings, queryString, requestBody);
     }
 
     @Override
