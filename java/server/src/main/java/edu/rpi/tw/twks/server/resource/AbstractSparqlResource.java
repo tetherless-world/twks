@@ -11,10 +11,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.resultset.ResultSetLang;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,23 +42,14 @@ abstract class AbstractSparqlResource extends AbstractResource {
 
     protected abstract QueryExecution query(Query query, TwksTransaction transaction);
 
-    @GET
-    @POST
-    public Response
-    sparql(
-            @HeaderParam("Accept") @Nullable final String accept,
-            @HeaderParam("Content-Type") @Nullable final String contentType,
-            @HeaderParam("default-graph-uri") @Nullable final List<String> defaultGraphUriStrings,
-            @HeaderParam("named-graph-uri") @Nullable final List<String> namedGraphUriStrings,
-            @QueryParam("query") @Nullable String queryString,
-            final String requestBody
+    protected Response
+    service(
+            @Nullable final String accept,
+            @Nullable final List<String> defaultGraphUriStrings,
+            @Nullable final List<String> namedGraphUriStrings,
+            @Nullable final String queryString
     ) {
         final Optional<AcceptList> proposeAcceptList = AcceptLists.getProposeAcceptList(accept);
-
-        if (contentType != null && contentType.equalsIgnoreCase("application/sparql-query")) {
-            // POST directly, query is the body
-            queryString = requestBody;
-        }
 
         if (queryString == null) {
             logger.error("missing query");
