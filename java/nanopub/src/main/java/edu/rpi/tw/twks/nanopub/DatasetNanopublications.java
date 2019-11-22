@@ -265,11 +265,36 @@ public final class DatasetNanopublications implements AutoCloseableIterable<Nano
                     } else {
                         // Don't respect the part names of non-specification dialects. Causes too many problems if the dialect differs too much from the spec.
                         // Take the part models and create a new nanopublication from scratch.
-                        final NanopublicationBuilder nanopublicationBuilder = Nanopublication.builder();
+                        // Do respect the nanopublication URI. We need it to ensure the nanopublication can be updated or deleted later.
+                        final NanopublicationBuilder nanopublicationBuilder = Nanopublication.builder(nanopublicationUri);
+
+                        // Take assertions as-is
                         nanopublicationBuilder.getAssertionBuilder().setModel(assertion.getModel());
-                        nanopublicationBuilder.getProvenanceBuilder().setModel(provenance.getModel());
+
+                        // Rewrite provenance statements to refer to the new assertion part URI
+                        // Will do that below, once we've got the new assertion part URI
+                        final Model rewrittenProvenanceModel = ModelFactory.createDefaultModel();
+                        nanopublicationBuilder.getProvenanceBuilder().setModel(rewrittenProvenanceModel);
+
+                        // Don't need to rewrite publication info, since it's only
                         nanopublicationBuilder.getPublicationInfoBuilder().setModel(publicationInfo.getModel());
-                        return nanopublicationBuilder.build();
+
+                        final Nanopublication nanopublication = nanopublicationBuilder.build();
+
+                        // Rewrite statements of the provenance that referred to the assertion part
+                        final Resource newAssertionPartResource = ResourceFactory.createResource(nanopublication.getProvenance().getName().toString());
+                        final Resource oldAssertionPartResource = ResourceFactory.createResource(provenance.getName().toString());
+                        for (final StmtIterator statementI = provenance.getModel().listStatements(); statementI.hasNext(); ) {
+                            final Statement statement = statementI.next();
+                            if (statement.getSubject().equals(oldAssertionPartResource)) {
+                                rewrittenProvenanceModel.add(newAssertionPartResource, statement.getPredicate(), statement.getObject());
+                            } else {
+                                rewrittenProvenanceModel.add(statement);
+                            }
+                        }
+                        // rewrittenProvenanceModel is already in the nanopublication
+
+                        return nanopublication;
                     }
                 } catch (final MalformedNanopublicationException e) {
                     throw new MalformedNanopublicationRuntimeException(e);
