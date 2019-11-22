@@ -6,6 +6,7 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.riot.RDFParser;
 import org.apache.jena.riot.RiotException;
+import org.apache.jena.riot.RiotNotFoundException;
 
 import java.util.Optional;
 
@@ -31,6 +32,8 @@ public final class NanopublicationParser {
 
         try {
             rdfParser.parse(dataset);
+        } catch (final RiotNotFoundException e) {
+            throw e;
         } catch (final RiotException e) {
             throw new MalformedNanopublicationException(e);
         }

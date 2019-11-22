@@ -8,6 +8,7 @@ import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.riot.RiotNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,6 +122,9 @@ public final class CliNanopublicationParser {
             final ImmutableList<Nanopublication> result = newNanopublicationParserBuilder().setSource(sourceFilePath).build().parseAll();
             logger.info("parsed {} nanopublications from {}", result.size(), sourceFilePath);
             return result;
+        } catch (final RiotNotFoundException e) {
+            logger.error("nanopublication file {} not found", sourceFilePath);
+            return ImmutableList.of();
         } catch (final MalformedNanopublicationException e) {
             logger.error("error parsing {}: ", sourceFilePath, e);
             return ImmutableList.of();
