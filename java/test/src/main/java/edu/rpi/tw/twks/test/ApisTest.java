@@ -93,6 +93,21 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     }
 
     @Test
+    public void testDeleteAllNanopublications() {
+        sut.putNanopublication(getTestData().specNanopublication);
+        assertTrue(sut.getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+        sut.putNanopublication(getTestData().secondNanopublication);
+        assertTrue(sut.getNanopublication(getTestData().secondNanopublication.getUri()).isPresent());
+        try {
+            sut.deleteNanopublications();
+        } catch (final UnsupportedOperationException e) {
+            return;
+        }
+        assertFalse(sut.getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
+        assertFalse(sut.getNanopublication(getTestData().secondNanopublication.getUri()).isPresent());
+    }
+
+    @Test
     public void testDeleteNanopublicationAbsent() {
         assertEquals(NanopublicationCrudApi.DeleteNanopublicationResult.NOT_FOUND, sut.deleteNanopublication(testData.specNanopublication.getUri()));
     }

@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.abc;
 
+import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.rpi.tw.twks.nanopub.AutoCloseableIterable;
 import edu.rpi.tw.twks.nanopub.DatasetNanopublications;
@@ -48,6 +49,14 @@ public abstract class DatasetTwksTransaction extends AbstractTwksTransaction {
     protected final void deleteNanopublication(final Set<String> nanopublicationGraphNames) {
         for (final String nanopublicationGraphName : nanopublicationGraphNames) {
             getDataset().removeNamedModel(nanopublicationGraphName);
+        }
+    }
+
+    @Override
+    public final void deleteNanopublications() {
+        final ImmutableList<String> datasetNames = ImmutableList.copyOf(getDataset().listNames());
+        for (final String name : datasetNames) {
+            dataset.removeNamedModel(name);
         }
     }
 
