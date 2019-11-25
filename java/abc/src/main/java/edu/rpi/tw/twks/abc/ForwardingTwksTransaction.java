@@ -51,6 +51,11 @@ public class ForwardingTwksTransaction implements TwksTransaction {
     }
 
     @Override
+    public void deleteNanopublications() {
+        delegate.deleteNanopublications();
+    }
+
+    @Override
     public ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
         return delegate.deleteNanopublications(uris);
     }

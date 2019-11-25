@@ -27,6 +27,12 @@ public interface NanopublicationCrudApi {
     ImmutableList<DeleteNanopublicationResult> deleteNanopublications(ImmutableList<Uri> uris);
 
     /**
+     * Delete all nanopublications in the store.
+     * <p>
+     */
+    void deleteNanopublications();
+
+    /**
      * Get a nanopublication.
      *
      * @param uri URI of the nanopublication.

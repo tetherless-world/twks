@@ -89,6 +89,11 @@ public final class RestTwksClient implements TwksClient {
     }
 
     @Override
+    public final void deleteNanopublications() {
+        throw new UnsupportedOperationException("not supported via the API");
+    }
+
+    @Override
     public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
         try {
             final GenericUrl url = new GenericUrl(serverBaseUrl + "/nanopublication/");

@@ -48,6 +48,14 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
     }
 
     @Override
+    public final void deleteNanopublications() {
+        try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
+            transaction.deleteNanopublications();
+            transaction.commit();
+        }
+    }
+
+    @Override
     public ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
             final ImmutableList<DeleteNanopublicationResult> results = transaction.deleteNanopublications(uris);
