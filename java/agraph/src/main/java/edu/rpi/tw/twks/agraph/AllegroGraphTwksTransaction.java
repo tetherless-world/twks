@@ -40,23 +40,23 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
     }
 
     @Override
-    public void abort() {
+    public final void abort() {
         repositoryConnection.rollback();
     }
 
     @Override
-    public void close() {
+    public final void close() {
         graphMaker.close();
         repositoryConnection.close();
     }
 
     @Override
-    public void commit() {
+    public final void commit() {
         repositoryConnection.commit();
     }
 
     @Override
-    protected void deleteNanopublication(final Set<String> nanopublicationGraphNames) {
+    protected final void deleteNanopublication(final Set<String> nanopublicationGraphNames) {
         for (final String graphName : nanopublicationGraphNames) {
             try {
                 // Must open a graph locally before removing it
@@ -69,6 +69,11 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
     }
 
     @Override
+    public final void deleteNanopublications() {
+        repositoryConnection.clear();
+    }
+
+    @Override
     protected final void getAssertions(final Set<String> assertionGraphNames, final Model assertions) {
         for (final String graphName : assertionGraphNames) {
             final AGGraph graph = graphMaker.openGraph(graphName, false);
@@ -77,7 +82,7 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
     }
 
     @Override
-    protected AutoCloseableIterable<Nanopublication> iterateNanopublications() {
+    protected final AutoCloseableIterable<Nanopublication> iterateNanopublications() {
         return new AutoCloseableIterable<Nanopublication>() {
             private @Nullable
             QueryExecution queryExecution = null;
@@ -136,7 +141,7 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
     }
 
     @Override
-    public PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
+    public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
         final DeleteNanopublicationResult deleteResult = deleteNanopublication(nanopublication.getUri());
 
         final Dataset nanopublicationDataset = nanopublication.toDataset();
@@ -152,7 +157,7 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
     }
 
     @Override
-    public QueryExecution queryNanopublications(final Query query) {
+    public final QueryExecution queryNanopublications(final Query query) {
         final AGQuery agraphQuery = AGQueryFactory.create(query.toString(Syntax.syntaxSPARQL_11));
         return queryNanopublications(agraphQuery);
     }
