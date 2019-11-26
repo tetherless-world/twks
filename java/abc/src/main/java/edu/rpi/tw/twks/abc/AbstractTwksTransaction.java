@@ -45,8 +45,10 @@ public abstract class AbstractTwksTransaction<TwksT extends Twks> implements Twk
 
     @Override
     public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
+        final DeleteNanopublicationResult result = deleteNanopublicationImpl(uri);
+        // deleteNanopublicationImpl uses graphNames, so wait until after the operation to invalidate the graph names cache.
         graphNames.invalidateCache();
-        return deleteNanopublicationImpl(uri);
+        return result;
     }
 
     private DeleteNanopublicationResult deleteNanopublicationImpl(final Uri uri) {
@@ -58,7 +60,6 @@ public abstract class AbstractTwksTransaction<TwksT extends Twks> implements Twk
             throw new IllegalStateException();
         }
         deleteNanopublicationImpl(nanopublicationGraphNames);
-
         return DeleteNanopublicationResult.DELETED;
     }
 
@@ -66,14 +67,17 @@ public abstract class AbstractTwksTransaction<TwksT extends Twks> implements Twk
 
     @Override
     public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
+        final ImmutableList<DeleteNanopublicationResult> results = uris.stream().map(uri -> deleteNanopublicationImpl(uri)).collect(ImmutableList.toImmutableList());
+        // deleteNanopublicationImpl uses graphNames, so wait until after the operation to invalidate the graph names cache.
         graphNames.invalidateCache();
-        return uris.stream().map(uri -> deleteNanopublication(uri)).collect(ImmutableList.toImmutableList());
+        return results;
     }
 
     @Override
     public final void deleteNanopublications() {
-        graphNames.invalidateCache();
         deleteNanopublicationsImpl();
+        // Wait until after the operation to invalidate the graph names cache.
+        graphNames.invalidateCache();
     }
 
     protected abstract void deleteNanopublicationsImpl();
@@ -144,7 +148,7 @@ public abstract class AbstractTwksTransaction<TwksT extends Twks> implements Twk
         }
     }
 
-    protected final Dataset getNanopublicationDataset(final Uri uri) {
+    private Dataset getNanopublicationDataset(final Uri uri) {
         try (final QueryExecution queryExecution = queryNanopublications(QueryFactory.create(String.format(GET_NANOPUBLICATION_DATASET_QUERY_STRING, uri)))) {
             return MoreDatasetFactory.createDatasetFromResultSet(queryExecution.execSelect());
         }
@@ -164,14 +168,18 @@ public abstract class AbstractTwksTransaction<TwksT extends Twks> implements Twk
 
     @Override
     public final ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
+        final ImmutableList<PutNanopublicationResult> results = nanopublications.stream().map(nanopublication -> putNanopublicationImpl(nanopublication)).collect(ImmutableList.toImmutableList());
+        // putNanopublicationImpl may use graphNames, so wait until after the operation to invalidate the graph names cache.
         graphNames.invalidateCache();
-        return nanopublications.stream().map(nanopublication -> putNanopublicationImpl(nanopublication)).collect(ImmutableList.toImmutableList());
+        return results;
     }
 
     @Override
     public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
+        final PutNanopublicationResult result = putNanopublicationImpl(nanopublication);
+        // putNanopublicationImpl may use graphNames, so wait until after the operation to invalidate the graph names cache.
         graphNames.invalidateCache();
-        return putNanopublicationImpl(nanopublication);
+        return result;
     }
 
     protected abstract PutNanopublicationResult putNanopublicationImpl(final Nanopublication nanopublication);
