@@ -116,20 +116,20 @@ public abstract class AbstractTwksTransaction<TwksT extends Twks> implements Twk
 
     @Override
     public final Model getAssertions() {
-        return getAssertions(graphNames.getAllAssertionGraphNames(this));
+        return getAssertionsImpl(graphNames.getAllAssertionGraphNames(this));
     }
 
-    private final Model getAssertions(final Set<Uri> assertionGraphNames) {
+    private final Model getAssertionsImpl(final Set<Uri> assertionGraphNames) {
         final Model assertions = ModelFactory.createDefaultModel();
         if (assertionGraphNames.isEmpty()) {
             return assertions;
         }
         setNsPrefixes(assertions);
-        getAssertions(assertionGraphNames, assertions);
+        getAssertionsImpl(assertionGraphNames, assertions);
         return assertions;
     }
 
-    protected abstract void getAssertions(Set<Uri> assertionGraphNames, Model assertions);
+    protected abstract void getAssertionsImpl(Set<Uri> assertionGraphNames, Model assertions);
 
     @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
@@ -152,7 +152,7 @@ public abstract class AbstractTwksTransaction<TwksT extends Twks> implements Twk
 
     @Override
     public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
-        return getAssertions(graphNames.getOntologyAssertionGraphNames(ontologyUris, this));
+        return getAssertionsImpl(graphNames.getOntologyAssertionGraphNames(ontologyUris, this));
     }
 
     @Override

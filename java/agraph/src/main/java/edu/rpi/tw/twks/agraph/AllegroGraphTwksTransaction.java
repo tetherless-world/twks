@@ -57,7 +57,7 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction<AllegroG
     }
 
     @Override
-    protected final void deleteNanopublication(final Set<Uri> nanopublicationGraphNames) {
+    protected final void deleteNanopublicationImpl(final Set<Uri> nanopublicationGraphNames) {
         for (final Uri graphName : nanopublicationGraphNames) {
             try {
                 // Must open a graph locally before removing it
@@ -70,12 +70,12 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction<AllegroG
     }
 
     @Override
-    public final void deleteNanopublications() {
+    protected final void deleteNanopublicationsImpl() {
         repositoryConnection.clear();
     }
 
     @Override
-    protected final void getAssertions(final Set<Uri> assertionGraphNames, final Model assertions) {
+    protected final void getAssertionsImpl(final Set<Uri> assertionGraphNames, final Model assertions) {
         for (final Uri graphName : assertionGraphNames) {
             final AGGraph graph = graphMaker.openGraph(graphName.toString(), false);
             assertions.add(new AGModel(graph));
@@ -142,7 +142,7 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction<AllegroG
     }
 
     @Override
-    public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
+    protected final PutNanopublicationResult putNanopublicationImpl(final Nanopublication nanopublication) {
         final DeleteNanopublicationResult deleteResult = deleteNanopublication(nanopublication.getUri());
 
         final Dataset nanopublicationDataset = nanopublication.toDataset();
