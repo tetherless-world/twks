@@ -21,10 +21,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration> implements Twks {
     private final TwksConfigurationT configuration;
+    private final TwksGraphNames graphNames;
     private final TwksObservers observers = new TwksObservers(this);
 
     protected AbstractTwks(final TwksConfigurationT configuration) {
         this.configuration = checkNotNull(configuration);
+        this.graphNames = new SparqlTwksGraphNames(this);
     }
 
     protected abstract TwksTransaction _beginTransaction(ReadWrite readWrite);
@@ -81,6 +83,10 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
     @Override
     public final TwksConfigurationT getConfiguration() {
         return configuration;
+    }
+
+    protected final TwksGraphNames getGraphNames() {
+        return graphNames;
     }
 
     @Override

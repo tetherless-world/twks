@@ -14,6 +14,6 @@ public final class MemTwks extends DatasetTwks<MemTwksConfiguration> {
 
     @Override
     protected final TwksTransaction _beginTransaction(final ReadWrite readWrite) {
-        return new MemTwksTransaction(getDataset(), readWrite, this);
+        return new MemTwksTransaction(readWrite, this);
     }
 }

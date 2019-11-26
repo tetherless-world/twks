@@ -13,7 +13,7 @@ public abstract class DatasetTwks<TwksConfigurationT extends TwksConfiguration> 
         this.dataset = checkNotNull(dataset);
     }
 
-    protected final Dataset getDataset() {
+    final Dataset getDataset() {
         return dataset;
     }
 }

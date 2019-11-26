@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.agraph;
 import com.franz.agraph.jena.*;
 import com.franz.agraph.repository.AGRepositoryConnection;
 import edu.rpi.tw.twks.abc.AbstractTwksTransaction;
+import edu.rpi.tw.twks.abc.TwksGraphNames;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -32,8 +33,8 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction<AllegroG
     private final AGGraphMaker graphMaker;
     private final AGRepositoryConnection repositoryConnection;
 
-    public AllegroGraphTwksTransaction(final AGRepositoryConnection repositoryConnection, final AllegroGraphTwks twks) {
-        super(twks);
+    public AllegroGraphTwksTransaction(final TwksGraphNames graphNames, final AGRepositoryConnection repositoryConnection, final AllegroGraphTwks twks) {
+        super(graphNames, twks);
         this.repositoryConnection = checkNotNull(repositoryConnection);
         graphMaker = new AGGraphMaker(repositoryConnection);
         repositoryConnection.begin();
@@ -56,12 +57,12 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction<AllegroG
     }
 
     @Override
-    protected final void deleteNanopublication(final Set<String> nanopublicationGraphNames) {
-        for (final String graphName : nanopublicationGraphNames) {
+    protected final void deleteNanopublication(final Set<Uri> nanopublicationGraphNames) {
+        for (final Uri graphName : nanopublicationGraphNames) {
             try {
                 // Must open a graph locally before removing it
-                graphMaker.openGraph(graphName, false);
-                graphMaker.removeGraph(graphName);
+                graphMaker.openGraph(graphName.toString(), false);
+                graphMaker.removeGraph(graphName.toString());
             } catch (final DoesNotExistException e) {
                 logger.warn("tried to delete non-extant graph {}", graphName);
             }
@@ -74,9 +75,9 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction<AllegroG
     }
 
     @Override
-    protected final void getAssertions(final Set<String> assertionGraphNames, final Model assertions) {
-        for (final String graphName : assertionGraphNames) {
-            final AGGraph graph = graphMaker.openGraph(graphName, false);
+    protected final void getAssertions(final Set<Uri> assertionGraphNames, final Model assertions) {
+        for (final Uri graphName : assertionGraphNames) {
+            final AGGraph graph = graphMaker.openGraph(graphName.toString(), false);
             assertions.add(new AGModel(graph));
         }
     }
