@@ -17,7 +17,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
+final class AllegroGraphTwksTransaction extends AbstractTwksTransaction<AllegroGraphTwks> {
     private final static String ITERATE_NANOPUBLICATIONS_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "select ?A ?H ?I ?np ?P where {\n" +
             "graph ?H {\n" +
@@ -32,8 +32,8 @@ final class AllegroGraphTwksTransaction extends AbstractTwksTransaction {
     private final AGGraphMaker graphMaker;
     private final AGRepositoryConnection repositoryConnection;
 
-    public AllegroGraphTwksTransaction(final AllegroGraphTwksConfiguration configuration, final AGRepositoryConnection repositoryConnection) {
-        super(configuration);
+    public AllegroGraphTwksTransaction(final AGRepositoryConnection repositoryConnection, final AllegroGraphTwks twks) {
+        super(twks);
         this.repositoryConnection = checkNotNull(repositoryConnection);
         graphMaker = new AGGraphMaker(repositoryConnection);
         repositoryConnection.begin();
