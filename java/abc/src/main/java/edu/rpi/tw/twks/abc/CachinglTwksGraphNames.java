@@ -1,0 +1,81 @@
+package edu.rpi.tw.twks.abc;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableSet;
+import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksTransaction;
+import edu.rpi.tw.twks.uri.Uri;
+import edu.umd.cs.findbugs.annotations.Nullable;
+
+import java.util.concurrent.ExecutionException;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
+public final class CachinglTwksGraphNames implements TwksGraphNames {
+    private final TwksGraphNames delegate;
+    private final Cache<Uri, ImmutableSet<Uri>> nanopublicationGraphNamesCache;
+    private final Cache<Uri, ImmutableSet<Uri>> ontologyAssertionGraphNamesCache;
+    private final Twks twks;
+    private @Nullable
+    ImmutableSet<Uri> allAssertionGraphNames = null;
+
+    CachinglTwksGraphNames(final TwksGraphNames delegate, final Twks twks) {
+        this.delegate = checkNotNull(delegate);
+        this.twks = checkNotNull(twks);
+
+        nanopublicationGraphNamesCache = CacheBuilder.newBuilder().build();
+        ontologyAssertionGraphNamesCache = CacheBuilder.newBuilder().build();
+    }
+
+    @Override
+    public ImmutableSet<Uri> getAllAssertionGraphNames(final TwksTransaction transaction) {
+        checkState(transaction.getTwks() == twks);
+
+        synchronized (this) {
+            // Use this to synchronize the assignment
+            // More obvious than putting it in the method declaration.
+            if (allAssertionGraphNames == null) {
+                allAssertionGraphNames = delegate.getAllAssertionGraphNames(transaction);
+            }
+            return allAssertionGraphNames;
+        }
+    }
+
+    @Override
+    public ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri, final TwksTransaction transaction) {
+        checkState(transaction.getTwks() == twks);
+
+        try {
+            return nanopublicationGraphNamesCache.get(nanopublicationUri, () -> delegate.getNanopublicationGraphNames(nanopublicationUri, transaction));
+        } catch (final ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ImmutableSet<Uri> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris, final TwksTransaction transaction) {
+        checkState(transaction.getTwks() == twks);
+
+        final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
+        for (final Uri ontologyUri : ontologyUris) {
+            try {
+                resultBuilder.addAll(ontologyAssertionGraphNamesCache.get(ontologyUri, () -> delegate.getOntologyAssertionGraphNames(ImmutableSet.of(ontologyUri), transaction)));
+            } catch (final ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return resultBuilder.build();
+    }
+
+    @Override
+    public void invalidateCache() {
+        synchronized (this) {
+            allAssertionGraphNames = null;
+        }
+        nanopublicationGraphNamesCache.invalidateAll();
+        ontologyAssertionGraphNamesCache.invalidateAll();
+    }
+}
+
