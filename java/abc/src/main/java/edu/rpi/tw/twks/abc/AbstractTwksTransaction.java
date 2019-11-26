@@ -45,6 +45,11 @@ public abstract class AbstractTwksTransaction<TwksT extends Twks> implements Twk
 
     @Override
     public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
+        graphNames.invalidateCache();
+        return deleteNanopublicationImpl(uri);
+    }
+
+    private DeleteNanopublicationResult deleteNanopublicationImpl(final Uri uri) {
         final Set<Uri> nanopublicationGraphNames = graphNames.getNanopublicationGraphNames(uri, this);
         if (nanopublicationGraphNames.isEmpty()) {
             return DeleteNanopublicationResult.NOT_FOUND;
@@ -52,16 +57,26 @@ public abstract class AbstractTwksTransaction<TwksT extends Twks> implements Twk
         if (nanopublicationGraphNames.size() != 4) {
             throw new IllegalStateException();
         }
-        deleteNanopublication(nanopublicationGraphNames);
+        deleteNanopublicationImpl(nanopublicationGraphNames);
+
         return DeleteNanopublicationResult.DELETED;
     }
 
-    protected abstract void deleteNanopublication(final Set<Uri> nanopublicationGraphNames);
+    protected abstract void deleteNanopublicationImpl(final Set<Uri> nanopublicationGraphNames);
 
     @Override
     public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
+        graphNames.invalidateCache();
         return uris.stream().map(uri -> deleteNanopublication(uri)).collect(ImmutableList.toImmutableList());
     }
+
+    @Override
+    public final void deleteNanopublications() {
+        graphNames.invalidateCache();
+        deleteNanopublicationsImpl();
+    }
+
+    protected abstract void deleteNanopublicationsImpl();
 
     @Override
     public final void dump() throws IOException {
@@ -149,8 +164,17 @@ public abstract class AbstractTwksTransaction<TwksT extends Twks> implements Twk
 
     @Override
     public final ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
-        return nanopublications.stream().map(nanopublication -> putNanopublication(nanopublication)).collect(ImmutableList.toImmutableList());
+        graphNames.invalidateCache();
+        return nanopublications.stream().map(nanopublication -> putNanopublicationImpl(nanopublication)).collect(ImmutableList.toImmutableList());
     }
+
+    @Override
+    public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
+        graphNames.invalidateCache();
+        return putNanopublicationImpl(nanopublication);
+    }
+
+    protected abstract PutNanopublicationResult putNanopublicationImpl(final Nanopublication nanopublication);
 
     @Override
     public final QueryExecution queryAssertions(final Query query) {

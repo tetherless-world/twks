@@ -84,4 +84,9 @@ public final class SparqlTwksGraphNames implements TwksGraphNames {
         }
         return resultBuilder.build();
     }
+
+    @Override
+    public final void invalidateCache() {
+        // Nothing cached
+    }
 }
