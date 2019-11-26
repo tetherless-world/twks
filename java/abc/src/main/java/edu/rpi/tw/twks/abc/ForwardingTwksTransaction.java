@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
@@ -78,6 +79,11 @@ public class ForwardingTwksTransaction implements TwksTransaction {
     @Override
     public Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
         return delegate.getOntologyAssertions(ontologyUris);
+    }
+
+    @Override
+    public Twks getTwks() {
+        return delegate.getTwks();
     }
 
     @Override

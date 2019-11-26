@@ -2,7 +2,7 @@ package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import edu.rpi.tw.twks.api.TwksConfiguration;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
@@ -23,7 +23,7 @@ import java.util.*;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 
-public abstract class AbstractTwksTransaction implements TwksTransaction {
+public abstract class AbstractTwksTransaction<TwksT extends Twks> implements TwksTransaction {
     private final static String GET_ASSERTION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "select ?A where {\n" +
             "  graph ?H { ?NP np:hasAssertion ?A }\n" +
@@ -54,10 +54,10 @@ public abstract class AbstractTwksTransaction implements TwksTransaction {
             "}";
 
     private final static Logger logger = LoggerFactory.getLogger(AbstractTwksTransaction.class);
-    private final TwksConfiguration configuration;
+    private final TwksT twks;
 
-    protected AbstractTwksTransaction(final TwksConfiguration configuration) {
-        this.configuration = checkNotNull(configuration);
+    protected AbstractTwksTransaction(final TwksT twks) {
+        this.twks = checkNotNull(twks);
     }
 
     @Override
@@ -82,7 +82,7 @@ public abstract class AbstractTwksTransaction implements TwksTransaction {
 
     @Override
     public final void dump() throws IOException {
-        final Path dumpDirectoryPath = configuration.getDumpDirectoryPath();
+        final Path dumpDirectoryPath = twks.getConfiguration().getDumpDirectoryPath();
         if (!Files.isDirectory(dumpDirectoryPath)) {
             logger.info("dump directory {} does not exist, creating", dumpDirectoryPath);
             Files.createDirectory(dumpDirectoryPath);
@@ -145,10 +145,6 @@ public abstract class AbstractTwksTransaction implements TwksTransaction {
 
     protected abstract void getAssertions(Set<String> assertionGraphNames, Model assertions);
 
-    protected final TwksConfiguration getConfiguration() {
-        return configuration;
-    }
-
     @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
         final Dataset nanopublicationDataset = getNanopublicationDataset(uri);
@@ -180,7 +176,6 @@ public abstract class AbstractTwksTransaction implements TwksTransaction {
         return nanopublicationGraphNames;
     }
 
-
     protected final Set<String> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris) {
         final Set<String> assertionGraphNames = new HashSet<>();
         for (final Uri ontologyUri : ontologyUris) {
@@ -198,6 +193,11 @@ public abstract class AbstractTwksTransaction implements TwksTransaction {
     @Override
     public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
         return getAssertions(getOntologyAssertionGraphNames(ontologyUris));
+    }
+
+    @Override
+    public final TwksT getTwks() {
+        return twks;
     }
 
     protected abstract AutoCloseableIterable<Nanopublication> iterateNanopublications();

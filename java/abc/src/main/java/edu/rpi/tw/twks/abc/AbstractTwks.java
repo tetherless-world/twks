@@ -78,7 +78,8 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
         }
     }
 
-    protected final TwksConfigurationT getConfiguration() {
+    @Override
+    public final TwksConfigurationT getConfiguration() {
         return configuration;
     }
 

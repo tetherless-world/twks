@@ -34,4 +34,9 @@ public interface TwksTransaction extends AdministrationApi, AutoCloseable, GetAs
      * Commit the transaction.
      */
     void commit();
+
+    /**
+     * Get the store this transaction is on.
+     */
+    Twks getTwks();
 }

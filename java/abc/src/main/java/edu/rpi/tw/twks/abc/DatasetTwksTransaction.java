@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableList;
-import edu.rpi.tw.twks.api.TwksConfiguration;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.nanopub.AutoCloseableIterable;
 import edu.rpi.tw.twks.nanopub.DatasetNanopublications;
 import edu.rpi.tw.twks.nanopub.DatasetTransaction;
@@ -18,14 +18,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * A TwksTransaction that wraps a DatasetTransaction.
  */
-public abstract class DatasetTwksTransaction extends AbstractTwksTransaction {
+public abstract class DatasetTwksTransaction<TwksT extends Twks> extends AbstractTwksTransaction<TwksT> {
     private final static Logger logger = LoggerFactory.getLogger(DatasetTwksTransaction.class);
 
     private final Dataset dataset;
     private final DatasetTransaction datasetTransaction;
 
-    protected DatasetTwksTransaction(final TwksConfiguration configuration, final Dataset dataset, final ReadWrite readWrite) {
-        super(configuration);
+    protected DatasetTwksTransaction(final Dataset dataset, final ReadWrite readWrite, final TwksT twks) {
+        super(twks);
         this.dataset = checkNotNull(dataset);
         this.datasetTransaction = new DatasetTransaction(dataset, readWrite);
     }
