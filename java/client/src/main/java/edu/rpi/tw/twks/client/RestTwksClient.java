@@ -13,6 +13,7 @@ import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.uri.Uri;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -51,7 +52,7 @@ public final class RestTwksClient implements TwksClient {
      * Construct a new TWKS client.
      */
     public RestTwksClient(final RestTwksClientConfiguration configuration) {
-        this.serverBaseUrl = checkNotNull(configuration.getServerBaseUrl());
+        this.serverBaseUrl = StringUtils.stripEnd(checkNotNull(configuration.getServerBaseUrl()), "/");
         httpTransport = new ApacheHttpTransport();
         httpRequestFactory = httpTransport.createRequestFactory(request -> {
             request.setParser(new JsonObjectParser(new JacksonFactory()));
