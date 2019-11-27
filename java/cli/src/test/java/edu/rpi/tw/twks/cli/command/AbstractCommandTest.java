@@ -6,7 +6,6 @@ import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.cli.InProcessTwksClient;
 import edu.rpi.tw.twks.factory.TwksFactory;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
-import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
 import edu.rpi.tw.twks.test.TestData;
 import org.junit.After;
@@ -22,7 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractCommandTest<CommandT extends Command> {
     protected final Logger logger;
-    private final TestData testData;
+    private final TestData testData = new TestData();
     protected CommandT command;
     private Path tempDirPath;
     private Twks twks;
@@ -30,11 +29,6 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
 
     protected AbstractCommandTest() {
         logger = LoggerFactory.getLogger(getClass());
-        try {
-            this.testData = new TestData();
-        } catch (final IOException | MalformedNanopublicationException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @After
