@@ -1,13 +1,10 @@
 package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.api.TwksConfiguration;
-import edu.rpi.tw.twks.api.TwksGraphNameCacheConfiguration;
-
-import java.nio.file.Path;
 
 public final class MemTwksConfiguration extends TwksConfiguration {
-    private MemTwksConfiguration(final Path dumpDirectoryPath, final TwksGraphNameCacheConfiguration graphNameCacheConfiguration) {
-        super(dumpDirectoryPath, graphNameCacheConfiguration);
+    private MemTwksConfiguration(final Builder builder) {
+        super(builder);
     }
 
     public final static Builder builder() {
@@ -17,7 +14,7 @@ public final class MemTwksConfiguration extends TwksConfiguration {
     public final static class Builder extends TwksConfiguration.Builder<Builder, MemTwksConfiguration> {
         @Override
         public final MemTwksConfiguration build() {
-            return new MemTwksConfiguration(getDumpDirectoryPath(), getGraphNameCacheConfiguration());
+            return new MemTwksConfiguration(this);
         }
     }
 }

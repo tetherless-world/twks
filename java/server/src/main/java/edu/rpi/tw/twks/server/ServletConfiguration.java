@@ -18,11 +18,11 @@ public final class ServletConfiguration extends AbstractConfiguration {
     private final TwksFactoryConfiguration factoryConfiguration;
     private final String serverBaseUrl;
 
-    private ServletConfiguration(final Optional<Path> extcpDirectoryPath, final Path extfsDirectoryPath, final TwksFactoryConfiguration factoryConfiguration, final String serverBaseUrl) {
-        this.extcpDirectoryPath = checkNotNull(extcpDirectoryPath);
-        this.extfsDirectoryPath = checkNotNull(extfsDirectoryPath);
-        this.factoryConfiguration = checkNotNull(factoryConfiguration);
-        this.serverBaseUrl = checkNotNull(serverBaseUrl);
+    private ServletConfiguration(final Builder builder) {
+        this.extcpDirectoryPath = builder.getExtcpDirectoryPath();
+        this.extfsDirectoryPath = builder.getExtfsDirectoryPath();
+        this.factoryConfiguration = builder.getFactoryConfiguration();
+        this.serverBaseUrl = builder.getServerBaseUrl();
     }
 
     public final static Builder builder() {
@@ -61,7 +61,7 @@ public final class ServletConfiguration extends AbstractConfiguration {
 
         @Override
         public final ServletConfiguration build() {
-            return new ServletConfiguration(extcpDirectoryPath, extfsDirectoryPath, factoryConfiguration, serverBaseUrl);
+            return new ServletConfiguration(this);
         }
 
         public final Optional<Path> getExtcpDirectoryPath() {

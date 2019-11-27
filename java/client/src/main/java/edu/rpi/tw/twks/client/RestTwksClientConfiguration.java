@@ -5,13 +5,11 @@ import edu.rpi.tw.twks.api.AbstractConfiguration;
 
 import java.util.Properties;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public final class RestTwksClientConfiguration extends AbstractConfiguration {
     private final String serverBaseUrl;
 
-    private RestTwksClientConfiguration(final String serverBaseUrl) {
-        this.serverBaseUrl = checkNotNull(serverBaseUrl);
+    private RestTwksClientConfiguration(final Builder builder) {
+        this.serverBaseUrl = builder.getServerBaseUrl();
     }
 
     public final static Builder builder() {
@@ -32,7 +30,7 @@ public final class RestTwksClientConfiguration extends AbstractConfiguration {
 
         @Override
         public final RestTwksClientConfiguration build() {
-            return new RestTwksClientConfiguration(serverBaseUrl);
+            return new RestTwksClientConfiguration(this);
         }
 
         public final String getServerBaseUrl() {

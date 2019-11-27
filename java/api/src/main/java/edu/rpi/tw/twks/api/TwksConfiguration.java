@@ -13,9 +13,9 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
     private final Path dumpDirectoryPath;
     private final TwksGraphNameCacheConfiguration graphNameCacheConfiguration;
 
-    protected TwksConfiguration(final Path dumpDirectoryPath, final TwksGraphNameCacheConfiguration graphNameCacheConfiguration) {
-        this.dumpDirectoryPath = checkNotNull(dumpDirectoryPath);
-        this.graphNameCacheConfiguration = checkNotNull(graphNameCacheConfiguration);
+    protected TwksConfiguration(final Builder builder) {
+        this.dumpDirectoryPath = builder.getDumpDirectoryPath();
+        this.graphNameCacheConfiguration = builder.getGraphNameCacheConfiguration();
     }
 
     public final Path getDumpDirectoryPath() {

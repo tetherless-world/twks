@@ -6,8 +6,8 @@ import java.util.Properties;
 public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration {
     private final boolean enable;
 
-    private TwksGraphNameCacheConfiguration(final boolean enable) {
-        this.enable = enable;
+    private TwksGraphNameCacheConfiguration(final Builder builder) {
+        this.enable = builder.getEnable();
     }
 
     public final static Builder builder() {
