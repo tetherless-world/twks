@@ -17,6 +17,7 @@ See `Maven Central <https://search.maven.org/search?q=edu.rpi.tw.twks>`_ for ava
 The public-facing Java modules are:
 
 
+* ``twks-agraph``\ : `AllegroGraph <https://franz.com/agraph/allegrograph/>`_ implementation of the ``Twks`` API
 * ``twks-api``\ : public-facing Java library API, including the store library API ``Twks``
 * ``twks-client``\ : public-facing Java client API
 * ``twks-nanopub``\ : library for working with nanopublications, independently of TWKS
