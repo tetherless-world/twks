@@ -14,9 +14,9 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
     private final Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration;
     private final Optional<Tdb2TwksConfiguration> tdb2Configuration;
 
-    private TwksFactoryConfiguration(final Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration, final Optional<Tdb2TwksConfiguration> tdb2Configuration) {
-        this.allegroGraphConfiguration = checkNotNull(allegroGraphConfiguration);
-        this.tdb2Configuration = checkNotNull(tdb2Configuration);
+    private TwksFactoryConfiguration(final Builder builder) {
+        this.allegroGraphConfiguration = builder.getAllegroGraphConfiguration();
+        this.tdb2Configuration = builder.getTdb2Configuration();
     }
 
     public static Builder builder() {
@@ -57,7 +57,7 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
 
         @Override
         public final TwksFactoryConfiguration build() {
-            return new TwksFactoryConfiguration(allegroGraphConfiguration, tdb2Configuration);
+            return new TwksFactoryConfiguration(this);
         }
 
         public final Optional<AllegroGraphTwksConfiguration> getAllegroGraphConfiguration() {

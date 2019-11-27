@@ -69,6 +69,7 @@ public final class TestData {
             "    ex:pub1 prov:wasAttributedTo ex:paul .\n" +
             "    ex:pub1 prov:generatedAtTime \"2012-10-26T12:45:00Z\"^^xsd:dateTime .\n" +
             "}\n";
+    private final static TestData instance = new TestData();
     //    public final File assertionOnlyFilePath;
 //    public final File specNanopublicationFilePath;
 //    public final Dataset specNanopublicationDataset = DatasetFactory.create();
@@ -76,10 +77,11 @@ public final class TestData {
     public final Uri ontologyUri = Uri.parse("http://example.com/ontology");
     public final Nanopublication secondNanopublication;
     public final Nanopublication secondOntologyNanopublication;
+    public final Uri secondOntologyUri = Uri.parse("http://example.com/ontology2");
+    //    public final File whyisNanopublicationFilePath;
     public final Nanopublication specNanopublication;
-//    public final File whyisNanopublicationFilePath;
 
-    public TestData() throws IOException, MalformedNanopublicationException {
+    public TestData() {
 //        assertionOnlyFilePath = getResourceFilePath("assertion_only.ttl");
 //        specNanopublicationFilePath = getResourceFilePath("spec_nanopublication.trig");
 //        parseDatasetFromResource(specNanopublicationDataset, "spec_nanopublication.trig");
@@ -87,19 +89,23 @@ public final class TestData {
 //        secondNanopublication = parseNanopublicationFromResource("second_nanopublication.trig");
 //        specNanopublication = parseNanopublicationFromResource("spec_nanopublication.trig");
         // 20191011: pulling file resources is not working with the new -test module
-        secondNanopublication = parseNanopublicationFromString(SECOND_NANOPUBLICATION_TRIG);
-        specNanopublication = parseNanopublicationFromString(SPEC_NANOPUBLICATION_TRIG);
+        try {
+            secondNanopublication = parseNanopublicationFromString(SECOND_NANOPUBLICATION_TRIG);
+            specNanopublication = parseNanopublicationFromString(SPEC_NANOPUBLICATION_TRIG);
 
-        {
-            final Model ontologyNanopublicationAssertions = ModelFactory.createDefaultModel().add(specNanopublication.getAssertion().getModel());
-            ontologyNanopublicationAssertions.add(ResourceFactory.createResource(ontologyUri.toString()), RDF.type, OWL.Ontology);
-            ontologyNanopublication = Nanopublication.builder().getAssertionBuilder().setModel(ontologyNanopublicationAssertions).getNanopublicationBuilder().build();
-        }
+            {
+                final Model ontologyNanopublicationAssertions = ModelFactory.createDefaultModel().add(specNanopublication.getAssertion().getModel());
+                ontologyNanopublicationAssertions.add(ResourceFactory.createResource(ontologyUri.toString()), RDF.type, OWL.Ontology);
+                ontologyNanopublication = Nanopublication.builder().getAssertionBuilder().setModel(ontologyNanopublicationAssertions).getNanopublicationBuilder().build();
+            }
 
-        {
-            final Model ontologyNanopublicationAssertions = ModelFactory.createDefaultModel().add(secondNanopublication.getAssertion().getModel());
-            ontologyNanopublicationAssertions.add(ResourceFactory.createResource("http://example.com/ontology2"), RDF.type, OWL.Ontology);
-            secondOntologyNanopublication = Nanopublication.builder().getAssertionBuilder().setModel(ontologyNanopublicationAssertions).getNanopublicationBuilder().build();
+            {
+                final Model ontologyNanopublicationAssertions = ModelFactory.createDefaultModel().add(secondNanopublication.getAssertion().getModel());
+                ontologyNanopublicationAssertions.add(ResourceFactory.createResource(secondOntologyUri.toString()), RDF.type, OWL.Ontology);
+                secondOntologyNanopublication = Nanopublication.builder().getAssertionBuilder().setModel(ontologyNanopublicationAssertions).getNanopublicationBuilder().build();
+            }
+        } catch (final IOException | MalformedNanopublicationException e) {
+            throw new RuntimeException(e);
         }
     }
 

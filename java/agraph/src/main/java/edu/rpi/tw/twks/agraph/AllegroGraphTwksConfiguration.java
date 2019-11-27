@@ -4,7 +4,6 @@ import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
-import java.nio.file.Path;
 import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -16,13 +15,13 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
     private final String serverUrl;
     private final String username;
 
-    private AllegroGraphTwksConfiguration(final String catalogId, final Path dumpDirectoryPath, final String password, final String repositoryId, final String serverUrl, final String username) {
-        super(dumpDirectoryPath);
-        this.catalogId = checkNotNull(catalogId);
-        this.password = checkNotNull(password);
-        this.repositoryId = checkNotNull(repositoryId);
-        this.serverUrl = checkNotNull(serverUrl);
-        this.username = checkNotNull(username);
+    private AllegroGraphTwksConfiguration(final Builder builder) {
+        super(builder);
+        this.catalogId = builder.getCatalogId();
+        this.password = builder.getPassword();
+        this.repositoryId = builder.getRepositoryId();
+        this.serverUrl = builder.getServerUrl();
+        this.username = builder.getUsername();
     }
 
     public final static Builder builder() {
@@ -64,7 +63,7 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
         @Override
         public final AllegroGraphTwksConfiguration build() {
             checkNotNull(serverUrl, "must set server URL");
-            return new AllegroGraphTwksConfiguration(catalogId, getDumpDirectoryPath(), password, repositoryId, serverUrl, username);
+            return new AllegroGraphTwksConfiguration(this);
         }
 
         public final String getCatalogId() {

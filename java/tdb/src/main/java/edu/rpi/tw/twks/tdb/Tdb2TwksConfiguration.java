@@ -4,7 +4,6 @@ import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 
 import javax.annotation.Nullable;
-import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -13,9 +12,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class Tdb2TwksConfiguration extends TwksConfiguration {
     private final Optional<String> location;
 
-    protected Tdb2TwksConfiguration(final Path dumpDirectoryPath, final Optional<String> location) {
-        super(dumpDirectoryPath);
-        this.location = checkNotNull(location);
+    protected Tdb2TwksConfiguration(final Builder builder) {
+        super(builder);
+        this.location = builder.getLocation();
     }
 
     public static Builder builder() {
@@ -44,7 +43,7 @@ public class Tdb2TwksConfiguration extends TwksConfiguration {
 
         @Override
         public Tdb2TwksConfiguration build() {
-            return new Tdb2TwksConfiguration(getDumpDirectoryPath(), location);
+            return new Tdb2TwksConfiguration(this);
         }
 
         public final Optional<String> getLocation() {

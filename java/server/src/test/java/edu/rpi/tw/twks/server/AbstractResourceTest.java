@@ -5,7 +5,6 @@ import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.factory.TwksFactory;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
-import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
 import edu.rpi.tw.twks.test.TestData;
@@ -30,17 +29,9 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 
 public abstract class AbstractResourceTest extends JerseyTest {
-    private final TestData testData;
+    private final TestData testData = new TestData();
     private Path tempDirPath;
     private Twks twks;
-
-    protected AbstractResourceTest() {
-        try {
-            this.testData = new TestData();
-        } catch (final IOException | MalformedNanopublicationException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     protected static Entity<String> toTrigEntity(final Nanopublication... nanopublications) {
         return Entity.entity(toTrigString(nanopublications), Lang.TRIG.getContentType().getContentType());

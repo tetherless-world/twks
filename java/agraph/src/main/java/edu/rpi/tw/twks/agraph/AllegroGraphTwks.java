@@ -24,7 +24,7 @@ public final class AllegroGraphTwks extends AbstractTwks<AllegroGraphTwksConfigu
     @Override
     protected TwksTransaction _beginTransaction(final ReadWrite readWrite) {
         final AGRepositoryConnection connection = getRepository().getConnection();
-        return new AllegroGraphTwksTransaction(connection, this);
+        return new AllegroGraphTwksTransaction(getGraphNames(), connection, this);
     }
 
     private final synchronized AGCatalog getCatalog() {
