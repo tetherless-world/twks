@@ -49,6 +49,6 @@ public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration
     }
 
     private final static class FieldDefinitions {
-        public final static ConfigurationFieldDefinitionWithDefault<Boolean> ENABLE = new ConfigurationFieldDefinitionWithDefault<>(Boolean.FALSE, "twks.enable");
+        public final static ConfigurationFieldDefinitionWithDefault<Boolean> ENABLE = new ConfigurationFieldDefinitionWithDefault<>(Boolean.FALSE, "twks.cacheGraphNames");
     }
 }

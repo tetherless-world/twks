@@ -14,6 +14,8 @@ import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -21,6 +23,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration> implements Twks {
+    private final static Logger logger = LoggerFactory.getLogger(AbstractTwks.class);
     private final TwksConfigurationT configuration;
     private final TwksGraphNames graphNames;
     private final TwksObservers observers = new TwksObservers(this);
@@ -30,6 +33,7 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
         TwksGraphNames graphNames = new SparqlTwksGraphNames();
         if (configuration.getGraphNameCacheConfiguration().getEnable()) {
             graphNames = new CachinglTwksGraphNames(configuration.getGraphNameCacheConfiguration(), graphNames);
+            logger.info("enabling graph name cache");
         }
         this.graphNames = graphNames;
     }

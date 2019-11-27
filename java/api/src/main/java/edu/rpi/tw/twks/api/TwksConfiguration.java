@@ -29,7 +29,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
     @Override
     protected MoreObjects.ToStringHelper toStringHelper() {
         return super.toStringHelper()
-                .add("dumpDirectoryPath", dumpDirectoryPath);
+                .add("dumpDirectoryPath", dumpDirectoryPath).add("graphNameCacheConfiguration", graphNameCacheConfiguration.getEnable() ? graphNameCacheConfiguration : null);
     }
 
     public abstract static class Builder<BuilderT extends Builder<?, ?>, TwksConfigurationT extends TwksConfiguration> extends AbstractConfiguration.Builder<BuilderT, TwksConfigurationT> {
