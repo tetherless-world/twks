@@ -11,21 +11,6 @@
         <version>1.0.3-SNAPSHOT</version>
     </parent>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <configuration>
-                    <tasks>
-                        <copy file="${project.build.directory}/${project.build.finalName}.war"
-                              tofile="${project.build.directory}/../../dist/${project.artifactId}-current.war"/>
-                    </tasks>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
