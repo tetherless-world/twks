@@ -77,6 +77,7 @@ public final class TestData {
     public final Uri ontologyUri = Uri.parse("http://example.com/ontology");
     public final Nanopublication secondNanopublication;
     public final Nanopublication secondOntologyNanopublication;
+    public final Uri secondOntologyUri = Uri.parse("http://example.com/ontology2");
     //    public final File whyisNanopublicationFilePath;
     public final Nanopublication specNanopublication;
 
@@ -100,7 +101,7 @@ public final class TestData {
 
             {
                 final Model ontologyNanopublicationAssertions = ModelFactory.createDefaultModel().add(secondNanopublication.getAssertion().getModel());
-                ontologyNanopublicationAssertions.add(ResourceFactory.createResource("http://example.com/ontology2"), RDF.type, OWL.Ontology);
+                ontologyNanopublicationAssertions.add(ResourceFactory.createResource(secondOntologyUri.toString()), RDF.type, OWL.Ontology);
                 secondOntologyNanopublication = Nanopublication.builder().getAssertionBuilder().setModel(ontologyNanopublicationAssertions).getNanopublicationBuilder().build();
             }
         } catch (final IOException | MalformedNanopublicationException e) {
