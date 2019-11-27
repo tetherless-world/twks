@@ -1,8 +1,8 @@
-package edu.rpi.tw.twks.server.resource;
+package edu.rpi.tw.twks.servlet.resource;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
-import edu.rpi.tw.twks.server.AcceptLists;
+import edu.rpi.tw.twks.servlet.AcceptLists;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.atlas.web.AcceptList;

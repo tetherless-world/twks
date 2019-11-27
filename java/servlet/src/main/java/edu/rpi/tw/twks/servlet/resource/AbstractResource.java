@@ -1,7 +1,7 @@
-package edu.rpi.tw.twks.server.resource;
+package edu.rpi.tw.twks.servlet.resource;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.server.ServletTwks;
+import edu.rpi.tw.twks.servlet.ServletTwks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

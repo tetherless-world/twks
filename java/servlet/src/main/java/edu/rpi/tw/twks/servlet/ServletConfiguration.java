@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.server;
+package edu.rpi.tw.twks.servlet;
 
 import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.api.AbstractConfiguration;

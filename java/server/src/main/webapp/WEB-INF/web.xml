@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
     <listener>
-        <listener-class>edu.rpi.tw.twks.server.ServletContextListener</listener-class>
+        <listener-class>edu.rpi.tw.twks.servlet.ServletContextListener</listener-class>
     </listener>
 
     <servlet>
@@ -13,7 +13,7 @@
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
             <param-value>
-                edu.rpi.tw.twks.server.resource,
+                edu.rpi.tw.twks.servlet.resource,
                 io.swagger.v3.jaxrs2.integration.resources
             </param-value>
         </init-param>

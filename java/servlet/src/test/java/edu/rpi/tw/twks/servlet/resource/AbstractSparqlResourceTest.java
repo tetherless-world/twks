@@ -1,9 +1,9 @@
-package edu.rpi.tw.twks.server.resource;
+package edu.rpi.tw.twks.servlet.resource;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.server.AbstractResourceTest;
+import edu.rpi.tw.twks.servlet.AbstractResourceTest;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.jena.riot.Lang;
 import org.junit.Test;

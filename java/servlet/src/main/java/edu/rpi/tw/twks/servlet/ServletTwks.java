@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.server;
+package edu.rpi.tw.twks.servlet;
 
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.ext.ClasspathExtensions;

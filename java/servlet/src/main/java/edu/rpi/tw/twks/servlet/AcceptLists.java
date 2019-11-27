@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.server;
+package edu.rpi.tw.twks.servlet;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.atlas.web.AcceptList;
@@ -17,15 +17,6 @@ public final class AcceptLists {
     public final static AcceptList OFFER_GRAPH = toAcceptList(Lang.RDFXML, Lang.NTRIPLES, Lang.NT, Lang.N3, Lang.TURTLE, Lang.TTL, Lang.JSONLD, Lang.RDFJSON, Lang.NQUADS, Lang.NQ, Lang.TRIG);
 
     private AcceptLists() {
-    }
-
-    public final static AcceptList toAcceptList(final Lang... languages) {
-        final List<MediaRange> mediaRanges = new ArrayList<>();
-        for (final Lang lang : languages) {
-            final String contentType = lang.getContentType().getContentType();
-            mediaRanges.add(new MediaRange(contentType));
-        }
-        return new AcceptList(mediaRanges);
     }
 
     public final static Lang calculateResponseLang(final Lang defaultResponseLang, final AcceptList offerAcceptList, final Optional<AcceptList> proposeAcceptList) {
@@ -49,5 +40,14 @@ public final class AcceptLists {
             return Optional.empty();
         }
         return Optional.of(new AcceptList(acceptHeader));
+    }
+
+    public final static AcceptList toAcceptList(final Lang... languages) {
+        final List<MediaRange> mediaRanges = new ArrayList<>();
+        for (final Lang lang : languages) {
+            final String contentType = lang.getContentType().getContentType();
+            mediaRanges.add(new MediaRange(contentType));
+        }
+        return new AcceptList(mediaRanges);
     }
 }
