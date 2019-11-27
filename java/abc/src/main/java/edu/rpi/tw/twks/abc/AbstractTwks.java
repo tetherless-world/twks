@@ -26,7 +26,7 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
 
     protected AbstractTwks(final TwksConfigurationT configuration) {
         this.configuration = checkNotNull(configuration);
-        this.graphNames = new SparqlTwksGraphNames(this);
+        this.graphNames = new SparqlTwksGraphNames();
     }
 
     protected abstract TwksTransaction _beginTransaction(ReadWrite readWrite);

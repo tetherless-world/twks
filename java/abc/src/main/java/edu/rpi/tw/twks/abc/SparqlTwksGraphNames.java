@@ -1,14 +1,10 @@
 package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableSet;
-import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.TwksTransaction;
+import edu.rpi.tw.twks.api.QueryApi;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Resource;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 public final class SparqlTwksGraphNames implements TwksGraphNames {
     private final static String GET_ALL_ASSERTION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
@@ -32,18 +28,10 @@ public final class SparqlTwksGraphNames implements TwksGraphNames {
             "  graph ?A {?S ?P ?O}\n" +
             "}";
 
-    private final Twks twks;
-
-    public SparqlTwksGraphNames(final Twks twks) {
-        this.twks = checkNotNull(twks);
-    }
-
     @Override
-    public final ImmutableSet<Uri> getAllAssertionGraphNames(final TwksTransaction transaction) {
-        checkState(transaction.getTwks() == twks);
-
+    public final ImmutableSet<Uri> getAllAssertionGraphNames(final QueryApi queryApi) {
         final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
-        try (final QueryExecution queryExecution = transaction.queryNanopublications(GET_ALL_ASSERTION_GRAPH_NAMES_QUERY)) {
+        try (final QueryExecution queryExecution = queryApi.queryNanopublications(GET_ALL_ASSERTION_GRAPH_NAMES_QUERY)) {
             for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
                 final QuerySolution querySolution = resultSet.nextSolution();
                 final Resource g = querySolution.getResource("A");
@@ -54,11 +42,9 @@ public final class SparqlTwksGraphNames implements TwksGraphNames {
     }
 
     @Override
-    public final ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri, final TwksTransaction transaction) {
-        checkState(transaction.getTwks() == twks);
-
+    public final ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri, final QueryApi queryApi) {
         final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
-        try (final QueryExecution queryExecution = transaction.queryNanopublications(QueryFactory.create(String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, nanopublicationUri)))) {
+        try (final QueryExecution queryExecution = queryApi.queryNanopublications(QueryFactory.create(String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, nanopublicationUri)))) {
             for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
                 final QuerySolution querySolution = resultSet.nextSolution();
                 final Resource g = querySolution.getResource("G");
@@ -69,12 +55,10 @@ public final class SparqlTwksGraphNames implements TwksGraphNames {
     }
 
     @Override
-    public final ImmutableSet<Uri> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris, final TwksTransaction transaction) {
-        checkState(transaction.getTwks() == twks);
-
+    public final ImmutableSet<Uri> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris, final QueryApi queryApi) {
         final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
         for (final Uri ontologyUri : ontologyUris) {
-            try (final QueryExecution queryExecution = transaction.queryNanopublications(QueryFactory.create(String.format(GET_ONTOLOGY_ASSERTION_GRAPH_NAMES_QUERY_STRING, ontologyUri)))) {
+            try (final QueryExecution queryExecution = queryApi.queryNanopublications(QueryFactory.create(String.format(GET_ONTOLOGY_ASSERTION_GRAPH_NAMES_QUERY_STRING, ontologyUri)))) {
                 for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
                     final QuerySolution querySolution = resultSet.nextSolution();
                     final Resource g = querySolution.getResource("A");

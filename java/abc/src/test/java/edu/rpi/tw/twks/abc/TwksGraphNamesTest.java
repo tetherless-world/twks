@@ -17,12 +17,12 @@ public abstract class TwksGraphNamesTest {
     TwksGraphNames sut;
     private Twks twks;
 
-    protected abstract TwksGraphNames newSystemUnderTest(Twks twks);
+    protected abstract TwksGraphNames newSystemUnderTest();
 
     @Before
     public void setUp() {
         twks = new MemTwks();
-        sut = newSystemUnderTest(twks);
+        sut = newSystemUnderTest();
     }
 
     @Test
