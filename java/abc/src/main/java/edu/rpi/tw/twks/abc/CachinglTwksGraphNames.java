@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutionException;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public final class CachinglTwksGraphNames implements TwksGraphNames {
+final class CachinglTwksGraphNames implements TwksGraphNames {
     private final TwksGraphNameCacheConfiguration configuration;
     private final TwksGraphNames delegate;
     private final Cache<Uri, ImmutableSet<Uri>> nanopublicationGraphNamesCache;

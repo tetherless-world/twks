@@ -6,7 +6,7 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Resource;
 
-public final class SparqlTwksGraphNames implements TwksGraphNames {
+final class SparqlTwksGraphNames implements TwksGraphNames {
     private final static String GET_ALL_ASSERTION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "select ?A where {\n" +
             "  graph ?H { ?NP np:hasAssertion ?A }\n" +
