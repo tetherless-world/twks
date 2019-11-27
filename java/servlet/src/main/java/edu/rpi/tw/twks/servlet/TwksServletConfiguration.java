@@ -12,13 +12,13 @@ import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class ServletConfiguration extends AbstractConfiguration {
+public final class TwksServletConfiguration extends AbstractConfiguration {
     private final Optional<Path> extcpDirectoryPath;
     private final Path extfsDirectoryPath;
     private final TwksFactoryConfiguration factoryConfiguration;
     private final String serverBaseUrl;
 
-    private ServletConfiguration(final Builder builder) {
+    private TwksServletConfiguration(final Builder builder) {
         this.extcpDirectoryPath = builder.getExtcpDirectoryPath();
         this.extfsDirectoryPath = builder.getExtfsDirectoryPath();
         this.factoryConfiguration = builder.getFactoryConfiguration();
@@ -50,7 +50,7 @@ public final class ServletConfiguration extends AbstractConfiguration {
         return super.toStringHelper().add("extcpDirectoryPath", getExtcpDirectoryPath().orElse(null)).add("extfsDirectoryPath", getExtfsDirectoryPath()).add("serverBaseUrl", getServerBaseUrl());
     }
 
-    public final static class Builder extends AbstractConfiguration.Builder<Builder, ServletConfiguration> {
+    public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksServletConfiguration> {
         private Optional<Path> extcpDirectoryPath = Optional.empty();
         private Path extfsDirectoryPath = FieldDefinitions.EXTFS_DIRECTORY_PATH.getDefault();
         private TwksFactoryConfiguration factoryConfiguration = TwksFactoryConfiguration.builder().build();
@@ -60,8 +60,8 @@ public final class ServletConfiguration extends AbstractConfiguration {
         }
 
         @Override
-        public final ServletConfiguration build() {
-            return new ServletConfiguration(this);
+        public final TwksServletConfiguration build() {
+            return new TwksServletConfiguration(this);
         }
 
         public final Optional<Path> getExtcpDirectoryPath() {

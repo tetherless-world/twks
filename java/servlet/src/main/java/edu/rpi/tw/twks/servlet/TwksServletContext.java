@@ -12,14 +12,14 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public final class ServletTwks {
-    private final static Logger logger = LoggerFactory.getLogger(ServletTwks.class);
-    private static ServletTwks instance = null;
+public final class TwksServletContext {
+    private final static Logger logger = LoggerFactory.getLogger(TwksServletContext.class);
+    private static TwksServletContext instance = null;
     private final ClasspathExtensions classpathExtensions;
     private final FileSystemExtensions fileSystemExtensions;
     private final Twks twks;
 
-    private ServletTwks(final ServletConfiguration configuration) {
+    private TwksServletContext(final TwksServletConfiguration configuration) {
         logger.info("creating servlet Twks instance with configuration {}", configuration);
         twks = TwksFactory.getInstance().createTwks(configuration.getFactoryConfiguration());
         classpathExtensions = new ClasspathExtensions(configuration.getExtcpDirectoryPath(), twks);
@@ -35,13 +35,13 @@ public final class ServletTwks {
         }
     }
 
-    public final synchronized static ServletTwks getInstance() {
+    public final synchronized static TwksServletContext getInstance() {
         return checkNotNull(instance);
     }
 
-    synchronized static void initializeInstance(final ServletConfiguration configuration) {
+    synchronized static void initializeInstance(final TwksServletConfiguration configuration) {
         checkState(instance == null);
-        instance = new ServletTwks(configuration);
+        instance = new TwksServletContext(configuration);
     }
 
     private void destroy() {

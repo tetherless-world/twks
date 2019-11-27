@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.servlet.resource;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.servlet.ServletTwks;
+import edu.rpi.tw.twks.servlet.TwksServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +10,7 @@ public abstract class AbstractResource {
     private final Twks twks;
 
     public AbstractResource() {
-        this(ServletTwks.getInstance().getTwks());
+        this(TwksServletContext.getInstance().getTwks());
     }
 
     public AbstractResource(final Twks twks) {

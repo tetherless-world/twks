@@ -10,8 +10,8 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.function.Function;
 
-public final class ServletContextListener implements javax.servlet.ServletContextListener {
-    private final static Logger logger = LoggerFactory.getLogger(ServletContextListener.class);
+public final class TwksServletContextListener implements javax.servlet.ServletContextListener {
+    private final static Logger logger = LoggerFactory.getLogger(TwksServletContextListener.class);
 
     private static Properties toProperties(final Enumeration<String> names, final Function<String, Object> valueGetter) {
         final Properties properties = new Properties();
@@ -28,7 +28,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
 
     @Override
     public void contextDestroyed(final ServletContextEvent sce) {
-        ServletTwks.destroyInstance();
+        TwksServletContext.destroyInstance();
     }
 
     @Override
@@ -36,8 +36,8 @@ public final class ServletContextListener implements javax.servlet.ServletContex
         final ServletContext servletContext = servletContextEvent.getServletContext();
         final Properties attributeProperties = toProperties(servletContext.getAttributeNames(), name -> servletContext.getAttribute(name));
         final Properties initParameterProperties = toProperties(servletContext.getInitParameterNames(), name -> servletContext.getInitParameter(name));
-        final ServletConfiguration configuration = ServletConfiguration.builder().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties).build();
-        ServletTwks.initializeInstance(configuration);
+        final TwksServletConfiguration configuration = TwksServletConfiguration.builder().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties).build();
+        TwksServletContext.initializeInstance(configuration);
         logger.info("twks-server " + TwksVersion.getInstance());
     }
 }
