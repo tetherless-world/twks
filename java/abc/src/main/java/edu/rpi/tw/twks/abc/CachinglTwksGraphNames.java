@@ -4,7 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.QueryApi;
-import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksGraphNameCacheConfiguration;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
@@ -13,16 +13,16 @@ import java.util.concurrent.ExecutionException;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class CachinglTwksGraphNames implements TwksGraphNames {
+    private final TwksGraphNameCacheConfiguration configuration;
     private final TwksGraphNames delegate;
     private final Cache<Uri, ImmutableSet<Uri>> nanopublicationGraphNamesCache;
     private final Cache<Uri, ImmutableSet<Uri>> ontologyAssertionGraphNamesCache;
-    private final Twks twks;
     private @Nullable
     ImmutableSet<Uri> allAssertionGraphNames = null;
 
-    CachinglTwksGraphNames(final TwksGraphNames delegate, final Twks twks) {
+    CachinglTwksGraphNames(final TwksGraphNameCacheConfiguration configuration, final TwksGraphNames delegate) {
+        this.configuration = checkNotNull(configuration);
         this.delegate = checkNotNull(delegate);
-        this.twks = checkNotNull(twks);
 
         nanopublicationGraphNamesCache = CacheBuilder.newBuilder().build();
         ontologyAssertionGraphNamesCache = CacheBuilder.newBuilder().build();

@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.abc;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.Twks;
@@ -26,7 +27,11 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
 
     protected AbstractTwks(final TwksConfigurationT configuration) {
         this.configuration = checkNotNull(configuration);
-        this.graphNames = new SparqlTwksGraphNames();
+        TwksGraphNames graphNames = new SparqlTwksGraphNames();
+        if (configuration.getGraphNameCacheConfiguration().getEnable()) {
+            graphNames = new CachinglTwksGraphNames(configuration.getGraphNameCacheConfiguration(), graphNames);
+        }
+        this.graphNames = graphNames;
     }
 
     protected abstract TwksTransaction _beginTransaction(ReadWrite readWrite);
@@ -85,6 +90,7 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
         return configuration;
     }
 
+    @VisibleForTesting
     protected final TwksGraphNames getGraphNames() {
         return graphNames;
     }

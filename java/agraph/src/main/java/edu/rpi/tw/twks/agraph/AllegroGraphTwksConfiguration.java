@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.agraph;
 
 import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.api.TwksConfiguration;
+import edu.rpi.tw.twks.api.TwksGraphNameCacheConfiguration;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -16,8 +17,8 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
     private final String serverUrl;
     private final String username;
 
-    private AllegroGraphTwksConfiguration(final String catalogId, final Path dumpDirectoryPath, final String password, final String repositoryId, final String serverUrl, final String username) {
-        super(dumpDirectoryPath);
+    private AllegroGraphTwksConfiguration(final String catalogId, final Path dumpDirectoryPath, final TwksGraphNameCacheConfiguration graphNameCacheConfiguration, final String password, final String repositoryId, final String serverUrl, final String username) {
+        super(dumpDirectoryPath, graphNameCacheConfiguration);
         this.catalogId = checkNotNull(catalogId);
         this.password = checkNotNull(password);
         this.repositoryId = checkNotNull(repositoryId);
@@ -64,7 +65,7 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
         @Override
         public final AllegroGraphTwksConfiguration build() {
             checkNotNull(serverUrl, "must set server URL");
-            return new AllegroGraphTwksConfiguration(catalogId, getDumpDirectoryPath(), password, repositoryId, serverUrl, username);
+            return new AllegroGraphTwksConfiguration(catalogId, getDumpDirectoryPath(), getGraphNameCacheConfiguration(), password, repositoryId, serverUrl, username);
         }
 
         public final String getCatalogId() {

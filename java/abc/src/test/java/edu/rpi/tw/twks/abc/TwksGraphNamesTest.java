@@ -2,7 +2,6 @@ package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.test.TestData;
 import edu.rpi.tw.twks.uri.Uri;
@@ -18,14 +17,14 @@ public abstract class TwksGraphNamesTest {
     private final TestData testData = new TestData();
     protected @Nullable
     TwksGraphNames sut;
-    private Twks twks;
+    private MemTwks twks;
 
-    protected abstract TwksGraphNames newSystemUnderTest();
+    protected abstract MemTwks newTwks();
 
     @Before
     public void setUp() {
-        twks = new MemTwks();
-        sut = newSystemUnderTest();
+        twks = newTwks();
+        sut = twks.getGraphNames();
     }
 
     @Test
