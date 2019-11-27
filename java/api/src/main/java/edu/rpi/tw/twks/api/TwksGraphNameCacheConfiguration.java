@@ -23,7 +23,7 @@ public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration
 
         @Override
         public TwksGraphNameCacheConfiguration build() {
-            return null;
+            return new TwksGraphNameCacheConfiguration(this);
         }
 
         public final boolean getEnable() {

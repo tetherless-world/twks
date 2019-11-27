@@ -11,6 +11,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.concurrent.ExecutionException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public final class CachinglTwksGraphNames implements TwksGraphNames {
     private final TwksGraphNameCacheConfiguration configuration;
@@ -22,6 +23,7 @@ public final class CachinglTwksGraphNames implements TwksGraphNames {
 
     CachinglTwksGraphNames(final TwksGraphNameCacheConfiguration configuration, final TwksGraphNames delegate) {
         this.configuration = checkNotNull(configuration);
+        checkState(configuration.getEnable());
         this.delegate = checkNotNull(delegate);
 
         nanopublicationGraphNamesCache = CacheBuilder.newBuilder().build();
