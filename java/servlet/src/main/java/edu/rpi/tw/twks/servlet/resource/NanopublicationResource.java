@@ -3,7 +3,10 @@ package edu.rpi.tw.twks.servlet.resource;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.nanopub.*;
+import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
+import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationParser;
+import edu.rpi.tw.twks.nanopub.NanopublicationParserBuilder;
 import edu.rpi.tw.twks.servlet.AcceptLists;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -117,32 +120,14 @@ public class NanopublicationResource extends AbstractResource {
         return lang;
     }
 
-    private Optional<NanopublicationDialect> parseNanopublicationDialect(@Nullable final String nanopublicationDialectString) {
-        if (nanopublicationDialectString == null) {
-            return Optional.empty();
-        }
-
-        try {
-            return Optional.of(NanopublicationDialect.valueOf(nanopublicationDialectString.toUpperCase()));
-        } catch (final IllegalArgumentException e) {
-            throw new WebApplicationException("Unknown nanopublication dialect: " + nanopublicationDialectString, Response.Status.BAD_REQUEST);
-        }
-    }
-
     private ImmutableList<Nanopublication> parseNanopublications(
             @Nullable final String contentType,
-            @Nullable final String nanopublicationDialectString,
             final String requestBody
     ) {
         final Lang lang = parseLang(contentType);
 
         final NanopublicationParserBuilder parserBuilder = NanopublicationParser.builder();
         parserBuilder.setLang(lang);
-
-        final Optional<NanopublicationDialect> dialect = parseNanopublicationDialect(nanopublicationDialectString);
-        if (dialect.isPresent()) {
-            parserBuilder.setDialect(dialect.get());
-        }
 
         parserBuilder.setSource(new StringReader(requestBody));
 
@@ -162,10 +147,9 @@ public class NanopublicationResource extends AbstractResource {
     public List<NanopublicationCrudApi.PutNanopublicationResult>
     postNanopublications(
             @HeaderParam("Content-Type") @Nullable final String contentType,
-            @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
             final String requestBody
     ) {
-        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, nanopublicationDialectString, requestBody);
+        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, requestBody);
         return getTwks().postNanopublications(nanopublications);
     }
 
@@ -176,11 +160,10 @@ public class NanopublicationResource extends AbstractResource {
     public Response
     putNanopublication(
             @HeaderParam("Content-Type") @Nullable final String contentType,
-            @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
             final String requestBody,
             @Context final UriInfo uriInfo
     ) {
-        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, nanopublicationDialectString, requestBody);
+        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, requestBody);
 
         if (nanopublications.size() != 1) {
             return Response.status(400, "Only a single nanopublication can be PUT").build();
