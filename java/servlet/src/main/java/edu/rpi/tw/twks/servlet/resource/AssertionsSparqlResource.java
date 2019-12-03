@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.servlet.resource;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -22,6 +23,7 @@ public final class AssertionsSparqlResource extends AbstractSparqlResource {
 
     @GET
     @Operation(
+            externalDocs = @ExternalDocumentation(url = "https://www.w3.org/TR/sparql11-protocol/"),
             summary = "Query assertions in the store using SPARQL"
     )
     public final Response
@@ -36,6 +38,7 @@ public final class AssertionsSparqlResource extends AbstractSparqlResource {
 
     @POST
     @Operation(
+            externalDocs = @ExternalDocumentation(url = "https://www.w3.org/TR/sparql11-protocol/"),
             summary = "Query assertions in the store using SPARQL"
     )
     public final Response

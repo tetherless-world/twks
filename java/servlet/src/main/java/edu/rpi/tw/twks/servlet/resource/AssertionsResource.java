@@ -6,6 +6,8 @@ import edu.rpi.tw.twks.servlet.AcceptLists;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -29,10 +31,15 @@ public class AssertionsResource extends AbstractResource {
 
     @GET
     @Operation(
-            summary = "Get all assertions in the store"
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200"
+                    )
+            },
+            summary = "Get all assertions in the store as RDF triples"
     )
     public Response getAssertions(
-            @HeaderParam("Accept") @Nullable final String accept
+            @HeaderParam("Accept") @Nullable @Parameter(description = "Accept header, defaults to text/trig") final String accept
     ) {
         final Model assertions = getTwks().getAssertions();
         return getAssertionsDelegate(accept, assertions);
@@ -52,12 +59,17 @@ public class AssertionsResource extends AbstractResource {
 
     @GET
     @Operation(
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200"
+                    )
+            },
             summary = "Get assertions that are associated with a specific set of ontologies"
     )
     @Path("ontology")
     public Response getOntologyAssertions(
-            @HeaderParam("Accept") @Nullable final String accept,
-            @QueryParam("uri") final List<String> ontologyUriStrings
+            @HeaderParam("Accept") @Nullable @Parameter(description = "Accept header, defaults to text/trig") final String accept,
+            @QueryParam("uri") @Parameter(description = "one or more ontology URIs") final List<String> ontologyUriStrings
     ) {
         final ImmutableSet<Uri> ontologyUris = ontologyUriStrings.stream().map(uriString -> Uri.parse(uriString)).collect(ImmutableSet.toImmutableSet());
         final Model assertions = getTwks().getOntologyAssertions(ontologyUris);
