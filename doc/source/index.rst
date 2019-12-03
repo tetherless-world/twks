@@ -10,3 +10,4 @@ Tetherless World Knowledge Store (TWKS)
    java
    py
    script
+   server-api

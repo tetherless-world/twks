@@ -3,10 +3,17 @@ package edu.rpi.tw.twks.servlet.resource;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.nanopub.*;
+import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
+import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationParser;
+import edu.rpi.tw.twks.nanopub.NanopublicationParserBuilder;
 import edu.rpi.tw.twks.servlet.AcceptLists;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -36,6 +43,19 @@ public class NanopublicationResource extends AbstractResource {
 
     @DELETE
     @Path("{nanopublicationUri}")
+    @Operation(
+            responses = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "the nanopublication was successfully deleted"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "the nanopublication was not found in the store"
+                    )
+            },
+            summary = "Delete a nanopublication from the store"
+    )
     public Response
     deleteNanopublication(
             @PathParam("nanopublicationUri") final String nanopublicationUriString
@@ -56,9 +76,18 @@ public class NanopublicationResource extends AbstractResource {
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
+    @Operation(
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200"
+                    )
+            },
+            description = "Returns a JSON array of status strings, either \"DELETED\" or \"NOT_FOUND\"",
+            summary = "Delete multiple nanopublications from the store"
+    )
     public List<NanopublicationCrudApi.DeleteNanopublicationResult>
     deleteNanopublications(
-            @QueryParam("uri") final List<String> nanopublicationUriStrings
+            @QueryParam("uri") @Parameter(description = "one or more nanopublication URIs") final List<String> nanopublicationUriStrings
     ) {
         final ImmutableList<Uri> nanopublicationUris = nanopublicationUriStrings.stream().map(uriString -> Uri.parse(uriString)).collect(ImmutableList.toImmutableList());
 
@@ -67,10 +96,24 @@ public class NanopublicationResource extends AbstractResource {
 
     @GET
     @Path("{nanopublicationUri}")
+    @Operation(
+            description = "Returns the nanopublication as a set of named graphs in a quad format such as text/trig or application/n-quads",
+            responses = {
+                    @ApiResponse(
+                            description = "nanopublication found and returned",
+                            responseCode = "200"
+                    ),
+                    @ApiResponse(
+                            description = "nanopublication with the given URI not found",
+                            responseCode = "404"
+                    )
+            },
+            summary = "Get a single nanopublication from the store by its URI"
+    )
     public Response
     getNanopublication(
-            @HeaderParam("Accept") @Nullable final String accept,
-            @PathParam("nanopublicationUri") final String nanopublicationUriString
+            @HeaderParam("Accept") @Nullable @Parameter(description = "Accept header, defaults to text/trig") final String accept,
+            @PathParam("nanopublicationUri") @Parameter(description = "URI of the nanopublication to get") final String nanopublicationUriString
     ) {
         final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
 
@@ -107,32 +150,14 @@ public class NanopublicationResource extends AbstractResource {
         return lang;
     }
 
-    private Optional<NanopublicationDialect> parseNanopublicationDialect(@Nullable final String nanopublicationDialectString) {
-        if (nanopublicationDialectString == null) {
-            return Optional.empty();
-        }
-
-        try {
-            return Optional.of(NanopublicationDialect.valueOf(nanopublicationDialectString.toUpperCase()));
-        } catch (final IllegalArgumentException e) {
-            throw new WebApplicationException("Unknown nanopublication dialect: " + nanopublicationDialectString, Response.Status.BAD_REQUEST);
-        }
-    }
-
     private ImmutableList<Nanopublication> parseNanopublications(
             @Nullable final String contentType,
-            @Nullable final String nanopublicationDialectString,
             final String requestBody
     ) {
         final Lang lang = parseLang(contentType);
 
         final NanopublicationParserBuilder parserBuilder = NanopublicationParser.builder();
         parserBuilder.setLang(lang);
-
-        final Optional<NanopublicationDialect> dialect = parseNanopublicationDialect(nanopublicationDialectString);
-        if (dialect.isPresent()) {
-            parserBuilder.setDialect(dialect.get());
-        }
 
         parserBuilder.setSource(new StringReader(requestBody));
 
@@ -146,25 +171,49 @@ public class NanopublicationResource extends AbstractResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @Operation(
+            description = "Returns a JSON array of status strings, either \"CREATED\" or \"OVERWROTE\"",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200"
+                    )
+            },
+            summary = "Add multiple nanopublications to the store, overwriting (by URI) if necessary"
+    )
     public List<NanopublicationCrudApi.PutNanopublicationResult>
     postNanopublications(
-            @HeaderParam("Content-Type") @Nullable final String contentType,
-            @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
-            final String requestBody
+            @HeaderParam("Content-Type") final String contentType,
+            @RequestBody(description = "nanopublications in serialized RDF, such as text/trig or application/n-quads") final String requestBody
     ) {
-        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, nanopublicationDialectString, requestBody);
+        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, requestBody);
         return getTwks().postNanopublications(nanopublications);
     }
 
     @PUT
+    @Operation(
+            responses = {
+                    @ApiResponse(
+                            description = "CREATED: nanopublication with the given URI did not exist in the store and was created",
+                            responseCode = "201"
+                    ),
+                    @ApiResponse(
+                            description = "OVERWROTE: nanopublication with the given URI existed in the store and was overwritten",
+                            responseCode = "204"
+                    ),
+                    @ApiResponse(
+                            description = "tried to PUT more than one nanopublication",
+                            responseCode = "400"
+                    )
+            },
+            summary = "Add a single nanopublication to the store, overwriting (by URI) if necessary"
+    )
     public Response
     putNanopublication(
-            @HeaderParam("Content-Type") @Nullable final String contentType,
-            @HeaderParam("X-Nanopublication-Dialect") @Nullable final String nanopublicationDialectString,
-            final String requestBody,
+            @HeaderParam("Content-Type") final String contentType,
+            @RequestBody(description = "nanopublication in serialized RDF, such as text/trig or application/n-quads") final String requestBody,
             @Context final UriInfo uriInfo
     ) {
-        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, nanopublicationDialectString, requestBody);
+        final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, requestBody);
 
         if (nanopublications.size() != 1) {
             return Response.status(400, "Only a single nanopublication can be PUT").build();
