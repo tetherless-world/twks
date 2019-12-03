@@ -12,6 +12,7 @@ import edu.rpi.tw.twks.api.observer.PutNanopublicationObserver;
 import edu.rpi.tw.twks.api.observer.TwksObserverRegistration;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
+import org.apache.jena.geosparql.configuration.GeoSPARQLConfig;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
 import org.slf4j.Logger;
@@ -30,12 +31,17 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
 
     protected AbstractTwks(final TwksConfigurationT configuration) {
         this.configuration = checkNotNull(configuration);
+
         TwksGraphNames graphNames = new SparqlTwksGraphNames();
         if (configuration.getGraphNameCacheConfiguration().getEnable()) {
             graphNames = new CachinglTwksGraphNames(configuration.getGraphNameCacheConfiguration(), graphNames);
             logger.info("enabling graph name cache");
         }
         this.graphNames = graphNames;
+
+        if (configuration.getGeoSparqlConfiguration().getEnable()) {
+            GeoSPARQLConfig.setupMemoryIndex();
+        }
     }
 
     protected abstract TwksTransaction _beginTransaction(ReadWrite readWrite);
