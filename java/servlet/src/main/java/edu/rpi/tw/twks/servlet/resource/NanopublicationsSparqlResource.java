@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.servlet.resource;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.swagger.v3.oas.annotations.Operation;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 
@@ -20,6 +21,9 @@ public final class NanopublicationsSparqlResource extends AbstractSparqlResource
     }
 
     @GET
+    @Operation(
+            summary = "Query triples in all named graphs using SPARQL"
+    )
     public final Response
     get(
             @HeaderParam("Accept") @Nullable final String accept,
@@ -31,6 +35,9 @@ public final class NanopublicationsSparqlResource extends AbstractSparqlResource
     }
 
     @POST
+    @Operation(
+            summary = "Query triples in all named graphs using SPARQL"
+    )
     public final Response
     post(
             @HeaderParam("Accept") @Nullable final String accept,

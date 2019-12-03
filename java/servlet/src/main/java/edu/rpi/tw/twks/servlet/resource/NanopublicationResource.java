@@ -7,6 +7,7 @@ import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.servlet.AcceptLists;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.swagger.v3.oas.annotations.Operation;
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -36,6 +37,9 @@ public class NanopublicationResource extends AbstractResource {
 
     @DELETE
     @Path("{nanopublicationUri}")
+    @Operation(
+            summary = "Delete a nanopublication from the store"
+    )
     public Response
     deleteNanopublication(
             @PathParam("nanopublicationUri") final String nanopublicationUriString
@@ -56,6 +60,9 @@ public class NanopublicationResource extends AbstractResource {
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
+    @Operation(
+            summary = "Delete multiple nanopublications from the store"
+    )
     public List<NanopublicationCrudApi.DeleteNanopublicationResult>
     deleteNanopublications(
             @QueryParam("uri") final List<String> nanopublicationUriStrings
@@ -67,6 +74,9 @@ public class NanopublicationResource extends AbstractResource {
 
     @GET
     @Path("{nanopublicationUri}")
+    @Operation(
+            summary = "Get a single nanopublication from the store by its URI"
+    )
     public Response
     getNanopublication(
             @HeaderParam("Accept") @Nullable final String accept,
@@ -146,6 +156,9 @@ public class NanopublicationResource extends AbstractResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @Operation(
+            summary = "Add multiple nanopublications to the store, overwriting (by URI) if necessary"
+    )
     public List<NanopublicationCrudApi.PutNanopublicationResult>
     postNanopublications(
             @HeaderParam("Content-Type") @Nullable final String contentType,
@@ -157,6 +170,9 @@ public class NanopublicationResource extends AbstractResource {
     }
 
     @PUT
+    @Operation(
+            summary = "Add a single nanopublication to the store, overwriting (by URI) if necessary"
+    )
     public Response
     putNanopublication(
             @HeaderParam("Content-Type") @Nullable final String contentType,
