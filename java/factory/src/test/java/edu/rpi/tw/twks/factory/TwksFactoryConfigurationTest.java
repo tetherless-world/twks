@@ -12,7 +12,7 @@ public final class TwksFactoryConfigurationTest {
         final TwksFactoryConfiguration.Builder builder = TwksFactoryConfiguration.builder();
         assertFalse(builder.getTdb2Configuration().isPresent());
         final PropertiesConfiguration properties = new PropertiesConfiguration();
-        properties.setProperty("twks.tdbLocation", "test");
+        properties.setProperty("tdbLocation", "test");
         builder.set(properties);
         assertEquals("test", builder.build().getTdb2Configuration().get().getLocation().get());
     }
