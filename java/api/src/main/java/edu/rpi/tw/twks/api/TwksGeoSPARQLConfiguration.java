@@ -1,7 +1,6 @@
 package edu.rpi.tw.twks.api;
 
-import javax.annotation.Nullable;
-import java.util.Properties;
+import java.util.Optional;
 
 public final class TwksGeoSPARQLConfiguration extends AbstractConfiguration {
     private final boolean enable;
@@ -19,7 +18,7 @@ public final class TwksGeoSPARQLConfiguration extends AbstractConfiguration {
     }
 
     public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksGeoSPARQLConfiguration> {
-        private boolean enable = FieldDefinitions.ENABLE.getDefault();
+        private boolean enable = PropertyDefinitions.ENABLE.getDefault();
 
         @Override
         public TwksGeoSPARQLConfiguration build() {
@@ -36,11 +35,11 @@ public final class TwksGeoSPARQLConfiguration extends AbstractConfiguration {
         }
 
         @Override
-        public Builder setFromProperties(final Properties properties) {
+        public final Builder setFromProperties(final PropertiesWrapper properties) {
             {
-                @Nullable final String enable = properties.getProperty(FieldDefinitions.ENABLE.getPropertyKey());
-                if (enable != null) {
-                    setEnable(true);
+                final Optional<Boolean> enable = properties.getBoolean(PropertyDefinitions.ENABLE);
+                if (enable.isPresent()) {
+                    setEnable(enable.get());
                 }
             }
 
@@ -48,8 +47,8 @@ public final class TwksGeoSPARQLConfiguration extends AbstractConfiguration {
         }
     }
 
-    private final static class FieldDefinitions {
-        public final static ConfigurationFieldDefinitionWithDefault<Boolean> ENABLE = new ConfigurationFieldDefinitionWithDefault<>(Boolean.FALSE, "twks.enableGeoSPARQL");
-        public final static ConfigurationFieldDefinition GEOMETRY_INDEX_SIZE = new ConfigurationFieldDefinition("twks.GeoSPARQLGeometryIndexSize");
+    private final static class PropertyDefinitions {
+        public final static PropertyDefinitionWithDefault<Boolean> ENABLE = new PropertyDefinitionWithDefault<>(Boolean.FALSE, "enableGeoSPARQL");
+        public final static PropertyDefinition GEOMETRY_INDEX_SIZE = new PropertyDefinition("GeoSPARQLGeometryIndexSize");
     }
 }

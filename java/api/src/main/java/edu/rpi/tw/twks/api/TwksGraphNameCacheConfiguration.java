@@ -1,7 +1,6 @@
 package edu.rpi.tw.twks.api;
 
-import javax.annotation.Nullable;
-import java.util.Properties;
+import java.util.Optional;
 
 public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration {
     private final boolean enable;
@@ -19,7 +18,7 @@ public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration
     }
 
     public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksGraphNameCacheConfiguration> {
-        private boolean enable = FieldDefinitions.ENABLE.getDefault();
+        private boolean enable = PropertyDefinitions.ENABLE.getDefault();
 
         @Override
         public TwksGraphNameCacheConfiguration build() {
@@ -36,11 +35,11 @@ public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration
         }
 
         @Override
-        public Builder setFromProperties(final Properties properties) {
+        public final Builder setFromProperties(final PropertiesWrapper properties) {
             {
-                @Nullable final String enable = properties.getProperty(FieldDefinitions.ENABLE.getPropertyKey());
-                if (enable != null) {
-                    setEnable(true);
+                final Optional<Boolean> enable = properties.getBoolean(PropertyDefinitions.ENABLE);
+                if (enable.isPresent()) {
+                    setEnable(enable.get());
                 }
             }
 
@@ -48,7 +47,7 @@ public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration
         }
     }
 
-    private final static class FieldDefinitions {
-        public final static ConfigurationFieldDefinitionWithDefault<Boolean> ENABLE = new ConfigurationFieldDefinitionWithDefault<>(Boolean.FALSE, "twks.cacheGraphNames");
+    private final static class PropertyDefinitions {
+        public final static PropertyDefinitionWithDefault<Boolean> ENABLE = new PropertyDefinitionWithDefault<>(Boolean.FALSE, "cacheGraphNames");
     }
 }

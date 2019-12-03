@@ -3,8 +3,6 @@ package edu.rpi.tw.twks.client;
 import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.api.AbstractConfiguration;
 
-import java.util.Properties;
-
 public final class RestTwksClientConfiguration extends AbstractConfiguration {
     private final String serverBaseUrl;
 
@@ -26,7 +24,7 @@ public final class RestTwksClientConfiguration extends AbstractConfiguration {
     }
 
     public final static class Builder extends AbstractConfiguration.Builder<Builder, RestTwksClientConfiguration> {
-        private String serverBaseUrl = FieldDefinitions.SERVER_BASE_URL.getDefault();
+        private String serverBaseUrl = PropertyDefinitions.SERVER_BASE_URL.getDefault();
 
         @Override
         public final RestTwksClientConfiguration build() {
@@ -43,12 +41,12 @@ public final class RestTwksClientConfiguration extends AbstractConfiguration {
         }
 
         @Override
-        public final Builder setFromProperties(final Properties properties) {
-            return setServerBaseUrl(properties.getProperty(FieldDefinitions.SERVER_BASE_URL.getPropertyKey(), serverBaseUrl));
+        public final Builder setFromProperties(final PropertiesWrapper properties) {
+            return setServerBaseUrl(properties.getString(PropertyDefinitions.SERVER_BASE_URL).orElse(PropertyDefinitions.SERVER_BASE_URL.getDefault()));
         }
     }
 
-    private final static class FieldDefinitions {
-        public final static ConfigurationFieldDefinitionWithDefault<String> SERVER_BASE_URL = new ConfigurationFieldDefinitionWithDefault<>("http://localhost:8080", "twks.serverBaseUrl");
+    private final static class PropertyDefinitions {
+        public final static PropertyDefinitionWithDefault<String> SERVER_BASE_URL = new PropertyDefinitionWithDefault<>("http://localhost:8080", "serverBaseUrl");
     }
 }

@@ -2,10 +2,9 @@ package edu.rpi.tw.twks.api;
 
 import com.google.common.base.MoreObjects;
 
-import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -33,7 +32,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
     }
 
     public abstract static class Builder<BuilderT extends Builder<?, ?>, TwksConfigurationT extends TwksConfiguration> extends AbstractConfiguration.Builder<BuilderT, TwksConfigurationT> {
-        private Path dumpDirectoryPath = FieldDefinitions.DUMP_DIRECTORY_PATH.getDefault();
+        private Path dumpDirectoryPath = PropertyDefinitions.DUMP_DIRECTORY_PATH.getDefault();
         private TwksGraphNameCacheConfiguration graphNameCacheConfiguration = TwksGraphNameCacheConfiguration.builder().setEnable(false).build();
 
         @Override
@@ -61,7 +60,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
 
         @Override
         @SuppressWarnings("unchecked")
-        public BuilderT setFromProperties(final Properties properties) {
+        public BuilderT setFromProperties(final PropertiesWrapper properties) {
             {
                 final TwksGraphNameCacheConfiguration graphNameCacheConfiguration = TwksGraphNameCacheConfiguration.builder().setFromProperties(properties).build();
                 if (graphNameCacheConfiguration.getEnable()) {
@@ -70,9 +69,9 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
             }
 
             {
-                @Nullable final String dumpDirectoryPath = properties.getProperty(FieldDefinitions.DUMP_DIRECTORY_PATH.getPropertyKey());
-                if (dumpDirectoryPath != null) {
-                    setDumpDirectoryPath(Paths.get(dumpDirectoryPath));
+                final Optional<Path> dumpDirectoryPath = properties.getPath(PropertyDefinitions.DUMP_DIRECTORY_PATH);
+                if (dumpDirectoryPath.isPresent()) {
+                    setDumpDirectoryPath(dumpDirectoryPath.get());
                 }
             }
 
@@ -80,8 +79,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
         }
     }
 
-    private final static class FieldDefinitions {
-        public final static ConfigurationFieldDefinitionWithDefault<Boolean> CACHE_GRAPH_NAMES = new ConfigurationFieldDefinitionWithDefault<>(Boolean.FALSE, "twks.cacheGraphNames");
-        public final static ConfigurationFieldDefinitionWithDefault<Path> DUMP_DIRECTORY_PATH = new ConfigurationFieldDefinitionWithDefault<>(Paths.get("/dump"), "twks.dump");
+    private final static class PropertyDefinitions {
+        public final static PropertyDefinitionWithDefault<Path> DUMP_DIRECTORY_PATH = new PropertyDefinitionWithDefault<>(Paths.get("/dump"), "dump");
     }
 }

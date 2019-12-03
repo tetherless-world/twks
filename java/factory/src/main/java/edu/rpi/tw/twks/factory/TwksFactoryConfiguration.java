@@ -6,7 +6,6 @@ import edu.rpi.tw.twks.api.AbstractConfiguration;
 import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
 
 import java.util.Optional;
-import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -87,7 +86,7 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
         }
 
         @Override
-        public final Builder setFromProperties(final Properties properties) {
+        public final Builder setFromProperties(final PropertiesWrapper properties) {
             {
                 final AllegroGraphTwksConfiguration.Builder allegroGraphConfigurationBuilder = AllegroGraphTwksConfiguration.builder().setFromProperties(properties);
                 if (allegroGraphConfigurationBuilder.isValid()) {

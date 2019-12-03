@@ -3,12 +3,10 @@ package edu.rpi.tw.twks.servlet;
 import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.api.AbstractConfiguration;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -52,9 +50,9 @@ public final class TwksServletConfiguration extends AbstractConfiguration {
 
     public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksServletConfiguration> {
         private Optional<Path> extcpDirectoryPath = Optional.empty();
-        private Path extfsDirectoryPath = FieldDefinitions.EXTFS_DIRECTORY_PATH.getDefault();
+        private Path extfsDirectoryPath = PropertyDefinitions.EXTFS_DIRECTORY_PATH.getDefault();
         private TwksFactoryConfiguration factoryConfiguration = TwksFactoryConfiguration.builder().build();
-        private String serverBaseUrl = FieldDefinitions.SERVER_BASE_URL.getDefault();
+        private String serverBaseUrl = PropertyDefinitions.SERVER_BASE_URL.getDefault();
 
         private Builder() {
         }
@@ -95,13 +93,13 @@ public final class TwksServletConfiguration extends AbstractConfiguration {
             return serverBaseUrl;
         }
 
-        public Builder setServerBaseUrl(final String serverBaseUrl) {
+        public final Builder setServerBaseUrl(final String serverBaseUrl) {
             this.serverBaseUrl = checkNotNull(serverBaseUrl);
             return this;
         }
 
         @Override
-        public Builder setFromProperties(final Properties properties) {
+        public final Builder setFromProperties(final PropertiesWrapper properties) {
             {
                 final TwksFactoryConfiguration factoryConfiguration = TwksFactoryConfiguration.builder().setFromProperties(properties).build();
                 if (!factoryConfiguration.isEmpty()) {
@@ -110,28 +108,28 @@ public final class TwksServletConfiguration extends AbstractConfiguration {
             }
 
             {
-                @Nullable final String value = properties.getProperty(FieldDefinitions.EXTCP_DIRECTORY_PATH.getPropertyKey());
-                if (value != null) {
-                    setExtcpDirectoryPath(Optional.of(Paths.get(value)));
+                final Optional<Path> value = properties.getPath(PropertyDefinitions.EXTCP_DIRECTORY_PATH);
+                if (value.isPresent()) {
+                    setExtcpDirectoryPath(value);
                 }
             }
 
             {
-                @Nullable final String value = properties.getProperty(FieldDefinitions.EXTFS_DIRECTORY_PATH.getPropertyKey());
-                if (value != null) {
-                    setExtfsDirectoryPath(Paths.get(value));
+                final Optional<Path> value = properties.getPath(PropertyDefinitions.EXTFS_DIRECTORY_PATH);
+                if (value.isPresent()) {
+                    setExtfsDirectoryPath(value.get());
                 }
             }
 
-            setServerBaseUrl(properties.getProperty(FieldDefinitions.SERVER_BASE_URL.getPropertyKey(), serverBaseUrl));
+            setServerBaseUrl(properties.getString(PropertyDefinitions.SERVER_BASE_URL).orElse(serverBaseUrl));
 
             return this;
         }
     }
 
-    private final static class FieldDefinitions {
-        public final static ConfigurationFieldDefinition EXTCP_DIRECTORY_PATH = new ConfigurationFieldDefinition("twks.extcp");
-        public final static ConfigurationFieldDefinitionWithDefault<Path> EXTFS_DIRECTORY_PATH = new ConfigurationFieldDefinitionWithDefault<>(Paths.get("/extfs"), "twks.extfs");
-        public final static ConfigurationFieldDefinitionWithDefault<String> SERVER_BASE_URL = new ConfigurationFieldDefinitionWithDefault<>("http://localhost:8080", "twks.serverBaseUrl");
+    private final static class PropertyDefinitions {
+        public final static PropertyDefinition EXTCP_DIRECTORY_PATH = new PropertyDefinition("extcp");
+        public final static PropertyDefinitionWithDefault<Path> EXTFS_DIRECTORY_PATH = new PropertyDefinitionWithDefault<>(Paths.get("/extfs"), "extfs");
+        public final static PropertyDefinitionWithDefault<String> SERVER_BASE_URL = new PropertyDefinitionWithDefault<>("http://localhost:8080", "serverBaseUrl");
     }
 }

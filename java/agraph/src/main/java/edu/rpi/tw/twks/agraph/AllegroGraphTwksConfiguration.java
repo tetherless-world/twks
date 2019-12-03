@@ -4,7 +4,7 @@ import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
-import java.util.Properties;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -54,11 +54,11 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
     }
 
     public final static class Builder extends TwksConfiguration.Builder<Builder, AllegroGraphTwksConfiguration> {
-        private String catalogId = FieldDefinitions.CATALOG_ID.getDefault();
-        private String password = FieldDefinitions.PASSWORD.getDefault();
-        private String repositoryId = FieldDefinitions.REPOSITORY_ID.getDefault();
+        private String catalogId = PropertyDefinitions.CATALOG_ID.getDefault();
+        private String password = PropertyDefinitions.PASSWORD.getDefault();
+        private String repositoryId = PropertyDefinitions.REPOSITORY_ID.getDefault();
         private String serverUrl = null;
-        private String username = FieldDefinitions.USERNAME.getDefault();
+        private String username = PropertyDefinitions.USERNAME.getDefault();
 
         @Override
         public final AllegroGraphTwksConfiguration build() {
@@ -117,25 +117,25 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
         }
 
         @Override
-        public final Builder setFromProperties(final Properties properties) {
-            setCatalogId(properties.getProperty(FieldDefinitions.CATALOG_ID.getPropertyKey(), catalogId));
-            setPassword(properties.getProperty(FieldDefinitions.PASSWORD.getPropertyKey(), password));
+        public final Builder setFromProperties(final PropertiesWrapper properties) {
+            setCatalogId(properties.getString(PropertyDefinitions.CATALOG_ID).orElse(catalogId));
+            setPassword(properties.getString(PropertyDefinitions.PASSWORD).orElse(password));
             {
-                @Nullable final String value = properties.getProperty(FieldDefinitions.SERVER_URL.getPropertyKey());
-                if (value != null) {
-                    setServerUrl(value);
+                final Optional<String> value = properties.getString(PropertyDefinitions.SERVER_URL);
+                if (value.isPresent()) {
+                    setServerUrl(value.get());
                 }
             }
-            setUsername(properties.getProperty(FieldDefinitions.USERNAME.getPropertyKey(), username));
+            setUsername(properties.getString(PropertyDefinitions.USERNAME).orElse(username));
             return super.setFromProperties(properties);
         }
     }
 
-    private final static class FieldDefinitions {
-        public final static ConfigurationFieldDefinitionWithDefault<String> CATALOG_ID = new ConfigurationFieldDefinitionWithDefault<>("twks-catalog", "twks.agraphCatalogId");
-        public final static ConfigurationFieldDefinitionWithDefault<String> PASSWORD = new ConfigurationFieldDefinitionWithDefault<>("twks", "twks.agraphPassword");
-        public final static ConfigurationFieldDefinitionWithDefault<String> REPOSITORY_ID = new ConfigurationFieldDefinitionWithDefault<>("twks-repository", "twks.agraphRepositoryId");
-        public final static ConfigurationFieldDefinition SERVER_URL = new ConfigurationFieldDefinition("twks.agraphServerUrl");
-        public final static ConfigurationFieldDefinitionWithDefault<String> USERNAME = new ConfigurationFieldDefinitionWithDefault<>("twks", "twks.agraphUsername");
+    private final static class PropertyDefinitions {
+        public final static PropertyDefinitionWithDefault<String> CATALOG_ID = new PropertyDefinitionWithDefault<>("twks-catalog", "agraphCatalogId");
+        public final static PropertyDefinitionWithDefault<String> PASSWORD = new PropertyDefinitionWithDefault<>("twks", "agraphPassword");
+        public final static PropertyDefinitionWithDefault<String> REPOSITORY_ID = new PropertyDefinitionWithDefault<>("twks-repository", "agraphRepositoryId");
+        public final static PropertyDefinition SERVER_URL = new PropertyDefinition("agraphServerUrl");
+        public final static PropertyDefinitionWithDefault<String> USERNAME = new PropertyDefinitionWithDefault<>("twks", "agraphUsername");
     }
 }

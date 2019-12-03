@@ -3,9 +3,7 @@ package edu.rpi.tw.twks.tdb;
 import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.api.TwksConfiguration;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -30,12 +28,12 @@ public class Tdb2TwksConfiguration extends TwksConfiguration {
     }
 
     @Override
-    protected MoreObjects.ToStringHelper toStringHelper() {
+    protected final MoreObjects.ToStringHelper toStringHelper() {
         return super.toStringHelper()
                 .add("tdb2Location", location.orElse(null));
     }
 
-    public static class Builder extends TwksConfiguration.Builder<Builder, Tdb2TwksConfiguration> {
+    public final static class Builder extends TwksConfiguration.Builder<Builder, Tdb2TwksConfiguration> {
         private Optional<String> location = Optional.empty();
 
         protected Builder() {
@@ -56,19 +54,17 @@ public class Tdb2TwksConfiguration extends TwksConfiguration {
         }
 
         @Override
-        public Builder setFromProperties(final Properties properties) {
-            super.setFromProperties(properties);
-
-            @Nullable final String location = properties.getProperty(FieldDefinitions.LOCATION.getPropertyKey());
-            if (location != null) {
-                setLocation(Optional.of(location));
+        public final Builder setFromProperties(final PropertiesWrapper properties) {
+            final Optional<String> location = properties.getString(PropertyDefinitions.LOCATION);
+            if (location.isPresent()) {
+                setLocation(location);
             }
 
-            return this;
+            return super.setFromProperties(properties);
         }
     }
 
-    private final static class FieldDefinitions {
-        public final static ConfigurationFieldDefinition LOCATION = new ConfigurationFieldDefinition("twks.tdbLocation");
+    private final static class PropertyDefinitions {
+        public final static PropertyDefinition LOCATION = new PropertyDefinition("tdbLocation");
     }
 }
