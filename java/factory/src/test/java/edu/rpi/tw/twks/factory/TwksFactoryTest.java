@@ -12,6 +12,6 @@ public final class TwksFactoryTest {
 
     @Test
     public void testCreateTwksWithConfiguration() {
-        assertNotSame(null, TwksFactory.getInstance().createTwks(TwksFactoryConfiguration.builder().setFromSystemProperties().build()));
+        assertNotSame(null, TwksFactory.getInstance().createTwks(TwksFactoryConfiguration.builder().setFromEnvironment().build()));
     }
 }

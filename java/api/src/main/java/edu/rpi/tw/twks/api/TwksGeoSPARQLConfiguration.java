@@ -41,7 +41,7 @@ public final class TwksGeoSPARQLConfiguration extends AbstractConfiguration {
         }
 
         @Override
-        public final Builder setFromProperties(final PropertiesWrapper properties) {
+        public final Builder set(final ConfigurationWrapper properties) {
             properties.getBoolean(PropertyDefinitions.ENABLE).ifPresent(value -> setEnable(value));
             return this;
         }

@@ -47,7 +47,7 @@ public final class TwksClientExample {
     public static void main(final String[] argv) throws IOException, MalformedNanopublicationException {
         final RestTwksClientConfiguration.Builder clientConfigurationBuilder = RestTwksClientConfiguration.builder();
         // Set the configuration from system properties. See that class for documentation.
-        clientConfigurationBuilder.setFromSystemProperties();
+        clientConfigurationBuilder.setFromEnvironment();
         // Can also call setters directly on the configuration builder.
 
         final TwksClient client = new RestTwksClient(clientConfigurationBuilder.build());

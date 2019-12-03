@@ -103,9 +103,9 @@ public final class TwksServletConfiguration extends AbstractConfiguration {
         }
 
         @Override
-        public final Builder setFromProperties(final PropertiesWrapper properties) {
+        public final Builder set(final ConfigurationWrapper properties) {
             {
-                final TwksFactoryConfiguration.Builder factoryConfigurationBuilder = TwksFactoryConfiguration.builder().setFromProperties(properties);
+                final TwksFactoryConfiguration.Builder factoryConfigurationBuilder = TwksFactoryConfiguration.builder().set(properties);
                 if (factoryConfigurationBuilder.isDirty()) {
                     setFactoryConfiguration(factoryConfigurationBuilder.build());
                 }

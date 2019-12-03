@@ -11,6 +11,8 @@ import edu.rpi.tw.twks.client.RestTwksClientConfiguration;
 import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.factory.TwksFactory;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +21,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 public final class CliMain {
     private final static Command[] commands = {
@@ -65,12 +66,12 @@ public final class CliMain {
 
         final Command command = commandsByName.get(jCommander.getParsedCommand());
 
-        final Properties configurationProperties = new Properties();
+        final PropertiesConfiguration configurationProperties = new PropertiesConfiguration();
 
         if (globalArgs.configurationFilePath != null) {
             try (final FileReader fileReader = new FileReader(new File(globalArgs.configurationFilePath))) {
-                configurationProperties.load(fileReader);
-            } catch (final IOException e) {
+                configurationProperties.read(fileReader);
+            } catch (final ConfigurationException | IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -78,7 +79,7 @@ public final class CliMain {
         globalArgs.configuration.forEach((key, value) -> configurationProperties.setProperty(key, value));
 
         {
-            final TwksFactoryConfiguration.Builder configurationBuilder = TwksFactoryConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties);
+            final TwksFactoryConfiguration.Builder configurationBuilder = TwksFactoryConfiguration.builder().setFromEnvironment().set(configurationProperties);
             if (configurationBuilder.isDirty()) {
                 final TwksFactoryConfiguration configuration = configurationBuilder.build();
                 final Twks twks = TwksFactory.getInstance().createTwks(configuration);
@@ -90,7 +91,7 @@ public final class CliMain {
         }
 
         {
-            final RestTwksClientConfiguration clientConfiguration = RestTwksClientConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties).build();
+            final RestTwksClientConfiguration clientConfiguration = RestTwksClientConfiguration.builder().setFromEnvironment().set(configurationProperties).build();
             final TwksClient client = new RestTwksClient(clientConfiguration);
             logger.info("using client with configuration {}", clientConfiguration);
 

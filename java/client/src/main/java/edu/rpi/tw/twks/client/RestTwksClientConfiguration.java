@@ -42,7 +42,7 @@ public final class RestTwksClientConfiguration extends AbstractConfiguration {
         }
 
         @Override
-        public final Builder setFromProperties(final PropertiesWrapper properties) {
+        public final Builder set(final ConfigurationWrapper properties) {
             properties.getString(PropertyDefinitions.SERVER_BASE_URL).ifPresent(value -> setServerBaseUrl(value));
             return this;
         }

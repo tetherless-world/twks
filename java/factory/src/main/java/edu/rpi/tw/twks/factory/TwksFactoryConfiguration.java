@@ -78,16 +78,16 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
         }
 
         @Override
-        public final Builder setFromProperties(final PropertiesWrapper properties) {
+        public final Builder set(final ConfigurationWrapper properties) {
             {
-                final AllegroGraphTwksConfiguration.Builder allegroGraphConfigurationBuilder = AllegroGraphTwksConfiguration.builder().setFromProperties(properties);
+                final AllegroGraphTwksConfiguration.Builder allegroGraphConfigurationBuilder = AllegroGraphTwksConfiguration.builder().set(properties);
                 if (allegroGraphConfigurationBuilder.isDirty() && allegroGraphConfigurationBuilder.isValid()) {
                     setAllegroGraphConfiguration(allegroGraphConfigurationBuilder.build());
                 }
             }
 
             {
-                final Tdb2TwksConfiguration.Builder tdb2ConfigurationBuilder = Tdb2TwksConfiguration.builder().setFromProperties(properties);
+                final Tdb2TwksConfiguration.Builder tdb2ConfigurationBuilder = Tdb2TwksConfiguration.builder().set(properties);
                 if (tdb2ConfigurationBuilder.isDirty()) {
                     setTdb2Configuration(tdb2ConfigurationBuilder.build());
                 }

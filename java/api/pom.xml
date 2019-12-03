@@ -40,5 +40,10 @@
             <artifactId>twks-nanopub</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
+            <version>2.6</version>
+        </dependency>
     </dependencies>
 </project>
