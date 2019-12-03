@@ -68,6 +68,7 @@ public final class TwksServletConfiguration extends AbstractConfiguration {
 
         public final Builder setExtcpDirectoryPath(final Optional<Path> extcpDirectoryPath) {
             this.extcpDirectoryPath = checkNotNull(extcpDirectoryPath);
+            markDirty();
             return this;
         }
 
@@ -77,6 +78,7 @@ public final class TwksServletConfiguration extends AbstractConfiguration {
 
         public final Builder setExtfsDirectoryPath(final Path extfsDirectoryPath) {
             this.extfsDirectoryPath = checkNotNull(extfsDirectoryPath);
+            markDirty();
             return this;
         }
 
@@ -86,6 +88,7 @@ public final class TwksServletConfiguration extends AbstractConfiguration {
 
         public final Builder setFactoryConfiguration(final TwksFactoryConfiguration factoryConfiguration) {
             this.factoryConfiguration = checkNotNull(factoryConfiguration);
+            markDirty();
             return this;
         }
 
@@ -95,15 +98,16 @@ public final class TwksServletConfiguration extends AbstractConfiguration {
 
         public final Builder setServerBaseUrl(final String serverBaseUrl) {
             this.serverBaseUrl = checkNotNull(serverBaseUrl);
+            markDirty();
             return this;
         }
 
         @Override
         public final Builder setFromProperties(final PropertiesWrapper properties) {
             {
-                final TwksFactoryConfiguration factoryConfiguration = TwksFactoryConfiguration.builder().setFromProperties(properties).build();
-                if (!factoryConfiguration.isEmpty()) {
-                    this.factoryConfiguration = checkNotNull(factoryConfiguration);
+                final TwksFactoryConfiguration.Builder factoryConfigurationBuilder = TwksFactoryConfiguration.builder().setFromProperties(properties);
+                if (factoryConfigurationBuilder.isDirty()) {
+                    setFactoryConfiguration(factoryConfigurationBuilder.build());
                 }
             }
 

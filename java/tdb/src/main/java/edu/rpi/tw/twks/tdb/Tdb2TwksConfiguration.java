@@ -23,10 +23,6 @@ public class Tdb2TwksConfiguration extends TwksConfiguration {
         return location;
     }
 
-    public final boolean isEmpty() {
-        return !getLocation().isPresent();
-    }
-
     @Override
     protected final MoreObjects.ToStringHelper toStringHelper() {
         return super.toStringHelper()
@@ -50,6 +46,7 @@ public class Tdb2TwksConfiguration extends TwksConfiguration {
 
         public final Builder setLocation(final Optional<String> location) {
             this.location = checkNotNull(location);
+            markDirty();
             return this;
         }
 

@@ -33,7 +33,9 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
     @Override
     protected MoreObjects.ToStringHelper toStringHelper() {
         return super.toStringHelper()
-                .add("dumpDirectoryPath", dumpDirectoryPath).add("graphNameCacheConfiguration", graphNameCacheConfiguration.getEnable() ? graphNameCacheConfiguration : null);
+                .add("dumpDirectoryPath", dumpDirectoryPath)
+                .add("geoSparqlConfiguration", geoSparqlConfiguration.getEnable() ? geoSparqlConfiguration : null)
+                .add("graphNameCacheConfiguration", graphNameCacheConfiguration.getEnable() ? graphNameCacheConfiguration : null);
     }
 
     public abstract static class Builder<BuilderT extends Builder<?, ?>, TwksConfigurationT extends TwksConfiguration> extends AbstractConfiguration.Builder<BuilderT, TwksConfigurationT> {
@@ -51,6 +53,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
         @SuppressWarnings("unchecked")
         public final BuilderT setDumpDirectoryPath(final Path dumpDirectoryPath) {
             this.dumpDirectoryPath = dumpDirectoryPath;
+            markDirty();
             return (BuilderT) this;
         }
 
@@ -61,6 +64,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
         @SuppressWarnings("unchecked")
         public final BuilderT setGeoSparqlConfiguration(final TwksGeoSPARQLConfiguration geoSparqlConfiguration) {
             this.geoSparqlConfiguration = geoSparqlConfiguration;
+            markDirty();
             return (BuilderT) this;
         }
 
@@ -71,6 +75,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
         @SuppressWarnings("unchecked")
         public final BuilderT setGraphNameCacheConfiguration(final TwksGraphNameCacheConfiguration graphNameCacheConfiguration) {
             this.graphNameCacheConfiguration = checkNotNull(graphNameCacheConfiguration);
+            markDirty();
             return (BuilderT) this;
         }
 
@@ -78,16 +83,16 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
         @SuppressWarnings("unchecked")
         public BuilderT setFromProperties(final PropertiesWrapper properties) {
             {
-                final TwksGeoSPARQLConfiguration geoSparqlConfiguration = TwksGeoSPARQLConfiguration.builder().setFromProperties(properties).build();
-                if (geoSparqlConfiguration.getEnable()) {
-                    setGeoSparqlConfiguration(geoSparqlConfiguration);
+                final TwksGeoSPARQLConfiguration.Builder geoSparqlConfigurationBuilder = TwksGeoSPARQLConfiguration.builder().setFromProperties(properties);
+                if (geoSparqlConfigurationBuilder.isDirty()) {
+                    setGeoSparqlConfiguration(geoSparqlConfigurationBuilder.build());
                 }
             }
 
             {
-                final TwksGraphNameCacheConfiguration graphNameCacheConfiguration = TwksGraphNameCacheConfiguration.builder().setFromProperties(properties).build();
-                if (graphNameCacheConfiguration.getEnable()) {
-                    setGraphNameCacheConfiguration(graphNameCacheConfiguration);
+                final TwksGraphNameCacheConfiguration.Builder graphNameCacheConfigurationBuilder = TwksGraphNameCacheConfiguration.builder().setFromProperties(properties);
+                if (graphNameCacheConfigurationBuilder.isDirty()) {
+                    setGraphNameCacheConfiguration(graphNameCacheConfigurationBuilder.build());
                 }
             }
 

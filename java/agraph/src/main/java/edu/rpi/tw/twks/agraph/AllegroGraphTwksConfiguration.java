@@ -70,6 +70,7 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
 
         public final Builder setCatalogId(final String catalogId) {
             this.catalogId = checkNotNull(catalogId);
+            markDirty();
             return this;
         }
 
@@ -79,6 +80,7 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
 
         public final Builder setPassword(final String password) {
             this.password = checkNotNull(password);
+            markDirty();
             return this;
         }
 
@@ -88,6 +90,7 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
 
         public final Builder setRepositoryId(final String repositoryId) {
             this.repositoryId = checkNotNull(repositoryId);
+            markDirty();
             return this;
         }
 
@@ -98,6 +101,7 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
 
         public final Builder setServerUrl(final String serverUrl) {
             this.serverUrl = checkNotNull(serverUrl);
+            markDirty();
             return this;
         }
 
@@ -107,6 +111,7 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
 
         public final Builder setUsername(final String username) {
             this.username = checkNotNull(username);
+            markDirty();
             return this;
         }
 

@@ -24,7 +24,25 @@ public abstract class AbstractConfiguration {
     }
 
     public abstract static class Builder<BuilderT extends Builder<?, ?>, ConfigurationT extends AbstractConfiguration> {
+        private boolean dirty = false;
+
         public abstract ConfigurationT build();
+
+        /**
+         * Has a setter been called?
+         *
+         * @return true if a setter has been called
+         */
+        public final boolean isDirty() {
+            return dirty;
+        }
+
+        /**
+         * Mark that a setter has been called.
+         */
+        protected final void markDirty() {
+            dirty = true;
+        }
 
         public final BuilderT setFromProperties(final Properties properties) {
             return setFromProperties(new PropertiesWrapper(properties));

@@ -1,5 +1,7 @@
 package edu.rpi.tw.twks.api;
 
+import com.google.common.base.MoreObjects;
+
 public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration {
     private final boolean enable;
 
@@ -13,6 +15,11 @@ public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration
 
     public final boolean getEnable() {
         return enable;
+    }
+
+    @Override
+    protected final MoreObjects.ToStringHelper toStringHelper() {
+        return super.toStringHelper().add("enable", enable);
     }
 
     public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksGraphNameCacheConfiguration> {
@@ -29,6 +36,7 @@ public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration
 
         public final Builder setEnable(final boolean enable) {
             this.enable = enable;
+            markDirty();
             return this;
         }
 

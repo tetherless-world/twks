@@ -37,6 +37,7 @@ public final class RestTwksClientConfiguration extends AbstractConfiguration {
 
         public final Builder setServerBaseUrl(final String serverBaseUrl) {
             this.serverBaseUrl = serverBaseUrl;
+            markDirty();
             return this;
         }
 

@@ -30,16 +30,6 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
         return tdb2Configuration;
     }
 
-    public final boolean isEmpty() {
-        if (getAllegroGraphConfiguration().isPresent()) {
-            return false;
-        }
-        if (getTdb2Configuration().isPresent()) {
-            return false;
-        }
-        return true;
-    }
-
     @Override
     protected MoreObjects.ToStringHelper toStringHelper() {
         return super.toStringHelper()
@@ -65,6 +55,7 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
 
         public final Builder setAllegroGraphConfiguration(final Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration) {
             this.allegroGraphConfiguration = checkNotNull(allegroGraphConfiguration);
+            markDirty();
             return this;
         }
 
@@ -78,6 +69,7 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
 
         public final Builder setTdb2Configuration(final Optional<Tdb2TwksConfiguration> tdb2Configuration) {
             this.tdb2Configuration = checkNotNull(tdb2Configuration);
+            markDirty();
             return this;
         }
 
@@ -89,15 +81,15 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
         public final Builder setFromProperties(final PropertiesWrapper properties) {
             {
                 final AllegroGraphTwksConfiguration.Builder allegroGraphConfigurationBuilder = AllegroGraphTwksConfiguration.builder().setFromProperties(properties);
-                if (allegroGraphConfigurationBuilder.isValid()) {
+                if (allegroGraphConfigurationBuilder.isDirty() && allegroGraphConfigurationBuilder.isValid()) {
                     setAllegroGraphConfiguration(allegroGraphConfigurationBuilder.build());
                 }
             }
 
             {
-                final Tdb2TwksConfiguration tdb2Configuration = Tdb2TwksConfiguration.builder().setFromProperties(properties).build();
-                if (!tdb2Configuration.isEmpty()) {
-                    setTdb2Configuration(tdb2Configuration);
+                final Tdb2TwksConfiguration.Builder tdb2ConfigurationBuilder = Tdb2TwksConfiguration.builder().setFromProperties(properties);
+                if (tdb2ConfigurationBuilder.isDirty()) {
+                    setTdb2Configuration(tdb2ConfigurationBuilder.build());
                 }
             }
 

@@ -41,6 +41,7 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
 
         if (configuration.getGeoSparqlConfiguration().getEnable()) {
             GeoSPARQLConfig.setupMemoryIndex();
+            logger.info("enabling GeoSPARQL memory index");
         }
     }
 
