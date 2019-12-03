@@ -6,7 +6,6 @@ import edu.rpi.tw.twks.api.AbstractConfiguration;
 import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
 
 import java.util.Optional;
-import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -29,16 +28,6 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
 
     public final Optional<Tdb2TwksConfiguration> getTdb2Configuration() {
         return tdb2Configuration;
-    }
-
-    public final boolean isEmpty() {
-        if (getAllegroGraphConfiguration().isPresent()) {
-            return false;
-        }
-        if (getTdb2Configuration().isPresent()) {
-            return false;
-        }
-        return true;
     }
 
     @Override
@@ -66,6 +55,7 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
 
         public final Builder setAllegroGraphConfiguration(final Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration) {
             this.allegroGraphConfiguration = checkNotNull(allegroGraphConfiguration);
+            markDirty();
             return this;
         }
 
@@ -79,6 +69,7 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
 
         public final Builder setTdb2Configuration(final Optional<Tdb2TwksConfiguration> tdb2Configuration) {
             this.tdb2Configuration = checkNotNull(tdb2Configuration);
+            markDirty();
             return this;
         }
 
@@ -87,18 +78,18 @@ public final class TwksFactoryConfiguration extends AbstractConfiguration {
         }
 
         @Override
-        public final Builder setFromProperties(final Properties properties) {
+        public final Builder setFromProperties(final PropertiesWrapper properties) {
             {
                 final AllegroGraphTwksConfiguration.Builder allegroGraphConfigurationBuilder = AllegroGraphTwksConfiguration.builder().setFromProperties(properties);
-                if (allegroGraphConfigurationBuilder.isValid()) {
+                if (allegroGraphConfigurationBuilder.isDirty() && allegroGraphConfigurationBuilder.isValid()) {
                     setAllegroGraphConfiguration(allegroGraphConfigurationBuilder.build());
                 }
             }
 
             {
-                final Tdb2TwksConfiguration tdb2Configuration = Tdb2TwksConfiguration.builder().setFromProperties(properties).build();
-                if (!tdb2Configuration.isEmpty()) {
-                    setTdb2Configuration(tdb2Configuration);
+                final Tdb2TwksConfiguration.Builder tdb2ConfigurationBuilder = Tdb2TwksConfiguration.builder().setFromProperties(properties);
+                if (tdb2ConfigurationBuilder.isDirty()) {
+                    setTdb2Configuration(tdb2ConfigurationBuilder.build());
                 }
             }
 

@@ -70,9 +70,7 @@ Or in ``build.sbt``\ :
 
 .. code-block::
 
-   resolvers +=
-     "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-
+   resolvers += Resolver.sonatypeRepo("snapshots")
 
 Then use a dependency as:
 

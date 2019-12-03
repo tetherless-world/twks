@@ -78,8 +78,9 @@ public final class CliMain {
         globalArgs.configuration.forEach((key, value) -> configurationProperties.setProperty(key, value));
 
         {
-            final TwksFactoryConfiguration configuration = TwksFactoryConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties).build();
-            if (!configuration.isEmpty()) {
+            final TwksFactoryConfiguration.Builder configurationBuilder = TwksFactoryConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties);
+            if (configurationBuilder.isDirty()) {
+                final TwksFactoryConfiguration configuration = configurationBuilder.build();
                 final Twks twks = TwksFactory.getInstance().createTwks(configuration);
                 logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);
 

@@ -22,5 +22,10 @@
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-geosparql</artifactId>
+            <version>${jena.version}</version>
+        </dependency>
     </dependencies>
 </project>
