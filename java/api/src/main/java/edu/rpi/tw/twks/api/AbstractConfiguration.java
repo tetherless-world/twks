@@ -13,6 +13,8 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractConfiguration {
+    private final static String PROPERTY_KEY_PREFIX = "twks";
+
     protected AbstractConfiguration() {
     }
 
@@ -53,8 +55,8 @@ public abstract class AbstractConfiguration {
         public abstract BuilderT set(final ConfigurationWrapper properties);
 
         public final BuilderT setFromEnvironment() {
-            set(new EnvironmentConfiguration());
-            set(new SystemConfiguration());
+            set(new EnvironmentConfiguration().subset(PROPERTY_KEY_PREFIX));
+            set(new SystemConfiguration().subset(PROPERTY_KEY_PREFIX));
             return (BuilderT) this;
         }
 
