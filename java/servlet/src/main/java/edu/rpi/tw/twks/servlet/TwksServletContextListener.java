@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.servlet;
 
 import edu.rpi.tw.twks.api.TwksVersion;
+import org.apache.commons.configuration2.web.ServletContextConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,9 +35,7 @@ public final class TwksServletContextListener implements javax.servlet.ServletCo
     @Override
     public void contextInitialized(final ServletContextEvent servletContextEvent) {
         final ServletContext servletContext = servletContextEvent.getServletContext();
-        final Properties attributeProperties = toProperties(servletContext.getAttributeNames(), name -> servletContext.getAttribute(name));
-        final Properties initParameterProperties = toProperties(servletContext.getInitParameterNames(), name -> servletContext.getInitParameter(name));
-        final TwksServletConfiguration configuration = TwksServletConfiguration.builder().setFromSystemProperties().setFromProperties(initParameterProperties).setFromProperties(attributeProperties).build();
+        final TwksServletConfiguration configuration = TwksServletConfiguration.builder().setFromEnvironment().set(new ServletContextConfiguration(servletContextEvent.getServletContext())).build();
         TwksServletContext.initializeInstance(configuration);
         logger.info("twks-server " + TwksVersion.getInstance());
     }

@@ -81,16 +81,16 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
 
         @Override
         @SuppressWarnings("unchecked")
-        public BuilderT setFromProperties(final PropertiesWrapper properties) {
+        public BuilderT set(final ConfigurationWrapper properties) {
             {
-                final TwksGeoSPARQLConfiguration.Builder geoSparqlConfigurationBuilder = TwksGeoSPARQLConfiguration.builder().setFromProperties(properties);
+                final TwksGeoSPARQLConfiguration.Builder geoSparqlConfigurationBuilder = TwksGeoSPARQLConfiguration.builder().set(properties);
                 if (geoSparqlConfigurationBuilder.isDirty()) {
                     setGeoSparqlConfiguration(geoSparqlConfigurationBuilder.build());
                 }
             }
 
             {
-                final TwksGraphNameCacheConfiguration.Builder graphNameCacheConfigurationBuilder = TwksGraphNameCacheConfiguration.builder().setFromProperties(properties);
+                final TwksGraphNameCacheConfiguration.Builder graphNameCacheConfigurationBuilder = TwksGraphNameCacheConfiguration.builder().set(properties);
                 if (graphNameCacheConfigurationBuilder.isDirty()) {
                     setGraphNameCacheConfiguration(graphNameCacheConfigurationBuilder.build());
                 }

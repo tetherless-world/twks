@@ -120,12 +120,12 @@ public final class AllegroGraphTwksConfiguration extends TwksConfiguration {
         }
 
         @Override
-        public final Builder setFromProperties(final PropertiesWrapper properties) {
+        public final Builder set(final ConfigurationWrapper properties) {
             properties.getString(PropertyDefinitions.CATALOG_ID).ifPresent(value -> setCatalogId(value));
             properties.getString(PropertyDefinitions.PASSWORD).ifPresent(value -> setPassword(value));
             properties.getString(PropertyDefinitions.SERVER_URL).ifPresent(value -> setServerUrl(value));
             properties.getString(PropertyDefinitions.USERNAME).ifPresent(value -> setUsername(value));
-            return super.setFromProperties(properties);
+            return super.set(properties);
         }
     }
 

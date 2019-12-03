@@ -2,11 +2,13 @@ package edu.rpi.tw.twks.api;
 
 import com.google.common.base.MoreObjects;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.EnvironmentConfiguration;
+import org.apache.commons.configuration2.SystemConfiguration;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -44,21 +46,23 @@ public abstract class AbstractConfiguration {
             dirty = true;
         }
 
-        public final BuilderT setFromProperties(final Properties properties) {
-            return setFromProperties(new PropertiesWrapper(properties));
+        public final BuilderT set(final Configuration configuration) {
+            return set(new ConfigurationWrapper(configuration));
         }
 
-        public abstract BuilderT setFromProperties(final PropertiesWrapper properties);
+        public abstract BuilderT set(final ConfigurationWrapper properties);
 
-        public final BuilderT setFromSystemProperties() {
-            return setFromProperties(System.getProperties());
+        public final BuilderT setFromEnvironment() {
+            set(new EnvironmentConfiguration());
+            set(new SystemConfiguration());
+            return (BuilderT) this;
         }
 
-        protected final static class PropertiesWrapper {
-            private final Properties properties;
+        protected final static class ConfigurationWrapper {
+            private final Configuration delegate;
 
-            private PropertiesWrapper(final Properties properties) {
-                this.properties = checkNotNull(properties);
+            private ConfigurationWrapper(final Configuration delegate) {
+                this.delegate = checkNotNull(delegate);
             }
 
             public final Optional<Boolean> getBoolean(final PropertyDefinition definition) {
@@ -73,7 +77,8 @@ public abstract class AbstractConfiguration {
 
             private @Nullable
             String getProperty(final PropertyDefinition definition) {
-                return properties.getProperty("twks." + definition.getKey());
+                @Nullable final Object value = delegate.getProperty(definition.getKey());
+                return value instanceof String ? (String) value : null;
             }
 
             public final Optional<String> getString(final PropertyDefinition definition) {

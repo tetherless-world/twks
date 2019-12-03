@@ -78,7 +78,7 @@ public final class CliMain {
         globalArgs.configuration.forEach((key, value) -> configurationProperties.setProperty(key, value));
 
         {
-            final TwksFactoryConfiguration.Builder configurationBuilder = TwksFactoryConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties);
+            final TwksFactoryConfiguration.Builder configurationBuilder = TwksFactoryConfiguration.builder().setFromEnvironment().set(configurationProperties);
             if (configurationBuilder.isDirty()) {
                 final TwksFactoryConfiguration configuration = configurationBuilder.build();
                 final Twks twks = TwksFactory.getInstance().createTwks(configuration);
@@ -90,7 +90,7 @@ public final class CliMain {
         }
 
         {
-            final RestTwksClientConfiguration clientConfiguration = RestTwksClientConfiguration.builder().setFromSystemProperties().setFromProperties(configurationProperties).build();
+            final RestTwksClientConfiguration clientConfiguration = RestTwksClientConfiguration.builder().setFromEnvironment().set(configurationProperties).build();
             final TwksClient client = new RestTwksClient(clientConfiguration);
             logger.info("using client with configuration {}", clientConfiguration);
 
