@@ -55,11 +55,7 @@ public class Tdb2TwksConfiguration extends TwksConfiguration {
 
         @Override
         public final Builder setFromProperties(final PropertiesWrapper properties) {
-            final Optional<String> location = properties.getString(PropertyDefinitions.LOCATION);
-            if (location.isPresent()) {
-                setLocation(location);
-            }
-
+            properties.getString(PropertyDefinitions.LOCATION).ifPresent(value -> setLocation(Optional.of(value)));
             return super.setFromProperties(properties);
         }
     }

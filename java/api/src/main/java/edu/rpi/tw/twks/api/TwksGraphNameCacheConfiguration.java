@@ -1,7 +1,5 @@
 package edu.rpi.tw.twks.api;
 
-import java.util.Optional;
-
 public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration {
     private final boolean enable;
 
@@ -36,13 +34,7 @@ public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration
 
         @Override
         public final Builder setFromProperties(final PropertiesWrapper properties) {
-            {
-                final Optional<Boolean> enable = properties.getBoolean(PropertyDefinitions.ENABLE);
-                if (enable.isPresent()) {
-                    setEnable(enable.get());
-                }
-            }
-
+            properties.getBoolean(PropertyDefinitions.ENABLE).ifPresent(enable -> setEnable(enable));
             return this;
         }
     }

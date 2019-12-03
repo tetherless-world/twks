@@ -4,7 +4,6 @@ import com.google.common.base.MoreObjects;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -68,12 +67,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
                 }
             }
 
-            {
-                final Optional<Path> dumpDirectoryPath = properties.getPath(PropertyDefinitions.DUMP_DIRECTORY_PATH);
-                if (dumpDirectoryPath.isPresent()) {
-                    setDumpDirectoryPath(dumpDirectoryPath.get());
-                }
-            }
+            properties.getPath(PropertyDefinitions.DUMP_DIRECTORY_PATH).ifPresent(value -> setDumpDirectoryPath(value));
 
             return (BuilderT) this;
         }

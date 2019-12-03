@@ -107,21 +107,9 @@ public final class TwksServletConfiguration extends AbstractConfiguration {
                 }
             }
 
-            {
-                final Optional<Path> value = properties.getPath(PropertyDefinitions.EXTCP_DIRECTORY_PATH);
-                if (value.isPresent()) {
-                    setExtcpDirectoryPath(value);
-                }
-            }
-
-            {
-                final Optional<Path> value = properties.getPath(PropertyDefinitions.EXTFS_DIRECTORY_PATH);
-                if (value.isPresent()) {
-                    setExtfsDirectoryPath(value.get());
-                }
-            }
-
-            setServerBaseUrl(properties.getString(PropertyDefinitions.SERVER_BASE_URL).orElse(serverBaseUrl));
+            properties.getPath(PropertyDefinitions.EXTCP_DIRECTORY_PATH).ifPresent(value -> setExtcpDirectoryPath(Optional.of(value)));
+            properties.getPath(PropertyDefinitions.EXTFS_DIRECTORY_PATH).ifPresent(value -> setExtfsDirectoryPath(value));
+            properties.getString(PropertyDefinitions.SERVER_BASE_URL).ifPresent(value -> setServerBaseUrl(value));
 
             return this;
         }
