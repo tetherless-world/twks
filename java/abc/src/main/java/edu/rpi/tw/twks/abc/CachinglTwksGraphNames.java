@@ -3,7 +3,7 @@ package edu.rpi.tw.twks.abc;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableSet;
-import edu.rpi.tw.twks.api.QueryApi;
+import edu.rpi.tw.twks.api.NanopublicationQueryApi;
 import edu.rpi.tw.twks.api.TwksGraphNameCacheConfiguration;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -31,7 +31,7 @@ final class CachinglTwksGraphNames implements TwksGraphNames {
     }
 
     @Override
-    public ImmutableSet<Uri> getAllAssertionGraphNames(final QueryApi queryApi) {
+    public ImmutableSet<Uri> getAllAssertionGraphNames(final NanopublicationQueryApi queryApi) {
         synchronized (this) {
             // Use this to synchronize the assignment
             // More obvious than putting it in the method declaration.
@@ -43,7 +43,7 @@ final class CachinglTwksGraphNames implements TwksGraphNames {
     }
 
     @Override
-    public ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri, final QueryApi queryApi) {
+    public ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri, final NanopublicationQueryApi queryApi) {
         try {
             return nanopublicationGraphNamesCache.get(nanopublicationUri, () -> delegate.getNanopublicationGraphNames(nanopublicationUri, queryApi));
         } catch (final ExecutionException e) {
@@ -52,7 +52,7 @@ final class CachinglTwksGraphNames implements TwksGraphNames {
     }
 
     @Override
-    public ImmutableSet<Uri> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris, final QueryApi queryApi) {
+    public ImmutableSet<Uri> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris, final NanopublicationQueryApi queryApi) {
         final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
         for (final Uri ontologyUri : ontologyUris) {
             try {

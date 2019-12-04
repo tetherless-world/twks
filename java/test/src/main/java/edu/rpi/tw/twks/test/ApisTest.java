@@ -4,10 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
-import edu.rpi.tw.twks.api.AdministrationApi;
-import edu.rpi.tw.twks.api.GetAssertionsApi;
-import edu.rpi.tw.twks.api.NanopublicationCrudApi;
-import edu.rpi.tw.twks.api.QueryApi;
+import edu.rpi.tw.twks.api.*;
 import edu.rpi.tw.twks.nanopub.DatasetNanopublications;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.MoreDatasetFactory;
@@ -277,7 +274,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     @Test
     public void testQueryAssertions() {
-        if (!(sut instanceof QueryApi)) {
+        if (!(sut instanceof AssertionQueryApi)) {
             return;
         }
 
@@ -286,7 +283,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
         final Query query = QueryFactory.create("CONSTRUCT WHERE { ?S ?P ?O }");
         final Model sutAssertionsModel;
-        try (final QueryExecution queryExecution = ((QueryApi) sut).queryAssertions(query)) {
+        try (final QueryExecution queryExecution = ((AssertionQueryApi) sut).queryAssertions(query)) {
             sutAssertionsModel = queryExecution.execConstruct();
         }
 
@@ -300,13 +297,13 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     @Test
     public void testQueryNanopublications() throws Exception {
-        if (!(sut instanceof QueryApi)) {
+        if (!(sut instanceof NanopublicationQueryApi)) {
             return;
         }
 
         // SPARQL 1.1 can't do CONSTRUCT WHERE { GRAPH ?G { ?S ?P ?O } }
         final Query query = QueryFactory.create("SELECT ?G ?S ?P ?O WHERE { GRAPH ?G { ?S ?P ?O } }");
-        try (final QueryExecution queryExecution = ((QueryApi) sut).queryNanopublications(query)) {
+        try (final QueryExecution queryExecution = ((NanopublicationQueryApi) sut).queryNanopublications(query)) {
             if (queryExecution.execSelect().hasNext()) {
                 fail();
             }
@@ -316,7 +313,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
 
         final Dataset actualDataset;
-        try (final QueryExecution queryExecution = ((QueryApi) sut).queryNanopublications(query)) {
+        try (final QueryExecution queryExecution = ((NanopublicationQueryApi) sut).queryNanopublications(query)) {
             actualDataset = MoreDatasetFactory.createDatasetFromResultSet(queryExecution.execSelect());
         }
         final Nanopublication actual = DatasetNanopublications.copyOne(actualDataset);

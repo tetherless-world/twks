@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableSet;
-import edu.rpi.tw.twks.api.QueryApi;
+import edu.rpi.tw.twks.api.NanopublicationQueryApi;
 import edu.rpi.tw.twks.uri.Uri;
 
 /**
@@ -16,7 +16,7 @@ public interface TwksGraphNames {
      * @param queryApi to use to query the store
      * @return set of assertion graph names
      */
-    ImmutableSet<Uri> getAllAssertionGraphNames(final QueryApi queryApi);
+    ImmutableSet<Uri> getAllAssertionGraphNames(final NanopublicationQueryApi queryApi);
 
     /**
      * Get the names of all a nanopublication's parts (graph + name).
@@ -25,7 +25,7 @@ public interface TwksGraphNames {
      * @param queryApi           to use to query the store
      * @return names of the nanopublication's parts
      */
-    ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri, final QueryApi queryApi);
+    ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri, final NanopublicationQueryApi queryApi);
 
     /**
      * Get the names of the assertion graphs associated with a set of ontologies.
@@ -34,7 +34,7 @@ public interface TwksGraphNames {
      * @param queryApi     to use to query the store
      * @return set of assertion graph names
      */
-    ImmutableSet<Uri> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris, final QueryApi queryApi);
+    ImmutableSet<Uri> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris, final NanopublicationQueryApi queryApi);
 
     /**
      * Invalidate any underlying caches. Not all implementations of this interface cache names.

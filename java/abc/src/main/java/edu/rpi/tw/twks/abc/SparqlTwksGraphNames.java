@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableSet;
-import edu.rpi.tw.twks.api.QueryApi;
+import edu.rpi.tw.twks.api.NanopublicationQueryApi;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Resource;
@@ -29,7 +29,7 @@ final class SparqlTwksGraphNames implements TwksGraphNames {
             "}";
 
     @Override
-    public final ImmutableSet<Uri> getAllAssertionGraphNames(final QueryApi queryApi) {
+    public final ImmutableSet<Uri> getAllAssertionGraphNames(final NanopublicationQueryApi queryApi) {
         final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
         try (final QueryExecution queryExecution = queryApi.queryNanopublications(GET_ALL_ASSERTION_GRAPH_NAMES_QUERY)) {
             for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
@@ -42,7 +42,7 @@ final class SparqlTwksGraphNames implements TwksGraphNames {
     }
 
     @Override
-    public final ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri, final QueryApi queryApi) {
+    public final ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri, final NanopublicationQueryApi queryApi) {
         final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
         try (final QueryExecution queryExecution = queryApi.queryNanopublications(QueryFactory.create(String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, nanopublicationUri)))) {
             for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
@@ -55,7 +55,7 @@ final class SparqlTwksGraphNames implements TwksGraphNames {
     }
 
     @Override
-    public final ImmutableSet<Uri> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris, final QueryApi queryApi) {
+    public final ImmutableSet<Uri> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris, final NanopublicationQueryApi queryApi) {
         final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
         for (final Uri ontologyUri : ontologyUris) {
             try (final QueryExecution queryExecution = queryApi.queryNanopublications(QueryFactory.create(String.format(GET_ONTOLOGY_ASSERTION_GRAPH_NAMES_QUERY_STRING, ontologyUri)))) {
