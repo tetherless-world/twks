@@ -16,7 +16,7 @@ package edu.rpi.tw.twks.api;
  *
  * @see <a href="https://jena.apache.org/documentation/txn/">transactions in Jena</a> for the semantics.
  */
-public interface TwksTransaction extends AdministrationApi, AutoCloseable, GetAssertionsApi, NanopublicationCrudApi, QueryApi {
+public interface TwksTransaction extends AdministrationApi, AssertionQueryApi, AutoCloseable, GetAssertionsApi, NanopublicationCrudApi, NanopublicationQueryApi {
     /**
      * Abort the transaction.
      */
