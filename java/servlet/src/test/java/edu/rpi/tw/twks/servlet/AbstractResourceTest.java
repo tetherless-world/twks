@@ -67,7 +67,7 @@ public abstract class AbstractResourceTest extends JerseyTest {
         }
 
         final ResourceConfig config = new ResourceConfig();
-        this.twks = TwksFactory.getInstance().createTwks(TwksFactoryConfiguration.builder().setTdb2Configuration(Tdb2TwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build()).build());
+        this.twks = new MemTwks(MemTwksConfiguration.TwksFactory.getInstance().createTwks(TwksFactoryConfiguration.builder().setTdb2Configuration(Tdb2TwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build()).build());
         config.registerInstances(newResource(twks));
         return config;
     }
