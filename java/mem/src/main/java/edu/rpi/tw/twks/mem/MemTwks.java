@@ -1,5 +1,6 @@
-package edu.rpi.tw.twks.abc;
+package edu.rpi.tw.twks.mem;
 
+import edu.rpi.tw.twks.abc.DatasetTwks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ReadWrite;

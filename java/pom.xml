@@ -256,6 +256,7 @@
                 <module>client</module>
                 <module>ext</module>
                 <module>factory</module>
+                <module>mem</module>
                 <module>nanopub</module>
                 <module>server</module>
                 <module>servlet</module>
@@ -299,6 +300,7 @@
                 <module>client</module>
                 <!--                <module>ext</module>-->
                 <module>factory</module>
+                <module>mem</module>
                 <module>nanopub</module>
                 <!--                <module>server</module>-->
                 <!--                <module>servlet</module>-->
@@ -316,6 +318,7 @@
         <junit.version>4.12</junit.version>
         <product>Tetherless World Knowledge Store (TWKS)</product>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.28</slf4j.version>
     </properties>
 

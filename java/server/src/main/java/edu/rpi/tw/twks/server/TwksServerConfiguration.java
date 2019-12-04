@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.servlet;
+package edu.rpi.tw.twks.server;
 
 import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.api.AbstractConfiguration;
@@ -10,13 +10,13 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class TwksServletConfiguration extends AbstractConfiguration {
+public final class TwksServerConfiguration extends AbstractConfiguration {
     private final Optional<Path> extcpDirectoryPath;
     private final Path extfsDirectoryPath;
     private final TwksFactoryConfiguration factoryConfiguration;
     private final String serverBaseUrl;
 
-    private TwksServletConfiguration(final Builder builder) {
+    private TwksServerConfiguration(final Builder builder) {
         this.extcpDirectoryPath = builder.getExtcpDirectoryPath();
         this.extfsDirectoryPath = builder.getExtfsDirectoryPath();
         this.factoryConfiguration = builder.getFactoryConfiguration();
@@ -48,7 +48,7 @@ public final class TwksServletConfiguration extends AbstractConfiguration {
         return super.toStringHelper().add("extcpDirectoryPath", getExtcpDirectoryPath().orElse(null)).add("extfsDirectoryPath", getExtfsDirectoryPath()).add("serverBaseUrl", getServerBaseUrl());
     }
 
-    public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksServletConfiguration> {
+    public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksServerConfiguration> {
         private Optional<Path> extcpDirectoryPath = Optional.empty();
         private Path extfsDirectoryPath = PropertyDefinitions.EXTFS_DIRECTORY_PATH.getDefault();
         private TwksFactoryConfiguration factoryConfiguration = TwksFactoryConfiguration.builder().build();
@@ -58,8 +58,8 @@ public final class TwksServletConfiguration extends AbstractConfiguration {
         }
 
         @Override
-        public final TwksServletConfiguration build() {
-            return new TwksServletConfiguration(this);
+        public final TwksServerConfiguration build() {
+            return new TwksServerConfiguration(this);
         }
 
         public final Optional<Path> getExtcpDirectoryPath() {

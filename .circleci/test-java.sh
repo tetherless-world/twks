@@ -14,6 +14,7 @@ mv cli/target/surefire-reports/* surefire-reports
 mv client/target/surefire-reports/* surefire-reports
 mv ext/target/surefire-reports/* surefire-reports
 mv factory/target/surefire-reports/* surefire-reports
+mv mem/target/surefire-reports/* surefire-reports
 mv nanopub/target/surefire-reports/* surefire-reports
 mv servlet/target/surefire-reports/* surefire-reports
 mv tdb/target/surefire-reports/* surefire-reports
