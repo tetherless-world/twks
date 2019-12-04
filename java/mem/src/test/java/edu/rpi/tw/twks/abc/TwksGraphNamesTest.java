@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.abc;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.TwksTransaction;
+import edu.rpi.tw.twks.mem.MemTwks;
 import edu.rpi.tw.twks.test.TestData;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;

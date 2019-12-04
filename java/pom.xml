@@ -256,6 +256,7 @@
                 <module>client</module>
                 <module>ext</module>
                 <module>factory</module>
+                <module>mem</module>
                 <module>nanopub</module>
                 <module>server</module>
                 <module>servlet</module>
@@ -299,6 +300,7 @@
                 <module>client</module>
                 <!--                <module>ext</module>-->
                 <module>factory</module>
+                <module>mem</module>
                 <module>nanopub</module>
                 <!--                <module>server</module>-->
                 <!--                <module>servlet</module>-->

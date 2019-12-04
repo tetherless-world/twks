@@ -3,10 +3,9 @@ package edu.rpi.tw.twks.servlet;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.factory.TwksFactory;
-import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
+import edu.rpi.tw.twks.mem.MemTwks;
+import edu.rpi.tw.twks.mem.MemTwksConfiguration;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
-import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
 import edu.rpi.tw.twks.test.TestData;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -67,7 +66,7 @@ public abstract class AbstractResourceTest extends JerseyTest {
         }
 
         final ResourceConfig config = new ResourceConfig();
-        this.twks = new MemTwks(MemTwksConfiguration.TwksFactory.getInstance().createTwks(TwksFactoryConfiguration.builder().setTdb2Configuration(Tdb2TwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build()).build());
+        this.twks = new MemTwks(MemTwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build());
         config.registerInstances(newResource(twks));
         return config;
     }
