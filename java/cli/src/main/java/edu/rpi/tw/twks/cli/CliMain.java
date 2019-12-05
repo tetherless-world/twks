@@ -91,7 +91,12 @@ public final class CliMain {
         }
 
         {
-            final RestTwksClientConfiguration clientConfiguration = RestTwksClientConfiguration.builder().setFromEnvironment().set(configurationProperties).build();
+            final RestTwksClientConfiguration.Builder clientConfigurationBuilder = RestTwksClientConfiguration.builder();
+            clientConfigurationBuilder.setFromEnvironment();
+            // Support both -Dkey=value and -Dtwks.key=value
+            clientConfigurationBuilder.set(configurationProperties);
+            clientConfigurationBuilder.set(configurationProperties.subset("twks"));
+            final RestTwksClientConfiguration clientConfiguration = clientConfigurationBuilder.build();
             final TwksClient client = new RestTwksClient(clientConfiguration);
             logger.info("using client with configuration {}", clientConfiguration);
 
