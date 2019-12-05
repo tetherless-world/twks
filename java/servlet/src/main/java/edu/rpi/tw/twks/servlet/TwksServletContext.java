@@ -16,7 +16,7 @@ public final class TwksServletContext {
         this.twks = checkNotNull(twks);
     }
 
-    synchronized static void destroyInstance() {
+    public synchronized static void destroyInstance() {
         if (instance != null) {
             instance.destroy();
         }
