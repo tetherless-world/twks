@@ -303,7 +303,7 @@
                 <module>mem</module>
                 <module>nanopub</module>
                 <!--                <module>server</module>-->
-                <!--                <module>servlet</module>-->
+                <module>servlet</module>
                 <module>tdb</module>
                 <module>test</module>
                 <module>uri</module>
