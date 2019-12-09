@@ -4,7 +4,7 @@ import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.servlet.resource.*;
 import org.glassfish.jersey.server.ResourceConfig;
 
-public final class JerseyResourceConfig extends ResourceConfig {
+public class JerseyResourceConfig extends ResourceConfig {
     public JerseyResourceConfig(final Twks twks) {
         packages("io.swagger.v3.jaxrs2.integration.resources");
         register(new AssertionsResource(twks));
