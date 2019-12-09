@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
+import edu.rpi.tw.twks.api.TwksVersion;
 import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
@@ -56,6 +57,11 @@ public final class InProcessTwksClient implements TwksClient {
     }
 
     @Override
+    public final TwksVersion getClientVersion() {
+        return delegate.getVersion();
+    }
+
+    @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
         return delegate.getNanopublication(uri);
     }
@@ -63,6 +69,11 @@ public final class InProcessTwksClient implements TwksClient {
     @Override
     public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
         return delegate.getOntologyAssertions(ontologyUris);
+    }
+
+    @Override
+    public final TwksVersion getServerVersion() {
+        return delegate.getVersion();
     }
 
     @Override

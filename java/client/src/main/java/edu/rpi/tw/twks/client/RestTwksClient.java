@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.client;
 
 import com.google.api.client.http.*;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
+import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Charsets;
@@ -9,6 +10,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.google.common.reflect.TypeToken;
+import edu.rpi.tw.twks.api.TwksLibraryVersion;
+import edu.rpi.tw.twks.api.TwksVersion;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
@@ -24,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Optional;
@@ -95,6 +99,7 @@ public final class RestTwksClient implements TwksClient {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
         try {
             final GenericUrl url = new GenericUrl(serverBaseUrl + "/nanopublication/");
@@ -146,6 +151,11 @@ public final class RestTwksClient implements TwksClient {
     }
 
     @Override
+    public final TwksVersion getClientVersion() {
+        return TwksLibraryVersion.getInstance();
+    }
+
+    @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
         try {
             final HttpResponse response = httpRequestFactory.buildGetRequest(newNanopublicationUrl(uri)).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
@@ -176,6 +186,19 @@ public final class RestTwksClient implements TwksClient {
             final GenericUrl url = new GenericUrl(serverBaseUrl + "/assertions/ontology");
             url.set("uri", ontologyUris);
             return getAssertions(httpRequestFactory.buildGetRequest(url));
+        } catch (final IOException e) {
+            throw wrapException(e);
+        }
+    }
+
+    @Override
+    public final TwksVersion getServerVersion() {
+        try {
+            final HttpResponse response = httpRequestFactory.buildGetRequest(new GenericUrl(serverBaseUrl + "/version")).execute();
+            final GenericJson json = response.parseAs(GenericJson.class);
+            return new TwksVersion(((BigDecimal) json.get("incremental")).intValue(), ((BigDecimal) json.get("major")).intValue(), ((BigDecimal) json.get("minor")).intValue());
+        } catch (final HttpResponseException e) {
+            throw wrapException(e);
         } catch (final IOException e) {
             throw wrapException(e);
         }

@@ -4,56 +4,29 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public final class TwksLibraryVersion {
+public final class TwksLibraryVersion extends TwksVersion {
     private static TwksLibraryVersion instance;
-    private final int incremental, major, minor;
-    private final String string;
 
-    private TwksLibraryVersion() {
-        int incremental;
-        int major;
-        int minor;
-        String string;
-        try (final InputStream inputStream = getClass().getResourceAsStream("version.properties")) {
-            final Properties properties = new Properties();
-            properties.load(inputStream);
-            incremental = Integer.parseInt(properties.getProperty("incrementalVersion"));
-            minor = Integer.parseInt(properties.getProperty("minorVersion"));
-            major = Integer.parseInt(properties.getProperty("majorVersion"));
-            string = properties.getProperty("version");
-        } catch (final NumberFormatException e) {
-            incremental = major = minor = 0;
-            string = "";
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-        this.incremental = incremental;
-        this.major = major;
-        this.minor = minor;
-        this.string = string;
+    private TwksLibraryVersion(final int incremental, final int major, final int minor) {
+        super(incremental, major, minor);
     }
 
     public final static synchronized TwksLibraryVersion getInstance() {
         if (instance == null) {
-            instance = new TwksLibraryVersion();
+            try (final InputStream inputStream = TwksLibraryVersion.class.getResourceAsStream("version.properties")) {
+                final Properties properties = new Properties();
+                properties.load(inputStream);
+                final int incremental = Integer.parseInt(properties.getProperty("incrementalVersion"));
+                final int major = Integer.parseInt(properties.getProperty("majorVersion"));
+                final int minor = Integer.parseInt(properties.getProperty("minorVersion"));
+//                final String string = properties.getProperty("version");
+                instance = new TwksLibraryVersion(incremental, major, minor);
+            } catch (final NumberFormatException e) {
+                instance = new TwksLibraryVersion(0, 0, 0);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         return instance;
-    }
-
-    public final int getIncremental() {
-        return incremental;
-    }
-
-    public final int getMajor() {
-        return major;
-    }
-
-    public final int getMinor() {
-        return minor;
-    }
-
-    @Override
-    public final String toString() {
-        return string;
     }
 }

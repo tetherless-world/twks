@@ -3,9 +3,7 @@ package edu.rpi.tw.twks.abc;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.TwksConfiguration;
-import edu.rpi.tw.twks.api.TwksTransaction;
+import edu.rpi.tw.twks.api.*;
 import edu.rpi.tw.twks.api.observer.ChangeObserver;
 import edu.rpi.tw.twks.api.observer.DeleteNanopublicationObserver;
 import edu.rpi.tw.twks.api.observer.PutNanopublicationObserver;
@@ -122,6 +120,11 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.READ)) {
             return transaction.getOntologyAssertions(ontologyUris);
         }
+    }
+
+    @Override
+    public final TwksVersion getVersion() {
+        return TwksLibraryVersion.getInstance();
     }
 
     @Override
