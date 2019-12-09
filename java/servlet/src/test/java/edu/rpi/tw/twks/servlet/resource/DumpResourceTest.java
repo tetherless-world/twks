@@ -1,7 +1,6 @@
 package edu.rpi.tw.twks.servlet.resource;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.servlet.AbstractResourceTest;
 import edu.rpi.tw.twks.test.ApisTest;
 import org.junit.Test;
 

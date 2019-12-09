@@ -4,7 +4,6 @@ import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
-import edu.rpi.tw.twks.servlet.AbstractResourceTest;
 import org.apache.jena.riot.Lang;
 import org.junit.Test;
 

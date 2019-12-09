@@ -1,7 +1,6 @@
 package edu.rpi.tw.twks.servlet.resource;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.servlet.AbstractResourceTest;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;

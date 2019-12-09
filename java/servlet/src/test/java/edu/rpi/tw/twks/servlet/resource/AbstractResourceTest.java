@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.servlet;
+package edu.rpi.tw.twks.servlet.resource;
 
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
