@@ -4,7 +4,7 @@ import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.TwksVersion;
+import edu.rpi.tw.twks.api.TwksLibraryVersion;
 import edu.rpi.tw.twks.cli.command.*;
 import edu.rpi.tw.twks.client.RestTwksClient;
 import edu.rpi.tw.twks.client.RestTwksClientConfiguration;
@@ -33,7 +33,7 @@ public final class CliMain {
 
     public static void main(final String[] argv) {
         final JCommander.Builder jCommanderBuilder = JCommander.newBuilder();
-        jCommanderBuilder.programName("twks-cli " + TwksVersion.getInstance());
+        jCommanderBuilder.programName("twks-cli " + TwksLibraryVersion.getInstance());
 
         final GlobalArgs globalArgs = new GlobalArgs();
         jCommanderBuilder.addObject(globalArgs);
@@ -55,7 +55,7 @@ public final class CliMain {
         }
 
         if (globalArgs.version) {
-            System.out.println(TwksVersion.getInstance());
+            System.out.println(TwksLibraryVersion.getInstance());
             return;
         }
 

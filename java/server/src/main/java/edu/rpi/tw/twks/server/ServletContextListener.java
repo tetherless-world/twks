@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.server;
 
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.api.TwksVersion;
+import edu.rpi.tw.twks.api.TwksLibraryVersion;
 import edu.rpi.tw.twks.ext.ClasspathExtensions;
 import edu.rpi.tw.twks.ext.FileSystemExtensions;
 import edu.rpi.tw.twks.factory.TwksFactory;
@@ -46,6 +46,6 @@ public final class ServletContextListener implements javax.servlet.ServletContex
         final ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(JerseyServlet.class.getSimpleName(), new JerseyServlet(twks));
         servletRegistration.addMapping("/*");
 
-        logger.info("twks-server " + TwksVersion.getInstance());
+        logger.info("twks-server " + TwksLibraryVersion.getInstance());
     }
 }

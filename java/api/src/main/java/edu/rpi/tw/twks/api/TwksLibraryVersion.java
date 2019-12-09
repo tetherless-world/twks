@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public final class TwksVersion {
-    private static TwksVersion instance;
+public final class TwksLibraryVersion {
+    private static TwksLibraryVersion instance;
     private final int incremental, major, minor;
     private final String string;
 
-    private TwksVersion() {
+    private TwksLibraryVersion() {
         int incremental;
         int major;
         int minor;
@@ -33,9 +33,9 @@ public final class TwksVersion {
         this.string = string;
     }
 
-    public final static synchronized TwksVersion getInstance() {
+    public final static synchronized TwksLibraryVersion getInstance() {
         if (instance == null) {
-            instance = new TwksVersion();
+            instance = new TwksLibraryVersion();
         }
         return instance;
     }
