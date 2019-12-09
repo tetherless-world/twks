@@ -2,7 +2,6 @@ package edu.rpi.tw.twks.servlet.resource;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
-import edu.rpi.tw.twks.api.Twks;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.jena.riot.Lang;
 import org.junit.Test;
@@ -16,12 +15,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public final class AbstractSparqlResourceTest extends AbstractResourceTest {
-    @Override
-    protected Object newResource(final Twks twks) {
-        return new AssertionsSparqlResource(twks);
-    }
-
-
     @Test
     public void testGetConstruct() throws Exception {
         getTwks().putNanopublication(getTestData().specNanopublication);

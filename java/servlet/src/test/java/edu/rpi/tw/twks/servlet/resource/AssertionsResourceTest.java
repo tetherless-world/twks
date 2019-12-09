@@ -1,6 +1,5 @@
 package edu.rpi.tw.twks.servlet.resource;
 
-import edu.rpi.tw.twks.api.Twks;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
@@ -11,11 +10,6 @@ import java.io.StringReader;
 import static org.junit.Assert.assertTrue;
 
 public final class AssertionsResourceTest extends AbstractResourceTest {
-    @Override
-    protected Object newResource(final Twks twks) {
-        return new AssertionsResource(twks);
-    }
-
     @Test
     public void testGetAssertions() {
         getTwks().putNanopublication(getTestData().specNanopublication);

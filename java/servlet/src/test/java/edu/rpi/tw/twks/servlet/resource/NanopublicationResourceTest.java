@@ -1,7 +1,6 @@
 package edu.rpi.tw.twks.servlet.resource;
 
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
-import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import org.apache.jena.riot.Lang;
@@ -19,11 +18,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public final class NanopublicationResourceTest extends AbstractResourceTest {
-    @Override
-    protected Object newResource(final Twks twks) {
-        return new NanopublicationResource(twks);
-    }
-
     @Test
     public void testDeleteNanopublicationAbsent() throws Exception {
         final Response response =
