@@ -34,9 +34,6 @@ import java.util.Optional;
 
 @Path("nanopublication")
 public class NanopublicationResource extends AbstractResource {
-    public NanopublicationResource() {
-    }
-
     public NanopublicationResource(final Twks twks) {
         super(twks);
     }

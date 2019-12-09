@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.servlet;
+package edu.rpi.tw.twks.servlet.resource;
 
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
@@ -6,13 +6,13 @@ import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.mem.MemTwks;
 import edu.rpi.tw.twks.mem.MemTwksConfiguration;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.servlet.JerseyResourceConfig;
 import edu.rpi.tw.twks.test.TestData;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 
@@ -65,10 +65,8 @@ public abstract class AbstractResourceTest extends JerseyTest {
             throw new RuntimeException(e);
         }
 
-        final ResourceConfig config = new ResourceConfig();
         this.twks = new MemTwks(MemTwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build());
-        config.registerInstances(newResource(twks));
-        return config;
+        return new JerseyResourceConfig(twks);
     }
 
     @After
@@ -89,6 +87,4 @@ public abstract class AbstractResourceTest extends JerseyTest {
     protected final Twks getTwks() {
         return checkNotNull(twks);
     }
-
-    protected abstract Object newResource(Twks twks);
 }

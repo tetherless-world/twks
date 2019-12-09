@@ -10,9 +10,6 @@ import java.io.IOException;
 
 @Path("dump")
 public class DumpResource extends AbstractResource {
-    public DumpResource() {
-    }
-
     public DumpResource(final Twks twks) {
         super(twks);
     }

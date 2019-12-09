@@ -22,9 +22,6 @@ import java.util.List;
 
 @Path("assertions")
 public class AssertionsResource extends AbstractResource {
-    public AssertionsResource() {
-    }
-
     public AssertionsResource(final Twks twks) {
         super(twks);
     }
