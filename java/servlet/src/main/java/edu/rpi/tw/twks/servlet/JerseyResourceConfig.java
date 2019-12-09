@@ -12,5 +12,6 @@ public class JerseyResourceConfig extends ResourceConfig {
         register(new DumpResource(twks));
         register(new NanopublicationResource(twks));
         register(new NanopublicationsSparqlResource(twks));
+        register(new VersionResource(twks));
     }
 }
