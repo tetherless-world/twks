@@ -18,9 +18,6 @@ public final class AssertionsSparqlResource extends AbstractSparqlResource {
         super(twks);
     }
 
-    public AssertionsSparqlResource() {
-    }
-
     @GET
     @Operation(
             externalDocs = @ExternalDocumentation(url = "https://www.w3.org/TR/sparql11-protocol/"),

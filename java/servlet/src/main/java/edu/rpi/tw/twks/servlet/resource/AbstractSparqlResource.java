@@ -22,9 +22,6 @@ import java.util.Optional;
 abstract class AbstractSparqlResource extends AbstractResource {
     protected final static AcceptList offerResultsAcceptList = AcceptLists.toAcceptList(ResultSetLang.SPARQLResultSetCSV, ResultSetLang.SPARQLResultSetJSON, ResultSetLang.SPARQLResultSetTSV, ResultSetLang.SPARQLResultSetXML);
 
-    protected AbstractSparqlResource() {
-    }
-
     protected AbstractSparqlResource(final Twks twks) {
         super(twks);
     }
