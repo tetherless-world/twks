@@ -99,6 +99,12 @@ jobs:
               docker cp .circleci/maven-settings.xml twks-java:/root/.m2/settings.xml
               docker exec -e OSSRH_PASS=$OSSRH_PASS -e OSSRH_USER=$OSSRH_USER twks-java bash -c "echo -e \"$OSSRH_GPG_KEY\" | gpg --import && cd /twks/java && mvn -P release -DskipTests deploy"
             fi
+      - run:
+          name: Trigger twks-demo build
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              curl -X POST https://circleci.com/api/v1.1/project/github/tetherless-world/twks-demo/build?circle-token=$TWKS_DEMO_CIRCLECI_API_TOKEN
+            fi
   lint_md:
     docker:
       - image: circleci/ruby:2.4-node
