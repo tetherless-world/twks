@@ -7,7 +7,7 @@
     <parent>
         <groupId>edu.rpi.tw.twks</groupId>
         <artifactId>twks-parent</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.0.3</version>
     </parent>
 
     <!-- Adapted from https://stackoverflow.com/questions/9123075/maven-how-can-i-skip-test-in-some-projects-via-command-line-options/9138298 -->
