@@ -1,5 +1,5 @@
-TWKS Developer Guide
-====================
+Developer Guide
+===============
 
 Creating a release
 ^^^^^^^^^^^^^^^^^^

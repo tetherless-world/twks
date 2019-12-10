@@ -1,5 +1,5 @@
-Using TWKS from Docker
-======================
+Use from Docker
+===============
 
 Docker prerequisites
 --------------------

@@ -1,7 +1,7 @@
 .. _py:
 
-Using TWKS from Python
-======================
+Use from Python
+===============
 
 Python prerequisites
 --------------------

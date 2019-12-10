@@ -1,5 +1,5 @@
-TWKS Server API
-================
+Server API
+==========
 
 The TWKS [HTTP] server exposes a variety of APIs for manipulating nanopublications and querying the store. The following sections will describe the APIs in detail.
 

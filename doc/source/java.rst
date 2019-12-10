@@ -1,7 +1,7 @@
 .. _java:
 
-Using TWKS from Java
-====================
+Use from Java
+=============
 
 Java prerequisites
 ------------------
