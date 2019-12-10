@@ -12,3 +12,4 @@ Tetherless World Knowledge Store (TWKS)
    script
    configuration
    server-api
+   developer
