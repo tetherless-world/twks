@@ -10,7 +10,9 @@ Java
 One-time setup
 --------------
 
-Java releases are `hosted on OSSRH <https://central.sonatype.org/pages/apache-maven.html>`_ and deployed with Maven. You will need an account on OSSRH that has access to the TWKS project. Using the credentials from your account, reate a file ``~/.m2/settings.xml``:
+Java releases are `hosted on OSSRH <https://central.sonatype.org/pages/apache-maven.html>`_ and deployed with Maven.
+
+You will need an account on OSSRH that has access to the TWKS project. Using the credentials from your account, create a file ``~/.m2/settings.xml``:
 
 ::
 
@@ -23,6 +25,10 @@ Java releases are `hosted on OSSRH <https://central.sonatype.org/pages/apache-ma
         </server>
       </servers>
     </settings>
+
+You will also need to `create a GPG key and push it to a public keyserver <https://central.sonatype.org/pages/working-with-pgp-signatures.html>`_ in order to sign releases.
+
+See the documentation linked above for more information.
 
 Performing a release
 --------------------
