@@ -1,5 +1,5 @@
-TWKS Configuration
-==================
+Configuration
+=============
 
 The TWKS client, server, command line interface (CLI) can be configured using key-value properties from various sources:
 

@@ -1,5 +1,5 @@
 Tetherless World Knowledge Store (TWKS)
-===================================================================
+=======================================
 
 .. toctree::
    :maxdepth: 2
@@ -12,3 +12,4 @@ Tetherless World Knowledge Store (TWKS)
    script
    configuration
    server-api
+   developer

@@ -1,5 +1,5 @@
-TWKS Overview
-=============
+Overview
+========
 
 The `Tetherless World Knowledge Store <http://twks.tw.rpi.edu/>`_ (TWKS, pronounced "twicks") is a `provenance-aware <https://www.w3.org/TR/prov-o/>`_ `RDF <https://www.w3.org/RDF/>`_ store.
 
