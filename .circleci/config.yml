@@ -103,7 +103,7 @@ jobs:
           name: Trigger twks-demo build
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              curl -X POST https://circleci.com/api/v1.1/project/github/tetherless-world/twks-demo/build?circle-token=$TWKS_DEMO_CIRCLECI_API_TOKEN
+              docker exec twks-java bash -c "curl -X POST https://circleci.com/api/v1.1/project/github/tetherless-world/twks-demo/build?circle-token=$TWKS_DEMO_CIRCLECI_API_TOKEN"
             fi
   lint_md:
     docker:
