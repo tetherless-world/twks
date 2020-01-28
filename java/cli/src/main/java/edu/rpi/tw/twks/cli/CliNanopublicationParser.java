@@ -45,6 +45,10 @@ public final class CliNanopublicationParser {
 //        this.lang = checkNotNull(lang);
 //    }
 
+    private ImmutableList<Uri> getNanopublicationUris(final ImmutableList<Nanopublication> nanopublications) {
+        return nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
+    }
+
     private NanopublicationParserBuilder newNanopublicationParserBuilder() {
         final NanopublicationParserBuilder parserBuilder = NanopublicationParser.builder();
         if (dialect != null) {
@@ -120,7 +124,7 @@ public final class CliNanopublicationParser {
     public final ImmutableList<Nanopublication> parseFile(final File sourceFilePath) {
         try {
             final ImmutableList<Nanopublication> result = newNanopublicationParserBuilder().setSource(sourceFilePath).build().parseAll();
-            logger.info("parsed {} nanopublications from {}", result.size(), sourceFilePath);
+            logger.info("parsed {} nanopublications from {}: {}", result.size(), sourceFilePath, getNanopublicationUris(result));
             return result;
         } catch (final RiotNotFoundException e) {
             logger.error("nanopublication file {} not found", sourceFilePath);
@@ -136,7 +140,7 @@ public final class CliNanopublicationParser {
             final byte[] trigBytes = ByteStreams.toByteArray(System.in);
             final String trigString = new String(trigBytes);
             final ImmutableList<Nanopublication> result = newNanopublicationParserBuilder().setSource(new StringReader(trigString)).build().parseAll();
-            logger.info("parsed {} nanopublications from stdin", result.size());
+            logger.info("parsed {} nanopublications from stdin: {}", result.size(), getNanopublicationUris(result));
             return result;
         } catch (final IOException | MalformedNanopublicationException e) {
             logger.error("error parsing stdin: ", e);
@@ -147,7 +151,7 @@ public final class CliNanopublicationParser {
     public final ImmutableList<Nanopublication> parseUri(final Uri sourceUri) {
         try {
             final ImmutableList<Nanopublication> result = newNanopublicationParserBuilder().setSource(sourceUri).build().parseAll();
-            logger.info("parsed {} nanopublications from {}", result.size(), sourceUri);
+            logger.info("parsed {} nanopublications from {}: {}", result.size(), sourceUri, getNanopublicationUris(result));
             return result;
         } catch (final MalformedNanopublicationException e) {
             logger.error("error parsing {}: ", sourceUri, e);
