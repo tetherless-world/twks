@@ -82,6 +82,14 @@ public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> exten
     @Override
     protected final PutNanopublicationResult putNanopublicationImpl(final Nanopublication nanopublication) {
         final DeleteNanopublicationResult deleteResult = deleteNanopublication(nanopublication.getUri());
+        switch (deleteResult) {
+            case DELETED:
+                logger.debug("deleted nanopublication {} before put", nanopublication.getUri());
+                break;
+            case NOT_FOUND:
+                logger.debug("nanopublication {} did not exist before put", nanopublication.getUri());
+                break;
+        }
         nanopublication.toDataset(getDataset(), getDatasetTransaction());
         return deleteResult == DeleteNanopublicationResult.DELETED ? PutNanopublicationResult.OVERWROTE : PutNanopublicationResult.CREATED;
     }
@@ -91,3 +99,4 @@ public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> exten
         return QueryExecutionFactory.create(query, getDataset());
     }
 }
+

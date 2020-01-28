@@ -236,9 +236,15 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         sut.putNanopublication(testData.ontologyNanopublication);
         sut.putNanopublication(testData.secondOntologyNanopublication);
 
-        final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
-        assertTrue(assertions.isIsomorphicWith(testData.ontologyNanopublication.getAssertion().getModel()));
-        assertEquals(2, assertions.listStatements().toList().size());
+        {
+            final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
+            assertTrue(assertions.isIsomorphicWith(testData.ontologyNanopublication.getAssertion().getModel()));
+            assertEquals(2, assertions.listStatements().toList().size());
+        }
+        {
+            final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri, testData.secondOntologyUri));
+            assertEquals(4, assertions.listStatements().toList().size());
+        }
     }
 
     @Test
