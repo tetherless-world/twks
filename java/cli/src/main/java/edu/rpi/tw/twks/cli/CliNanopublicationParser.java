@@ -6,15 +6,16 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RiotNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -107,8 +108,30 @@ public final class CliNanopublicationParser {
                     if (!nanopublicationSubdirectory.isDirectory()) {
                         continue;
                     }
-                    final File file = new File(nanopublicationSubdirectory, "file");
-                    resultBuilder.putAll(file.toPath(), parseFile(file));
+                    final File twksFile = new File(nanopublicationSubdirectory, "file.twks.trig");
+                    // #106
+                    // We've previously parsed this Whyis nanopublication and written in back as a spec-compliant nanopublication.
+                    // The conversion has to create new urn:uuid: graph URIs, which means that subsequent conversions won't
+                    // produce the same spec-compliant nanopublication. We cache the converted nanopublication on disk so
+                    // re-parsing it always produces the same result.
+                    if (twksFile.isFile()) {
+                        resultBuilder.putAll(twksFile.toPath(), parseFile(twksFile));
+                    } else {
+                        final File whyisFile = new File(nanopublicationSubdirectory, "file");
+                        final ImmutableList<Nanopublication> twksNanopublications = parseFile(whyisFile);
+                        {
+                            final Dataset dataset = DatasetFactory.create();
+                            for (final Nanopublication nanopublication : twksNanopublications) {
+                                nanopublication.toDataset(dataset);
+                            }
+                            try (final OutputStream twksFileOutputStream = new FileOutputStream(twksFile)) {
+                                RDFDataMgr.write(twksFileOutputStream, dataset, Lang.TRIG);
+                            } catch (final IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                        resultBuilder.putAll(whyisFile.toPath(), twksNanopublications);
+                    }
                 }
             } else {
                 // Assume the directory contains a single nanopublication

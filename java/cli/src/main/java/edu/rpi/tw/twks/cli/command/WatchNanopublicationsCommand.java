@@ -130,11 +130,17 @@ public final class WatchNanopublicationsCommand extends Command {
                             return;
                         }
 
-                        final ImmutableList<Nanopublication> nanopublications = ImmutableList.copyOf(nanopublicationsByPath.values());
-                        final ImmutableList<Uri> nanopublicationUris = nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
+                        final ImmutableList.Builder<Nanopublication> newNanopublicationsBuilder = ImmutableList.builder();
+                        for (final Path newNanopublicationPath : newNanopublicationPaths) {
+                            newNanopublicationsBuilder.addAll(nanopublicationsByPath.get(newNanopublicationPath));
+                        }
+                        final ImmutableList<Nanopublication> newNanopublications = newNanopublicationsBuilder.build();
 
-                        client.postNanopublications(nanopublications);
-                        logger.info("posted {} nanopublications from {} files after {}: {}", nanopublications.size(), nanopublicationPaths.size(), event.eventType(), nanopublicationUris);
+                        client.postNanopublications(newNanopublications);
+                        if (logger.isInfoEnabled()) {
+                            final ImmutableList<Uri> newNanopublicationUris = newNanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
+                            logger.info("posted {} nanopublications from {} files after {}: {}", newNanopublications.size(), nanopublicationPaths.size(), event.eventType(), newNanopublicationUris);
+                        }
                         break;
                     }
                     case DELETE: {
