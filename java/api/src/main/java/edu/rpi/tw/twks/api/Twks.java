@@ -22,11 +22,6 @@ public interface Twks extends AdministrationApi, ChangeObservableApi, GetAsserti
     TwksTransaction beginTransaction(ReadWrite readWrite);
 
     /**
-     * Get the configuration of this instance.
-     */
-    TwksConfiguration getConfiguration();
-
-    /**
      * Get the store version.
      */
     TwksVersion getVersion();
