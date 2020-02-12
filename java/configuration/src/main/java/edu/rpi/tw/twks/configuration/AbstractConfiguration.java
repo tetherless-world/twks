@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.api;
+package edu.rpi.tw.twks.configuration;
 
 import com.google.common.base.MoreObjects;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -54,6 +54,7 @@ public abstract class AbstractConfiguration {
 
         public abstract BuilderT set(final ConfigurationWrapper properties);
 
+        @SuppressWarnings("unchecked")
         public final BuilderT setFromEnvironment() {
             set(new EnvironmentConfiguration().subset(PROPERTY_KEY_PREFIX));
             set(new SystemConfiguration().subset(PROPERTY_KEY_PREFIX));

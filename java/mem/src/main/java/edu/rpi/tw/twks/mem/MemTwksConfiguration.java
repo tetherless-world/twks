@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.mem;
 
-import edu.rpi.tw.twks.api.TwksConfiguration;
+import edu.rpi.tw.twks.configuration.TwksConfiguration;
 
 public final class MemTwksConfiguration extends TwksConfiguration {
     private MemTwksConfiguration(final Builder builder) {

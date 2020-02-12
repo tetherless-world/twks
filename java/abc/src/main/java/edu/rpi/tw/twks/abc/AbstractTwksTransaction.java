@@ -2,7 +2,6 @@ package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
@@ -25,7 +24,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static edu.rpi.tw.twks.vocabulary.Vocabularies.setNsPrefixes;
 
-public abstract class AbstractTwksTransaction<TwksT extends Twks> implements TwksTransaction {
+public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> implements TwksTransaction {
     private final static String GET_NANOPUBLICATION_DATASET_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "prefix : <%s>\n" +
             "select ?G ?S ?P ?O where {\n" +

@@ -254,6 +254,7 @@
                 <module>api</module>
                 <module>cli</module>
                 <module>client</module>
+                <module>configuration</module>
                 <module>ext</module>
                 <module>factory</module>
                 <module>mem</module>
@@ -298,6 +299,7 @@
                 <module>api</module>
                 <!--                <module>cli</module>-->
                 <module>client</module>
+                <module>configuration</module>
                 <!--                <module>ext</module>-->
                 <module>factory</module>
                 <module>mem</module>
@@ -313,6 +315,7 @@
     </profiles>
 
     <properties>
+        <guava.version>28.1-jre</guava.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <jena.version>3.13.1</jena.version>
         <junit.version>4.12</junit.version>
@@ -321,6 +324,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.30</slf4j.version>
+        <spotbugs-annotations.version>4.0.0-beta4</spotbugs-annotations.version>
     </properties>
 
     <reporting>
