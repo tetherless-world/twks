@@ -2,7 +2,7 @@ package edu.rpi.tw.twks.factory;
 
 import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.agraph.AllegroGraphTwksConfiguration;
-import edu.rpi.tw.twks.api.AbstractConfiguration;
+import edu.rpi.tw.twks.configuration.AbstractConfiguration;
 import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
 
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.client;
 
 import com.google.common.base.MoreObjects;
-import edu.rpi.tw.twks.api.AbstractConfiguration;
+import edu.rpi.tw.twks.configuration.AbstractConfiguration;
 
 public final class RestTwksClientConfiguration extends AbstractConfiguration {
     private final String serverBaseUrl;

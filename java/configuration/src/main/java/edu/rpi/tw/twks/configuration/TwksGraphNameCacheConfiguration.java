@@ -1,11 +1,11 @@
-package edu.rpi.tw.twks.api;
+package edu.rpi.tw.twks.configuration;
 
 import com.google.common.base.MoreObjects;
 
-public final class TwksGeoSPARQLConfiguration extends AbstractConfiguration {
+public final class TwksGraphNameCacheConfiguration extends AbstractConfiguration {
     private final boolean enable;
 
-    private TwksGeoSPARQLConfiguration(final Builder builder) {
+    private TwksGraphNameCacheConfiguration(final Builder builder) {
         this.enable = builder.getEnable();
     }
 
@@ -22,12 +22,12 @@ public final class TwksGeoSPARQLConfiguration extends AbstractConfiguration {
         return super.toStringHelper().add("enable", enable);
     }
 
-    public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksGeoSPARQLConfiguration> {
+    public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksGraphNameCacheConfiguration> {
         private boolean enable = PropertyDefinitions.ENABLE.getDefault();
 
         @Override
-        public TwksGeoSPARQLConfiguration build() {
-            return new TwksGeoSPARQLConfiguration(this);
+        public TwksGraphNameCacheConfiguration build() {
+            return new TwksGraphNameCacheConfiguration(this);
         }
 
         public final boolean getEnable() {
@@ -42,13 +42,12 @@ public final class TwksGeoSPARQLConfiguration extends AbstractConfiguration {
 
         @Override
         public final Builder set(final ConfigurationWrapper properties) {
-            properties.getBoolean(PropertyDefinitions.ENABLE).ifPresent(value -> setEnable(value));
+            properties.getBoolean(PropertyDefinitions.ENABLE).ifPresent(enable -> setEnable(enable));
             return this;
         }
     }
 
     private final static class PropertyDefinitions {
-        public final static PropertyDefinitionWithDefault<Boolean> ENABLE = new PropertyDefinitionWithDefault<>(Boolean.FALSE, "enableGeoSPARQL");
-//        public final static PropertyDefinition GEOMETRY_INDEX_SIZE = new PropertyDefinition("GeoSPARQLGeometryIndexSize");
+        public final static PropertyDefinitionWithDefault<Boolean> ENABLE = new PropertyDefinitionWithDefault<>(Boolean.FALSE, "cacheGraphNames");
     }
 }

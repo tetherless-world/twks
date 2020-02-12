@@ -4,7 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.NanopublicationQueryApi;
-import edu.rpi.tw.twks.api.TwksGraphNameCacheConfiguration;
+import edu.rpi.tw.twks.configuration.TwksGraphNameCacheConfiguration;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
 

@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.abc;
 
-import edu.rpi.tw.twks.api.TwksGraphNameCacheConfiguration;
+import edu.rpi.tw.twks.configuration.TwksGraphNameCacheConfiguration;
 import edu.rpi.tw.twks.mem.MemTwks;
 import edu.rpi.tw.twks.mem.MemTwksConfiguration;
 

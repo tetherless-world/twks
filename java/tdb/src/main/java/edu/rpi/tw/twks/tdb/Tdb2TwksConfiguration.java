@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.tdb;
 
 import com.google.common.base.MoreObjects;
-import edu.rpi.tw.twks.api.TwksConfiguration;
+import edu.rpi.tw.twks.configuration.TwksConfiguration;
 
 import java.util.Optional;
 

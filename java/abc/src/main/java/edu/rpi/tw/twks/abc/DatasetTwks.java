@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.abc;
 
-import edu.rpi.tw.twks.api.TwksConfiguration;
+import edu.rpi.tw.twks.configuration.TwksConfiguration;
 import org.apache.jena.query.Dataset;
 
 import static com.google.common.base.Preconditions.checkNotNull;

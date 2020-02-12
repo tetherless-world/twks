@@ -1,7 +1,7 @@
 package edu.rpi.tw.twks.agraph;
 
 import com.google.common.base.MoreObjects;
-import edu.rpi.tw.twks.api.TwksConfiguration;
+import edu.rpi.tw.twks.configuration.TwksConfiguration;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
