@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs-annotations</artifactId>
-            <version>${spotbugs-annotations.version}</version>
+            <version>4.0.0-RC3</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
