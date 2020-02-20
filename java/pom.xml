@@ -257,6 +257,7 @@
                 <module>configuration</module>
                 <module>ext</module>
                 <module>factory</module>
+                <module>hdt</module>
                 <module>mem</module>
                 <module>nanopub</module>
                 <module>server</module>
@@ -265,6 +266,7 @@
                 <module>test</module>
                 <module>uri</module>
                 <module>vocabulary</module>
+                
             </modules>
         </profile>
         <profile>
@@ -302,6 +304,7 @@
                 <module>configuration</module>
                 <!--                <module>ext</module>-->
                 <module>factory</module>
+                <module>hdt</module>
                 <module>mem</module>
                 <module>nanopub</module>
                 <!--                <module>server</module>-->
