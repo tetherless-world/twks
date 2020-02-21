@@ -208,12 +208,8 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
             quadStoreTransaction.addNamedGraph(nanopublicationPart.getName(), nanopublicationPart.getModel());
         }
 
-        if (quadStoreTransaction.containsNamedGraph(ASSERTIONS_UNION_GRAPH_NAME)) {
-            final Model assertionsUnionGraph = quadStoreTransaction.getNamedGraph(ASSERTIONS_UNION_GRAPH_NAME);
-            assertionsUnionGraph.add(nanopublication.getAssertion().getModel());
-        } else {
-            quadStoreTransaction.addNamedGraph(ASSERTIONS_UNION_GRAPH_NAME, nanopublication.getAssertion().getModel());
-        }
+        final Model assertionsUnionGraph = quadStoreTransaction.getOrCreateNamedGraph(ASSERTIONS_UNION_GRAPH_NAME);
+        assertionsUnionGraph.add(nanopublication.getAssertion().getModel());
 
         return deleteResult == DeleteNanopublicationResult.DELETED ? PutNanopublicationResult.OVERWROTE : PutNanopublicationResult.CREATED;
     }
