@@ -25,6 +25,7 @@ final class AllegroGraphQuadStoreTransaction implements QuadStoreTransaction {
     AllegroGraphQuadStoreTransaction(final AGRepositoryConnection repositoryConnection) {
         graphMaker = new AGGraphMaker(repositoryConnection);
         this.repositoryConnection = checkNotNull(repositoryConnection);
+        repositoryConnection.begin();
     }
 
     @Override
