@@ -1,6 +1,5 @@
 package edu.rpi.tw.twks.nanopub;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
@@ -62,8 +61,10 @@ public final class Nanopublication {
         return assertion;
     }
 
-    @VisibleForTesting
-    final NanopublicationPart getHead() {
+    /**
+     * Get the head part of the nanopublication.
+     */
+    public final NanopublicationPart getHead() {
         return head;
     }
 
