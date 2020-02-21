@@ -8,6 +8,7 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.shared.DoesNotExistException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -47,6 +48,10 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
 
     @Override
     public final Model getNamedGraph(final Uri graphName) {
+        // dataset.getNamedModel creates a graph if it doesn't exist, so we have to test separately.
+        if (!containsNamedGraph(graphName)) {
+            throw new DoesNotExistException(graphName.toString());
+        }
         return dataset.getNamedModel(graphName.toString());
     }
 
