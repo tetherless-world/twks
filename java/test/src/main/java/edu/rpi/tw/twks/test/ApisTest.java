@@ -15,6 +15,7 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.junit.After;
 import org.junit.Before;
@@ -162,17 +163,40 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
             return;
         }
 
+        // No assertions
 //        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
+
+        // Add first nanopublication
         sut.putNanopublication(testData.specNanopublication);
+
+        // Assert first nanopublication's assertions only
         {
-            final Model assertions = ((GetAssertionsApi) sut).getAssertions();
-            if (!assertions.isIsomorphicWith(testData.specNanopublication.getAssertion().getModel())) {
+            final Model actualAssertions = ((GetAssertionsApi) sut).getAssertions();
+            if (!actualAssertions.isIsomorphicWith(testData.specNanopublication.getAssertion().getModel())) {
 //                assertions.write(System.out, Lang.TRIG.getName());
                 fail();
             }
         }
+
+        // Add second nanopublication
         sut.putNanopublication(testData.secondNanopublication);
-        assertFalse(((GetAssertionsApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
+
+        {
+            final Model actualAssertions = ((GetAssertionsApi) sut).getAssertions();
+            final Model expectedAssertions = ModelFactory.createDefaultModel();
+            expectedAssertions.add(testData.specNanopublication.getAssertion().getModel());
+            expectedAssertions.add(testData.secondNanopublication.getAssertion().getModel());
+            assertTrue(expectedAssertions.isIsomorphicWith(actualAssertions));
+        }
+
+        // Remove first nanopublication
+        sut.deleteNanopublication(testData.specNanopublication.getUri());
+
+        // Assert second nanopublication's assertions only
+        {
+            final Model actualAssertions = ((GetAssertionsApi) sut).getAssertions();
+            assertTrue(actualAssertions.isIsomorphicWith(testData.secondNanopublication.getAssertion().getModel()));
+        }
     }
 
     @Test
