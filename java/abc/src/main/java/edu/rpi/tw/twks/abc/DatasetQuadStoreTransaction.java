@@ -60,6 +60,11 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
     }
 
     @Override
+    public final Model getOrCreateNamedGraph(final Uri graphName) {
+        return dataset.getNamedModel(graphName.toString());
+    }
+
+    @Override
     public final QueryExecution query(final Query query) {
         return QueryExecutionFactory.create(query, dataset);
     }

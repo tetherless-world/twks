@@ -56,6 +56,12 @@ final class AllegroGraphQuadStoreTransaction implements QuadStoreTransaction {
 
     @Override
     public final Model getNamedGraph(final Uri graphName) {
+        final AGGraph graph = graphMaker.openGraph(graphName.toString(), true);
+        return new AGModel(graph);
+    }
+
+    @Override
+    public final Model getOrCreateNamedGraph(final Uri graphName) {
         final AGGraph graph = graphMaker.openGraph(graphName.toString(), false);
         return new AGModel(graph);
     }

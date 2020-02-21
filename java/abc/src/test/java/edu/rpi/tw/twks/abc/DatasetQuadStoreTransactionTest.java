@@ -89,7 +89,6 @@ public final class DatasetQuadStoreTransactionTest {
         }
     }
 
-
     @Test
     public void testGetNamedGraph() {
         try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.READ)) {
@@ -101,6 +100,18 @@ public final class DatasetQuadStoreTransactionTest {
         }
         try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.WRITE)) {
             tx.addNamedGraph(testName, testModel);
+            tx.commit();
+        }
+        try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.READ)) {
+            final Model actual = tx.getNamedGraph(testName);
+            assertTrue(actual.isIsomorphicWith(testModel));
+        }
+    }
+
+    @Test
+    public void testGetOrCreateNamedGraph() {
+        try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.WRITE)) {
+            tx.getOrCreateNamedGraph(testName).add(testModel);
             tx.commit();
         }
         try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.READ)) {

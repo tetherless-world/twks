@@ -18,7 +18,10 @@ public interface QuadStoreTransaction extends AutoCloseable {
     void abort();
 
     /**
-     * Add a named graph to the quad store, creating if it doesn't exist.
+     * Add a named graph to the quad store.
+     * <p>
+     * If there is already a graph in the store with that name, replace it.
+     * If there isn't, create it.
      */
     void addNamedGraph(final Uri graphName, final Model model);
 
@@ -42,6 +45,11 @@ public interface QuadStoreTransaction extends AutoCloseable {
      * Get a named graph's Model. Throws an exception if the named graph does not exist in the store.
      */
     Model getNamedGraph(Uri graphName) throws DoesNotExistException;
+
+    /**
+     * Get a named graph's Model or create the named graph if it doesn't exist.
+     */
+    Model getOrCreateNamedGraph(Uri graphName);
 
     /**
      * Query over all named graphs in the quad store.
