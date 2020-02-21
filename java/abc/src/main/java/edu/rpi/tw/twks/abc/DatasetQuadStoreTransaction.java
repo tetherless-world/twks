@@ -46,6 +46,10 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
         return dataset.containsNamedModel(graphName.toString());
     }
 
+    final DatasetTransaction getDatasetTransaction() {
+        return datasetTransaction;
+    }
+
     @Override
     public final Model getNamedGraph(final Uri graphName) {
         // dataset.getNamedModel creates a graph if it doesn't exist, so we have to test separately.

@@ -21,7 +21,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> extends AbstractTwksTransaction<TwksT> {
-    private final static Uri ASSERTIONS_GRAPH_NAME = Uri.parse("urn:twks:assertions");
+    private final static Uri ASSERTIONS_UNION_GRAPH_NAME = Uri.parse("urn:twks:assertions");
     private final static String GET_NANOPUBLICATION_DATASET_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "prefix : <%s>\n" +
             "select ?G ?S ?P ?O where {\n" +
@@ -58,6 +58,14 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         quadStoreTransaction.abort();
     }
 
+    private Uri buildOntologyAssertionsGraphName(final Uri ontologyUri) {
+        try {
+            return Uri.parse("urn:twks:assertions:ontology:" + URLEncoder.encode(ontologyUri.toString(), Charsets.UTF_8.name()));
+        } catch (final UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     @Override
     public final void close() {
         quadStoreTransaction.close();
@@ -90,7 +98,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
 
     @Override
     public final Model getAssertions() {
-        return quadStoreTransaction.getNamedGraph(ASSERTIONS_GRAPH_NAME);
+        return quadStoreTransaction.getNamedGraph(ASSERTIONS_UNION_GRAPH_NAME);
     }
 
     private ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri) {
@@ -113,20 +121,12 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         }
         Vocabularies.setNsPrefixes(result);
         for (final Uri ontologyUri : ontologyUris) {
-            result.add(quadStoreTransaction.getNamedGraph(getOntologyAssertionsGraphName(ontologyUri)));
+            result.add(quadStoreTransaction.getNamedGraph(buildOntologyAssertionsGraphName(ontologyUri)));
         }
         return result;
     }
 
-    private Uri getOntologyAssertionsGraphName(final Uri ontologyUri) {
-        try {
-            return Uri.parse("urn:twks:assertions:ontology:" + URLEncoder.encode(ontologyUri.toString(), Charsets.UTF_8.name()));
-        } catch (final UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    protected QuadStoreTransaction getQuadStoreTransaction() {
+    protected final QuadStoreTransaction getQuadStoreTransaction() {
         return quadStoreTransaction;
     }
 
@@ -208,12 +208,19 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
             quadStoreTransaction.addNamedGraph(nanopublicationPart.getName(), nanopublicationPart.getModel());
         }
 
+        if (quadStoreTransaction.containsNamedGraph(ASSERTIONS_UNION_GRAPH_NAME)) {
+            final Model assertionsUnionGraph = quadStoreTransaction.getNamedGraph(ASSERTIONS_UNION_GRAPH_NAME);
+            assertionsUnionGraph.add(nanopublication.getAssertion().getModel());
+        } else {
+            quadStoreTransaction.addNamedGraph(ASSERTIONS_UNION_GRAPH_NAME, nanopublication.getAssertion().getModel());
+        }
+
         return deleteResult == DeleteNanopublicationResult.DELETED ? PutNanopublicationResult.OVERWROTE : PutNanopublicationResult.CREATED;
     }
 
     @Override
     public final QueryExecution queryAssertions(final Query query) {
-        query.addNamedGraphURI(ASSERTIONS_GRAPH_NAME.toString());
+        query.addGraphURI(ASSERTIONS_UNION_GRAPH_NAME.toString());
         return quadStoreTransaction.query(query);
     }
 
