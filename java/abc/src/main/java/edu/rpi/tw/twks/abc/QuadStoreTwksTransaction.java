@@ -10,6 +10,7 @@ import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.shared.DoesNotExistException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,7 +122,10 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         }
         Vocabularies.setNsPrefixes(result);
         for (final Uri ontologyUri : ontologyUris) {
-            result.add(quadStoreTransaction.getNamedGraph(buildOntologyAssertionsGraphName(ontologyUri)));
+            try {
+                result.add(quadStoreTransaction.getNamedGraph(buildOntologyAssertionsGraphName(ontologyUri)));
+            } catch (final DoesNotExistException e) {
+            }
         }
         return result;
     }
@@ -210,6 +214,11 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
 
         final Model assertionsUnionGraph = quadStoreTransaction.getOrCreateNamedGraph(ASSERTIONS_UNION_GRAPH_NAME);
         assertionsUnionGraph.add(nanopublication.getAssertion().getModel());
+
+        for (final Uri ontologyUri : nanopublication.getAboutOntologyUris()) {
+            final Model ontologyAssertionsGraph = quadStoreTransaction.getOrCreateNamedGraph(buildOntologyAssertionsGraphName(ontologyUri));
+            ontologyAssertionsGraph.add(nanopublication.getAssertion().getModel());
+        }
 
         return deleteResult == DeleteNanopublicationResult.DELETED ? PutNanopublicationResult.OVERWROTE : PutNanopublicationResult.CREATED;
     }
