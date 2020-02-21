@@ -4,12 +4,12 @@ import com.franz.agraph.repository.AGCatalog;
 import com.franz.agraph.repository.AGRepository;
 import com.franz.agraph.repository.AGRepositoryConnection;
 import com.franz.agraph.repository.AGServer;
-import edu.rpi.tw.twks.abc.AbstractTwks;
+import edu.rpi.tw.twks.abc.QuadStoreTwks;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.query.ReadWrite;
 
-public final class AllegroGraphTwks extends AbstractTwks<AllegroGraphTwksConfiguration> {
+public final class AllegroGraphTwks extends QuadStoreTwks<AllegroGraphTwksConfiguration> {
     private @Nullable
     AGCatalog catalog = null;
     private @Nullable
@@ -24,7 +24,7 @@ public final class AllegroGraphTwks extends AbstractTwks<AllegroGraphTwksConfigu
     @Override
     protected TwksTransaction _beginTransaction(final ReadWrite readWrite) {
         final AGRepositoryConnection connection = getRepository().getConnection();
-        return new AllegroGraphTwksTransaction(getGraphNames(), connection, this);
+        return new AllegroGraphTwksTransaction(connection, this);
     }
 
     private final synchronized AGCatalog getCatalog() {

@@ -7,8 +7,14 @@ import org.apache.jena.rdf.model.Model;
 
 import java.util.Set;
 
-public interface QuadStore {
+public interface QuadStoreTransaction {
+    void abort();
+
     void addNamedGraph(final Uri graphName, final Model model);
+
+    void close();
+
+    void commit();
 
     void deleteAllGraphs();
 

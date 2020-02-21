@@ -19,24 +19,9 @@ public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> exten
     private final DatasetTransaction datasetTransaction;
 
     protected DatasetTwksTransaction(final ReadWrite readWrite, final TwksT twks) {
-        super(new DatasetQuadStore(twks.getDataset(), new DatasetTransaction(twks.getDataset(), readWrite)), twks);
+        super(new DatasetQuadStoreTransaction(twks.getDataset(), new DatasetTransaction(twks.getDataset(), readWrite)), twks);
         this.dataset = twks.getDataset();
         this.datasetTransaction = new DatasetTransaction(dataset, readWrite);
-    }
-
-    @Override
-    public final void abort() {
-        datasetTransaction.abort();
-    }
-
-    @Override
-    public final void close() {
-        datasetTransaction.close();
-    }
-
-    @Override
-    public final void commit() {
-        datasetTransaction.commit();
     }
 
     protected final Dataset getDataset() {

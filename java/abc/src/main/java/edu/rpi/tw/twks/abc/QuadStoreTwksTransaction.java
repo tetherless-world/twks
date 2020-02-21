@@ -2,11 +2,9 @@ package edu.rpi.tw.twks.abc;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
-import edu.rpi.tw.twks.nanopub.AutoCloseableIterable;
-import edu.rpi.tw.twks.nanopub.DuplicateNanopublicationPartName;
-import edu.rpi.tw.twks.nanopub.Nanopublication;
-import edu.rpi.tw.twks.nanopub.NanopublicationPart;
+import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
@@ -15,11 +13,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Iterator;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> extends AbstractTwksTransaction {
+public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> extends AbstractTwksTransaction<TwksT> {
     private final static Uri ASSERTIONS_GRAPH_NAME = Uri.parse("urn:twks:assertions");
     private final static String GET_NANOPUBLICATION_DATASET_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "prefix : <%s>\n" +
@@ -35,12 +34,36 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
             "  {graph ?H {: a np:Nanopublication {: np:hasAssertion ?G} union {: np:hasProvenance ?G} union {: np:hasPublicationInfo ?G}}}\n" +
             "  graph ?G {?S ?P ?O}\n" +
             "}";
+    private final static String ITERATE_NANOPUBLICATIONS_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
+            "select ?A ?H ?I ?np ?P where {\n" +
+            "graph ?H {\n" +
+            "  ?np a np:Nanopublication .\n" +
+            "  ?np np:hasAssertion ?A .\n" +
+            "  ?np np:hasProvenance ?P .\n" +
+            "  ?np np:hasPublicationInfo ?I .\n" +
+            "}}";
+    private final static Query ITERATE_NANOPUBLICATIONS_QUERY = QueryFactory.create(ITERATE_NANOPUBLICATIONS_QUERY_STRING);
     private final static Logger logger = LoggerFactory.getLogger(QuadStoreTwksTransaction.class);
-    private final QuadStore quadStore;
+    private final QuadStoreTransaction quadStoreTransaction;
 
-    protected QuadStoreTwksTransaction(final QuadStore quadStore, final TwksT twks) {
+    protected QuadStoreTwksTransaction(final QuadStoreTransaction quadStore, final TwksT twks) {
         super(twks);
-        this.quadStore = checkNotNull(quadStore);
+        this.quadStoreTransaction = checkNotNull(quadStore);
+    }
+
+    @Override
+    public final void abort() {
+        quadStoreTransaction.abort();
+    }
+
+    @Override
+    public final void close() {
+        quadStoreTransaction.close();
+    }
+
+    @Override
+    public final void commit() {
+        quadStoreTransaction.commit();
     }
 
     @Override
@@ -52,33 +75,23 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         if (nanopublicationGraphNames.size() != 4) {
             throw new IllegalStateException();
         }
-        quadStore.deleteNamedGraphs(nanopublicationGraphNames);
+        quadStoreTransaction.deleteNamedGraphs(nanopublicationGraphNames);
         return DeleteNanopublicationResult.DELETED;
     }
 
     @Override
     public final void deleteNanopublications() {
-        quadStore.deleteAllGraphs();
+        quadStoreTransaction.deleteAllGraphs();
     }
 
     @Override
     public final Model getAssertions() {
-        return quadStore.getNamedGraph(ASSERTIONS_GRAPH_NAME);
+        return quadStoreTransaction.getNamedGraph(ASSERTIONS_GRAPH_NAME);
     }
-
-//    private final Model getNamedGraphs(final Set<Uri> graphNames) {
-//        final Model assertions = ModelFactory.createDefaultModel();
-//        if (graphNames.isEmpty()) {
-//            return assertions;
-//        }
-//        setNsPrefixes(assertions);
-//        getNamedGraphs(graphNames, assertions);
-//        return assertions;
-//    }
 
     private ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri) {
         final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
-        try (final QueryExecution queryExecution = quadStore.query(QueryFactory.create(String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, nanopublicationUri)))) {
+        try (final QueryExecution queryExecution = quadStoreTransaction.query(QueryFactory.create(String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, nanopublicationUri)))) {
             for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
                 final QuerySolution querySolution = resultSet.nextSolution();
                 final Resource g = querySolution.getResource("G");
@@ -92,9 +105,19 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         return ontologyUris.stream().map(ontologyUri -> getOntologyAssertionsGraphName(ontologyUri)).collect(ImmutableSet.toImmutableSet());
     }
 
+//    private final Model getNamedGraphs(final Set<Uri> graphNames) {
+//        final Model assertions = ModelFactory.createDefaultModel();
+//        if (graphNames.isEmpty()) {
+//            return assertions;
+//        }
+//        setNsPrefixes(assertions);
+//        getNamedGraphs(graphNames, assertions);
+//        return assertions;
+//    }
+
     @Override
     public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
-        return quadStore.getNamedGraphs(getOntologyAssertionGraphNames(ontologyUris));
+        return quadStoreTransaction.getNamedGraphs(getOntologyAssertionGraphNames(ontologyUris));
     }
 
     private Uri getOntologyAssertionsGraphName(final Uri ontologyUri) {
@@ -105,8 +128,68 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         }
     }
 
+    protected QuadStoreTransaction getQuadStoreTransaction() {
+        return quadStoreTransaction;
+    }
+
     @Override
-    protected abstract AutoCloseableIterable<Nanopublication> iterateNanopublications();
+    protected AutoCloseableIterable<Nanopublication> iterateNanopublications() {
+        return new AutoCloseableIterable<Nanopublication>() {
+            private @Nullable
+            QueryExecution queryExecution = null;
+
+            @Override
+            public void close() {
+                if (queryExecution != null) {
+                    queryExecution.close();
+                }
+            }
+
+            @Override
+            public Iterator<Nanopublication> iterator() {
+                if (queryExecution != null) {
+                    queryExecution.close();
+                }
+                queryExecution = queryNanopublications(ITERATE_NANOPUBLICATIONS_QUERY);
+                final ResultSet resultSet = queryExecution.execSelect();
+
+                return new Iterator<Nanopublication>() {
+                    private NanopublicationPart getNanopublicationPart(final String nanopublicationPartName) {
+                        final Uri nanopublicationPartNameUri = Uri.parse(nanopublicationPartName);
+                        final Model nanopublicationPartModel = quadStoreTransaction.getNamedGraph(nanopublicationPartNameUri);
+                        return new NanopublicationPart(nanopublicationPartModel, nanopublicationPartNameUri);
+                    }
+
+                    @Override
+                    public boolean hasNext() {
+                        return resultSet.hasNext();
+                    }
+
+                    @Override
+                    public Nanopublication next() {
+                        final QuerySolution querySolution = resultSet.nextSolution();
+                        final String nanopublicationAssertionGraphName = querySolution.getResource("A").getURI();
+                        final String nanopublicationHeadGraphName = querySolution.getResource("H").getURI();
+                        final String nanopublicationProvenanceGraphName = querySolution.getResource("P").getURI();
+                        final String nanopublicationPublicationInfoGraphName = querySolution.getResource("I").getURI();
+                        final String nanopublicationUri = querySolution.getResource("np").getURI();
+
+                        try {
+                            return SpecificationNanopublicationDialect.createNanopublicationFromParts(
+                                    getNanopublicationPart(nanopublicationAssertionGraphName),
+                                    Uri.parse(nanopublicationHeadGraphName),
+                                    Uri.parse(nanopublicationUri),
+                                    getNanopublicationPart(nanopublicationProvenanceGraphName),
+                                    getNanopublicationPart(nanopublicationPublicationInfoGraphName)
+                            );
+                        } catch (final MalformedNanopublicationException e) {
+                            throw new MalformedNanopublicationRuntimeException(e);
+                        }
+                    }
+                };
+            }
+        };
+    }
 
     @Override
     public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
@@ -121,10 +204,10 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         }
 
         for (final NanopublicationPart nanopublicationPart : new NanopublicationPart[]{nanopublication.getAssertion(), nanopublication.getHead(), nanopublication.getProvenance(), nanopublication.getPublicationInfo()}) {
-            if (quadStore.headNamedGraph(nanopublicationPart.getName())) {
+            if (quadStoreTransaction.headNamedGraph(nanopublicationPart.getName())) {
                 throw new DuplicateNanopublicationPartName(nanopublicationPart.getName().toString());
             }
-            quadStore.addNamedGraph(nanopublicationPart.getName(), nanopublicationPart.getModel());
+            quadStoreTransaction.addNamedGraph(nanopublicationPart.getName(), nanopublicationPart.getModel());
         }
 
         return deleteResult == DeleteNanopublicationResult.DELETED ? PutNanopublicationResult.OVERWROTE : PutNanopublicationResult.CREATED;
@@ -133,11 +216,11 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
     @Override
     public final QueryExecution queryAssertions(final Query query) {
         query.addNamedGraphURI(ASSERTIONS_GRAPH_NAME.toString());
-        return quadStore.query(query);
+        return quadStoreTransaction.query(query);
     }
 
     @Override
     public final QueryExecution queryNanopublications(final Query query) {
-        return quadStore.query(query);
+        return quadStoreTransaction.query(query);
     }
 }

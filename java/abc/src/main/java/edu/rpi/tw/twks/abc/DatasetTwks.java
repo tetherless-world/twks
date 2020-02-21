@@ -5,7 +5,7 @@ import org.apache.jena.query.Dataset;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class DatasetTwks<TwksConfigurationT extends TwksConfiguration> extends AbstractTwks<TwksConfigurationT> {
+public abstract class DatasetTwks<TwksConfigurationT extends TwksConfiguration> extends QuadStoreTwks<TwksConfigurationT> {
     private final Dataset dataset;
 
     protected DatasetTwks(final TwksConfigurationT configuration, final Dataset dataset) {

@@ -14,16 +14,33 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class DatasetQuadStore implements QuadStore {
+public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
     private final Dataset dataset;
+    private final DatasetTransaction datasetTransaction;
 
-    public DatasetQuadStore(final Dataset dataset, final DatasetTransaction transaction) {
+    public DatasetQuadStoreTransaction(final Dataset dataset, final DatasetTransaction datasetTransaction) {
         this.dataset = checkNotNull(dataset);
+        this.datasetTransaction = checkNotNull(datasetTransaction);
+    }
+
+    @Override
+    public final void abort() {
+        datasetTransaction.abort();
     }
 
     @Override
     public final void addNamedGraph(final Uri graphName, final Model model) {
         dataset.addNamedModel(graphName.toString(), model);
+    }
+
+    @Override
+    public final void close() {
+        datasetTransaction.close();
+    }
+
+    @Override
+    public final void commit() {
+        datasetTransaction.commit();
     }
 
     @Override
