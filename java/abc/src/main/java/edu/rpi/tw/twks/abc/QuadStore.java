@@ -8,7 +8,7 @@ import org.apache.jena.rdf.model.Model;
 import java.util.Set;
 
 public interface QuadStore {
-    void addNamedGraph(final Uri name, final Model model);
+    void addNamedGraph(final Uri graphName, final Model model);
 
     void deleteAllGraphs();
 

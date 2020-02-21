@@ -135,4 +135,9 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         query.addNamedGraphURI(ASSERTIONS_GRAPH_NAME.toString());
         return quadStore.query(query);
     }
+
+    @Override
+    public final QueryExecution queryNanopublications(final Query query) {
+        return quadStore.query(query);
+    }
 }

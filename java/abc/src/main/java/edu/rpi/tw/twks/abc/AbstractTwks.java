@@ -1,6 +1,5 @@
 package edu.rpi.tw.twks.abc;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.Twks;
@@ -28,18 +27,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration> implements Twks {
     private final static Logger logger = LoggerFactory.getLogger(AbstractTwks.class);
     private final TwksConfigurationT configuration;
-    private final TwksGraphNames graphNames;
     private final TwksObservers observers = new TwksObservers(this);
 
     protected AbstractTwks(final TwksConfigurationT configuration) {
         this.configuration = checkNotNull(configuration);
-
-        TwksGraphNames graphNames = new SparqlTwksGraphNames();
-        if (configuration.getGraphNameCacheConfiguration().getEnable()) {
-            graphNames = new CachinglTwksGraphNames(configuration.getGraphNameCacheConfiguration(), graphNames);
-            logger.info("enabling graph name cache");
-        }
-        this.graphNames = graphNames;
 
         if (configuration.getGeoSparqlConfiguration().getEnable()) {
             GeoSPARQLConfig.setupMemoryIndex();
@@ -100,11 +91,6 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
 
     public final TwksConfigurationT getConfiguration() {
         return configuration;
-    }
-
-    @VisibleForTesting
-    protected final TwksGraphNames getGraphNames() {
-        return graphNames;
     }
 
     @Override
