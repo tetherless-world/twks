@@ -8,9 +8,6 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -44,6 +41,11 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
     }
 
     @Override
+    public final boolean containsNamedGraph(final Uri graphName) {
+        return dataset.containsNamedModel(graphName.toString());
+    }
+
+    @Override
     public final void deleteAllGraphs() {
         final ImmutableList<String> datasetNames = ImmutableList.copyOf(dataset.listNames());
         for (final String name : datasetNames) {
@@ -52,29 +54,13 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
     }
 
     @Override
-    public final void deleteNamedGraphs(final Set<Uri> graphNames) {
-        for (final Uri nanopublicationGraphName : graphNames) {
-            dataset.removeNamedModel(nanopublicationGraphName.toString());
-        }
+    public void deleteNamedGraph(final Uri graphName) {
+        dataset.removeNamedModel(graphName.toString());
     }
 
     @Override
     public final Model getNamedGraph(final Uri graphName) {
         return dataset.getNamedModel(graphName.toString());
-    }
-
-    @Override
-    public final Model getNamedGraphs(final Set<Uri> graphNames) {
-        final Model result = ModelFactory.createDefaultModel();
-        for (final Uri graphName : graphNames) {
-            result.add(dataset.getNamedModel(graphName.toString()));
-        }
-        return result;
-    }
-
-    @Override
-    public final boolean headNamedGraph(final Uri graphName) {
-        return dataset.containsNamedModel(graphName.toString());
     }
 
     @Override

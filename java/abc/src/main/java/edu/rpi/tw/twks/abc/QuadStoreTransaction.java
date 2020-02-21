@@ -5,8 +5,6 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.rdf.model.Model;
 
-import java.util.Set;
-
 public interface QuadStoreTransaction {
     void abort();
 
@@ -16,15 +14,13 @@ public interface QuadStoreTransaction {
 
     void commit();
 
+    boolean containsNamedGraph(Uri graphName);
+
     void deleteAllGraphs();
 
-    void deleteNamedGraphs(final Set<Uri> graphNames);
+    void deleteNamedGraph(final Uri graphName);
 
     Model getNamedGraph(Uri graphName);
-
-    Model getNamedGraphs(Set<Uri> graphNames);
-
-    boolean headNamedGraph(Uri graphName);
 
     QueryExecution query(Query query);
 }

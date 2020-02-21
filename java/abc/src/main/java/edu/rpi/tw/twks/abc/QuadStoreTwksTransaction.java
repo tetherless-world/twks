@@ -4,9 +4,11 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
+import edu.rpi.tw.twks.vocabulary.Vocabularies;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +77,9 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         if (nanopublicationGraphNames.size() != 4) {
             throw new IllegalStateException();
         }
-        quadStoreTransaction.deleteNamedGraphs(nanopublicationGraphNames);
+        for (final Uri nanopublicationGraphName : nanopublicationGraphNames) {
+            quadStoreTransaction.deleteNamedGraph(nanopublicationGraphName);
+        }
         return DeleteNanopublicationResult.DELETED;
     }
 
@@ -101,23 +105,17 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         return resultBuilder.build();
     }
 
-    private ImmutableSet<Uri> getOntologyAssertionGraphNames(final ImmutableSet<Uri> ontologyUris) {
-        return ontologyUris.stream().map(ontologyUri -> getOntologyAssertionsGraphName(ontologyUri)).collect(ImmutableSet.toImmutableSet());
-    }
-
-//    private final Model getNamedGraphs(final Set<Uri> graphNames) {
-//        final Model assertions = ModelFactory.createDefaultModel();
-//        if (graphNames.isEmpty()) {
-//            return assertions;
-//        }
-//        setNsPrefixes(assertions);
-//        getNamedGraphs(graphNames, assertions);
-//        return assertions;
-//    }
-
     @Override
     public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
-        return quadStoreTransaction.getNamedGraphs(getOntologyAssertionGraphNames(ontologyUris));
+        final Model result = ModelFactory.createDefaultModel();
+        if (ontologyUris.isEmpty()) {
+            return result;
+        }
+        Vocabularies.setNsPrefixes(result);
+        for (final Uri ontologyUri : ontologyUris) {
+            result.add(quadStoreTransaction.getNamedGraph(getOntologyAssertionsGraphName(ontologyUri)));
+        }
+        return result;
     }
 
     private Uri getOntologyAssertionsGraphName(final Uri ontologyUri) {
@@ -204,7 +202,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         }
 
         for (final NanopublicationPart nanopublicationPart : new NanopublicationPart[]{nanopublication.getAssertion(), nanopublication.getHead(), nanopublication.getProvenance(), nanopublication.getPublicationInfo()}) {
-            if (quadStoreTransaction.headNamedGraph(nanopublicationPart.getName())) {
+            if (quadStoreTransaction.containsNamedGraph(nanopublicationPart.getName())) {
                 throw new DuplicateNanopublicationPartName(nanopublicationPart.getName().toString());
             }
             quadStoreTransaction.addNamedGraph(nanopublicationPart.getName(), nanopublicationPart.getModel());
