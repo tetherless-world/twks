@@ -42,6 +42,12 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
         this.twks = checkNotNull(twks);
     }
 
+    protected abstract void addNamedGraph(final Uri name, final Model model);
+
+    protected abstract void deleteAllGraphs();
+
+    protected abstract void deleteNamedGraphs(final Set<Uri> graphNames);
+
     @Override
     public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
         final DeleteNanopublicationResult result = deleteNanopublicationImpl(uri);
@@ -58,11 +64,9 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
         if (nanopublicationGraphNames.size() != 4) {
             throw new IllegalStateException();
         }
-        deleteNanopublicationImpl(nanopublicationGraphNames);
+        deleteNamedGraphs(nanopublicationGraphNames);
         return DeleteNanopublicationResult.DELETED;
     }
-
-    protected abstract void deleteNanopublicationImpl(final Set<Uri> nanopublicationGraphNames);
 
     @Override
     public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
@@ -74,12 +78,10 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
 
     @Override
     public final void deleteNanopublications() {
-        deleteNanopublicationsImpl();
+        deleteAllGraphs();
         // Wait until after the operation to invalidate the graph names cache.
         graphNames.invalidateCache();
     }
-
-    protected abstract void deleteNanopublicationsImpl();
 
     @Override
     public final void dump() throws IOException {
@@ -119,20 +121,20 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
 
     @Override
     public final Model getAssertions() {
-        return getAssertionsImpl(graphNames.getAllAssertionGraphNames(this));
+        return getNamedGraphs(graphNames.getAllAssertionGraphNames(this));
     }
 
-    private final Model getAssertionsImpl(final Set<Uri> assertionGraphNames) {
+    private final Model getNamedGraphs(final Set<Uri> graphNames) {
         final Model assertions = ModelFactory.createDefaultModel();
-        if (assertionGraphNames.isEmpty()) {
+        if (graphNames.isEmpty()) {
             return assertions;
         }
         setNsPrefixes(assertions);
-        getAssertionsImpl(assertionGraphNames, assertions);
+        getNamedGraphs(graphNames, assertions);
         return assertions;
     }
 
-    protected abstract void getAssertionsImpl(Set<Uri> assertionGraphNames, Model assertions);
+    protected abstract void getNamedGraphs(Set<Uri> graphNames, Model intoModel);
 
     @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
@@ -155,13 +157,15 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
 
     @Override
     public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
-        return getAssertionsImpl(graphNames.getOntologyAssertionGraphNames(ontologyUris, this));
+        return getNamedGraphs(graphNames.getOntologyAssertionGraphNames(ontologyUris, this));
     }
 
     @Override
     public final TwksT getTwks() {
         return twks;
     }
+
+    protected abstract boolean headNamedGraph(Uri graphName);
 
     protected abstract AutoCloseableIterable<Nanopublication> iterateNanopublications();
 
@@ -175,13 +179,30 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
 
     @Override
     public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
-        final PutNanopublicationResult result = putNanopublicationImpl(nanopublication);
-        // putNanopublicationImpl may use graphNames, so wait until after the operation to invalidate the graph names cache.
+        final DeleteNanopublicationResult deleteResult = deleteNanopublication(nanopublication.getUri());
+        switch (deleteResult) {
+            case DELETED:
+                logger.debug("deleted nanopublication {} before put", nanopublication.getUri());
+                break;
+            case NOT_FOUND:
+                logger.debug("nanopublication {} did not exist before put", nanopublication.getUri());
+                break;
+        }
+
+        for (final NanopublicationPart nanopublicationPart : new NanopublicationPart[]{nanopublication.getAssertion(), nanopublication.getHead(), nanopublication.getProvenance(), nanopublication.getPublicationInfo()}) {
+            if (headNamedGraph(nanopublicationPart.getName())) {
+                throw new DuplicateNanopublicationPartName(name);
+            }
+            addNamedGraph(nanopublicationPart.getName(), nanopublicationPart.getModel());
+        }
+
+        final PutNanopublicationResult result = deleteResult == DeleteNanopublicationResult.DELETED ? PutNanopublicationResult.OVERWROTE : PutNanopublicationResult.CREATED;
+
+        // Subclass may use graphNames, so wait until after the operation to invalidate the graph names cache.
         graphNames.invalidateCache();
+
         return result;
     }
-
-    protected abstract PutNanopublicationResult putNanopublicationImpl(final Nanopublication nanopublication);
 
     @Override
     public final QueryExecution queryAssertions(final Query query) {

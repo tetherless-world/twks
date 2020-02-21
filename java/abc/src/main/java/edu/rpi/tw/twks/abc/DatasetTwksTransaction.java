@@ -44,14 +44,7 @@ public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> exten
     }
 
     @Override
-    protected final void deleteNanopublicationImpl(final Set<Uri> nanopublicationGraphNames) {
-        for (final Uri nanopublicationGraphName : nanopublicationGraphNames) {
-            getDataset().removeNamedModel(nanopublicationGraphName.toString());
-        }
-    }
-
-    @Override
-    protected final void deleteNanopublicationsImpl() {
+    protected final void deleteAllGraphs() {
         final ImmutableList<String> datasetNames = ImmutableList.copyOf(getDataset().listNames());
         for (final String name : datasetNames) {
             dataset.removeNamedModel(name);
@@ -59,10 +52,9 @@ public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> exten
     }
 
     @Override
-    protected final void getAssertionsImpl(final Set<Uri> assertionGraphNames, final Model assertions) {
-        for (final Uri assertionGraphName : assertionGraphNames) {
-            final Model assertion = getDataset().getNamedModel(assertionGraphName.toString());
-            assertions.add(assertion);
+    protected final void deleteNamedGraphs(final Set<Uri> graphNames) {
+        for (final Uri nanopublicationGraphName : graphNames) {
+            getDataset().removeNamedModel(nanopublicationGraphName.toString());
         }
     }
 
@@ -72,6 +64,14 @@ public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> exten
 
     public final DatasetTransaction getDatasetTransaction() {
         return datasetTransaction;
+    }
+
+    @Override
+    protected final void getNamedGraphs(final Set<Uri> graphNames, final Model intoModel) {
+        for (final Uri assertionGraphName : graphNames) {
+            final Model assertion = getDataset().getNamedModel(assertionGraphName.toString());
+            intoModel.add(assertion);
+        }
     }
 
     @Override
