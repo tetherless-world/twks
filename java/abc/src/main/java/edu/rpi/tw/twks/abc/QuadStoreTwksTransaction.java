@@ -78,14 +78,14 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
             throw new IllegalStateException();
         }
         for (final Uri nanopublicationGraphName : nanopublicationGraphNames) {
-            quadStoreTransaction.deleteNamedGraph(nanopublicationGraphName);
+            quadStoreTransaction.removeNamedGraph(nanopublicationGraphName);
         }
         return DeleteNanopublicationResult.DELETED;
     }
 
     @Override
     public final void deleteNanopublications() {
-        quadStoreTransaction.deleteAllGraphs();
+        quadStoreTransaction.removeAllGraphs();
     }
 
     @Override

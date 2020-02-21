@@ -46,19 +46,6 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
     }
 
     @Override
-    public final void deleteAllGraphs() {
-        final ImmutableList<String> datasetNames = ImmutableList.copyOf(dataset.listNames());
-        for (final String name : datasetNames) {
-            dataset.removeNamedModel(name);
-        }
-    }
-
-    @Override
-    public void deleteNamedGraph(final Uri graphName) {
-        dataset.removeNamedModel(graphName.toString());
-    }
-
-    @Override
     public final Model getNamedGraph(final Uri graphName) {
         return dataset.getNamedModel(graphName.toString());
     }
@@ -66,5 +53,18 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
     @Override
     public final QueryExecution query(final Query query) {
         return QueryExecutionFactory.create(query, dataset);
+    }
+
+    @Override
+    public final void removeAllGraphs() {
+        final ImmutableList<String> datasetNames = ImmutableList.copyOf(dataset.listNames());
+        for (final String name : datasetNames) {
+            dataset.removeNamedModel(name);
+        }
+    }
+
+    @Override
+    public void removeNamedGraph(final Uri graphName) {
+        dataset.removeNamedModel(graphName.toString());
     }
 }

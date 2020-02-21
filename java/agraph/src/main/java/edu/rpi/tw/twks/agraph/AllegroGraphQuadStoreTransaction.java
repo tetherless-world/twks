@@ -55,22 +55,6 @@ final class AllegroGraphQuadStoreTransaction implements QuadStoreTransaction {
     }
 
     @Override
-    public final void deleteAllGraphs() {
-        repositoryConnection.clear();
-    }
-
-    @Override
-    public final void deleteNamedGraph(final Uri graphName) {
-        try {
-            // Must open a graph locally before removing it
-            graphMaker.openGraph(graphName.toString(), false);
-            graphMaker.removeGraph(graphName.toString());
-        } catch (final DoesNotExistException e) {
-            logger.warn("tried to delete non-extant graph {}", graphName);
-        }
-    }
-
-    @Override
     public final Model getNamedGraph(final Uri graphName) {
         final AGGraph graph = graphMaker.openGraph(graphName.toString(), false);
         return new AGModel(graph);
@@ -79,5 +63,21 @@ final class AllegroGraphQuadStoreTransaction implements QuadStoreTransaction {
     @Override
     public final QueryExecution query(final Query query) {
         return AGQueryExecutionFactory.create(AGQueryFactory.create(query.toString(Syntax.syntaxSPARQL_11)), new AGModel(graphMaker.createGraph()));
+    }
+
+    @Override
+    public final void removeAllGraphs() {
+        repositoryConnection.clear();
+    }
+
+    @Override
+    public final void removeNamedGraph(final Uri graphName) {
+        try {
+            // Must open a graph locally before removing it
+            graphMaker.openGraph(graphName.toString(), false);
+            graphMaker.removeGraph(graphName.toString());
+        } catch (final DoesNotExistException e) {
+            logger.warn("tried to delete non-extant graph {}", graphName);
+        }
     }
 }

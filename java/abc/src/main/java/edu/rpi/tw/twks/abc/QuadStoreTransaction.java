@@ -5,6 +5,11 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.rdf.model.Model;
 
+/**
+ * Interface for transactions on quad stores, with a minimal set of operations needed by TwksTransaction.
+ * <p>
+ * The names and semantics are adapted from Jena Dataset.
+ */
 public interface QuadStoreTransaction {
     void abort();
 
@@ -16,11 +21,11 @@ public interface QuadStoreTransaction {
 
     boolean containsNamedGraph(Uri graphName);
 
-    void deleteAllGraphs();
-
-    void deleteNamedGraph(final Uri graphName);
-
     Model getNamedGraph(Uri graphName);
 
     QueryExecution query(Query query);
+
+    void removeAllGraphs();
+
+    void removeNamedGraph(final Uri graphName);
 }
