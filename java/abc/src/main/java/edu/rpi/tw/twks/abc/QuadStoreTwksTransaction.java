@@ -85,20 +85,22 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
             quadStoreTransaction.removeNamedGraph(nanopublicationGraphName);
         }
 
-        // Delete all assertion union graphs and rebuild from nanopublications
-        // This handles the case where there are duplicates, at the cost of O(n) in the number of named graphs in the store +
-        // O(m) in the number of nanopublications.
-        // Delete is a rare enough operation that we don't need a better algorithm yet.
-        final AllAssertionsUnionGraph allAssertionsUnionGraph = new AllAssertionsUnionGraph(quadStoreTransaction);
-        final OntologyAssertionsUnionGraphs ontologyAssertionsUnionGraphs = new OntologyAssertionsUnionGraphs(quadStoreTransaction);
+        {
+            // Delete all assertion union graphs and rebuild from nanopublications
+            // This handles the case where there are duplicates, at the cost of O(n) in the number of named graphs in the store +
+            // O(m) in the number of nanopublications.
+            // Delete is a rare enough operation that we don't need a better algorithm yet.
+            final AllAssertionsUnionGraph allAssertionsUnionGraph = new AllAssertionsUnionGraph(quadStoreTransaction);
+            final OntologyAssertionsUnionGraphs ontologyAssertionsUnionGraphs = new OntologyAssertionsUnionGraphs(quadStoreTransaction);
 
-        allAssertionsUnionGraph.deleteNanopublication(uri);
-        ontologyAssertionsUnionGraphs.deleteNanopublication(uri);
+            allAssertionsUnionGraph.deleteNanopublication(uri);
+            ontologyAssertionsUnionGraphs.deleteNanopublication(uri);
 
-        try (final AutoCloseableIterable<Nanopublication> nanopublications = iterateNanopublications()) {
-            for (final Nanopublication nanopublication : nanopublications) {
-                allAssertionsUnionGraph.putNanopublication(nanopublication);
-                ontologyAssertionsUnionGraphs.putNanopublication(nanopublication);
+            try (final AutoCloseableIterable<Nanopublication> nanopublications = iterateNanopublications()) {
+                for (final Nanopublication nanopublication : nanopublications) {
+                    allAssertionsUnionGraph.putNanopublication(nanopublication);
+                    ontologyAssertionsUnionGraphs.putNanopublication(nanopublication);
+                }
             }
         }
 
@@ -243,7 +245,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
     }
 
     private final static class AllAssertionsUnionGraph {
-        private final static Uri NAME = Uri.parse("urn:twks:assertions:ontology");
+        private final static Uri NAME = Uri.parse("urn:twks:assertions:all");
         private final QuadStoreTransaction quadStoreTransaction;
 
         public AllAssertionsUnionGraph(final QuadStoreTransaction quadStoreTransaction) {
@@ -288,7 +290,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         public final void deleteNanopublication(final Uri nanopublicationUri) {
             final Model index;
             try {
-                index = quadStoreTransaction.getNamedGraph(INDEX_GRAPH_NAME);
+                index = checkNotNull(quadStoreTransaction.getNamedGraph(INDEX_GRAPH_NAME));
             } catch (final DoesNotExistException e) {
                 return;
             }
@@ -307,7 +309,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
                 unionGraphNames.add(Uri.parse(resource.getURI()));
             });
 
-            index.remove(nanopublicationResource, SIO.isAbout, null);
+            index.removeAll(nanopublicationResource, SIO.isAbout, null);
 
             for (final Uri unionGraphName : unionGraphNames) {
                 quadStoreTransaction.removeNamedGraph(unionGraphName);
@@ -321,15 +323,25 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         public final void putNanopublication(final Nanopublication nanopublication) {
             // For each ontology the nanopublication "is about", add the nanopublication's assertions to that ontology's assertions union
             // We keep track of these per-ontology assertions union graphs with a separate "index" graph with statements of the form
-            // <nanopublication URI> sio:isAbout <
+            // <nanopublication URI> sio:isAbout <union graph URI>
             final Model index = quadStoreTransaction.getOrCreateNamedGraph(INDEX_GRAPH_NAME);
+//            System.out.println("Index: ");
+//            index.listStatements().forEachRemaining(statement -> System.out.println(statement));
+//            System.out.println();
 
             for (final Uri ontologyUri : nanopublication.getAboutOntologyUris()) {
                 final Uri unionGraphName = buildUnionGraphName(ontologyUri);
                 final Model unionGraph = quadStoreTransaction.getOrCreateNamedGraph(unionGraphName);
                 unionGraph.add(nanopublication.getAssertion().getModel());
                 index.add(ResourceFactory.createResource(nanopublication.getUri().toString()), SIO.isAbout, ResourceFactory.createResource(unionGraphName.toString()));
+//                System.out.println(ontologyUri + " union: ");
+//                unionGraph.listStatements().forEachRemaining(statement -> System.out.println(statement));
+//                System.out.println();
             }
+
+//            System.out.println("Index: ");
+//            index.listStatements().forEachRemaining(statement -> System.out.println(statement));
+//            System.out.println();
         }
     }
 }
