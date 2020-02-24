@@ -308,9 +308,9 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
         sut.deleteNanopublication(testData.ontologyNanopublication.getUri());
 
-        assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), testData.secondOntologyNanopublication.getAssertion().getModel());
+        assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), secondOntologyNanopublication.getAssertion().getModel());
 
-        sut.deleteNanopublication(testData.secondOntologyNanopublication.getUri());
+        sut.deleteNanopublication(secondOntologyNanopublication.getUri());
 
         {
             final Model actualAssertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
