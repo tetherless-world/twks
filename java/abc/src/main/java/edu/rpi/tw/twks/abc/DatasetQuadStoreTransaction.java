@@ -10,6 +10,8 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.shared.DoesNotExistException;
 
+import java.util.Iterator;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
@@ -62,6 +64,26 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
     @Override
     public final Model getOrCreateNamedGraph(final Uri graphName) {
         return dataset.getNamedModel(graphName.toString());
+    }
+
+    @Override
+    public final AutoCloseableIterator<Uri> listGraphNames() {
+        final Iterator<String> delegate = dataset.listNames();
+        return new AutoCloseableIterator<Uri>() {
+            @Override
+            public void close() {
+            }
+
+            @Override
+            public boolean hasNext() {
+                return delegate.hasNext();
+            }
+
+            @Override
+            public Uri next() {
+                return Uri.parse(delegate.next());
+            }
+        };
     }
 
     @Override

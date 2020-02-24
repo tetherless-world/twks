@@ -6,8 +6,6 @@ import org.apache.jena.query.QueryExecution;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.shared.DoesNotExistException;
 
-import java.util.Iterator;
-
 /**
  * Interface for transactions on quad stores, with a minimal set of operations needed by TwksTransaction.
  * <p>
@@ -56,7 +54,7 @@ public interface QuadStoreTransaction extends AutoCloseable {
     /**
      * List graph names in the quad store.
      */
-    Iterator<Uri> listGraphNames();
+    AutoCloseableIterator<Uri> listGraphNames();
 
     /**
      * Query over all named graphs in the quad store.
