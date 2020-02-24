@@ -158,7 +158,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     }
 
     @Test
-    public void testGetAssertions() {
+    public void testGetAssertionsAfterDelete() {
         if (!(sut instanceof GetAssertionsApi)) {
             return;
         }
@@ -196,6 +196,57 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         {
             final Model actualAssertions = ((GetAssertionsApi) sut).getAssertions();
             assertTrue(actualAssertions.isIsomorphicWith(testData.secondNanopublication.getAssertion().getModel()));
+        }
+    }
+
+    @Test
+    public void testGetAssertionsOne() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        // No assertions
+//        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
+
+        sut.putNanopublication(testData.specNanopublication);
+
+        final Model actualAssertions = ((GetAssertionsApi) sut).getAssertions();
+        if (!actualAssertions.isIsomorphicWith(testData.specNanopublication.getAssertion().getModel())) {
+//                assertions.write(System.out, Lang.TRIG.getName());
+            fail();
+        }
+    }
+
+    @Test
+    public void testGetAssertionsTwo() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        // No assertions
+//        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
+
+        // Add first nanopublication
+        sut.putNanopublication(testData.specNanopublication);
+
+        // Assert first nanopublication's assertions only
+        {
+            final Model actualAssertions = ((GetAssertionsApi) sut).getAssertions();
+            if (!actualAssertions.isIsomorphicWith(testData.specNanopublication.getAssertion().getModel())) {
+//                assertions.write(System.out, Lang.TRIG.getName());
+                fail();
+            }
+        }
+
+        // Add second nanopublication
+        sut.putNanopublication(testData.secondNanopublication);
+
+        {
+            final Model actualAssertions = ((GetAssertionsApi) sut).getAssertions();
+            final Model expectedAssertions = ModelFactory.createDefaultModel();
+            expectedAssertions.add(testData.specNanopublication.getAssertion().getModel());
+            expectedAssertions.add(testData.secondNanopublication.getAssertion().getModel());
+            assertTrue(expectedAssertions.isIsomorphicWith(actualAssertions));
         }
     }
 
