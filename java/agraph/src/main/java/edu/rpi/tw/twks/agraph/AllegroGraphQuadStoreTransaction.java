@@ -90,11 +90,6 @@ final class AllegroGraphQuadStoreTransaction implements QuadStoreTransaction {
             public Uri next() {
                 return Uri.parse(delegate.next());
             }
-
-            @Override
-            public void remove() {
-                delegate.remove();
-            }
         };
     }
 

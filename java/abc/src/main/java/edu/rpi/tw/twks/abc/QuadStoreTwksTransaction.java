@@ -16,7 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -78,15 +80,19 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
     }
 
     private void deleteAssertionUnionGraphs() {
+        final List<Uri> assertionUnionGraphNames = new ArrayList<>();
         try (final AutoCloseableIterator<Uri> graphNameI = quadStoreTransaction.listGraphNames()) {
             while (graphNameI.hasNext()) {
                 final Uri graphName = graphNameI.next();
                 if (!graphName.toString().startsWith(ASSERTIONS_UNION_GRAPH_NAME.toString())) {
                     continue;
                 }
-                graphNameI.remove();
-                logger.info("deleted assertions graph {}", graphName);
+                assertionUnionGraphNames.add(graphName);
             }
+        }
+        // Iterate then remove to avoid a ConcurrentModificationException
+        for (final Uri graphName : assertionUnionGraphNames) {
+            quadStoreTransaction.removeNamedGraph(graphName);
         }
     }
 
