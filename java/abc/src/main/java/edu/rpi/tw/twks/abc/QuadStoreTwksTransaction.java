@@ -84,7 +84,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
                 if (!graphName.toString().startsWith(ASSERTIONS_UNION_GRAPH_NAME.toString())) {
                     continue;
                 }
-                quadStoreTransaction.removeNamedGraph(graphName);
+                graphNameI.remove();
                 logger.info("deleted assertions graph {}", graphName);
             }
         }

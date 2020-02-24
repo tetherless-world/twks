@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.abc;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.nanopub.DatasetTransaction;
 import edu.rpi.tw.twks.uri.Uri;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -70,6 +71,9 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
     public final AutoCloseableIterator<Uri> listGraphNames() {
         final Iterator<String> delegate = dataset.listNames();
         return new AutoCloseableIterator<Uri>() {
+            private @Nullable
+            String last = null;
+
             @Override
             public void close() {
             }
@@ -81,7 +85,14 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
 
             @Override
             public Uri next() {
-                return Uri.parse(delegate.next());
+                last = delegate.next();
+                return Uri.parse(last);
+            }
+
+            @Override
+            public void remove() {
+                // delegate iterator doesn't support remove
+                dataset.removeNamedModel(last);
             }
         };
     }

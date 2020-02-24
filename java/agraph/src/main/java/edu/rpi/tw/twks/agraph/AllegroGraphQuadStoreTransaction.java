@@ -58,7 +58,11 @@ final class AllegroGraphQuadStoreTransaction implements QuadStoreTransaction {
 
     @Override
     public final Model getNamedGraph(final Uri graphName) {
-        final AGGraph graph = graphMaker.openGraph(graphName.toString(), true);
+        // The last parameter, strict:
+        // true = if the client hasn't opened this graph before, throw an exception
+        // false = always open the graph
+        // There's no mode for when the client hasn't opened the graph but the graph exists.
+        final AGGraph graph = graphMaker.openGraph(graphName.toString(), false);
         return new AGModel(graph);
     }
 
@@ -85,6 +89,11 @@ final class AllegroGraphQuadStoreTransaction implements QuadStoreTransaction {
             @Override
             public Uri next() {
                 return Uri.parse(delegate.next());
+            }
+
+            @Override
+            public void remove() {
+                delegate.remove();
             }
         };
     }

@@ -17,7 +17,6 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 import org.junit.After;
@@ -66,6 +65,15 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     protected abstract void closeSystemUnderTest(SystemUnderTestT sut);
 
+    private void deleteTestDataNanopublications() {
+        sut.deleteNanopublications(ImmutableList.of(
+                testData.ontologyNanopublication.getUri(),
+                testData.secondNanopublication.getUri(),
+                testData.secondOntologyNanopublication.getUri(),
+                testData.specNanopublication.getUri()
+        ));
+    }
+
     protected final SystemUnderTestT getSystemUnderTest() {
         return sut;
     }
@@ -80,16 +88,12 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     public final void setUp() throws Exception {
         tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
         sut = openSystemUnderTest();
+        sut.deleteNanopublications();
     }
 
     @After
     public final void tearDown() throws Exception {
-        sut.deleteNanopublications(ImmutableList.of(
-                testData.ontologyNanopublication.getUri(),
-                testData.secondNanopublication.getUri(),
-                testData.secondOntologyNanopublication.getUri(),
-                testData.specNanopublication.getUri()
-        ));
+        sut.deleteNanopublications();
         closeSystemUnderTest(sut);
         MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
     }
@@ -296,8 +300,9 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
             ontologyNanopublicationAssertions.add(ResourceFactory.createResource(testData.ontologyUri.toString()), RDF.type, OWL.Ontology);
             secondOntologyNanopublication = Nanopublication.builder().getAssertionBuilder().setModel(ontologyNanopublicationAssertions).getNanopublicationBuilder().build();
 //            ontologyNanopublicationAssertions.listStatements().forEachRemaining(statement -> System.out.println(statement));
-            sut.putNanopublication(secondOntologyNanopublication);
         }
+
+        sut.putNanopublication(secondOntologyNanopublication);
 
         {
             final Model expectedAssertions = ModelFactory.createDefaultModel();
@@ -400,18 +405,17 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         sut.putNanopublication(testData.specNanopublication);
         sut.putNanopublication(testData.secondNanopublication);
 
+        final Model expectedAssertions = ModelFactory.createDefaultModel();
+        expectedAssertions.add(testData.specNanopublication.getAssertion().getModel());
+        expectedAssertions.add(testData.secondNanopublication.getAssertion().getModel());
+
         final Query query = QueryFactory.create("CONSTRUCT WHERE { ?S ?P ?O }");
-        final Model sutAssertionsModel;
+        final Model actualAssertions;
         try (final QueryExecution queryExecution = ((AssertionQueryApi) sut).queryAssertions(query)) {
-            sutAssertionsModel = queryExecution.execConstruct();
+            actualAssertions = queryExecution.execConstruct();
         }
 
-//            sutAssertionsModel.write(System.out, "TURTLE");
-        assertEquals(2, sutAssertionsModel.listStatements().toList().size());
-        final Statement statement1 = testData.specNanopublication.getAssertion().getModel().listStatements().toList().get(0);
-        assertEquals(1, sutAssertionsModel.listStatements(statement1.getSubject(), statement1.getPredicate(), statement1.getObject()).toList().size());
-        final Statement statement2 = testData.secondNanopublication.getAssertion().getModel().listStatements().toList().get(0);
-        assertEquals(1, sutAssertionsModel.listStatements(statement2.getSubject(), statement2.getPredicate(), statement2.getObject()).toList().size());
+        assertModelEquals(actualAssertions, expectedAssertions);
     }
 
     @Test
