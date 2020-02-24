@@ -91,6 +91,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
             }
         }
         // Iterate then remove to avoid a ConcurrentModificationException
+        // Iterator.remove isn't implemented with the necessary semantics (remove the graph) by the underlying iterators.
         for (final Uri graphName : assertionUnionGraphNames) {
             quadStoreTransaction.removeNamedGraph(graphName);
         }
