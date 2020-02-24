@@ -2,7 +2,6 @@ package edu.rpi.tw.twks.agraph;
 
 import com.franz.agraph.jena.*;
 import com.franz.agraph.repository.AGRepositoryConnection;
-import edu.rpi.tw.twks.abc.AutoCloseableIterator;
 import edu.rpi.tw.twks.abc.QuadStoreTransaction;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Query;
@@ -10,7 +9,6 @@ import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.shared.DoesNotExistException;
-import org.apache.jena.util.iterator.ExtendedIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,27 +68,6 @@ final class AllegroGraphQuadStoreTransaction implements QuadStoreTransaction {
     public final Model getOrCreateNamedGraph(final Uri graphName) {
         final AGGraph graph = graphMaker.openGraph(graphName.toString(), false);
         return new AGModel(graph);
-    }
-
-    @Override
-    public final AutoCloseableIterator<Uri> listGraphNames() {
-        final ExtendedIterator<String> delegate = graphMaker.listGraphs();
-        return new AutoCloseableIterator<Uri>() {
-            @Override
-            public void close() {
-                delegate.close();
-            }
-
-            @Override
-            public boolean hasNext() {
-                return delegate.hasNext();
-            }
-
-            @Override
-            public Uri next() {
-                return Uri.parse(delegate.next());
-            }
-        };
     }
 
     @Override

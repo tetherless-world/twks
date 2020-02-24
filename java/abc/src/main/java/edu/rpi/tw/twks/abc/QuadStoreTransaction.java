@@ -52,11 +52,6 @@ public interface QuadStoreTransaction extends AutoCloseable {
     Model getOrCreateNamedGraph(Uri graphName);
 
     /**
-     * List graph names in the quad store.
-     */
-    AutoCloseableIterator<Uri> listGraphNames();
-
-    /**
      * Query over all named graphs in the quad store.
      */
     QueryExecution query(Query query);

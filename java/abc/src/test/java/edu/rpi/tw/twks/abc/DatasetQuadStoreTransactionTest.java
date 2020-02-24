@@ -121,31 +121,6 @@ public final class DatasetQuadStoreTransactionTest {
     }
 
     @Test
-    public void testListGraphNamesEmpty() {
-        try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.READ)) {
-            try (final AutoCloseableIterator<Uri> i = tx.listGraphNames()) {
-                assertFalse(i.hasNext());
-            }
-        }
-    }
-
-    @Test
-    public void testListGraphNamesOne() {
-        try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.WRITE)) {
-            tx.getOrCreateNamedGraph(testName).add(testModel);
-            tx.commit();
-        }
-
-        try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.READ)) {
-            try (final AutoCloseableIterator<Uri> i = tx.listGraphNames()) {
-                assertTrue(i.hasNext());
-                assertEquals(testName, i.next());
-                assertFalse(i.hasNext());
-            }
-        }
-    }
-
-    @Test
     public void testRemoveAllGraphs() {
         try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.READ)) {
             assertFalse(tx.containsNamedGraph(testName));
