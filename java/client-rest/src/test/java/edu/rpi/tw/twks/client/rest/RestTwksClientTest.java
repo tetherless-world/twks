@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.client;
+package edu.rpi.tw.twks.client.rest;
 
 public final class RestTwksClientTest extends TwksClientTest<RestTwksClient> {
     @Override

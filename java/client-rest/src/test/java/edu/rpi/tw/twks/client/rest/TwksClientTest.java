@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.client;
+package edu.rpi.tw.twks.client.rest;
 
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;

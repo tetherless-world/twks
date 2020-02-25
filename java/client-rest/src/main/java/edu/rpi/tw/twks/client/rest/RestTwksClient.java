@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.client;
+package edu.rpi.tw.twks.client.rest;
 
 import com.google.api.client.http.*;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
