@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.cli;
+package edu.rpi.tw.twks.client.direct;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -24,10 +24,10 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class InProcessTwksClient implements TwksClient {
+public final class DirectTwksClient implements TwksClient {
     private final Twks delegate;
 
-    public InProcessTwksClient(final Twks twks) {
+    public DirectTwksClient(final Twks twks) {
         this.delegate = checkNotNull(twks);
     }
 
