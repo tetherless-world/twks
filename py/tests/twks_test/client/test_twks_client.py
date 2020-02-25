@@ -56,7 +56,9 @@ def test_get_ontology_assertions(client, ontology_nanopublication, ontology_uri,
 
     client.put_nanopublication(ontology_nanopublication)
     assertions = client.get_ontology_assertions(frozenset((ontology_uri,)))
-    assert len(assertions) == 1
+    # for assertion in assertions:
+    #     print(assertion)
+    assert len(assertions) == 2  # The assertion from the assertions file plus the rdf:type owl:Ontology
 
 
 def test_put_nanopublication(client, spec_nanopublication):

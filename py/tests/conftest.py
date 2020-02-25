@@ -13,9 +13,9 @@ def assertions_ttl_file_path():
 
 
 @pytest.fixture
-def ontology_nanopublication(ontology_uri, spec_nanopublication_trig_file_path):
+def ontology_nanopublication(assertions_ttl_file_path, ontology_uri):
     assertions_graph = rdflib.Graph()
-    assertions_graph.parse(source=spec_nanopublication_trig_file_path, format="trig")
+    assertions_graph.parse(source=assertions_ttl_file_path, format="ttl")
     assertions_graph.add((ontology_uri, RDF["type"], OWL["Ontology"]))
     return Nanopublication.from_assertions(assertions_graph)
 
