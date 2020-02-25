@@ -16,6 +16,7 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.geosparql.configuration.GeoSPARQLConfig;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +86,11 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
     @Override
     public final Model getAssertions() {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.READ)) {
-            return transaction.getAssertions();
+            // Create a copy of the assertions Model, so operations on the reference won't fail because they're outside a transaction.
+            final Model reference = transaction.getAssertions();
+            final Model copy = ModelFactory.createDefaultModel();
+            copy.add(reference);
+            return copy;
         }
     }
 
@@ -107,7 +112,11 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
     @Override
     public Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.READ)) {
-            return transaction.getOntologyAssertions(ontologyUris);
+            // Create a copy of the assertions Model, so operations on the reference won't fail because they're outside a transaction.
+            final Model reference = transaction.getOntologyAssertions(ontologyUris);
+            final Model copy = ModelFactory.createDefaultModel();
+            copy.add(reference);
+            return copy;
         }
     }
 

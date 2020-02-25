@@ -11,6 +11,9 @@ public interface GetAssertionsApi {
      * Writes to the returned Model will not be reflected in the underlying store.
      * <p>
      * The combining rule for assertions from different nanopublications is currently (201910) unspecified.
+     * <p>
+     * If the call is made outside a transaction, a copy will be returned that can be manipulated outside transactions.
+     * If the call is made inside a transaction, the returned Model may be a reference into the underlying store rather than a copy.
      *
      * @return Model containing assertions about the given ontologies
      */
@@ -24,6 +27,9 @@ public interface GetAssertionsApi {
      * Writes to the returned Model will not be reflected in the underlying store.
      * <p>
      * The combining rule for assertions from different nanopublications is currently (201910) unspecified.
+     * <p>
+     * If the call is made outside a transaction, a copy will be returned that can be manipulated outside transactions.
+     * If the call is made inside a transaction, the returned Model may be a reference into the underlying store rather than a copy.
      *
      * @param ontologyUris set of ontology URIs (?x)
      * @return Model containing assertions about the given ontologies
