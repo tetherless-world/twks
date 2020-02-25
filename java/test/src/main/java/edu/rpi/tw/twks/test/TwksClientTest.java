@@ -12,7 +12,7 @@ public abstract class TwksClientTest<TwksClientT extends TwksClient> extends Api
     }
 
     @Override
-    public final void testDump() throws Exception {
+    public void testDump() throws Exception {
         getSystemUnderTest().putNanopublication(getTestData().specNanopublication);
 
         getSystemUnderTest().dump();
