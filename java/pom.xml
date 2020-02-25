@@ -253,7 +253,8 @@
                 <module>agraph</module>
                 <module>api</module>
                 <module>cli</module>
-                <module>client</module>
+                <module>client/direct</module>
+                <module>client/rest</module>
                 <module>configuration</module>
                 <module>ext</module>
                 <module>factory</module>
@@ -266,7 +267,6 @@
                 <module>test</module>
                 <module>uri</module>
                 <module>vocabulary</module>
-                
             </modules>
         </profile>
         <profile>
@@ -300,7 +300,8 @@
                 <module>agraph</module>
                 <module>api</module>
                 <!--                <module>cli</module>-->
-                <module>client</module>
+                <!--                <module>client/direct</module>-->
+                <module>client/rest</module>
                 <module>configuration</module>
                 <!--                <module>ext</module>-->
                 <module>factory</module>

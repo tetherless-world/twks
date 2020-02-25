@@ -1,6 +1,4 @@
-package edu.rpi.tw.twks.client;
-
-import edu.rpi.tw.twks.api.*;
+package edu.rpi.tw.twks.api;
 
 /**
  * Client for a TWKS server.

@@ -1,7 +1,7 @@
-package edu.rpi.tw.twks.client;
+package edu.rpi.tw.twks.test;
 
+import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;
-import edu.rpi.tw.twks.test.ApisTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -12,7 +12,7 @@ public abstract class TwksClientTest<TwksClientT extends TwksClient> extends Api
     }
 
     @Override
-    public final void testDump() throws Exception {
+    public void testDump() throws Exception {
         getSystemUnderTest().putNanopublication(getTestData().specNanopublication);
 
         getSystemUnderTest().dump();

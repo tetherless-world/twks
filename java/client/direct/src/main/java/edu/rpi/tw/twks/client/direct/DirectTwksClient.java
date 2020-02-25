@@ -1,11 +1,11 @@
-package edu.rpi.tw.twks.cli;
+package edu.rpi.tw.twks.client.direct;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.api.TwksVersion;
-import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.atlas.json.JsonArray;
@@ -24,10 +24,10 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class InProcessTwksClient implements TwksClient {
+public final class DirectTwksClient implements TwksClient {
     private final Twks delegate;
 
-    public InProcessTwksClient(final Twks twks) {
+    public DirectTwksClient(final Twks twks) {
         this.delegate = checkNotNull(twks);
     }
 

@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.cli.command;
 
-import edu.rpi.tw.twks.client.TwksClient;
+import edu.rpi.tw.twks.api.TwksClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

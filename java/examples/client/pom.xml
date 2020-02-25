@@ -38,7 +38,7 @@
     <dependencies>
         <dependency>
             <groupId>edu.rpi.tw.twks</groupId>
-            <artifactId>twks-client</artifactId>
+            <artifactId>twks-rest-client</artifactId>
             <version>1.0.4-SNAPSHOT</version>
         </dependency>
     </dependencies>

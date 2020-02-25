@@ -4,11 +4,12 @@ import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;
 import edu.rpi.tw.twks.cli.command.*;
-import edu.rpi.tw.twks.client.RestTwksClient;
-import edu.rpi.tw.twks.client.RestTwksClientConfiguration;
-import edu.rpi.tw.twks.client.TwksClient;
+import edu.rpi.tw.twks.client.direct.DirectTwksClient;
+import edu.rpi.tw.twks.client.rest.RestTwksClient;
+import edu.rpi.tw.twks.client.rest.RestTwksClientConfiguration;
 import edu.rpi.tw.twks.factory.TwksFactory;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -85,7 +86,7 @@ public final class CliMain {
                 final Twks twks = TwksFactory.getInstance().createTwks(configuration);
                 logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);
 
-                command.run(new InProcessTwksClient(twks));
+                command.run(new DirectTwksClient(twks));
                 return;
             }
         }

@@ -6,12 +6,13 @@ rm -fr ~/.m2/repository/edu/rpi/tw/twks
 MAVEN_OPTS="-Xmx3500M" \
   mvn \
   -q \
-  -DargLine=\"-Dtwks.serverBaseUrl=http://twks-server:8080\" -Dtwks-client.skipTests=false \
+  -DargLine=\"-Dtwks.serverBaseUrl=http://twks-server:8080\" -Dtwks-rest-client.skipTests=false \
   test
 mkdir surefire-reports
 mv abc/target/surefire-reports/* surefire-reports
 mv cli/target/surefire-reports/* surefire-reports
-mv client/target/surefire-reports/* surefire-reports
+mv client/direct/target/surefire-reports/* surefire-reports
+mv client/rest/target/surefire-reports/* surefire-reports
 mv ext/target/surefire-reports/* surefire-reports
 mv factory/target/surefire-reports/* surefire-reports
 mv mem/target/surefire-reports/* surefire-reports

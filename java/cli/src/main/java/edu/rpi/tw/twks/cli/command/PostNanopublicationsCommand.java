@@ -2,8 +2,8 @@ package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableList;
+import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.cli.CliNanopublicationParser;
-import edu.rpi.tw.twks.client.TwksClient;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

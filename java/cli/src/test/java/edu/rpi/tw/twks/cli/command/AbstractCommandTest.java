@@ -3,7 +3,7 @@ package edu.rpi.tw.twks.cli.command;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.cli.InProcessTwksClient;
+import edu.rpi.tw.twks.client.direct.DirectTwksClient;
 import edu.rpi.tw.twks.factory.TwksFactory;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
 import edu.rpi.tw.twks.tdb.Tdb2TwksConfiguration;
@@ -59,7 +59,7 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
     protected abstract CommandT newCommand();
 
     protected final void runCommand(final Command command) {
-        command.run(new InProcessTwksClient(twks));
+        command.run(new DirectTwksClient(twks));
     }
 
     @Before

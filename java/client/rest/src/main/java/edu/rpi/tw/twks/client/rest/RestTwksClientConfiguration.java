@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.client;
+package edu.rpi.tw.twks.client.rest;
 
 import com.google.common.base.MoreObjects;
 import edu.rpi.tw.twks.configuration.AbstractConfiguration;

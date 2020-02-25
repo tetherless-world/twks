@@ -1,4 +1,4 @@
-package edu.rpi.tw.twks.client;
+package edu.rpi.tw.twks.client.rest;
 
 import com.google.api.client.http.*;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.google.common.reflect.TypeToken;
+import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;
 import edu.rpi.tw.twks.api.TwksVersion;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;

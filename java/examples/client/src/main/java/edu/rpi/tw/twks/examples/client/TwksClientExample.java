@@ -1,8 +1,8 @@
 package edu.rpi.tw.twks.examples.client;
 
-import edu.rpi.tw.twks.client.RestTwksClient;
-import edu.rpi.tw.twks.client.RestTwksClientConfiguration;
-import edu.rpi.tw.twks.client.TwksClient;
+import edu.rpi.tw.twks.api.TwksClient;
+import edu.rpi.tw.twks.client.rest.RestTwksClient;
+import edu.rpi.tw.twks.client.rest.RestTwksClientConfiguration;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
