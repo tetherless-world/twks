@@ -299,8 +299,7 @@
                 <module>abc</module>
                 <module>agraph</module>
                 <module>api</module>
-                <!--                <module>cli</module>-->
-                <!--                <module>client/direct</module>-->
+                <module>client/direct</module>
                 <module>client/rest</module>
                 <module>configuration</module>
                 <!--                <module>ext</module>-->
