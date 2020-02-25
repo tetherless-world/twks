@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.client;
 
+import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;
 import edu.rpi.tw.twks.test.ApisTest;
 import org.junit.Test;

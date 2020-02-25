@@ -1,6 +1,6 @@
 package edu.rpi.tw.twks.cli.command;
 
-import edu.rpi.tw.twks.client.TwksClient;
+import edu.rpi.tw.twks.api.TwksClient;
 
 public abstract class Command {
     public String[] getAliases() {
