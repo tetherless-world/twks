@@ -48,6 +48,16 @@ def test_get_nanopublication_present(client, spec_nanopublication):
     assert actual_nanopublication.isomorphic(spec_nanopublication)
 
 
+def test_get_ontology_assertions(client, ontology_nanopublication, ontology_uri, spec_nanopublication):
+    client.put_nanopublication(spec_nanopublication)
+    assertions = client.get_ontology_assertions(frozenset((ontology_uri,)))
+    assert len(assertions) == 0
+
+    client.put_nanopublication(ontology_nanopublication)
+    assertions = client.get_ontology_assertions(frozenset((ontology_uri,)))
+    assert len(assertions) == 1
+
+
 def test_put_nanopublication(client, spec_nanopublication):
     client.put_nanopublication(spec_nanopublication)
 
