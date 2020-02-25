@@ -53,7 +53,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>twks-client</artifactId>
+            <artifactId>twks-rest-client</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
