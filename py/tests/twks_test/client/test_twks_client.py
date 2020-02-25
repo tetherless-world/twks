@@ -7,9 +7,10 @@ from twks.client.twks_client import TwksClient
 
 
 @pytest.fixture
-def client(spec_nanopublication):
+def client(ontology_nanopublication, spec_nanopublication):
     client = TwksClient(server_base_url=os.environ.get("TWKS_SERVER_BASE_URL", None))
     yield client
+    client.delete_nanopublication(ontology_nanopublication.uri)
     client.delete_nanopublication(spec_nanopublication.uri)
 
 
