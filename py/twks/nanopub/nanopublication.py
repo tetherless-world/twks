@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import uuid4
 
 import rdflib
+from rdflib import RDF, OWL
 
 
 class Nanopublication:
@@ -60,6 +61,10 @@ class Nanopublication:
 
         # Populate the publication info part
         publication_info_context.add((nanopublication_uri, PROV["generatedAtTime"], generated_at_time))
+
+        for ontology_resource in assertions.subjects(RDF["type"], OWL["Ontology"]):
+            publication_info_context.add(
+                (nanopublication_uri, rdflib.URIRef("http://semanticscience.org/resource/isAbout"), ontology_resource))
 
         # Populate the head part
         #         // :head {

@@ -7,9 +7,10 @@ from twks.client.twks_client import TwksClient
 
 
 @pytest.fixture
-def client(spec_nanopublication):
+def client(ontology_nanopublication, spec_nanopublication):
     client = TwksClient(server_base_url=os.environ.get("TWKS_SERVER_BASE_URL", None))
     yield client
+    client.delete_nanopublication(ontology_nanopublication.uri)
     client.delete_nanopublication(spec_nanopublication.uri)
 
 
@@ -46,6 +47,18 @@ def test_get_nanopublication_present(client, spec_nanopublication):
     actual_nanopublication = client.get_nanopublication(spec_nanopublication.uri)
     assert actual_nanopublication is not None
     assert actual_nanopublication.isomorphic(spec_nanopublication)
+
+
+def test_get_ontology_assertions(client, ontology_nanopublication, ontology_uri, spec_nanopublication):
+    client.put_nanopublication(spec_nanopublication)
+    assertions = client.get_ontology_assertions(frozenset((ontology_uri,)))
+    assert len(assertions) == 0
+
+    client.put_nanopublication(ontology_nanopublication)
+    assertions = client.get_ontology_assertions(frozenset((ontology_uri,)))
+    # for assertion in assertions:
+    #     print(assertion)
+    assert len(assertions) == 2  # The assertion from the assertions file plus the rdf:type owl:Ontology
 
 
 def test_put_nanopublication(client, spec_nanopublication):

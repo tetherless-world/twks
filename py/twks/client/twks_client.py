@@ -1,9 +1,10 @@
 import urllib
-from typing import Optional
+from typing import Optional, Set
 from urllib.error import HTTPError
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 import rdflib
+from rdflib import URIRef
 from rdflib.plugins.stores.sparqlstore import SPARQLStore
 
 from twks.nanopub.nanopublication import Nanopublication
@@ -91,6 +92,30 @@ class TwksClient:
                 return None
             else:
                 raise
+
+    def get_ontology_assertions(self, ontology_uris: Set[URIRef], store='default') -> rdflib.Graph:
+        """
+        Get the union of all assertions in the store, as a new Graph.
+        :param store: store for the returned Graph
+        """
+
+        if not ontology_uris:
+            return rdflib.Graph(store=store)
+
+        url = self.__server_base_url + "/assertions/ontology?" + urlencode(
+            tuple(("uri", str(ontology_uri)) for ontology_uri in ontology_uris))
+        # print(url)
+
+        request = urllib.request.Request(url=url,
+                                         headers={"Accept": "text/trig"},
+                                         method="GET")
+
+        with urllib.request.urlopen(request) as f:
+            response_trig = f.read()
+            result = rdflib.Graph(store=store)
+            result.parse(format="trig",
+                         data=response_trig)
+            return result
 
     def __nanopublication_url(self, nanopublication_uri: str) -> str:
         return self.__server_base_url + "/nanopublication/" + quote(str(nanopublication_uri), safe="")
