@@ -1,8 +1,7 @@
-package edu.rpi.tw.twks.client.rest;
+package edu.rpi.tw.twks.test;
 
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;
-import edu.rpi.tw.twks.test.ApisTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
