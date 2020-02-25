@@ -66,6 +66,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     protected abstract void closeSystemUnderTest(SystemUnderTestT sut);
 
     private void deleteTestDataNanopublications() {
+        // Can't call deleteNanopublications() because the external API clients don't support it (intentionally).
         sut.deleteNanopublications(ImmutableList.of(
                 testData.ontologyNanopublication.getUri(),
                 testData.secondNanopublication.getUri(),
@@ -88,12 +89,14 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     public final void setUp() throws Exception {
         tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
         sut = openSystemUnderTest();
-        sut.deleteNanopublications();
+        deleteTestDataNanopublications();
+//        sut.deleteNanopublications();
     }
 
     @After
     public final void tearDown() throws Exception {
-        sut.deleteNanopublications();
+        deleteTestDataNanopublications();
+//        sut.deleteNanopublications();
         closeSystemUnderTest(sut);
         MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
     }
@@ -304,22 +307,26 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
         sut.putNanopublication(secondOntologyNanopublication);
 
-        {
-            final Model expectedAssertions = ModelFactory.createDefaultModel();
-            expectedAssertions.add(testData.ontologyNanopublication.getAssertion().getModel());
-            expectedAssertions.add(testData.secondNanopublication.getAssertion().getModel());
-            assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), expectedAssertions);
-        }
+        try {
+            {
+                final Model expectedAssertions = ModelFactory.createDefaultModel();
+                expectedAssertions.add(testData.ontologyNanopublication.getAssertion().getModel());
+                expectedAssertions.add(testData.secondNanopublication.getAssertion().getModel());
+                assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), expectedAssertions);
+            }
 
-        sut.deleteNanopublication(testData.ontologyNanopublication.getUri());
+            sut.deleteNanopublication(testData.ontologyNanopublication.getUri());
 
-        assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), secondOntologyNanopublication.getAssertion().getModel());
+            assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), secondOntologyNanopublication.getAssertion().getModel());
 
-        sut.deleteNanopublication(secondOntologyNanopublication.getUri());
+            sut.deleteNanopublication(secondOntologyNanopublication.getUri());
 
-        {
-            final Model actualAssertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
-            assertTrue(actualAssertions.isEmpty());
+            {
+                final Model actualAssertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
+                assertTrue(actualAssertions.isEmpty());
+            }
+        } finally {
+            sut.deleteNanopublication(secondOntologyNanopublication.getUri());
         }
     }
 
