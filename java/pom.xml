@@ -253,7 +253,7 @@
                 <module>agraph</module>
                 <module>api</module>
                 <module>cli</module>
-                <module>client-rest</module>
+                <module>client/rest</module>
                 <module>configuration</module>
                 <module>ext</module>
                 <module>factory</module>
@@ -300,7 +300,7 @@
                 <module>agraph</module>
                 <module>api</module>
                 <!--                <module>cli</module>-->
-                <module>client-rest</module>
+                <module>client/rest</module>
                 <module>configuration</module>
                 <!--                <module>ext</module>-->
                 <module>factory</module>
