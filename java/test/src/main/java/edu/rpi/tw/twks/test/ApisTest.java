@@ -15,7 +15,10 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.vocabulary.OWL;
+import org.apache.jena.vocabulary.RDF;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static edu.rpi.tw.twks.test.ModelAssert.assertModelEquals;
 import static org.junit.Assert.*;
 
 public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> {
@@ -61,6 +65,16 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
 
     protected abstract void closeSystemUnderTest(SystemUnderTestT sut);
 
+    private void deleteTestDataNanopublications() {
+        // Can't call deleteNanopublications() because the external API clients don't support it (intentionally).
+        sut.deleteNanopublications(ImmutableList.of(
+                testData.ontologyNanopublication.getUri(),
+                testData.secondNanopublication.getUri(),
+                testData.secondOntologyNanopublication.getUri(),
+                testData.specNanopublication.getUri()
+        ));
+    }
+
     protected final SystemUnderTestT getSystemUnderTest() {
         return sut;
     }
@@ -75,16 +89,14 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     public final void setUp() throws Exception {
         tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
         sut = openSystemUnderTest();
+        deleteTestDataNanopublications();
+//        sut.deleteNanopublications();
     }
 
     @After
     public final void tearDown() throws Exception {
-        sut.deleteNanopublications(ImmutableList.of(
-                testData.ontologyNanopublication.getUri(),
-                testData.secondNanopublication.getUri(),
-                testData.secondOntologyNanopublication.getUri(),
-                testData.specNanopublication.getUri()
-        ));
+        deleteTestDataNanopublications();
+//        sut.deleteNanopublications();
         closeSystemUnderTest(sut);
         MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
     }
@@ -157,22 +169,75 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     }
 
     @Test
-    public void testGetAssertions() {
+    public void testGetAssertionsAfterDelete() {
         if (!(sut instanceof GetAssertionsApi)) {
             return;
         }
 
+        // No assertions
 //        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
+
+        // Add first nanopublication
         sut.putNanopublication(testData.specNanopublication);
-        {
-            final Model assertions = ((GetAssertionsApi) sut).getAssertions();
-            if (!assertions.isIsomorphicWith(testData.specNanopublication.getAssertion().getModel())) {
-//                assertions.write(System.out, Lang.TRIG.getName());
-                fail();
-            }
-        }
+
+        // Assert first nanopublication's assertions only
+        assertModelEquals(((GetAssertionsApi) sut).getAssertions(), testData.specNanopublication.getAssertion().getModel());
+
+        // Add second nanopublication
         sut.putNanopublication(testData.secondNanopublication);
-        assertFalse(((GetAssertionsApi) sut).getAssertions().isIsomorphicWith(testData.specNanopublication.getAssertion().getModel()));
+
+        {
+            final Model expectedAssertions = ModelFactory.createDefaultModel();
+            expectedAssertions.add(testData.specNanopublication.getAssertion().getModel());
+            expectedAssertions.add(testData.secondNanopublication.getAssertion().getModel());
+            assertModelEquals(((GetAssertionsApi) sut).getAssertions(), expectedAssertions);
+        }
+
+        // Remove first nanopublication
+        sut.deleteNanopublication(testData.specNanopublication.getUri());
+
+        // Assert second nanopublication's assertions only
+        assertModelEquals(((GetAssertionsApi) sut).getAssertions(), testData.secondNanopublication.getAssertion().getModel());
+    }
+
+    @Test
+    public void testGetAssertionsOne() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        // No assertions
+//        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
+
+        sut.putNanopublication(testData.specNanopublication);
+
+        assertModelEquals(((GetAssertionsApi) sut).getAssertions(), testData.specNanopublication.getAssertion().getModel());
+    }
+
+    @Test
+    public void testGetAssertionsTwo() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        // No assertions
+//        assertTrue(((BulkReadApi) sut).getAssertions().isEmpty());
+
+        // Add first nanopublication
+        sut.putNanopublication(testData.specNanopublication);
+
+        // Assert first nanopublication's assertions only
+        assertModelEquals(((GetAssertionsApi) sut).getAssertions(), testData.specNanopublication.getAssertion().getModel());
+
+        // Add second nanopublication
+        sut.putNanopublication(testData.secondNanopublication);
+
+        {
+            final Model expectedAssertions = ModelFactory.createDefaultModel();
+            expectedAssertions.add(testData.specNanopublication.getAssertion().getModel());
+            expectedAssertions.add(testData.secondNanopublication.getAssertion().getModel());
+            assertModelEquals(((GetAssertionsApi) sut).getAssertions(), expectedAssertions);
+        }
     }
 
     @Test
@@ -203,7 +268,17 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     }
 
     @Test
-    public void testGetOntologyAssertionsMixed() {
+    public void testGetOntologyAssertionsOneNanopublicationOneOntology() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        sut.putNanopublication(testData.ontologyNanopublication);
+        assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), testData.ontologyNanopublication.getAssertion().getModel());
+    }
+
+    @Test
+    public void testGetOntologyAssertionsThreeNanopublicationsOneOntology() {
         if (!(sut instanceof GetAssertionsApi)) {
             return;
         }
@@ -211,24 +286,52 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         sut.putNanopublication(testData.specNanopublication); // No ontology
         sut.putNanopublication(testData.secondNanopublication); // No ontology
         sut.putNanopublication(testData.ontologyNanopublication);
-        final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
-        assertTrue(assertions.isIsomorphicWith(testData.ontologyNanopublication.getAssertion().getModel()));
+        assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), testData.ontologyNanopublication.getAssertion().getModel());
     }
 
     @Test
-    public void testGetOntologyAssertionsOne() {
+    public void testGetOntologyAssertionsTwoNanopublicationsOneOntologyDelete() throws Exception {
         if (!(sut instanceof GetAssertionsApi)) {
             return;
         }
 
         sut.putNanopublication(testData.ontologyNanopublication);
-        final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
-        assertTrue(assertions.isIsomorphicWith(testData.ontologyNanopublication.getAssertion().getModel()));
-        assertEquals(2, assertions.listStatements().toList().size());
+        final Nanopublication secondOntologyNanopublication;
+        {
+            // Use the second nanopublication with the first ontology URI
+            final Model ontologyNanopublicationAssertions = ModelFactory.createDefaultModel().add(testData.secondNanopublication.getAssertion().getModel());
+            ontologyNanopublicationAssertions.add(ResourceFactory.createResource(testData.ontologyUri.toString()), RDF.type, OWL.Ontology);
+            secondOntologyNanopublication = Nanopublication.builder().getAssertionBuilder().setModel(ontologyNanopublicationAssertions).getNanopublicationBuilder().build();
+//            ontologyNanopublicationAssertions.listStatements().forEachRemaining(statement -> System.out.println(statement));
+        }
+
+        sut.putNanopublication(secondOntologyNanopublication);
+
+        try {
+            {
+                final Model expectedAssertions = ModelFactory.createDefaultModel();
+                expectedAssertions.add(testData.ontologyNanopublication.getAssertion().getModel());
+                expectedAssertions.add(testData.secondNanopublication.getAssertion().getModel());
+                assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), expectedAssertions);
+            }
+
+            sut.deleteNanopublication(testData.ontologyNanopublication.getUri());
+
+            assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), secondOntologyNanopublication.getAssertion().getModel());
+
+            sut.deleteNanopublication(secondOntologyNanopublication.getUri());
+
+            {
+                final Model actualAssertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
+                assertTrue(actualAssertions.isEmpty());
+            }
+        } finally {
+            sut.deleteNanopublication(secondOntologyNanopublication.getUri());
+        }
     }
 
     @Test
-    public void testGetOntologyAssertionsTwo() {
+    public void testGetOntologyAssertionsTwoNanopublicationsTwoOntologies() {
         if (!(sut instanceof GetAssertionsApi)) {
             return;
         }
@@ -236,15 +339,37 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         sut.putNanopublication(testData.ontologyNanopublication);
         sut.putNanopublication(testData.secondOntologyNanopublication);
 
+        assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), testData.ontologyNanopublication.getAssertion().getModel());
+
         {
-            final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri));
-            assertTrue(assertions.isIsomorphicWith(testData.ontologyNanopublication.getAssertion().getModel()));
-            assertEquals(2, assertions.listStatements().toList().size());
+            final Model expectedAssertions = ModelFactory.createDefaultModel();
+            expectedAssertions.add(testData.ontologyNanopublication.getAssertion().getModel());
+            expectedAssertions.add(testData.secondOntologyNanopublication.getAssertion().getModel());
+            assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri, testData.secondOntologyUri)), expectedAssertions);
         }
+    }
+
+    @Test
+    public void testGetOntologyAssertionsTwoNanopublicationsTwoOntologiesDelete() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        sut.putNanopublication(testData.ontologyNanopublication);
+        sut.putNanopublication(testData.secondOntologyNanopublication);
+
+        assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri)), testData.ontologyNanopublication.getAssertion().getModel());
+
         {
-            final Model assertions = ((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri, testData.secondOntologyUri));
-            assertEquals(4, assertions.listStatements().toList().size());
+            final Model expectedAssertions = ModelFactory.createDefaultModel();
+            expectedAssertions.add(testData.ontologyNanopublication.getAssertion().getModel());
+            expectedAssertions.add(testData.secondOntologyNanopublication.getAssertion().getModel());
+            assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.ontologyUri, testData.secondOntologyUri)), expectedAssertions);
         }
+
+        sut.deleteNanopublication(testData.ontologyNanopublication.getUri());
+
+        assertModelEquals(((GetAssertionsApi) sut).getOntologyAssertions(ImmutableSet.of(testData.secondOntologyUri)), testData.secondOntologyNanopublication.getAssertion().getModel());
     }
 
     @Test
@@ -287,18 +412,17 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         sut.putNanopublication(testData.specNanopublication);
         sut.putNanopublication(testData.secondNanopublication);
 
+        final Model expectedAssertions = ModelFactory.createDefaultModel();
+        expectedAssertions.add(testData.specNanopublication.getAssertion().getModel());
+        expectedAssertions.add(testData.secondNanopublication.getAssertion().getModel());
+
         final Query query = QueryFactory.create("CONSTRUCT WHERE { ?S ?P ?O }");
-        final Model sutAssertionsModel;
+        final Model actualAssertions;
         try (final QueryExecution queryExecution = ((AssertionQueryApi) sut).queryAssertions(query)) {
-            sutAssertionsModel = queryExecution.execConstruct();
+            actualAssertions = queryExecution.execConstruct();
         }
 
-//            sutAssertionsModel.write(System.out, "TURTLE");
-        assertEquals(2, sutAssertionsModel.listStatements().toList().size());
-        final Statement statement1 = testData.specNanopublication.getAssertion().getModel().listStatements().toList().get(0);
-        assertEquals(1, sutAssertionsModel.listStatements(statement1.getSubject(), statement1.getPredicate(), statement1.getObject()).toList().size());
-        final Statement statement2 = testData.secondNanopublication.getAssertion().getModel().listStatements().toList().get(0);
-        assertEquals(1, sutAssertionsModel.listStatements(statement2.getSubject(), statement2.getPredicate(), statement2.getObject()).toList().size());
+        assertModelEquals(actualAssertions, expectedAssertions);
     }
 
     @Test

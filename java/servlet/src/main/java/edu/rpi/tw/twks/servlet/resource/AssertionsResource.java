@@ -2,12 +2,14 @@ package edu.rpi.tw.twks.servlet.resource;
 
 import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.api.Twks;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.servlet.AcceptLists;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -38,16 +40,19 @@ public class AssertionsResource extends AbstractResource {
     public Response getAssertions(
             @HeaderParam("Accept") @Nullable @Parameter(description = "Accept header, defaults to text/trig") final String accept
     ) {
-        final Model assertions = getTwks().getAssertions();
-        return getAssertionsDelegate(accept, assertions);
+        try (final TwksTransaction transaction = getTwks().beginTransaction(ReadWrite.READ)) {
+            final Model assertions = transaction.getAssertions();
+            return getAssertionsDelegate(accept, assertions, transaction);
+        }
     }
 
-    private Response getAssertionsDelegate(@Nullable final String accept, final Model assertions) {
+    private Response getAssertionsDelegate(@Nullable final String accept, final Model assertions, final TwksTransaction transaction) {
         final Lang responseLang = AcceptLists.calculateResponseLang(Lang.TRIG, AcceptLists.OFFER_DATASET, AcceptLists.getProposeAcceptList(accept));
 
         final Response.ResponseBuilder responseBuilder = Response.ok();
         responseBuilder.header("Content-Type", responseLang.getContentType().getContentType());
         final StringWriter responseStringWriter = new StringWriter();
+        // Must be in a transaction to call RDFDataMgr.write
         RDFDataMgr.write(responseStringWriter, assertions, responseLang);
         responseBuilder.entity(responseStringWriter.toString());
 
@@ -69,7 +74,9 @@ public class AssertionsResource extends AbstractResource {
             @QueryParam("uri") @Parameter(description = "one or more ontology URIs") final List<String> ontologyUriStrings
     ) {
         final ImmutableSet<Uri> ontologyUris = ontologyUriStrings.stream().map(uriString -> Uri.parse(uriString)).collect(ImmutableSet.toImmutableSet());
-        final Model assertions = getTwks().getOntologyAssertions(ontologyUris);
-        return getAssertionsDelegate(accept, assertions);
+        try (final TwksTransaction transaction = getTwks().beginTransaction(ReadWrite.READ)) {
+            final Model assertions = transaction.getOntologyAssertions(ontologyUris);
+            return getAssertionsDelegate(accept, assertions, transaction);
+        }
     }
 }

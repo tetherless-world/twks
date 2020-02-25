@@ -1,11 +1,14 @@
 package edu.rpi.tw.twks.nanopub;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableSet;
 import edu.rpi.tw.twks.uri.Uri;
+import edu.rpi.tw.twks.vocabulary.SIO;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ReadWrite;
+import org.apache.jena.rdf.model.NodeIterator;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
@@ -55,6 +58,22 @@ public final class Nanopublication {
         return new NanopublicationBuilder(nanopublicationUri);
     }
 
+    public final ImmutableSet<Uri> getAboutOntologyUris() {
+        final NodeIterator objectI = getPublicationInfo().getModel().listObjectsOfProperty(SIO.isAbout);
+        if (!objectI.hasNext()) {
+            return ImmutableSet.of();
+        }
+        final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
+        while (objectI.hasNext()) {
+            final RDFNode object = objectI.next();
+            if (!object.isURIResource()) {
+                continue;
+            }
+            resultBuilder.add(Uri.parse(object.asResource().getURI()));
+        }
+        return resultBuilder.build();
+    }
+
     /**
      * Get the assertion part of the nanopublication.
      */
@@ -62,8 +81,10 @@ public final class Nanopublication {
         return assertion;
     }
 
-    @VisibleForTesting
-    final NanopublicationPart getHead() {
+    /**
+     * Get the head part of the nanopublication.
+     */
+    public final NanopublicationPart getHead() {
         return head;
     }
 
