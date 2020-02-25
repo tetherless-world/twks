@@ -11,7 +11,8 @@ MAVEN_OPTS="-Xmx3500M" \
 mkdir surefire-reports
 mv abc/target/surefire-reports/* surefire-reports
 mv cli/target/surefire-reports/* surefire-reports
-mv client/target/surefire-reports/* surefire-reports
+mv client/direct/target/surefire-reports/* surefire-reports
+mv client/rest/target/surefire-reports/* surefire-reports
 mv ext/target/surefire-reports/* surefire-reports
 mv factory/target/surefire-reports/* surefire-reports
 mv mem/target/surefire-reports/* surefire-reports
