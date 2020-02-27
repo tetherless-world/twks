@@ -4,7 +4,6 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.shared.DoesNotExistException;
 
 /**
  * Interface for transactions on quad stores, with a minimal set of operations needed by TwksTransaction.
@@ -44,7 +43,7 @@ public interface QuadStoreTransaction extends AutoCloseable {
     /**
      * Get a named graph's Model. Throws an exception if the named graph does not exist in the store.
      */
-    Model getNamedGraph(Uri graphName) throws DoesNotExistException;
+    Model getNamedGraph(Uri graphName) throws NoSuchNamedGraphException;
 
     /**
      * Get a named graph's Model or create the named graph if it doesn't exist.

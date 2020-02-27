@@ -12,7 +12,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.shared.DoesNotExistException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,7 +139,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         for (final Uri ontologyUri : ontologyUris) {
             try {
                 result.add(ontologyAssertionsUnionGraphs.get(ontologyUri));
-            } catch (final DoesNotExistException e) {
+            } catch (final NoSuchNamedGraphException e) {
             }
         }
         return result;
@@ -174,7 +173,12 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
                 return new Iterator<Nanopublication>() {
                     private NanopublicationPart getNanopublicationPart(final String nanopublicationPartName) {
                         final Uri nanopublicationPartNameUri = Uri.parse(nanopublicationPartName);
-                        final Model nanopublicationPartModel = quadStoreTransaction.getNamedGraph(nanopublicationPartNameUri);
+                        final Model nanopublicationPartModel;
+                        try {
+                            nanopublicationPartModel = quadStoreTransaction.getNamedGraph(nanopublicationPartNameUri);
+                        } catch (final NoSuchNamedGraphException e) {
+                            throw new IllegalStateException(e);
+                        }
                         return new NanopublicationPart(nanopublicationPartModel, nanopublicationPartNameUri);
                     }
 
@@ -257,7 +261,12 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         }
 
         public final Model get() {
-            return quadStoreTransaction.getNamedGraph(NAME);
+            try {
+                return quadStoreTransaction.getNamedGraph(NAME);
+            } catch (final NoSuchNamedGraphException e) {
+                logger.warn("requested all assertions graph, which hasn't been created yet");
+                return ModelFactory.createDefaultModel();
+            }
         }
 
         public final void putNanopublication(final Nanopublication nanopublication) {
@@ -291,7 +300,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
             final Model index;
             try {
                 index = checkNotNull(quadStoreTransaction.getNamedGraph(INDEX_GRAPH_NAME));
-            } catch (final DoesNotExistException e) {
+            } catch (final NoSuchNamedGraphException e) {
                 return;
             }
 
@@ -316,7 +325,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
             }
         }
 
-        public final Model get(final Uri ontologyUri) {
+        public final Model get(final Uri ontologyUri) throws NoSuchNamedGraphException {
             return quadStoreTransaction.getNamedGraph(buildUnionGraphName(ontologyUri));
         }
 

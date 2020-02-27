@@ -201,6 +201,15 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     }
 
     @Test
+    public void testGetAssertionsEmpty() {
+        if (!(sut instanceof GetAssertionsApi)) {
+            return;
+        }
+
+        assertTrue(((GetAssertionsApi) sut).getAssertions().isEmpty());
+    }
+
+    @Test
     public void testGetAssertionsOne() {
         if (!(sut instanceof GetAssertionsApi)) {
             return;
