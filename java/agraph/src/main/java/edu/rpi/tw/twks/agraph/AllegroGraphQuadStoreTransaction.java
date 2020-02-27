@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.agraph;
 
 import com.franz.agraph.jena.*;
 import com.franz.agraph.repository.AGRepositoryConnection;
+import edu.rpi.tw.twks.abc.NoSuchNamedGraphException;
 import edu.rpi.tw.twks.abc.QuadStoreTransaction;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Query;
@@ -55,12 +56,17 @@ final class AllegroGraphQuadStoreTransaction implements QuadStoreTransaction {
     }
 
     @Override
-    public final Model getNamedGraph(final Uri graphName) {
+    public final Model getNamedGraph(final Uri graphName) throws NoSuchNamedGraphException {
         // The last parameter, strict:
         // true = if the client hasn't opened this graph before, throw an exception
         // false = always open the graph
         // There's no mode for when the client hasn't opened the graph but the graph exists.
-        final AGGraph graph = graphMaker.openGraph(graphName.toString(), false);
+        final AGGraph graph;
+        try {
+            graph = graphMaker.openGraph(graphName.toString(), false);
+        } catch (final DoesNotExistException e) {
+            throw new NoSuchNamedGraphException(graphName.toString());
+        }
         return new AGModel(graph);
     }
 

@@ -9,7 +9,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.shared.DoesNotExistException;
 import org.apache.jena.vocabulary.RDFS;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,12 +89,12 @@ public final class DatasetQuadStoreTransactionTest {
     }
 
     @Test
-    public void testGetNamedGraph() {
+    public void testGetNamedGraph() throws Exception {
         try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.READ)) {
             try {
                 tx.getNamedGraph(testName);
                 fail();
-            } catch (final DoesNotExistException e) {
+            } catch (final NoSuchNamedGraphException e) {
             }
         }
         try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.WRITE)) {
@@ -109,7 +108,7 @@ public final class DatasetQuadStoreTransactionTest {
     }
 
     @Test
-    public void testGetOrCreateNamedGraph() {
+    public void testGetOrCreateNamedGraph() throws Exception {
         try (final DatasetQuadStoreTransaction tx = newTransaction(ReadWrite.WRITE)) {
             tx.getOrCreateNamedGraph(testName).add(testModel);
             tx.commit();
