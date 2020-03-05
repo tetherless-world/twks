@@ -28,7 +28,7 @@ public final class WatchNanopublicationsCommandTest extends AbstractCommandTest<
         assertFalse(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
 
         final ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(() -> runCommand(command));
+        executor.submit(() -> runCommand());
 
         Thread.sleep(500);
 
@@ -51,7 +51,7 @@ public final class WatchNanopublicationsCommandTest extends AbstractCommandTest<
         assertFalse(getTwks().getNanopublication(getTestData().specNanopublication.getUri()).isPresent());
 
         final ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(() -> runCommand(command));
+        executor.submit(() -> runCommand());
 
         Thread.sleep(500);
 
