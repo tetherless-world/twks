@@ -28,6 +28,7 @@ public final class CliMain {
             new DeleteNanopublicationsCommand(),
             new DumpCommand(),
             new PostNanopublicationsCommand(),
+            new QueryCommand(),
             new WatchNanopublicationsCommand()
     };
     private final static Logger logger = LoggerFactory.getLogger(CliMain.class);
