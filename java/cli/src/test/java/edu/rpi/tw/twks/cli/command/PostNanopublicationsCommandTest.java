@@ -39,7 +39,7 @@ public final class PostNanopublicationsCommandTest extends AbstractCommandTest<P
             fileWriter.write(TestData.SPEC_NANOPUBLICATION_TRIG);
         }
         command.getArgs().sources.add(getTempDirPath().toString());
-        runCommand(command);
+        runCommand();
 
         final Optional<Nanopublication> actual = getTwks().getNanopublication(getTestData().specNanopublication.getUri());
         assertTrue(getTestData().specNanopublication.isIsomorphicWith(actual.get()));
@@ -55,7 +55,7 @@ public final class PostNanopublicationsCommandTest extends AbstractCommandTest<P
                 fileWriter.write(TestData.SPEC_NANOPUBLICATION_TRIG);
             }
             command.getArgs().sources.add(tempFilePath.toString());
-            runCommand(command);
+            runCommand();
         } finally {
             tempFilePath.delete();
         }
@@ -71,7 +71,7 @@ public final class PostNanopublicationsCommandTest extends AbstractCommandTest<P
         System.setIn(new ByteArrayInputStream(TestData.SPEC_NANOPUBLICATION_TRIG.getBytes(Charsets.UTF_8)));
         command.getArgs().lang = "trig";
         command.getArgs().sources.add("-");
-        runCommand(command);
+        runCommand();
 
         final Optional<Nanopublication> actual = getTwks().getNanopublication(getTestData().specNanopublication.getUri());
         assertTrue(getTestData().specNanopublication.isIsomorphicWith(actual.get()));

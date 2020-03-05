@@ -28,6 +28,7 @@ public final class CliMain {
             new DeleteNanopublicationsCommand(),
             new DumpCommand(),
             new PostNanopublicationsCommand(),
+            new QueryCommand(),
             new WatchNanopublicationsCommand()
     };
     private final static Logger logger = LoggerFactory.getLogger(CliMain.class);
@@ -99,7 +100,7 @@ public final class CliMain {
             clientConfigurationBuilder.set(configurationProperties.subset("twks"));
             final RestTwksClientConfiguration clientConfiguration = clientConfigurationBuilder.build();
             final TwksClient client = new RestTwksClient(clientConfiguration);
-            logger.info("using client with configuration {}", clientConfiguration);
+            logger.debug("using client with configuration {}", clientConfiguration);
 
             command.run(client);
         }

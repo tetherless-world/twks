@@ -58,7 +58,7 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
 
     protected abstract CommandT newCommand();
 
-    protected final void runCommand(final Command command) {
+    protected final void runCommand() {
         command.run(new DirectTwksClient(twks));
     }
 
