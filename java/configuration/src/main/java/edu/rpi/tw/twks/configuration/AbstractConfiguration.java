@@ -73,6 +73,11 @@ public abstract class AbstractConfiguration {
                 return value != null ? Optional.of(Boolean.TRUE) : Optional.empty();
             }
 
+            public final Optional<Integer> getInteger(final PropertyDefinition definition) {
+                @Nullable final String value = getProperty(definition);
+                return value != null ? Optional.of(Integer.parseInt(value)) : Optional.empty();
+            }
+
             public final Optional<Path> getPath(final PropertyDefinition definition) {
                 @Nullable final String value = getProperty(definition);
                 return value != null ? Optional.of(Paths.get(value)) : Optional.empty();
