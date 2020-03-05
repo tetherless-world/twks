@@ -60,6 +60,15 @@ public final class RestTwksClient implements TwksClient {
         this.serverBaseUrl = StringUtils.stripEnd(checkNotNull(configuration.getServerBaseUrl()), "/");
         httpTransport = new ApacheHttpTransport();
         httpRequestFactory = httpTransport.createRequestFactory(request -> {
+            if (configuration.getClientConnectTimeoutMs().isPresent()) {
+                request.setConnectTimeout(configuration.getClientConnectTimeoutMs().get());
+            }
+            if (configuration.getClientReadTimeoutMs().isPresent()) {
+                request.setReadTimeout(configuration.getClientReadTimeoutMs().get());
+            }
+            if (configuration.getClientWriteTimeoutMs().isPresent()) {
+                request.setWriteTimeout(configuration.getClientWriteTimeoutMs().get());
+            }
             request.setParser(new JsonObjectParser(new JacksonFactory()));
         });
     }
