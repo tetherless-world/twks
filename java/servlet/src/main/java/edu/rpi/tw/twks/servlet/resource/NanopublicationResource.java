@@ -207,7 +207,7 @@ public class NanopublicationResource extends AbstractResource {
     public Response
     putNanopublication(
             @HeaderParam("Content-Type") final String contentType,
-            @RequestBody(description = "nanopublication in serialized RDF, such as text/trig or application/n-quads") final String requestBody,
+            @RequestBody(description = "either (1) a nanopublication in serialized RDF, such as text/trig or application/n-quads containing the named graphs, or (2) triples in any format with no named graphs, which constitute the assertions part of a new nanopublication") final String requestBody,
             @Context final UriInfo uriInfo
     ) {
         final ImmutableList<Nanopublication> nanopublications = parseNanopublications(contentType, requestBody);
