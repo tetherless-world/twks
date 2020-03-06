@@ -23,8 +23,13 @@ public final class CliNanopublicationParser {
     private final static Logger logger = LoggerFactory.getLogger(CliNanopublicationParser.class);
     private final NanopublicationDialect dialect;
     private final Optional<Lang> lang;
+    private final int retry;
+    private final int retryDelayS;
 
     public CliNanopublicationParser(final Args args) {
+        this.retry = args.retry >= 0 ? args.retry : 0;
+        this.retryDelayS = args.retrayDelayS > 0 ? args.retrayDelayS : 1;
+
         NanopublicationDialect dialect = NanopublicationDialect.SPECIFICATION;
         if (args.dialect != null) {
             dialect = NanopublicationDialect.valueOf(args.dialect.toUpperCase());
@@ -147,19 +152,30 @@ public final class CliNanopublicationParser {
     }
 
     public final ImmutableList<Nanopublication> parseFile(final File sourceFilePath) {
-        try {
-            final ImmutableList<Nanopublication> result = newNanopublicationParserBuilder().setSource(sourceFilePath).build().parseAll();
-            if (logger.isDebugEnabled()) {
-                logger.debug("parsed {} nanopublications from {}: {}", result.size(), sourceFilePath, getNanopublicationUris(result));
+        final int tryMax = (retry > 0 ? retry + 1 : 1);
+        for (int tryI = 0; tryI < tryMax; tryI++) {
+            try {
+                final ImmutableList<Nanopublication> result = newNanopublicationParserBuilder().setSource(sourceFilePath).build().parseAll();
+                if (logger.isDebugEnabled()) {
+                    logger.debug("parsed {} nanopublications from {}: {}", result.size(), sourceFilePath, getNanopublicationUris(result));
+                }
+                return result;
+            } catch (final RiotNotFoundException e) {
+                logger.error("nanopublication file {} not found", sourceFilePath);
+                return ImmutableList.of();
+            } catch (final MalformedNanopublicationException e) {
+                logger.error("error parsing {}: ", sourceFilePath, e);
+                if (tryI + 1 < tryMax) {
+                    logger.error("retrying {} parse after {} seconds", sourceFilePath, retryDelayS);
+                    try {
+                        Thread.sleep(retryDelayS);
+                    } catch (final InterruptedException ex) {
+                        return ImmutableList.of();
+                    }
+                }
             }
-            return result;
-        } catch (final RiotNotFoundException e) {
-            logger.error("nanopublication file {} not found", sourceFilePath);
-            return ImmutableList.of();
-        } catch (final MalformedNanopublicationException e) {
-            logger.error("error parsing {}: ", sourceFilePath, e);
-            return ImmutableList.of();
         }
+        return ImmutableList.of();
     }
 
     public final ImmutableList<Nanopublication> parseStdin() {
@@ -196,5 +212,10 @@ public final class CliNanopublicationParser {
 
         @Parameter(names = {"-l", "--lang"}, description = "language/format of the nanopublication file e.g., TRIG")
         public String lang = null;
+
+        @Parameter(names = {"--retry-delay-s"}, description = "delay between retries")
+        public int retrayDelayS = 1;
+        @Parameter(names = {"--retry"}, description = "retry parsing a file n times after a short delay, defaults to no retries")
+        public int retry = 0;
     }
 }
