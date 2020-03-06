@@ -166,7 +166,7 @@ public final class CliNanopublicationParser {
             } catch (final MalformedNanopublicationException e) {
                 logger.error("error parsing {}: ", sourceFilePath, e);
                 if (tryI + 1 < tryMax) {
-                    logger.error("retrying after {} seconds", retryDelayS);
+                    logger.error("retrying {} parse after {} seconds", sourceFilePath, retryDelayS);
                     try {
                         Thread.sleep(retryDelayS);
                     } catch (final InterruptedException ex) {
