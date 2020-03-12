@@ -11,6 +11,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.resultset.ResultSetLang;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,7 +40,7 @@ abstract class AbstractSparqlResource extends AbstractResource {
 
     protected final Response
     doGet(
-            @Nullable final String accept,
+            @Nullable final AcceptList accept,
             @Nullable final List<String> defaultGraphUriStrings,
             @Nullable final List<String> namedGraphUriStrings,
             @Nullable final String queryString
@@ -49,18 +50,19 @@ abstract class AbstractSparqlResource extends AbstractResource {
 
     protected final Response
     doPost(
-            @Nullable final String accept,
-            @Nullable final String contentType,
-            @Nullable final List<String> defaultGraphUriStrings,
-            @Nullable final List<String> namedGraphUriStrings,
-            @Nullable final String queryString,
+            @Nullable final AcceptList accept,
+            @Nullable final MediaType contentType,
             final String requestBody
     ) {
-        if (contentType != null && contentType.equalsIgnoreCase("application/sparql-query")) {
+        if (contentType == null || contentType.equals("application/sparql-query")) {
             // POST directly, query is the body
-            return service(accept, defaultGraphUriStrings, namedGraphUriStrings, requestBody);
+            return service(accept, null, null, requestBody);
+        } else if (contentType.equals(MediaType.APPLICATION_FORM_URLENCODED)) {
+            throw new UnsupportedOperationException("parse form");
+//            return service(accept, defaultGraphUriStrings, namedGraphUriStrings, requestBody);
         } else {
-            return service(accept, defaultGraphUriStrings, namedGraphUriStrings, queryString);
+            logger.warn("unknown Content-Type: " + contentType);
+            return Response.status(400).build();
         }
     }
 
@@ -68,12 +70,12 @@ abstract class AbstractSparqlResource extends AbstractResource {
 
     protected Response
     service(
-            @Nullable final String accept,
+            @Nullable final AcceptList accept,
             @Nullable final List<String> defaultGraphUriStrings,
             @Nullable final List<String> namedGraphUriStrings,
             @Nullable final String queryString
     ) {
-        final Optional<AcceptList> proposeAcceptList = AcceptLists.getProposeAcceptList(accept);
+        final Optional<AcceptList> proposeAcceptList = Optional.ofNullable(accept);
 
         if (queryString == null) {
             logger.error("missing query");

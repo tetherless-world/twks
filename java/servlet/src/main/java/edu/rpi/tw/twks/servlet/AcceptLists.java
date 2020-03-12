@@ -1,6 +1,5 @@
 package edu.rpi.tw.twks.servlet;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.atlas.web.AcceptList;
 import org.apache.jena.atlas.web.MediaRange;
 import org.apache.jena.atlas.web.MediaType;
@@ -33,13 +32,6 @@ public final class AcceptLists {
         } else {
             return defaultResponseLang;
         }
-    }
-
-    public final static Optional<AcceptList> getProposeAcceptList(@Nullable final String acceptHeader) {
-        if (acceptHeader == null) {
-            return Optional.empty();
-        }
-        return Optional.of(new AcceptList(acceptHeader));
     }
 
     public final static AcceptList toAcceptList(final Lang... languages) {

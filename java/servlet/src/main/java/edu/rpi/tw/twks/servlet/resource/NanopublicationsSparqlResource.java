@@ -5,10 +5,12 @@ import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
+import org.apache.jena.atlas.web.AcceptList;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -25,7 +27,7 @@ public final class NanopublicationsSparqlResource extends AbstractSparqlResource
     )
     public final Response
     get(
-            @HeaderParam("Accept") @Nullable final String accept,
+            @HeaderParam("Accept") @Nullable final AcceptList accept,
             @QueryParam("default-graph-uri") @Nullable final List<String> defaultGraphUriStrings,
             @QueryParam("named-graph-uri") @Nullable final List<String> namedGraphUriStrings,
             @QueryParam("query") @Nullable final String queryString
@@ -40,14 +42,11 @@ public final class NanopublicationsSparqlResource extends AbstractSparqlResource
     )
     public final Response
     post(
-            @HeaderParam("Accept") @Nullable final String accept,
-            @HeaderParam("Content-Type") @Nullable final String contentType,
-            @QueryParam("default-graph-uri") @Nullable final List<String> defaultGraphUriStrings,
-            @QueryParam("named-graph-uri") @Nullable final List<String> namedGraphUriStrings,
-            @FormParam("query") @Nullable final String queryString,
+            @HeaderParam("Accept") @Nullable final AcceptList accept,
+            @HeaderParam("Content-Type") @Nullable final MediaType contentType,
             final String requestBody
     ) {
-        return doPost(accept, contentType, defaultGraphUriStrings, namedGraphUriStrings, queryString, requestBody);
+        return doPost(accept, contentType, requestBody);
     }
 
     @Override
