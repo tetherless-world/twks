@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.apache.jena.atlas.web.AcceptList;
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -109,7 +110,7 @@ public class NanopublicationResource extends AbstractResource {
     )
     public Response
     getNanopublication(
-            @HeaderParam("Accept") @Nullable @Parameter(description = "Accept header, defaults to text/trig") final String accept,
+            @HeaderParam("Accept") @Nullable @Parameter(description = "Accept header, defaults to text/trig") final AcceptList accept,
             @PathParam("nanopublicationUri") @Parameter(description = "URI of the nanopublication to get") final String nanopublicationUriString
     ) {
         final Uri nanopublicationUri = Uri.parse(nanopublicationUriString);
@@ -120,7 +121,7 @@ public class NanopublicationResource extends AbstractResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        final Lang responseLang = AcceptLists.calculateResponseLang(Lang.TRIG, AcceptLists.OFFER_DATASET, AcceptLists.getProposeAcceptList(accept));
+        final Lang responseLang = AcceptLists.calculateResponseLang(Lang.TRIG, AcceptLists.OFFER_DATASET, Optional.ofNullable(accept));
 
         final Response.ResponseBuilder responseBuilder = Response.ok();
         responseBuilder.header("Content-Type", responseLang.getContentType().getContentType());

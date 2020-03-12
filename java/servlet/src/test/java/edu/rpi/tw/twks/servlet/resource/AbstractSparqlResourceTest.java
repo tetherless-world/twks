@@ -7,6 +7,8 @@ import org.apache.jena.riot.Lang;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 
@@ -126,11 +128,13 @@ public final class AbstractSparqlResourceTest extends AbstractResourceTest {
 
         final String queryString = "CONSTRUCT WHERE { ?s ?p ?o }";
 
+        final Form form = new Form();
+        form.param("query", queryString);
+
         final Response response = target()
                 .path("/sparql/assertions")
-                .queryParam("query", URIUtil.encodeQuery(queryString))
                 .request(Lang.TTL.getContentType().getContentType())
-                .post(Entity.entity("", Lang.TRIG.getContentType().getContentType()));
+                .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
         final String responseBody = new String(ByteStreams.toByteArray((ByteArrayInputStream) response.getEntity()), Charsets.UTF_8);
 
         assertThat(responseBody, containsString("<http://example.org/trastuzumab>"));
