@@ -116,7 +116,8 @@ public final class AbstractSparqlResourceTest extends AbstractResourceTest {
         final Response response = target()
                 .path("/sparql/assertions")
                 .request(Lang.TTL.getContentType().getContentType())
-                .post(Entity.entity(queryString, "application/sparql-query"));
+                // Add a parameter to the Content-Type to test a regression
+                .post(Entity.entity(queryString, "application/sparql-query;charset=utf-8"));
         final String responseBody = new String(ByteStreams.toByteArray((ByteArrayInputStream) response.getEntity()), Charsets.UTF_8);
 
         assertThat(responseBody, containsString("<http://example.org/trastuzumab>"));

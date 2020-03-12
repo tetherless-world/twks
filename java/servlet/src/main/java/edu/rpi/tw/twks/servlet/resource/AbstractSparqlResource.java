@@ -59,55 +59,71 @@ abstract class AbstractSparqlResource extends AbstractResource {
             @Nullable final MediaType contentType,
             final String requestBody
     ) {
-        if (contentType == null || contentType.equals(APPLICATION_SPARQL_QUERY_MEDIA_TYPE)) {
+        if (contentType == null || equalsIgnoreParameters(contentType, APPLICATION_SPARQL_QUERY_MEDIA_TYPE)) {
             // POST directly, query is the body
             return service(accept, null, null, requestBody);
-        } else if (contentType.equals(MediaType.APPLICATION_FORM_URLENCODED_TYPE)) {
-            // JAX-RS can't seem to handle both @FormParams and an arbitrary request body (for application/sparql-query) in one signature,
-            // so we just have to take the request body and the Content-Type and parse here.
-            @Nullable List<String> defaultGraphUriStrings = null;
-            @Nullable List<String> namedGraphUriStrings = null;
-            @Nullable String queryString = null;
-
-            for (final String nameValuePair : StringUtils.splitByWholeSeparator(requestBody, "&")) {
-                @Nullable String name = null;
-                @Nullable String value = null;
-                final int equalsIndex = nameValuePair.indexOf('=');
-                try {
-                    if (equalsIndex == -1) {
-                        name = URLDecoder.decode(nameValuePair, Charsets.UTF_8.name());
-                    } else {
-                        name = URLDecoder.decode(nameValuePair.substring(0, equalsIndex), Charsets.UTF_8.name());
-                        value = URLDecoder.decode(nameValuePair.substring(equalsIndex + 1), Charsets.UTF_8.name());
-                    }
-                    name = name.toLowerCase();
-                    switch (name) {
-                        case "default-graph-uri":
-                            if (defaultGraphUriStrings == null) {
-                                defaultGraphUriStrings = new ArrayList<>();
-                            }
-                            defaultGraphUriStrings.add(value);
-                            break;
-                        case "named-graph-uri":
-                            if (namedGraphUriStrings == null) {
-                                namedGraphUriStrings = new ArrayList<>();
-                            }
-                            namedGraphUriStrings.add(value);
-                            break;
-                        case "query":
-                            queryString = value;
-                            break;
-                    }
-                } catch (final UnsupportedEncodingException e) {
-                    return Response.status(400).build();
-                }
-            }
-
-            return service(accept, defaultGraphUriStrings, namedGraphUriStrings, queryString);
+        } else if (equalsIgnoreParameters(contentType, MediaType.APPLICATION_FORM_URLENCODED_TYPE)) {
+            return doPostForm(accept, contentType, requestBody);
         } else {
             logger.warn("unknown Content-Type: " + contentType);
             return Response.status(415).build();
         }
+    }
+
+    private Response doPostForm(final AcceptList accept, final MediaType contentType, final String requestBody) {
+        final String charset = contentType.getParameters().getOrDefault("charset", Charsets.UTF_8.name()).toUpperCase();
+        // JAX-RS can't seem to handle both @FormParams and an arbitrary request body (for application/sparql-query) in one signature,
+        // so we just have to take the request body and the Content-Type and parse here.
+        @Nullable List<String> defaultGraphUriStrings = null;
+        @Nullable List<String> namedGraphUriStrings = null;
+        @Nullable String queryString = null;
+
+        for (final String nameValuePair : StringUtils.splitByWholeSeparator(requestBody, "&")) {
+            @Nullable String name = null;
+            @Nullable String value = null;
+            final int equalsIndex = nameValuePair.indexOf('=');
+            try {
+                if (equalsIndex == -1) {
+                    name = URLDecoder.decode(nameValuePair, charset);
+                } else {
+                    name = URLDecoder.decode(nameValuePair.substring(0, equalsIndex), charset);
+                    value = URLDecoder.decode(nameValuePair.substring(equalsIndex + 1), charset);
+                }
+                name = name.toLowerCase();
+                switch (name) {
+                    case "default-graph-uri":
+                        if (defaultGraphUriStrings == null) {
+                            defaultGraphUriStrings = new ArrayList<>();
+                        }
+                        defaultGraphUriStrings.add(value);
+                        break;
+                    case "named-graph-uri":
+                        if (namedGraphUriStrings == null) {
+                            namedGraphUriStrings = new ArrayList<>();
+                        }
+                        namedGraphUriStrings.add(value);
+                        break;
+                    case "query":
+                        queryString = value;
+                        break;
+                }
+            } catch (final UnsupportedEncodingException e) {
+                logger.warn("unsupported encoding, Content-Type: {}", contentType);
+                return Response.status(400).build();
+            }
+        }
+
+        return service(accept, defaultGraphUriStrings, namedGraphUriStrings, queryString);
+    }
+
+    private boolean equalsIgnoreParameters(final MediaType left, final MediaType right) {
+        if (!left.getType().equals(right.getType())) {
+            return false;
+        }
+        if (!left.getSubtype().equals(right.getSubtype())) {
+            return false;
+        }
+        return true;
     }
 
     protected abstract QueryExecution query(Query query, TwksTransaction transaction);
