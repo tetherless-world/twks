@@ -44,7 +44,7 @@ public final class NanopublicationsSparqlResource extends AbstractSparqlResource
             @HeaderParam("Content-Type") @Nullable final String contentType,
             @QueryParam("default-graph-uri") @Nullable final List<String> defaultGraphUriStrings,
             @QueryParam("named-graph-uri") @Nullable final List<String> namedGraphUriStrings,
-            @QueryParam("query") @Nullable final String queryString,
+            @FormParam("query") @Nullable final String queryString,
             final String requestBody
     ) {
         return doPost(accept, contentType, defaultGraphUriStrings, namedGraphUriStrings, queryString, requestBody);
