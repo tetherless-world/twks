@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RiotNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,18 @@ public final class NanopublicationParserTest {
     @Before
     public void setUp() throws Exception {
         this.testData = new TestData();
+    }
+
+    @Test
+    public void testBlankGraphName() {
+        final String trig = "_:Na44d261588ba44bf88578b9f549b5e29 {\n" +
+                "    <http://example.com/subject> <http://example.com/predicate> <http://example.com/object> .\n" +
+                "}\n";
+        try {
+            NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(trig)).build().parseAll();
+            fail();
+        } catch (final MalformedNanopublicationException e) {
+        }
     }
 
     @Test

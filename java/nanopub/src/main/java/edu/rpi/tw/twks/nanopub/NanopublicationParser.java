@@ -39,7 +39,15 @@ public final class NanopublicationParser {
         }
 
         // Dataset has named graphs, assume it's a well-formed nanopublication.
-        if (dataset.listNames().hasNext()) {
+        final boolean datasetHasNamedGraphs;
+        try {
+            datasetHasNamedGraphs = dataset.listNames().hasNext();
+        } catch (final UnsupportedOperationException e) {
+            // Jena throws this exception when a graph name is a blank node
+            // The latter appears to be legal TriG.
+            throw new MalformedNanopublicationException("blank node graph names not supported");
+        }
+        if (datasetHasNamedGraphs) {
             return DatasetNanopublications.copyAll(dataset, dialect);
         }
 
