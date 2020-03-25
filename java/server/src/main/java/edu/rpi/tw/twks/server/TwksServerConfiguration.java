@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.server;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.configuration.AbstractConfiguration;
 import edu.rpi.tw.twks.factory.TwksFactoryConfiguration;
 
@@ -14,12 +15,16 @@ public final class TwksServerConfiguration extends AbstractConfiguration {
     private final Optional<Path> extcpDirectoryPath;
     private final Path extfsDirectoryPath;
     private final TwksFactoryConfiguration factoryConfiguration;
+    private final Optional<ImmutableList<Path>> initialNanopublicationFilePaths;
+    private final Optional<Path> initialNanopublicationsDirectoryPath;
     private final String serverBaseUrl;
 
     private TwksServerConfiguration(final Builder builder) {
         this.extcpDirectoryPath = builder.getExtcpDirectoryPath();
         this.extfsDirectoryPath = builder.getExtfsDirectoryPath();
         this.factoryConfiguration = builder.getFactoryConfiguration();
+        this.initialNanopublicationsDirectoryPath = builder.getInitialNanopublicationsDirectoryPath();
+        this.initialNanopublicationFilePaths = builder.getInitialNanopublicationFilePaths();
         this.serverBaseUrl = builder.getServerBaseUrl();
     }
 
@@ -39,6 +44,14 @@ public final class TwksServerConfiguration extends AbstractConfiguration {
         return factoryConfiguration;
     }
 
+    public final Optional<ImmutableList<Path>> getInitialNanopublicationFilePaths() {
+        return initialNanopublicationFilePaths;
+    }
+
+    public final Optional<Path> getInitialNanopublicationsDirectoryPath() {
+        return initialNanopublicationsDirectoryPath;
+    }
+
     public final String getServerBaseUrl() {
         return serverBaseUrl;
     }
@@ -52,6 +65,8 @@ public final class TwksServerConfiguration extends AbstractConfiguration {
         private Optional<Path> extcpDirectoryPath = Optional.empty();
         private Path extfsDirectoryPath = PropertyDefinitions.EXTFS_DIRECTORY_PATH.getDefault();
         private TwksFactoryConfiguration factoryConfiguration = TwksFactoryConfiguration.builder().build();
+        private Optional<ImmutableList<Path>> initialNanopublicationFilePaths = Optional.empty();
+        private Optional<Path> initialNanopublicationsDirectoryPath = Optional.empty();
         private String serverBaseUrl = PropertyDefinitions.SERVER_BASE_URL.getDefault();
 
         private Builder() {
@@ -92,6 +107,26 @@ public final class TwksServerConfiguration extends AbstractConfiguration {
             return this;
         }
 
+        public final Optional<ImmutableList<Path>> getInitialNanopublicationFilePaths() {
+            return initialNanopublicationFilePaths;
+        }
+
+        public final Builder setInitialNanopublicationFilePaths(final ImmutableList<Path> value) {
+            this.initialNanopublicationFilePaths = Optional.of(value);
+            markDirty();
+            return this;
+        }
+
+        public final Optional<Path> getInitialNanopublicationsDirectoryPath() {
+            return initialNanopublicationsDirectoryPath;
+        }
+
+        public final Builder setInitialNanopublicationsDirectoryPath(final Path value) {
+            this.initialNanopublicationsDirectoryPath = Optional.of(value);
+            markDirty();
+            return this;
+        }
+
         public final String getServerBaseUrl() {
             return serverBaseUrl;
         }
@@ -113,6 +148,8 @@ public final class TwksServerConfiguration extends AbstractConfiguration {
 
             properties.getPath(PropertyDefinitions.EXTCP_DIRECTORY_PATH).ifPresent(value -> setExtcpDirectoryPath(Optional.of(value)));
             properties.getPath(PropertyDefinitions.EXTFS_DIRECTORY_PATH).ifPresent(value -> setExtfsDirectoryPath(value));
+            properties.getPath(PropertyDefinitions.INITIAL_NANOPUBLICATIONS_DIRECTORY_PATH).ifPresent(value -> setInitialNanopublicationsDirectoryPath(value));
+            properties.getPaths(PropertyDefinitions.INITIAL_NANOPUBLICATION_FILE_PATH).ifPresent(value -> setInitialNanopublicationFilePaths(value));
             properties.getString(PropertyDefinitions.SERVER_BASE_URL).ifPresent(value -> setServerBaseUrl(value));
 
             return this;
@@ -122,6 +159,8 @@ public final class TwksServerConfiguration extends AbstractConfiguration {
     private final static class PropertyDefinitions {
         public final static PropertyDefinition EXTCP_DIRECTORY_PATH = new PropertyDefinition("extcp");
         public final static PropertyDefinitionWithDefault<Path> EXTFS_DIRECTORY_PATH = new PropertyDefinitionWithDefault<>(Paths.get("/extfs"), "extfs");
+        public final static PropertyDefinition INITIAL_NANOPUBLICATIONS_DIRECTORY_PATH = new PropertyDefinition("initialNanopublicationsDirectory");
+        public final static PropertyDefinition INITIAL_NANOPUBLICATION_FILE_PATH = new PropertyDefinition("initialNanopublicationFilePath");
         public final static PropertyDefinitionWithDefault<String> SERVER_BASE_URL = new PropertyDefinitionWithDefault<>("http://localhost:8080", "serverBaseUrl");
     }
 }

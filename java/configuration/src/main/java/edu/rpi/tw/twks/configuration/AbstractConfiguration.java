@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.configuration;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.EnvironmentConfiguration;
@@ -8,6 +9,7 @@ import org.apache.commons.configuration2.SystemConfiguration;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -69,29 +71,48 @@ public abstract class AbstractConfiguration {
             }
 
             public final Optional<Boolean> getBoolean(final PropertyDefinition definition) {
-                @Nullable final String value = getProperty(definition);
+                @Nullable final Object value = delegate.getProperty(definition.getKey());
                 return value != null ? Optional.of(Boolean.TRUE) : Optional.empty();
             }
 
             public final Optional<Integer> getInteger(final PropertyDefinition definition) {
-                @Nullable final String value = getProperty(definition);
-                return value != null ? Optional.of(Integer.parseInt(value)) : Optional.empty();
+                @Nullable final Object value = delegate.getProperty(definition.getKey());
+                if (value == null) {
+                    return Optional.empty();
+                } else if (value instanceof Number) {
+                    return Optional.of(((Number) value).intValue());
+                } else if (value instanceof String) {
+                    return Optional.of(Integer.parseInt((String) value));
+                } else {
+                    return Optional.empty();
+                }
             }
 
             public final Optional<Path> getPath(final PropertyDefinition definition) {
-                @Nullable final String value = getProperty(definition);
-                return value != null ? Optional.of(Paths.get(value)) : Optional.empty();
+                return getString(definition).map(value -> Paths.get(value));
             }
 
-            private @Nullable
-            String getProperty(final PropertyDefinition definition) {
+            @SuppressWarnings("unchecked")
+            public final Optional<ImmutableList<Path>> getPaths(final PropertyDefinition definition) {
                 @Nullable final Object value = delegate.getProperty(definition.getKey());
-                return value instanceof String ? (String) value : null;
+                if (value == null) {
+                    return Optional.empty();
+                } else if (value instanceof String) {
+                    return Optional.of(ImmutableList.of(Paths.get((String) value)));
+                } else if (value instanceof List) {
+                    final List<Object> listValue = (List<Object>) value;
+                    if (listValue.isEmpty()) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(listValue.stream().map(element -> Paths.get(element.toString())).collect(ImmutableList.toImmutableList()));
+                } else {
+                    return Optional.empty();
+                }
             }
 
             public final Optional<String> getString(final PropertyDefinition definition) {
-                @Nullable final String value = getProperty(definition);
-                return Optional.ofNullable(value);
+                @Nullable final Object value = delegate.getProperty(definition.getKey());
+                return value instanceof String ? Optional.of((String) value) : Optional.empty();
             }
         }
     }
