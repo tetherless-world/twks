@@ -1,12 +1,13 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.google.common.collect.ImmutableList;
+import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RiotNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.StringReader;
 
 import static org.junit.Assert.*;
 
@@ -25,33 +26,47 @@ public final class NanopublicationParserTest {
                 "    <http://example.com/subject> <http://example.com/predicate> <http://example.com/object> .\n" +
                 "}\n";
         try {
-            NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(trig)).build().parseAll();
+            NanopublicationParser.builder().setLang(Lang.TRIG).build().parseString(trig);
             fail();
-        } catch (final MalformedNanopublicationException e) {
+        } catch (final MalformedNanopublicationRuntimeException e) {
         }
     }
 
     @Test
     public void testBrokenRdf() {
         try {
-            NanopublicationParser.builder().setSource(new StringReader("broken RDF")).build().parseOne();
+            NanopublicationParser.DEFAULT.parseString("broken RDF");
             fail();
-        } catch (final MalformedNanopublicationException e) {
+        } catch (final MalformedNanopublicationRuntimeException e) {
         }
     }
 
     @Test
-    public void testMissingFile() throws Exception {
+    public void testIgnoreMalformedNanopublications() {
         try {
-            NanopublicationParser.builder().setSource(new File("nonextantfile")).build().parseOne();
+            NanopublicationParser.builder().setIgnoreMalformedNanopublications(false).build().parseFile(testData.mixFormedNanonpublicationFilePath);
+            fail();
+        } catch (final MalformedNanopublicationRuntimeException e) {
+        }
+
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.builder().setIgnoreMalformedNanopublications(true).build().parseFile(testData.mixFormedNanonpublicationFilePath);
+        assertEquals(1, nanopublications.size());
+        final Nanopublication nanopublication = nanopublications.get(0);
+        assertEquals(Uri.parse("http://example.org/pub1"), nanopublication.getUri());
+    }
+
+    @Test
+    public void testMissingFile() {
+        try {
+            NanopublicationParser.DEFAULT.parseFile(new File("nonextantfile"));
             fail();
         } catch (final RiotNotFoundException e) {
         }
     }
 
     @Test
-    public void testParseAssertionFile() throws MalformedNanopublicationException {
-        final Nanopublication nanopublication = NanopublicationParser.builder().setSource(testData.assertionOnlyFilePath).build().parseOne();
+    public void testParseAssertionFile() {
+        final Nanopublication nanopublication = NanopublicationParser.DEFAULT.parseFile(testData.assertionOnlyFilePath).get(0);
 //        assertEquals(testData.assertionOnlyFilePath.toURI().toString(), nanopublication.getUri().toString());
         assertTrue(nanopublication.getUri().toString().startsWith("urn:uuid:"));
         assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
@@ -62,8 +77,8 @@ public final class NanopublicationParserTest {
     }
 
     @Test
-    public void testSpecParseNanopublicationFile() throws MalformedNanopublicationException {
-        final Nanopublication nanopublication = NanopublicationParser.builder().setSource(testData.specNanopublicationFilePath).build().parseOne();
+    public void testSpecParseNanopublicationFile() {
+        final Nanopublication nanopublication = NanopublicationParser.DEFAULT.parseFile(testData.specNanopublicationFilePath).get(0);
         assertEquals("http://example.org/pub1", nanopublication.getUri().toString());
         assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
         assertEquals(3, nanopublication.getProvenance().getModel().listStatements().toList().size());
@@ -74,7 +89,7 @@ public final class NanopublicationParserTest {
 
     @Test
     public void testWhyisParseNanopublicationFile() throws MalformedNanopublicationException {
-        final Nanopublication nanopublication = NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).setSource(testData.whyisNanopublicationFilePath).build().parseOne();
+        final Nanopublication nanopublication = NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).build().parseFile(testData.whyisNanopublicationFilePath).get(0);
         // 20191120 Parser no longer preserves part names for non-specification dialects.
 //        assertEquals("http://localhost:5000/pub/0ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5", nanopublication.getUri().toString());
         assertEquals(5, nanopublication.getAssertion().getModel().listStatements().toList().size());

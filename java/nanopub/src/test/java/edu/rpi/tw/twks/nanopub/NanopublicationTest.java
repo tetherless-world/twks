@@ -5,14 +5,12 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.RDF;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNotSame;
@@ -64,19 +62,19 @@ public final class NanopublicationTest {
 
     @Test
     public void testWrite() throws Exception {
-        final Nanopublication expected = NanopublicationParser.builder().setSource(testData.specNanopublicationFilePath).build().parseOne();
+        final Nanopublication expected = NanopublicationParser.DEFAULT.parseFile(testData.specNanopublicationFilePath).get(0);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream();
         expected.write(bos);
         final String actualString = new String(bos.toByteArray(), Charsets.UTF_8);
-        final Nanopublication actual = NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(actualString)).build().parseOne();
+        final Nanopublication actual = NanopublicationParser.DEFAULT.parseString(actualString).get(0);
         Assert.assertTrue(expected.isIsomorphicWith(actual));
     }
 
     @Test
     public void testWriteToString() throws Exception {
-        final Nanopublication expected = NanopublicationParser.builder().setSource(testData.specNanopublicationFilePath).build().parseOne();
+        final Nanopublication expected = NanopublicationParser.DEFAULT.parseFile(testData.specNanopublicationFilePath).get(0);
         final String actualString = expected.writeToString();
-        final Nanopublication actual = NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(actualString)).build().parseOne();
+        final Nanopublication actual = NanopublicationParser.DEFAULT.parseString(actualString).get(0);
         Assert.assertTrue(expected.isIsomorphicWith(actual));
     }
 }

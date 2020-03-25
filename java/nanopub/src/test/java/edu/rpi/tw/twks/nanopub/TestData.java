@@ -16,15 +16,17 @@ import java.net.URL;
 public final class TestData {
     public final File assertionOnlyFilePath;
     public final Dataset duplicateNanopublicationsDataset;
+    public final File mixFormedNanonpublicationFilePath;
     public final Dataset overlappingNanopublicationsDataset;
-    public final File specNanopublicationFilePath;
     public final Dataset specNanopublicationDataset;
+    public final File specNanopublicationFilePath;
     public final Dataset uniqueNanopublicationsDataset;
     public final File whyisNanopublicationFilePath;
 
     public TestData() throws IOException, MalformedNanopublicationException {
         assertionOnlyFilePath = getResourceFilePath("assertion_only.ttl");
         duplicateNanopublicationsDataset = parseDatasetFromResource("duplicate_nanopublications.trig");
+        mixFormedNanonpublicationFilePath = getResourceFilePath("mix_formed_nanopublications.trig");
         overlappingNanopublicationsDataset = parseDatasetFromResource("overlapping_nanopublications.trig");
         specNanopublicationFilePath = getResourceFilePath("spec_nanopublication.trig");
         specNanopublicationDataset = parseDatasetFromResource("spec_nanopublication.trig");
