@@ -108,7 +108,7 @@ public class NanopublicationParser {
         return parseUrl(Uri.parse(source));
     }
 
-    public final ImmutableList<Nanopublication> parseDataset(final Dataset dataset) {
+    private ImmutableList<Nanopublication> parseDataset(final Dataset dataset) {
         final ImmutableList.Builder<Nanopublication> nanopublicationsBuilder = ImmutableList.builder();
         try (final DatasetNanopublications datasetNanopublications = new DatasetNanopublications(dataset, dialect)) {
             final Iterator<Nanopublication> nanopublicationI = datasetNanopublications.iterator();
