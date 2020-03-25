@@ -6,6 +6,8 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.EnvironmentConfiguration;
 import org.apache.commons.configuration2.SystemConfiguration;
+import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
+import org.apache.commons.configuration2.convert.ListDelimiterHandler;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +16,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractConfiguration {
+    public final static ListDelimiterHandler listDelimiterHandler = new DefaultListDelimiterHandler(',');
     private final static String PROPERTY_KEY_PREFIX = "twks";
 
     protected AbstractConfiguration() {
@@ -30,6 +33,11 @@ public abstract class AbstractConfiguration {
 
     public abstract static class Builder<BuilderT extends Builder<?, ?>, ConfigurationT extends AbstractConfiguration> {
         private boolean dirty = false;
+
+        private static Configuration setListDelimiterHandler(final org.apache.commons.configuration2.AbstractConfiguration configuration) {
+            configuration.setListDelimiterHandler(listDelimiterHandler);
+            return configuration;
+        }
 
         public abstract ConfigurationT build();
 
@@ -57,8 +65,8 @@ public abstract class AbstractConfiguration {
 
         @SuppressWarnings("unchecked")
         public final BuilderT setFromEnvironment() {
-            set(new EnvironmentConfiguration().subset(PROPERTY_KEY_PREFIX));
-            set(new SystemConfiguration().subset(PROPERTY_KEY_PREFIX));
+            set(setListDelimiterHandler(new EnvironmentConfiguration()).subset(PROPERTY_KEY_PREFIX));
+            set(setListDelimiterHandler(new SystemConfiguration()).subset(PROPERTY_KEY_PREFIX));
             return (BuilderT) this;
         }
 
