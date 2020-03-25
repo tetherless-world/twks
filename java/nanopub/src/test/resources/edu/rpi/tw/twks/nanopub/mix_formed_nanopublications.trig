@@ -1,0 +1,37 @@
+@prefix pub1: <http://example.org/pub1#> .
+@prefix pub2: <http://example.org/pub2#> .
+@prefix ex: <http://example.org/> .
+@prefix np:  <http://www.nanopub.org/nschema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+pub1:head {
+    ex:pub1 a np:Nanopublication .
+    ex:pub1 np:hasAssertion pub1:assertion .
+    ex:pub1 np:hasProvenance pub1:provenance .
+    ex:pub1 np:hasPublicationInfo pub1:pubInfo .
+}
+
+pub1:assertion {
+    ex:trastuzumab ex:is-indicated-for ex:breast-cancer .
+}
+
+pub1:provenance {
+    pub1:assertion prov:generatedAtTime "2012-02-03T14:38:00Z"^^xsd:dateTime .
+    pub1:assertion prov:wasDerivedFrom pub1:experiment .
+    pub1:assertion prov:wasAttributedTo pub1:experimentScientist .
+}
+
+pub1:pubInfo {
+    ex:pub1 prov:wasAttributedTo ex:paul .
+    ex:pub1 prov:generatedAtTime "2012-10-26T12:45:00Z"^^xsd:dateTime .
+}
+
+# Head is well-formed, but the rest is not.
+
+pub2:head {
+    ex:pub2 a np:Nanopublication .
+    ex:pub2 np:hasAssertion pub2:assertion .
+    ex:pub2 np:hasProvenance pub2:provenance .
+    ex:pub2 np:hasPublicationInfo pub2:pubInfo .
+}

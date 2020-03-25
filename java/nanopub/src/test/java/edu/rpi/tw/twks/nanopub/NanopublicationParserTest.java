@@ -1,5 +1,7 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.google.common.collect.ImmutableList;
+import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RiotNotFoundException;
 import org.junit.Before;
@@ -37,6 +39,20 @@ public final class NanopublicationParserTest {
             fail();
         } catch (final MalformedNanopublicationRuntimeException e) {
         }
+    }
+
+    @Test
+    public void testIgnoreMalformedNanopublications() {
+        try {
+            NanopublicationParser.builder().setIgnoreMalformedNanopublications(false).build().parseFile(testData.mixFormedNanonpublicationFilePath);
+            fail();
+        } catch (final MalformedNanopublicationRuntimeException e) {
+        }
+
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.builder().setIgnoreMalformedNanopublications(true).build().parseFile(testData.mixFormedNanonpublicationFilePath);
+        assertEquals(1, nanopublications.size());
+        final Nanopublication nanopublication = nanopublications.get(0);
+        assertEquals(Uri.parse("http://example.org/pub1"), nanopublication.getUri());
     }
 
     @Test
