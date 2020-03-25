@@ -52,7 +52,11 @@ public final class ServletContextListener implements javax.servlet.ServletContex
 
         logger.info("twks-server " + TwksLibraryVersion.getInstance());
 
-        loadInitialNanopublications(configuration, twks);
+        if (twks.isEmpty()) {
+            loadInitialNanopublications(configuration, twks);
+        } else {
+            logger.info("store is not empty, skipping initial nanopublications if any");
+        }
     }
 
     private void loadInitialNanopublications(final TwksServerConfiguration configuration, final Twks twks) {
