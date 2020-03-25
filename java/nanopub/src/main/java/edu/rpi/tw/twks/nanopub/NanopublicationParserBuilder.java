@@ -8,14 +8,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class NanopublicationParserBuilder {
     private NanopublicationDialect dialect = NanopublicationDialect.SPECIFICATION;
+    private boolean ignoreMalformedNanopublications = false;
     private Optional<Lang> lang = Optional.empty();
 
     public final NanopublicationParser build() {
-        return new NanopublicationParser(dialect, lang);
+        return new NanopublicationParser(dialect, ignoreMalformedNanopublications, lang);
     }
 
     public final NanopublicationParserBuilder setDialect(final NanopublicationDialect dialect) {
         this.dialect = checkNotNull(dialect);
+        return this;
+    }
+
+    public final NanopublicationParserBuilder setIgnoreMalformedNanopublications(final boolean ignoreMalformedNanopublications) {
+        this.ignoreMalformedNanopublications = ignoreMalformedNanopublications;
         return this;
     }
 

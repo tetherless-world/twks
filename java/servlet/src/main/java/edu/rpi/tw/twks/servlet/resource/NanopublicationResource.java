@@ -3,7 +3,7 @@ package edu.rpi.tw.twks.servlet.resource;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.api.Twks;
-import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
+import edu.rpi.tw.twks.nanopub.MalformedNanopublicationRuntimeException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.nanopub.NanopublicationParserBuilder;
@@ -25,7 +25,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -156,12 +155,11 @@ public class NanopublicationResource extends AbstractResource {
 
         final NanopublicationParserBuilder parserBuilder = NanopublicationParser.builder();
         parserBuilder.setLang(lang);
-
-        parserBuilder.setSource(new StringReader(requestBody));
+        final NanopublicationParser parser = parserBuilder.build();
 
         try {
-            return parserBuilder.build().parseAll();
-        } catch (final MalformedNanopublicationException e) {
+            return parser.parseString(requestBody);
+        } catch (final MalformedNanopublicationRuntimeException e) {
             logger.info("error parsing nanopublication: ", e);
             throw new WebApplicationException("Malformed nanopublication", Response.Status.BAD_REQUEST);
         }

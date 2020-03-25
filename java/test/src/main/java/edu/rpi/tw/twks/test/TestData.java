@@ -7,12 +7,10 @@ import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 
 import java.io.IOException;
-import java.io.StringReader;
 
 public final class TestData {
     public final static String SECOND_NANOPUBLICATION_TRIG = "@prefix : <http://example.org/pub2#> .\n" +
@@ -110,7 +108,7 @@ public final class TestData {
     }
 
     private Nanopublication parseNanopublicationFromString(final String trig) throws IOException, MalformedNanopublicationException {
-        return NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(trig)).build().parseOne();
+        return NanopublicationParser.DEFAULT.parseString(trig).get(0);
     }
 
 //    private Nanopublication parseNanopublicationFromResource(final String fileName) throws IOException, MalformedNanopublicationException {

@@ -31,7 +31,7 @@ public final class DatasetNanopublicationsTest {
     @Test
     public void testCreateNanopublicationsFromDataset() throws MalformedNanopublicationException, IOException {
         final Dataset dataset = DatasetFactory.create();
-        NanopublicationParser.builder().setSource(testData.assertionOnlyFilePath).build().parseOne().toDataset(dataset);
+        NanopublicationParser.DEFAULT.parseFile(testData.assertionOnlyFilePath).get(0).toDataset(dataset);
         DatasetNanopublications.copyOne(testData.specNanopublicationDataset).toDataset(dataset);
         assertEquals(8, ImmutableList.copyOf(dataset.listNames()).size());
         final ImmutableList<Nanopublication> nanopublications = DatasetNanopublications.copyAll(dataset);
@@ -50,7 +50,7 @@ public final class DatasetNanopublicationsTest {
     @Test
     public void testIterateNanopublicationsFromDataset() throws Exception {
         final Dataset dataset = DatasetFactory.create();
-        NanopublicationParser.builder().setSource(testData.assertionOnlyFilePath).build().parseOne().toDataset(dataset);
+        NanopublicationParser.DEFAULT.parseFile(testData.assertionOnlyFilePath).get(0).toDataset(dataset);
         DatasetNanopublications.copyOne(testData.specNanopublicationDataset).toDataset(dataset);
         assertEquals(8, ImmutableList.copyOf(dataset.listNames()).size());
         try (final DatasetNanopublications nanopublicationsIterable = new DatasetNanopublications(dataset)) {

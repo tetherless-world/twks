@@ -9,7 +9,6 @@ import org.junit.Test;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.StringReader;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -87,7 +86,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
         final Nanopublication expected = getTestData().specNanopublication;
         getTwks().putNanopublication(expected);
         final String responseBody = target().path("/nanopublication/").path(URLEncoder.encode(expected.getUri().toString(), "UTF-8")).request(Lang.TRIG.getContentType().getContentType()).get(String.class);
-        final Nanopublication actual = NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(responseBody)).build().parseOne();
+        final Nanopublication actual = NanopublicationParser.DEFAULT.parseString(responseBody).get(0);
         assertTrue(expected.isIsomorphicWith(actual));
     }
 

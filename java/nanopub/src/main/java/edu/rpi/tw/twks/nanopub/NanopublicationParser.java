@@ -12,18 +12,22 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class NanopublicationParser {
+public class NanopublicationParser {
+    public final static NanopublicationParser DEFAULT = new NanopublicationParser(NanopublicationDialect.SPECIFICATION, false, Optional.of(NanopublicationDialect.SPECIFICATION.getDefaultLang()));
+
     private final static Logger logger = LoggerFactory.getLogger(NanopublicationParser.class);
     private final NanopublicationDialect dialect;
     private final boolean ignoreMalformedNanopublications;
     private final Optional<Lang> lang;
 
-    NanopublicationParser(final NanopublicationDialect dialect, final boolean ignoreMalformedNanopublications, final Optional<Lang> lang) {
+    public NanopublicationParser(final NanopublicationDialect dialect, final boolean ignoreMalformedNanopublications, final Optional<Lang> lang) {
         this.dialect = checkNotNull(dialect);
+        this.ignoreMalformedNanopublications = ignoreMalformedNanopublications;
         this.lang = checkNotNull(lang);
     }
 
@@ -31,9 +35,9 @@ public final class NanopublicationParser {
         return new NanopublicationParserBuilder();
     }
 
-    private ImmutableList<Uri> getNanopublicationUris(final ImmutableList<Nanopublication> nanopublications) {
-        return nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
-    }
+//    private ImmutableList<Uri> getNanopublicationUris(final ImmutableList<Nanopublication> nanopublications) {
+//        return nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
+//    }
 
     private RDFParserBuilder newRdfParserBuilder() {
         final RDFParserBuilder builder = RDFParserBuilder.create();
@@ -41,7 +45,7 @@ public final class NanopublicationParser {
         return builder;
     }
 
-    private ImmutableList<Nanopublication> parse(final RDFParser rdfParser, final Optional<Uri> sourceUri) throws MalformedNanopublicationException {
+    private ImmutableList<Nanopublication> parse(final RDFParser rdfParser, final Optional<Uri> sourceUri) throws MalformedNanopublicationRuntimeException {
         final Dataset dataset = DatasetFactory.create();
 
         try {
@@ -49,7 +53,11 @@ public final class NanopublicationParser {
         } catch (final RiotNotFoundException e) {
             throw e;
         } catch (final RiotException e) {
-            throw new MalformedNanopublicationException(e);
+            if (ignoreMalformedNanopublications) {
+                return ImmutableList.of();
+            } else {
+                throw new MalformedNanopublicationRuntimeException(new MalformedNanopublicationException(e));
+            }
         }
 
         // Dataset has named graphs, assume it's a well-formed nanopublication.
@@ -59,10 +67,14 @@ public final class NanopublicationParser {
         } catch (final UnsupportedOperationException e) {
             // Jena throws this exception when a graph name is a blank node
             // The latter appears to be legal TriG.
-            throw new MalformedNanopublicationException("blank node graph names not supported");
+            if (ignoreMalformedNanopublications) {
+                return ImmutableList.of();
+            } else {
+                throw new MalformedNanopublicationRuntimeException(new MalformedNanopublicationException("blank node graph names not supported"));
+            }
         }
         if (datasetHasNamedGraphs) {
-            return DatasetNanopublications.copyAll(dataset, dialect);
+            return parseDataset(dataset);
         }
 
         final NanopublicationBuilder nanopublicationBuilder = Nanopublication.builder();
@@ -70,10 +82,18 @@ public final class NanopublicationParser {
         if (sourceUri.isPresent()) {
             nanopublicationBuilder.getProvenanceBuilder().wasDerivedFrom(sourceUri.get());
         }
-        return ImmutableList.of(nanopublicationBuilder.build());
+        try {
+            return ImmutableList.of(nanopublicationBuilder.build());
+        } catch (final MalformedNanopublicationException e) {
+            if (ignoreMalformedNanopublications) {
+                return ImmutableList.of();
+            } else {
+                throw new MalformedNanopublicationRuntimeException(e);
+            }
+        }
     }
 
-    public final ImmutableList<Nanopublication> parse(final String source) {
+    public final ImmutableList<Nanopublication> parse(final String source) throws MalformedNanopublicationRuntimeException {
         if (source.equals("-")) {
             return parseStdin();
         }
@@ -88,7 +108,24 @@ public final class NanopublicationParser {
         return parseUrl(Uri.parse(source));
     }
 
-    public final ImmutableMultimap<Path, Nanopublication> parseDirectory(File sourceDirectoryPath) {
+    public final ImmutableList<Nanopublication> parseDataset(final Dataset dataset) {
+        final ImmutableList.Builder<Nanopublication> nanopublicationsBuilder = ImmutableList.builder();
+        try (final DatasetNanopublications datasetNanopublications = new DatasetNanopublications(dataset, dialect)) {
+            final Iterator<Nanopublication> nanopublicationI = datasetNanopublications.iterator();
+            while (nanopublicationI.hasNext()) {
+                try {
+                    nanopublicationsBuilder.add(nanopublicationI.next());
+                } catch (final MalformedNanopublicationRuntimeException e) {
+                    if (!ignoreMalformedNanopublications) {
+                        throw e;
+                    }
+                }
+            }
+        }
+        return nanopublicationsBuilder.build();
+    }
+
+    public final ImmutableMultimap<Path, Nanopublication> parseDirectory(File sourceDirectoryPath) throws MalformedNanopublicationRuntimeException {
         final ImmutableMultimap.Builder<Path, Nanopublication> resultBuilder = ImmutableMultimap.builder();
         if (dialect == NanopublicationDialect.SPECIFICATION) {
             // Assume it's a directory where every .trig file is a nanopublication.
@@ -158,25 +195,30 @@ public final class NanopublicationParser {
         return result;
     }
 
-    public final ImmutableList<Nanopublication> parseFile(final File filePath) {
+    public ImmutableList<Nanopublication> parseFile(final File filePath) throws MalformedNanopublicationRuntimeException {
         return parse(newRdfParserBuilder().source(filePath.getPath()).build(), Optional.of(Uri.parse(checkNotNull(filePath).toURI().toString())));
     }
 
-    public final ImmutableList<Nanopublication> parseStdin() throws IOException, MalformedNanopublicationException {
-        final byte[] trigBytes = ByteStreams.toByteArray(System.in);
+    public final ImmutableList<Nanopublication> parseStdin() throws MalformedNanopublicationRuntimeException {
+        final byte[] trigBytes;
+        try {
+            trigBytes = ByteStreams.toByteArray(System.in);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
         final String trigString = new String(trigBytes);
         return parseString(trigString);
     }
 
-    public final ImmutableList<Nanopublication> parseString(final String string) {
+    public final ImmutableList<Nanopublication> parseString(final String string) throws MalformedNanopublicationRuntimeException {
         return parseString(string, Optional.empty());
     }
 
-    public final ImmutableList<Nanopublication> parseString(final String string, final Optional<Uri> sourceUri) {
+    public final ImmutableList<Nanopublication> parseString(final String string, final Optional<Uri> sourceUri) throws MalformedNanopublicationRuntimeException {
         return parse(newRdfParserBuilder().source(new StringReader(string)).build(), sourceUri);
     }
 
-    public final ImmutableList<Nanopublication> parseUrl(final Uri url) {
+    public final ImmutableList<Nanopublication> parseUrl(final Uri url) throws MalformedNanopublicationRuntimeException {
         return parse(newRdfParserBuilder().source(url.toString()).build(), Optional.of(url));
     }
 

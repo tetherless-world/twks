@@ -13,7 +13,7 @@ import com.google.common.reflect.TypeToken;
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;
 import edu.rpi.tw.twks.api.TwksVersion;
-import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
+import edu.rpi.tw.twks.nanopub.MalformedNanopublicationRuntimeException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.uri.Uri;
@@ -27,7 +27,10 @@ import org.apache.jena.riot.RDFParserBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.List;
@@ -173,8 +176,8 @@ public final class RestTwksClient implements TwksClient {
             try (final InputStream inputStream = response.getContent()) {
                 final byte[] contentBytes = ByteStreams.toByteArray(inputStream);
                 try {
-                    return Optional.of(NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(new String(contentBytes, "UTF-8"))).build().parseOne());
-                } catch (final MalformedNanopublicationException e) {
+                    return Optional.of(NanopublicationParser.DEFAULT.parseString(new String(contentBytes, "UTF-8")).get(0));
+                } catch (final MalformedNanopublicationRuntimeException e) {
                     logger.error("malformed nanopublication from server: ", e);
                     return Optional.empty();
                 }

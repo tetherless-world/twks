@@ -12,7 +12,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Optional;
 
 public final class TwksClientExample {
@@ -55,7 +54,7 @@ public final class TwksClientExample {
         // Parse a nanopublication to use
         // The parser may return more than one, but we know there's only one.
         System.out.println("Parsing the nanopublication");
-        final Nanopublication nanopublication = NanopublicationParser.builder().setLang(Lang.TRIG).setSource(new StringReader(SPEC_NANOPUBLICATION_TRIG)).build().parseOne();
+        final Nanopublication nanopublication = NanopublicationParser.DEFAULT.parseString(SPEC_NANOPUBLICATION_TRIG).get(0);
         System.out.println("Parsed the nanopublication");
 
         {
