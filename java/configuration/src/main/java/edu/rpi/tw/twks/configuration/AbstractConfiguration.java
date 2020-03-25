@@ -9,7 +9,6 @@ import org.apache.commons.configuration2.SystemConfiguration;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -76,43 +75,28 @@ public abstract class AbstractConfiguration {
             }
 
             public final Optional<Integer> getInteger(final PropertyDefinition definition) {
-                @Nullable final Object value = delegate.getProperty(definition.getKey());
-                if (value == null) {
-                    return Optional.empty();
-                } else if (value instanceof Number) {
-                    return Optional.of(((Number) value).intValue());
-                } else if (value instanceof String) {
-                    return Optional.of(Integer.parseInt((String) value));
-                } else {
-                    return Optional.empty();
-                }
+                return Optional.ofNullable(delegate.getInteger(definition.getKey(), null));
             }
 
             public final Optional<Path> getPath(final PropertyDefinition definition) {
-                return getString(definition).map(value -> Paths.get(value));
+                return Optional.ofNullable(delegate.getString(definition.getKey(), null)).map(value -> Paths.get(value));
             }
 
             @SuppressWarnings("unchecked")
             public final Optional<ImmutableList<Path>> getPaths(final PropertyDefinition definition) {
-                @Nullable final Object value = delegate.getProperty(definition.getKey());
-                if (value == null) {
-                    return Optional.empty();
-                } else if (value instanceof String) {
-                    return Optional.of(ImmutableList.of(Paths.get((String) value)));
-                } else if (value instanceof List) {
-                    final List<Object> listValue = (List<Object>) value;
-                    if (listValue.isEmpty()) {
-                        return Optional.empty();
-                    }
-                    return Optional.of(listValue.stream().map(element -> Paths.get(element.toString())).collect(ImmutableList.toImmutableList()));
-                } else {
+                final String[] values = delegate.getStringArray(definition.getKey());
+                if (values == null || values.length == 0) {
                     return Optional.empty();
                 }
+                final ImmutableList.Builder<Path> pathsBuilder = ImmutableList.builder();
+                for (final String value : values) {
+                    pathsBuilder.add(Paths.get(value));
+                }
+                return Optional.of(pathsBuilder.build());
             }
 
             public final Optional<String> getString(final PropertyDefinition definition) {
-                @Nullable final Object value = delegate.getProperty(definition.getKey());
-                return value instanceof String ? Optional.of((String) value) : Optional.empty();
+                return Optional.ofNullable(delegate.getString(definition.getKey(), null));
             }
         }
     }
