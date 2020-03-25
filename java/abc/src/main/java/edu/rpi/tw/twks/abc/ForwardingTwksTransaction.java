@@ -87,6 +87,11 @@ public class ForwardingTwksTransaction implements TwksTransaction {
     }
 
     @Override
+    public boolean isEmpty() {
+        return delegate.isEmpty();
+    }
+
+    @Override
     public ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
         return delegate.postNanopublications(nanopublications);
     }

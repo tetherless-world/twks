@@ -382,6 +382,19 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
     }
 
     @Test
+    public void testIsEmpty() {
+        if (!(sut instanceof IsEmptyApi)) {
+            return;
+        }
+
+        assertTrue(((IsEmptyApi) sut).isEmpty());
+        sut.putNanopublication(testData.ontologyNanopublication);
+        assertFalse(((IsEmptyApi) sut).isEmpty());
+        sut.deleteNanopublications();
+        assertTrue(((IsEmptyApi) sut).isEmpty());
+    }
+
+    @Test
     public void testPostNanopublicationsAbsent() {
         final ImmutableList<NanopublicationCrudApi.PutNanopublicationResult> results = sut.postNanopublications(ImmutableList.of(testData.specNanopublication, testData.secondNanopublication));
         assertEquals(ImmutableList.of(NanopublicationCrudApi.PutNanopublicationResult.CREATED, NanopublicationCrudApi.PutNanopublicationResult.CREATED), results);

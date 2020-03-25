@@ -5,9 +5,7 @@ import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +27,7 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
             "  {graph ?H {: a np:Nanopublication {: np:hasAssertion ?G} union {: np:hasProvenance ?G} union {: np:hasPublicationInfo ?G}}}\n" +
             "  graph ?G {?S ?P ?O}\n" +
             "}";
+    private final static Query IS_EMPTY_QUERY = QueryFactory.create("SELECT (COUNT(?s) as ?count) WHERE { graph ?g { ?s ?p ?o } } LIMIT 1");
 
     private final static Logger logger = LoggerFactory.getLogger(AbstractTwksTransaction.class);
     private final TwksT twks;
@@ -100,6 +99,19 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
     @Override
     public final TwksT getTwks() {
         return twks;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        try (final QueryExecution queryExecution = queryNanopublications(IS_EMPTY_QUERY)) {
+            final ResultSet resultSet = queryExecution.execSelect();
+            if (!resultSet.hasNext()) {
+                return true;
+            }
+            final QuerySolution solution = resultSet.next();
+            final int count = solution.getLiteral("count").getInt();
+            return count == 0;
+        }
     }
 
     protected abstract AutoCloseableIterable<Nanopublication> iterateNanopublications();
