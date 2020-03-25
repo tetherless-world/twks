@@ -79,10 +79,12 @@ public final class ServletContextListener implements javax.servlet.ServletContex
 
             nanopublications = nanopublicationsBuilder.build();
             if (nanopublications.isEmpty()) {
+                logger.info("parsed no initial nanopublications");
                 return;
             }
         }
 
+        logger.info("posting {} initial nanopublication(s)", nanopublications.size());
         twks.postNanopublications(nanopublications);
         logger.info("posted {} initial nanopublication(s)", nanopublications.size());
     }
