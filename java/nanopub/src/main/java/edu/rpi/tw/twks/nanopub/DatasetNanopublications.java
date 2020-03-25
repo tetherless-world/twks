@@ -216,89 +216,79 @@ public final class DatasetNanopublications implements AutoCloseableIterable<Nano
             Nanopublication nanopublication = null;
 
             @Override
-            public boolean hasNext() {
+            public final boolean hasNext() {
                 if (nanopublication != null) {
                     return true;
                 }
 
-                nanopublication = tryNext();
-
-                return nanopublication != null;
+                // If there's another head, assume that there's another nanopublication.
+                // next() will throw a RuntimeException if that nanopublication is malformed.
+                // Then the caller can go back to this method hasNext() to get the next head.
+                return headEntryI.hasNext();
             }
 
             @Override
-            public Nanopublication next() {
+            public final Nanopublication next() throws MalformedNanopublicationRuntimeException {
                 if (nanopublication == null) {
-                    nanopublication = tryNext();
-                    if (nanopublication == null) {
+                    if (!headEntryI.hasNext()) {
                         throw new NoSuchElementException();
                     }
+
+                    final Map.Entry<Uri, NanopublicationPart> headEntry = headEntryI.next();
+                    final Uri nanopublicationUri = headEntry.getKey();
+                    final NanopublicationPart head = headEntry.getValue();
+
+                    try {
+                        // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasAssertion [A] [H]', which identifies [A] as the assertion URI
+                        final NanopublicationPart assertion = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasAssertion, unusedDatasetModelNames);
+                        // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasProvenance [P] [H]', which identifies [P] as the provenance URI
+                        final NanopublicationPart provenance = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasProvenance, unusedDatasetModelNames);
+                        // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
+                        final NanopublicationPart publicationInfo = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasPublicationInfo, unusedDatasetModelNames);
+
+                        if (dialect == NanopublicationDialect.SPECIFICATION) {
+                            nanopublication = SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
+                        } else {
+                            // Don't respect the part names of non-specification dialects. Causes too many problems if the dialect differs too much from the spec.
+                            // Take the part models and create a new nanopublication from scratch.
+                            // Do respect the nanopublication URI. We need it to ensure the nanopublication can be updated or deleted later.
+                            final NanopublicationBuilder nanopublicationBuilder = Nanopublication.builder(nanopublicationUri);
+
+                            // Take assertions as-is
+                            nanopublicationBuilder.getAssertionBuilder().setModel(assertion.getModel());
+
+                            // Rewrite provenance statements to refer to the new assertion part URI
+                            // Will do that below, once we've got the new assertion part URI
+                            final Model rewrittenProvenanceModel = ModelFactory.createDefaultModel();
+                            nanopublicationBuilder.getProvenanceBuilder().setModel(rewrittenProvenanceModel);
+
+                            // Don't need to rewrite publication info, since it's only
+                            nanopublicationBuilder.getPublicationInfoBuilder().setModel(publicationInfo.getModel());
+
+                            nanopublication = nanopublicationBuilder.build();
+
+                            // Rewrite statements of the provenance that referred to the assertion part
+                            final Resource newAssertionPartResource = ResourceFactory.createResource(nanopublication.getProvenance().getName().toString());
+                            final Resource oldAssertionPartResource = ResourceFactory.createResource(provenance.getName().toString());
+                            for (final StmtIterator statementI = provenance.getModel().listStatements(); statementI.hasNext(); ) {
+                                final Statement statement = statementI.next();
+                                if (statement.getSubject().equals(oldAssertionPartResource)) {
+                                    rewrittenProvenanceModel.add(newAssertionPartResource, statement.getPredicate(), statement.getObject());
+                                } else {
+                                    rewrittenProvenanceModel.add(statement);
+                                }
+                            }
+                            // rewrittenProvenanceModel is already in the nanopublication
+                        }
+                    } catch (final MalformedNanopublicationException e) {
+                        throw new MalformedNanopublicationRuntimeException(e);
+                    }
                 }
+                checkState(this.nanopublication != null);
 
                 final Nanopublication nanopublication = this.nanopublication;
                 this.nanopublication = null;
                 return nanopublication;
-            }
-
-            private @Nullable
-            Nanopublication tryNext() {
-                checkState(nanopublication == null);
-
-                if (!headEntryI.hasNext()) {
-                    return null;
-                }
-
-                final Map.Entry<Uri, NanopublicationPart> headEntry = headEntryI.next();
-                final Uri nanopublicationUri = headEntry.getKey();
-                final NanopublicationPart head = headEntry.getValue();
-
-                try {
-                    // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasAssertion [A] [H]', which identifies [A] as the assertion URI
-                    final NanopublicationPart assertion = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasAssertion, unusedDatasetModelNames);
-                    // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasProvenance [P] [H]', which identifies [P] as the provenance URI
-                    final NanopublicationPart provenance = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasProvenance, unusedDatasetModelNames);
-                    // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
-                    final NanopublicationPart publicationInfo = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasPublicationInfo, unusedDatasetModelNames);
-
-                    if (dialect == NanopublicationDialect.SPECIFICATION) {
-                        return SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
-                    } else {
-                        // Don't respect the part names of non-specification dialects. Causes too many problems if the dialect differs too much from the spec.
-                        // Take the part models and create a new nanopublication from scratch.
-                        // Do respect the nanopublication URI. We need it to ensure the nanopublication can be updated or deleted later.
-                        final NanopublicationBuilder nanopublicationBuilder = Nanopublication.builder(nanopublicationUri);
-
-                        // Take assertions as-is
-                        nanopublicationBuilder.getAssertionBuilder().setModel(assertion.getModel());
-
-                        // Rewrite provenance statements to refer to the new assertion part URI
-                        // Will do that below, once we've got the new assertion part URI
-                        final Model rewrittenProvenanceModel = ModelFactory.createDefaultModel();
-                        nanopublicationBuilder.getProvenanceBuilder().setModel(rewrittenProvenanceModel);
-
-                        // Don't need to rewrite publication info, since it's only
-                        nanopublicationBuilder.getPublicationInfoBuilder().setModel(publicationInfo.getModel());
-
-                        final Nanopublication nanopublication = nanopublicationBuilder.build();
-
-                        // Rewrite statements of the provenance that referred to the assertion part
-                        final Resource newAssertionPartResource = ResourceFactory.createResource(nanopublication.getProvenance().getName().toString());
-                        final Resource oldAssertionPartResource = ResourceFactory.createResource(provenance.getName().toString());
-                        for (final StmtIterator statementI = provenance.getModel().listStatements(); statementI.hasNext(); ) {
-                            final Statement statement = statementI.next();
-                            if (statement.getSubject().equals(oldAssertionPartResource)) {
-                                rewrittenProvenanceModel.add(newAssertionPartResource, statement.getPredicate(), statement.getObject());
-                            } else {
-                                rewrittenProvenanceModel.add(statement);
-                            }
-                        }
-                        // rewrittenProvenanceModel is already in the nanopublication
-
-                        return nanopublication;
-                    }
-                } catch (final MalformedNanopublicationException e) {
-                    throw new MalformedNanopublicationRuntimeException(e);
-                }
             }
         };
     }

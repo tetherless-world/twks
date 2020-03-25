@@ -221,17 +221,4 @@ public class NanopublicationParser {
     public final ImmutableList<Nanopublication> parseUrl(final Uri url) throws MalformedNanopublicationRuntimeException {
         return parse(newRdfParserBuilder().source(url.toString()).build(), Optional.of(url));
     }
-
-//    public final Nanopublication parseOne()  {
-//        final ImmutableList<Nanopublication> nanopublications = parseAll();
-//
-//        switch (nanopublications.size()) {
-//            case 0:
-//                throw new IllegalStateException();
-//            case 1:
-//                return nanopublications.get(0);
-//            default:
-//                throw new MalformedNanopublicationException("more than one nanopublication parsed");
-//        }
-//    }
 }
