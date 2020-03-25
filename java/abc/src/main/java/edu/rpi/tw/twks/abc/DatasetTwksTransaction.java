@@ -23,6 +23,11 @@ public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> exten
     }
 
     @Override
+    public final boolean isEmpty() {
+        return dataset.isEmpty();
+    }
+
+    @Override
     protected final AutoCloseableIterable<Nanopublication> iterateNanopublications() {
         return new DatasetNanopublications(getDataset(), ((DatasetQuadStoreTransaction) getQuadStoreTransaction()).getDatasetTransaction());
     }
