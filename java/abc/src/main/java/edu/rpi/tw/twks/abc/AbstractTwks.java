@@ -126,6 +126,13 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
     }
 
     @Override
+    public boolean isEmpty() {
+        try (final TwksTransaction transaction = beginTransaction(ReadWrite.READ)) {
+            return transaction.isEmpty();
+        }
+    }
+
+    @Override
     public ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
         try (final TwksTransaction transaction = beginTransaction(ReadWrite.WRITE)) {
             final ImmutableList<PutNanopublicationResult> results = transaction.postNanopublications(nanopublications);

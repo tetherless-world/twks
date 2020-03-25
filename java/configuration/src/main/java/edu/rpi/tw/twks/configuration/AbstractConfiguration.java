@@ -1,10 +1,13 @@
 package edu.rpi.tw.twks.configuration;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.EnvironmentConfiguration;
 import org.apache.commons.configuration2.SystemConfiguration;
+import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
+import org.apache.commons.configuration2.convert.ListDelimiterHandler;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,6 +16,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractConfiguration {
+    public final static ListDelimiterHandler listDelimiterHandler = new DefaultListDelimiterHandler(',');
     private final static String PROPERTY_KEY_PREFIX = "twks";
 
     protected AbstractConfiguration() {
@@ -29,6 +33,11 @@ public abstract class AbstractConfiguration {
 
     public abstract static class Builder<BuilderT extends Builder<?, ?>, ConfigurationT extends AbstractConfiguration> {
         private boolean dirty = false;
+
+        private static Configuration setListDelimiterHandler(final org.apache.commons.configuration2.AbstractConfiguration configuration) {
+            configuration.setListDelimiterHandler(listDelimiterHandler);
+            return configuration;
+        }
 
         public abstract ConfigurationT build();
 
@@ -56,8 +65,8 @@ public abstract class AbstractConfiguration {
 
         @SuppressWarnings("unchecked")
         public final BuilderT setFromEnvironment() {
-            set(new EnvironmentConfiguration().subset(PROPERTY_KEY_PREFIX));
-            set(new SystemConfiguration().subset(PROPERTY_KEY_PREFIX));
+            set(setListDelimiterHandler(new EnvironmentConfiguration()).subset(PROPERTY_KEY_PREFIX));
+            set(setListDelimiterHandler(new SystemConfiguration()).subset(PROPERTY_KEY_PREFIX));
             return (BuilderT) this;
         }
 
@@ -69,29 +78,33 @@ public abstract class AbstractConfiguration {
             }
 
             public final Optional<Boolean> getBoolean(final PropertyDefinition definition) {
-                @Nullable final String value = getProperty(definition);
+                @Nullable final Object value = delegate.getProperty(definition.getKey());
                 return value != null ? Optional.of(Boolean.TRUE) : Optional.empty();
             }
 
             public final Optional<Integer> getInteger(final PropertyDefinition definition) {
-                @Nullable final String value = getProperty(definition);
-                return value != null ? Optional.of(Integer.parseInt(value)) : Optional.empty();
+                return Optional.ofNullable(delegate.getInteger(definition.getKey(), null));
             }
 
             public final Optional<Path> getPath(final PropertyDefinition definition) {
-                @Nullable final String value = getProperty(definition);
-                return value != null ? Optional.of(Paths.get(value)) : Optional.empty();
+                return Optional.ofNullable(delegate.getString(definition.getKey(), null)).map(value -> Paths.get(value));
             }
 
-            private @Nullable
-            String getProperty(final PropertyDefinition definition) {
-                @Nullable final Object value = delegate.getProperty(definition.getKey());
-                return value instanceof String ? (String) value : null;
+            @SuppressWarnings("unchecked")
+            public final Optional<ImmutableList<Path>> getPaths(final PropertyDefinition definition) {
+                final String[] values = delegate.getStringArray(definition.getKey());
+                if (values == null || values.length == 0) {
+                    return Optional.empty();
+                }
+                final ImmutableList.Builder<Path> pathsBuilder = ImmutableList.builder();
+                for (final String value : values) {
+                    pathsBuilder.add(Paths.get(value));
+                }
+                return Optional.of(pathsBuilder.build());
             }
 
             public final Optional<String> getString(final PropertyDefinition definition) {
-                @Nullable final String value = getProperty(definition);
-                return Optional.ofNullable(value);
+                return Optional.ofNullable(delegate.getString(definition.getKey(), null));
             }
         }
     }
