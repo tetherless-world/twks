@@ -70,26 +70,25 @@ public final class ServletContextListener implements javax.servlet.ServletContex
 
             if (configuration.getInitialNanopublicationsDirectoryPath().isPresent()) {
                 final ImmutableCollection<Nanopublication> directoryNanopublications = nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile()).values();
-                logger.info("parsed {} initial nanopublications from {}", directoryNanopublications.size(), configuration.getInitialNanopublicationsDirectoryPath().get());
+                logger.info("parsed {} initial nanopublication(s) from {}", directoryNanopublications.size(), configuration.getInitialNanopublicationsDirectoryPath().get());
                 nanopublicationsBuilder.addAll(directoryNanopublications);
             }
 
             if (configuration.getInitialNanopublicationFilePaths().isPresent()) {
                 for (final Path nanopublicationFilePath : configuration.getInitialNanopublicationFilePaths().get()) {
                     final ImmutableList<Nanopublication> fileNanopublications = nanopublicationParser.parseFile(nanopublicationFilePath.toFile());
-                    logger.info("parsed {} initial nanopublications from {}", fileNanopublications.size(), nanopublicationFilePath);
+                    logger.info("parsed {} initial nanopublication(s) from {}", fileNanopublications.size(), nanopublicationFilePath);
                     nanopublicationsBuilder.addAll(fileNanopublications);
                 }
             }
 
             nanopublications = nanopublicationsBuilder.build();
             if (nanopublications.isEmpty()) {
-                logger.info("parsed no initial nanopublications");
+//                logger.info("parsed no initial nanopublications");
                 return;
             }
         }
 
-        logger.info("posting {} initial nanopublication(s)", nanopublications.size());
         twks.postNanopublications(nanopublications);
         logger.info("posted {} initial nanopublication(s)", nanopublications.size());
     }
