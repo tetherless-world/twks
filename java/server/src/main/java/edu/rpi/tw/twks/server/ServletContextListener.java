@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.server;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;
@@ -68,12 +69,16 @@ public final class ServletContextListener implements javax.servlet.ServletContex
             final ImmutableList.Builder<Nanopublication> nanopublicationsBuilder = ImmutableList.builder();
 
             if (configuration.getInitialNanopublicationsDirectoryPath().isPresent()) {
-                nanopublicationsBuilder.addAll(nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile()).values());
+                final ImmutableCollection<Nanopublication> directoryNanopublications = nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile()).values();
+                logger.info("parsed {} initial nanopublications from {}", directoryNanopublications.size(), configuration.getInitialNanopublicationsDirectoryPath().get());
+                nanopublicationsBuilder.addAll(directoryNanopublications);
             }
 
             if (configuration.getInitialNanopublicationFilePaths().isPresent()) {
                 for (final Path nanopublicationFilePath : configuration.getInitialNanopublicationFilePaths().get()) {
-                    nanopublicationsBuilder.addAll(nanopublicationParser.parseFile(nanopublicationFilePath.toFile()));
+                    final ImmutableList<Nanopublication> fileNanopublications = nanopublicationParser.parseFile(nanopublicationFilePath.toFile());
+                    logger.info("parsed {} initial nanopublications from {}", fileNanopublications.size(), nanopublicationFilePath);
+                    nanopublicationsBuilder.addAll(fileNanopublications);
                 }
             }
 
