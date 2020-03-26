@@ -41,6 +41,8 @@ public final class ServletContextListener implements javax.servlet.ServletContex
                         .setFromEnvironment()
                         .set(new ServletContextConfiguration(servletContext)).build();
 
+        logger.info("server configuration: {}", configuration);
+
         final Twks twks = TwksFactory.getInstance().createTwks(configuration.getFactoryConfiguration());
 
         classpathExtensions = new ClasspathExtensions(configuration.getExtcpDirectoryPath(), twks);
