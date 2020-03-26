@@ -1,3 +1,6 @@
-.git
-java/*/target
+.circleci/
+doc/venv/
+.git/
+**/target/
+*.pyc
 py/venv/
