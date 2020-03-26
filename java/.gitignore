@@ -25,6 +25,8 @@ hs_err_pid*
 /data/
 dependency-reduced-pom.xml
 /dump/
+/.m2/repository/
+/.m2/settings.xml
 /out/
 pom.xml.releaseBackup
 /release.properties

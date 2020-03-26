@@ -1,6 +1,10 @@
 .circleci/
+doc/build/
 doc/venv/
+docker/compose/agraph-twks-server/data/
 .git/
+java/out/
+java/site/
 **/target/
 *.pyc
 py/venv/

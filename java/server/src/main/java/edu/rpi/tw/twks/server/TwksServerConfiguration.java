@@ -58,7 +58,13 @@ public final class TwksServerConfiguration extends AbstractConfiguration {
 
     @Override
     protected MoreObjects.ToStringHelper toStringHelper() {
-        return super.toStringHelper().add("extcpDirectoryPath", getExtcpDirectoryPath().orElse(null)).add("extfsDirectoryPath", getExtfsDirectoryPath()).add("serverBaseUrl", getServerBaseUrl());
+        return super.toStringHelper()
+                .add("extcpDirectoryPath", getExtcpDirectoryPath().orElse(null))
+                .add("extfsDirectoryPath", getExtfsDirectoryPath())
+                .add("factoryConfiguration", getFactoryConfiguration())
+                .add("initialNanopublicationDirectoryPath", getInitialNanopublicationsDirectoryPath().orElse(null))
+                .add("initialNanopublicationFilePaths", getInitialNanopublicationFilePaths().orElse(null))
+                .add("serverBaseUrl", getServerBaseUrl());
     }
 
     public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksServerConfiguration> {
