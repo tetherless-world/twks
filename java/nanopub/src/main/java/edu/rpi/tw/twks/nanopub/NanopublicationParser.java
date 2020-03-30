@@ -147,7 +147,7 @@ public class NanopublicationParser {
         }
     }
 
-    public ImmutableList<Nanopublication> parseFile(final Path filePath) throws MalformedNanopublicationRuntimeException {
+    public final ImmutableList<Nanopublication> parseFile(final Path filePath) throws MalformedNanopublicationRuntimeException {
         final CollectingNanopublicationParserSink sink = new CollectingNanopublicationParserSink();
         parseFile(filePath, sink);
         return sink.build();

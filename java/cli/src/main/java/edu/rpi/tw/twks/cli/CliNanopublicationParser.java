@@ -1,17 +1,13 @@
 package edu.rpi.tw.twks.cli;
 
 import com.beust.jcommander.Parameter;
-import com.google.common.collect.ImmutableList;
-import edu.rpi.tw.twks.nanopub.MalformedNanopublicationRuntimeException;
-import edu.rpi.tw.twks.nanopub.Nanopublication;
-import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
-import edu.rpi.tw.twks.nanopub.NanopublicationParser;
+import edu.rpi.tw.twks.nanopub.*;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RiotNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Optional;
 
 public final class CliNanopublicationParser extends NanopublicationParser {
@@ -22,7 +18,6 @@ public final class CliNanopublicationParser extends NanopublicationParser {
     public CliNanopublicationParser(final Args args) {
         super(
                 args.dialect != null ? NanopublicationDialect.valueOf(args.dialect.toUpperCase()) : NanopublicationDialect.SPECIFICATION,
-                true,
                 args.lang != null ? Optional.ofNullable(RDFLanguages.shortnameToLang(args.lang)) : Optional.empty()
         );
         this.retry = args.retry >= 0 ? args.retry : 0;
@@ -39,17 +34,29 @@ public final class CliNanopublicationParser extends NanopublicationParser {
 //    }
 
     @Override
-    public final ImmutableList<Nanopublication> parseFile(final File sourceFilePath) {
+    public final void parseFile(final Path sourceFilePath, final NanopublicationParserSink sink) {
         final int tryMax = (retry > 0 ? retry + 1 : 1);
         for (int tryI = 0; tryI < tryMax; tryI++) {
             try {
-                final ImmutableList<Nanopublication> result = super.parseFile(sourceFilePath);
-                if (!result.isEmpty()) {
-                    return result;
+                final BoxedBoolean parsedNanopublication = new BoxedBoolean();
+                super.parseFile(sourceFilePath, new NanopublicationParserSink() {
+                    @Override
+                    public void accept(final Nanopublication nanopublication) {
+                        sink.accept(nanopublication);
+                        parsedNanopublication.set(true);
+                    }
+
+                    @Override
+                    public void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
+                        sink.onMalformedNanopublicationException(exception);
+                    }
+                });
+                if (parsedNanopublication.get()) {
+                    return;
                 }
             } catch (final RiotNotFoundException e) {
                 logger.error("nanopublication file {} not found", sourceFilePath);
-                return ImmutableList.of();
+                return;
             } catch (final MalformedNanopublicationRuntimeException e) {
             }
 
@@ -59,11 +66,10 @@ public final class CliNanopublicationParser extends NanopublicationParser {
                 try {
                     Thread.sleep(retryDelayS);
                 } catch (final InterruptedException ex) {
-                    return ImmutableList.of();
+                    return;
                 }
             }
         }
-        return ImmutableList.of();
     }
 
     public abstract static class Args {
@@ -77,5 +83,17 @@ public final class CliNanopublicationParser extends NanopublicationParser {
         public int retrayDelayS = 1;
         @Parameter(names = {"--retry"}, description = "retry parsing a file n times after a short delay, defaults to no retries")
         public int retry = 0;
+    }
+
+    private final static class BoxedBoolean {
+        private boolean value = false;
+
+        public boolean get() {
+            return value;
+        }
+
+        public void set(final boolean value) {
+            this.value = value;
+        }
     }
 }
