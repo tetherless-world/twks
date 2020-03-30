@@ -126,6 +126,7 @@ public class NanopublicationParser {
                     sink.onMalformedNanopublicationException(exception);
                 }
             });
+            return;
         }
 
         parseUrl(Uri.parse(source));
