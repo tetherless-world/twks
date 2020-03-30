@@ -164,15 +164,15 @@ abstract class AbstractSparqlResource extends AbstractResource {
 
         try (final TwksTransaction transaction = getTwks().beginTransaction(ReadWrite.READ)) {
             try (final QueryExecution queryExecution = this.query(query, transaction)) {
-                switch (query.getQueryType()) {
-                    case Query.QueryTypeAsk:
-                    case Query.QueryTypeSelect: {
+                switch (query.queryType()) {
+                    case ASK:
+                    case SELECT: {
                         final Lang respLang = AcceptLists.calculateResponseLang(ResultSetLang.SPARQLResultSetXML, offerResultsAcceptList, proposeAcceptList);
 
-                        responseBuilder.header("Content-Type", respLang.getContentType().getContentType());
+                        responseBuilder.header("Content-Type", respLang.getContentType().getContentTypeStr());
 
                         try (final ByteArrayOutputStream respOutputStream = new ByteArrayOutputStream()) {
-                            if (query.getQueryType() == Query.QueryTypeAsk) {
+                            if (query.queryType() == QueryType.ASK) {
                                 final boolean result = queryExecution.execAsk();
                                 ResultSetFormatter.output(respOutputStream, result, respLang);
                             } else {
@@ -185,13 +185,13 @@ abstract class AbstractSparqlResource extends AbstractResource {
                         }
                         break;
                     }
-                    case Query.QueryTypeConstruct:
-                    case Query.QueryTypeDescribe: {
+                    case CONSTRUCT:
+                    case DESCRIBE: {
                         final Lang respLang = AcceptLists.calculateResponseLang(Lang.TRIG, AcceptLists.OFFER_GRAPH, proposeAcceptList);
 
-                        responseBuilder.header("Content-Type", respLang.getContentType().getContentType());
+                        responseBuilder.header("Content-Type", respLang.getContentType().getContentTypeStr());
 
-                        final Model respModel = query.getQueryType() == Query.QueryTypeConstruct ? queryExecution.execConstruct() : queryExecution.execDescribe();
+                        final Model respModel = query.queryType() == QueryType.CONSTRUCT ? queryExecution.execConstruct() : queryExecution.execDescribe();
                         try (final ByteArrayOutputStream respOutputStream = new ByteArrayOutputStream()) {
                             respModel.write(respOutputStream, respLang.getName());
                             responseBuilder.entity(respOutputStream.toByteArray());
@@ -201,7 +201,7 @@ abstract class AbstractSparqlResource extends AbstractResource {
                         break;
                     }
                     default:
-                        throw new UnsupportedOperationException("" + query.getQueryType());
+                        throw new UnsupportedOperationException("" + query.queryType());
                 }
             }
         }
