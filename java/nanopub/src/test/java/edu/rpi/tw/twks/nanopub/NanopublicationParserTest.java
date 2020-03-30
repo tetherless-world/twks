@@ -1,13 +1,14 @@
 package edu.rpi.tw.twks.nanopub;
 
-import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RiotNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -44,12 +45,22 @@ public final class NanopublicationParserTest {
     @Test
     public void testIgnoreMalformedNanopublications() {
         try {
-            NanopublicationParser.builder().setIgnoreMalformedNanopublications(false).build().parseFile(testData.mixFormedNanonpublicationFilePath);
+            NanopublicationParser.DEFAULT.parseFile(testData.mixFormedNanonpublicationFilePath);
             fail();
         } catch (final MalformedNanopublicationRuntimeException e) {
         }
 
-        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.builder().setIgnoreMalformedNanopublications(true).build().parseFile(testData.mixFormedNanonpublicationFilePath);
+        final List<Nanopublication> nanopublications = new ArrayList<>();
+        NanopublicationParser.DEFAULT.parseFile(testData.mixFormedNanonpublicationFilePath, new NanopublicationParserSink() {
+            @Override
+            public void accept(final Nanopublication nanopublication) {
+                nanopublications.add(nanopublication);
+            }
+
+            @Override
+            public void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
+            }
+        });
         assertEquals(1, nanopublications.size());
         final Nanopublication nanopublication = nanopublications.get(0);
         assertEquals(Uri.parse("http://example.org/pub1"), nanopublication.getUri());
@@ -58,7 +69,7 @@ public final class NanopublicationParserTest {
     @Test
     public void testMissingFile() {
         try {
-            NanopublicationParser.DEFAULT.parseFile(new File("nonextantfile"));
+            NanopublicationParser.DEFAULT.parseFile(Paths.get("nonextantfile"));
             fail();
         } catch (final RiotNotFoundException e) {
         }
