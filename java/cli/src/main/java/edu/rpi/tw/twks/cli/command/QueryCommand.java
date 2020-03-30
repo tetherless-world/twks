@@ -57,22 +57,22 @@ public final class QueryCommand extends Command {
 
         final Query query = QueryFactory.create(queryString);
         try (final QueryExecution queryExecution = args.nanopublications ? client.queryNanopublications(query) : client.queryAssertions(query)) {
-            switch (query.getQueryType()) {
-                case Query.QueryTypeAsk: {
+            switch (query.queryType()) {
+                case ASK: {
                     final boolean result = queryExecution.execAsk();
                     System.exit(result ? 0 : 1);
                     return;
                 }
-                case Query.QueryTypeConstruct:
-                case Query.QueryTypeDescribe: {
-                    final Model result = query.getQueryType() == Query.QueryTypeConstruct ? queryExecution.execConstruct() : queryExecution.execDescribe();
+                case CONSTRUCT:
+                case DESCRIBE: {
+                    final Model result = query.queryType() == QueryType.CONSTRUCT ? queryExecution.execConstruct() : queryExecution.execDescribe();
                     if (lang == null) {
                         lang = RDFLanguages.TRIG;
                     }
                     result.write(System.out, lang.getName());
                     return;
                 }
-                case Query.QueryTypeSelect: {
+                case SELECT: {
                     final ResultSet resultSet = queryExecution.execSelect();
                     if (lang == null) {
                         lang = ResultSetLang.SPARQLResultSetCSV;
@@ -81,7 +81,7 @@ public final class QueryCommand extends Command {
                     return;
                 }
                 default:
-                    throw new UnsupportedOperationException("query type " + query.getQueryType());
+                    throw new UnsupportedOperationException("query type " + query.queryType());
             }
         }
     }

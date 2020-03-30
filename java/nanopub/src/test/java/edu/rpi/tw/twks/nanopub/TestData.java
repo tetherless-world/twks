@@ -9,19 +9,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 
 /**
  * Nanopub-specific TestData. Has to copied from the twks-test project to avoid a circular dependency.
  */
 public final class TestData {
-    public final File assertionOnlyFilePath;
+    public final Path assertionOnlyFilePath;
     public final Dataset duplicateNanopublicationsDataset;
-    public final File mixFormedNanonpublicationFilePath;
+    public final Path mixFormedNanonpublicationFilePath;
     public final Dataset overlappingNanopublicationsDataset;
     public final Dataset specNanopublicationDataset;
-    public final File specNanopublicationFilePath;
+    public final Path specNanopublicationFilePath;
     public final Dataset uniqueNanopublicationsDataset;
-    public final File whyisNanopublicationFilePath;
+    public final Path whyisNanopublicationFilePath;
 
     public TestData() throws IOException, MalformedNanopublicationException {
         assertionOnlyFilePath = getResourceFilePath("assertion_only.ttl");
@@ -34,10 +35,10 @@ public final class TestData {
         whyisNanopublicationFilePath = getResourceFilePath("whyis_nanopublication.trig");
     }
 
-    private File getResourceFilePath(final String fileName) throws IOException {
+    private Path getResourceFilePath(final String fileName) throws IOException {
         final URL url = getClass().getResource("./" + fileName);
         try {
-            return new File(url.toURI());
+            return new File(url.toURI()).toPath();
         } catch (final URISyntaxException e) {
             throw new IOException(e);
         }

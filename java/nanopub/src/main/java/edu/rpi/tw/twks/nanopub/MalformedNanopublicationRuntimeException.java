@@ -4,4 +4,9 @@ public final class MalformedNanopublicationRuntimeException extends RuntimeExcep
     public MalformedNanopublicationRuntimeException(final MalformedNanopublicationException cause) {
         super(cause);
     }
+
+    @Override
+    public final synchronized MalformedNanopublicationException getCause() {
+        return (MalformedNanopublicationException) super.getCause();
+    }
 }

@@ -1,14 +1,12 @@
 package edu.rpi.tw.twks.server;
 
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;
 import edu.rpi.tw.twks.ext.ClasspathExtensions;
 import edu.rpi.tw.twks.ext.FileSystemExtensions;
 import edu.rpi.tw.twks.factory.TwksFactory;
-import edu.rpi.tw.twks.nanopub.Nanopublication;
-import edu.rpi.tw.twks.nanopub.NanopublicationParser;
+import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.servlet.JerseyServlet;
 import org.apache.commons.configuration2.web.ServletContextConfiguration;
 import org.slf4j.Logger;
@@ -18,7 +16,11 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletRegistration;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class ServletContextListener implements javax.servlet.ServletContextListener {
     private final static Logger logger = LoggerFactory.getLogger(ServletContextListener.class);
@@ -63,35 +65,64 @@ public final class ServletContextListener implements javax.servlet.ServletContex
     }
 
     private void loadInitialNanopublications(final TwksServerConfiguration configuration, final Twks twks) {
-        final ImmutableList<Nanopublication> nanopublications;
-        {
-//        NanopublicationParser nanopublicationParser = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).setIgnoreMalformedNanopublications(true).build();
-            final NanopublicationParser nanopublicationParser = NanopublicationParser.DEFAULT;
+        final InitialNanopublicationParserSink sink = new InitialNanopublicationParserSink(twks);
+        final NanopublicationParser nanopublicationParser = NanopublicationParser.DEFAULT;
 
-            final ImmutableList.Builder<Nanopublication> nanopublicationsBuilder = ImmutableList.builder();
-
-            if (configuration.getInitialNanopublicationsDirectoryPath().isPresent()) {
-                final ImmutableCollection<Nanopublication> directoryNanopublications = nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile()).values();
-                logger.info("parsed {} initial nanopublication(s) from {}", directoryNanopublications.size(), configuration.getInitialNanopublicationsDirectoryPath().get());
-                nanopublicationsBuilder.addAll(directoryNanopublications);
-            }
-
-            if (configuration.getInitialNanopublicationFilePaths().isPresent()) {
-                for (final Path nanopublicationFilePath : configuration.getInitialNanopublicationFilePaths().get()) {
-                    final ImmutableList<Nanopublication> fileNanopublications = nanopublicationParser.parseFile(nanopublicationFilePath.toFile());
-                    logger.info("parsed {} initial nanopublication(s) from {}", fileNanopublications.size(), nanopublicationFilePath);
-                    nanopublicationsBuilder.addAll(fileNanopublications);
+        if (configuration.getInitialNanopublicationsDirectoryPath().isPresent()) {
+            new NanopublicationDirectoryParser(nanopublicationParser).parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile(), new NanopublicationDirectoryParserSink() {
+                @Override
+                public void accept(final Nanopublication nanopublication, final Path nanopublicationFilePath) {
+                    sink.accept(nanopublication);
                 }
-            }
 
-            nanopublications = nanopublicationsBuilder.build();
-            if (nanopublications.isEmpty()) {
-//                logger.info("parsed no initial nanopublications");
-                return;
+                @Override
+                public void onMalformedNanopublicationException(final MalformedNanopublicationException exception, final Path nanopublicationFilePath) {
+                    sink.onMalformedNanopublicationException(exception);
+                }
+            });
+//            logger.info("parsed {} initial nanopublication(s) from {}", directoryNanopublications.size(), configuration.getInitialNanopublicationsDirectoryPath().get());
+        }
+
+        if (configuration.getInitialNanopublicationFilePaths().isPresent()) {
+            for (final Path nanopublicationFilePath : configuration.getInitialNanopublicationFilePaths().get()) {
+                nanopublicationParser.parseFile(nanopublicationFilePath, sink);
+//                logger.info("parsed {} initial nanopublication(s) from {}", fileNanopublications.size(), nanopublicationFilePath);
             }
         }
 
-        twks.postNanopublications(nanopublications);
-        logger.info("posted {} initial nanopublication(s)", nanopublications.size());
+        sink.flush();
+    }
+
+    private final static class InitialNanopublicationParserSink implements NanopublicationParserSink {
+        private final List<Nanopublication> nanopublicationsBuffer = new ArrayList<>();
+        private final Twks twks;
+
+        public InitialNanopublicationParserSink(final Twks twks) {
+            this.twks = checkNotNull(twks);
+        }
+
+        @Override
+        public final void accept(final Nanopublication nanopublication) {
+            nanopublicationsBuffer.add(nanopublication);
+            if (nanopublicationsBuffer.size() == 10) {
+                twks.postNanopublications(ImmutableList.copyOf(nanopublicationsBuffer));
+                logger.info("posted {} initial nanopublication(s)", nanopublicationsBuffer.size());
+                nanopublicationsBuffer.clear();
+            }
+        }
+
+        public final void flush() {
+            if (nanopublicationsBuffer.isEmpty()) {
+                return;
+            }
+            twks.postNanopublications(ImmutableList.copyOf(nanopublicationsBuffer));
+            logger.info("posted {} initial nanopublication(s)", nanopublicationsBuffer.size());
+            nanopublicationsBuffer.clear();
+        }
+
+        @Override
+        public final void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
+            throw new MalformedNanopublicationRuntimeException(exception);
+        }
     }
 }

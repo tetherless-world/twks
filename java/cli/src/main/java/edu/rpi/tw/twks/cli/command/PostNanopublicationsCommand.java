@@ -4,12 +4,17 @@ import com.beust.jcommander.Parameter;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.cli.CliNanopublicationParser;
+import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
+import edu.rpi.tw.twks.nanopub.MalformedNanopublicationRuntimeException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationParserSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class PostNanopublicationsCommand extends Command {
     private final static String[] ALIASES = {"post", "put", "put-nanopublications"};
@@ -36,27 +41,60 @@ public final class PostNanopublicationsCommand extends Command {
     public void run(final TwksClient client) {
         final CliNanopublicationParser parser = new CliNanopublicationParser(args);
 
-        final ImmutableList<Nanopublication> nanopublications;
+        final BufferingNanopublicationParserSink sink = new BufferingNanopublicationParserSink(client);
 
         if (args.sources.isEmpty()) {
-            nanopublications = parser.parseStdin();
+            parser.parseStdin(sink);
         } else {
-            final ImmutableList.Builder<Nanopublication> nanopublicationsBuilder = ImmutableList.builder();
             for (final String source : args.sources) {
-                nanopublicationsBuilder.addAll(parser.parse(source));
+                parser.parse(source, sink);
             }
-            nanopublications = nanopublicationsBuilder.build();
         }
 
-        logger.info("parsed {} nanopublication(s) total", nanopublications.size());
-
-        client.postNanopublications(nanopublications);
-
-        logger.info("post {} nanopublication(s) total", nanopublications.size());
+        sink.flush();
     }
 
     public final static class Args extends CliNanopublicationParser.Args {
+        @Parameter(names = {"--nanopublications-buffer-size"}, description = "nanopublications buffer size")
+        int nanopublicationsBufferSize = 10;
+
         @Parameter(required = true, description = "1+ nanopublication or assertion file path(s) or URI(s), or - for stdin")
         List<String> sources = new ArrayList<>();
+    }
+
+    private final class BufferingNanopublicationParserSink implements NanopublicationParserSink {
+        private final List<Nanopublication> nanopublicationsBuffer = new ArrayList<>();
+        private final TwksClient twksClient;
+        private int postedNanopublicationsCount = 0;
+
+        public BufferingNanopublicationParserSink(final TwksClient twksClient) {
+            this.twksClient = checkNotNull(twksClient);
+        }
+
+        @Override
+        public final void accept(final Nanopublication nanopublication) {
+            nanopublicationsBuffer.add(nanopublication);
+            if (nanopublicationsBuffer.size() == args.nanopublicationsBufferSize) {
+                twksClient.postNanopublications(ImmutableList.copyOf(nanopublicationsBuffer));
+                postedNanopublicationsCount += nanopublicationsBuffer.size();
+                logger.info("posted {} new nanopublication(s) ({} total)", nanopublicationsBuffer.size(), postedNanopublicationsCount);
+                nanopublicationsBuffer.clear();
+            }
+        }
+
+        public final void flush() {
+            if (nanopublicationsBuffer.isEmpty()) {
+                return;
+            }
+            twksClient.postNanopublications(ImmutableList.copyOf(nanopublicationsBuffer));
+            postedNanopublicationsCount += nanopublicationsBuffer.size();
+            logger.info("posted {} new nanopublication(s) ({} total)", nanopublicationsBuffer.size(), postedNanopublicationsCount);
+            nanopublicationsBuffer.clear();
+        }
+
+        @Override
+        public final void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
+            throw new MalformedNanopublicationRuntimeException(exception);
+        }
     }
 }
