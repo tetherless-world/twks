@@ -100,7 +100,7 @@ public final class NanopublicationParserTest {
 
     @Test
     public void testWhyisParseNanopublicationFile() throws MalformedNanopublicationException {
-        final Nanopublication nanopublication = NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).build().parseFile(testData.whyisNanopublicationFilePath).get(0);
+        final Nanopublication nanopublication = NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).setLang(Lang.TRIG).build().parseFile(testData.whyisNanopublicationFilePath).get(0);
         // 20191120 Parser no longer preserves part names for non-specification dialects.
 //        assertEquals("http://localhost:5000/pub/0ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5", nanopublication.getUri().toString());
         assertEquals(5, nanopublication.getAssertion().getModel().listStatements().toList().size());
