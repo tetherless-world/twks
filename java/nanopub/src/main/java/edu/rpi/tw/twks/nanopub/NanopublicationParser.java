@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -111,10 +112,20 @@ public class NanopublicationParser {
 
         final File sourceFile = new File(source);
         if (sourceFile.isFile()) {
-            parseFile(sourceFile, sink);
+            parseFile(sourceFile.toPath(), sink);
             return;
         } else if (sourceFile.isDirectory()) {
-            return ImmutableList.copyOf(new NanopublicationDirectoryParser(this).parseDirectory(sourceFile).values());
+            new NanopublicationDirectoryParser(this).parseDirectory(sourceFile, new NanopublicationDirectoryParserSink() {
+                @Override
+                public void accept(final Nanopublication nanopublication, final Path nanopublicationFilePath) {
+                    sink.accept(nanopublication);
+                }
+
+                @Override
+                public void onMalformedNanopublicationException(final MalformedNanopublicationException exception, final Path nanopublicationFilePath) {
+                    sink.onMalformedNanopublicationException(exception);
+                }
+            });
         }
 
         parseUrl(Uri.parse(source));
@@ -136,14 +147,14 @@ public class NanopublicationParser {
         }
     }
 
-    public ImmutableList<Nanopublication> parseFile(final File filePath) throws MalformedNanopublicationRuntimeException {
+    public ImmutableList<Nanopublication> parseFile(final Path filePath) throws MalformedNanopublicationRuntimeException {
         final CollectingNanopublicationParserSink sink = new CollectingNanopublicationParserSink();
         parseFile(filePath, sink);
         return sink.build();
     }
 
-    public void parseFile(final File filePath, final NanopublicationParserSink sink) {
-        parse(newRdfParserBuilder().source(filePath.getPath()).build(), sink, Optional.of(Uri.parse(checkNotNull(filePath).toURI().toString())));
+    public void parseFile(final Path filePath, final NanopublicationParserSink sink) {
+        parse(newRdfParserBuilder().source(filePath).build(), sink, Optional.of(Uri.parse(checkNotNull(filePath).toUri().toString())));
     }
 
     public final ImmutableList<Nanopublication> parseStdin() throws MalformedNanopublicationRuntimeException {
