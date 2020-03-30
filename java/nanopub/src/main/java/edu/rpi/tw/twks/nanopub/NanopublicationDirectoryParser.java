@@ -17,6 +17,11 @@ import java.nio.file.Path;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Parser for a file system directory of nanopublications.
+ * <p>
+ * Wraps a NanopublicationParser because the signatures are very different than the former's parseX methods.
+ */
 public final class NanopublicationDirectoryParser {
     private final static Logger logger = LoggerFactory.getLogger(NanopublicationDirectoryParser.class);
     private final NanopublicationParser nanopublicationParser;
