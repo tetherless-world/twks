@@ -69,7 +69,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
         final NanopublicationParser nanopublicationParser = NanopublicationParser.DEFAULT;
 
         if (configuration.getInitialNanopublicationsDirectoryPath().isPresent()) {
-            new NanopublicationDirectoryParser(nanopublicationParser).parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile(), new NanopublicationDirectoryConsumer() {
+            nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile(), new NanopublicationDirectoryConsumer() {
                 @Override
                 public void accept(final Nanopublication nanopublication, final Path nanopublicationFilePath) {
                     consumer.accept(nanopublication);

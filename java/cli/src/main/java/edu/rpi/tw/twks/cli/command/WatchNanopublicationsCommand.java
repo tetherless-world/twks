@@ -5,7 +5,7 @@ import com.google.common.collect.*;
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.cli.CliNanopublicationParser;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
-import edu.rpi.tw.twks.nanopub.NanopublicationDirectoryParser;
+import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.methvin.watcher.DirectoryChangeEvent;
@@ -50,7 +50,7 @@ public final class WatchNanopublicationsCommand extends Command {
     @Override
     public final void run(final TwksClient client) {
         final Path directoryPath = Paths.get(args.directoryPath);
-        final NanopublicationDirectoryParser nanopublicationParser = new NanopublicationDirectoryParser(new CliNanopublicationParser(args));
+        final NanopublicationParser nanopublicationParser = new CliNanopublicationParser(args);
 
         final ImmutableMultimap<Path, Nanopublication> initialNanopublicationsByPath = nanopublicationParser.parseDirectory(directoryPath.toFile());
         if (!initialNanopublicationsByPath.isEmpty()) {
@@ -91,9 +91,9 @@ public final class WatchNanopublicationsCommand extends Command {
         private final File directoryFile;
         private final Path directoryPath;
         private final DirectoryWatcher directoryWatcher;
-        private final NanopublicationDirectoryParser nanopublicationParser;
+        private final NanopublicationParser nanopublicationParser;
 
-        NanopublicationsDirectoryWatcher(final TwksClient client, final Path directoryPath, final ImmutableMultimap<Path, Nanopublication> initialNanopublicationsByPath, final NanopublicationDirectoryParser nanopublicationParser) throws IOException {
+        NanopublicationsDirectoryWatcher(final TwksClient client, final Path directoryPath, final ImmutableMultimap<Path, Nanopublication> initialNanopublicationsByPath, final NanopublicationParser nanopublicationParser) throws IOException {
             this.client = checkNotNull(client);
             this.directoryPath = checkNotNull(directoryPath);
             this.directoryFile = this.directoryPath.toFile();
