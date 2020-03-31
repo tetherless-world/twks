@@ -30,8 +30,8 @@ public final class NanopublicationTest {
     }
 
     @Test
-    public void testToDataset() throws MalformedNanopublicationException {
-        final Nanopublication nanopublication = DatasetNanopublications.copyOne(testData.specNanopublicationDataset);
+    public void testToDataset() {
+        final Nanopublication nanopublication = NanopublicationParser.DEFAULT.parseDataset(testData.specNanopublicationDataset).get(0);
         {
             final Dataset actual = nanopublication.toDataset();
             assertTrue(actual.getUnionModel().isIsomorphicWith(testData.specNanopublicationDataset.getUnionModel()));
@@ -44,8 +44,8 @@ public final class NanopublicationTest {
     }
 
     @Test
-    public void testToDatasetDuplicateModelName() throws MalformedNanopublicationException {
-        final Nanopublication nanopublication = DatasetNanopublications.copyOne(testData.specNanopublicationDataset);
+    public void testToDatasetDuplicateModelName() {
+        final Nanopublication nanopublication = NanopublicationParser.DEFAULT.parseDataset(testData.specNanopublicationDataset).get(0);
         final Dataset actual = DatasetFactory.create();
         {
             // containsModel will fail if the model is empty
