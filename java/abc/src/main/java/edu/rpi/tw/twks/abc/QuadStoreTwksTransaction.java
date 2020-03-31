@@ -6,7 +6,6 @@ import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.rpi.tw.twks.vocabulary.SIO;
 import edu.rpi.tw.twks.vocabulary.Vocabularies;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -95,12 +93,18 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
             allAssertionsUnionGraph.deleteNanopublication(uri);
             ontologyAssertionsUnionGraphs.deleteNanopublication(uri);
 
-            try (final AutoCloseableIterable<Nanopublication> nanopublications = iterateNanopublications()) {
-                for (final Nanopublication nanopublication : nanopublications) {
+            getNanopublications(new NanopublicationConsumer() {
+                @Override
+                public void accept(final Nanopublication nanopublication) {
                     allAssertionsUnionGraph.putNanopublication(nanopublication);
                     ontologyAssertionsUnionGraphs.putNanopublication(nanopublication);
                 }
-            }
+
+                @Override
+                public void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
+                    logger.error("malformed nanopublication when rebuilding assertions union graphs:", exception);
+                }
+            });
         }
 
         return DeleteNanopublicationResult.DELETED;
@@ -128,6 +132,44 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
         return resultBuilder.build();
     }
 
+    private NanopublicationPart getNanopublicationPart(final String nanopublicationPartName) {
+        final Uri nanopublicationPartNameUri = Uri.parse(nanopublicationPartName);
+        final Model nanopublicationPartModel;
+        try {
+            nanopublicationPartModel = quadStoreTransaction.getNamedGraph(nanopublicationPartNameUri);
+        } catch (final NoSuchNamedGraphException e) {
+            throw new IllegalStateException(e);
+        }
+        return new NanopublicationPart(nanopublicationPartModel, nanopublicationPartNameUri);
+    }
+
+    @Override
+    protected void getNanopublications(final NanopublicationConsumer consumer) {
+        try (final QueryExecution queryExecution = queryNanopublications(ITERATE_NANOPUBLICATIONS_QUERY)) {
+            final ResultSet resultSet = queryExecution.execSelect();
+            while (resultSet.hasNext()) {
+                final QuerySolution querySolution = resultSet.nextSolution();
+                final String nanopublicationAssertionGraphName = querySolution.getResource("A").getURI();
+                final String nanopublicationHeadGraphName = querySolution.getResource("H").getURI();
+                final String nanopublicationProvenanceGraphName = querySolution.getResource("P").getURI();
+                final String nanopublicationPublicationInfoGraphName = querySolution.getResource("I").getURI();
+                final String nanopublicationUri = querySolution.getResource("np").getURI();
+
+                try {
+                    consumer.accept(SpecificationNanopublicationDialect.createNanopublicationFromParts(
+                            getNanopublicationPart(nanopublicationAssertionGraphName),
+                            Uri.parse(nanopublicationHeadGraphName),
+                            Uri.parse(nanopublicationUri),
+                            getNanopublicationPart(nanopublicationProvenanceGraphName),
+                            getNanopublicationPart(nanopublicationPublicationInfoGraphName)
+                    ));
+                } catch (final MalformedNanopublicationException e) {
+                    consumer.onMalformedNanopublicationException(e);
+                }
+            }
+        }
+    }
+
     @Override
     public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
         final Model result = ModelFactory.createDefaultModel();
@@ -147,70 +189,6 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
 
     protected final QuadStoreTransaction getQuadStoreTransaction() {
         return quadStoreTransaction;
-    }
-
-    @Override
-    protected AutoCloseableIterable<Nanopublication> iterateNanopublications() {
-        return new AutoCloseableIterable<Nanopublication>() {
-            private @Nullable
-            QueryExecution queryExecution = null;
-
-            @Override
-            public void close() {
-                if (queryExecution != null) {
-                    queryExecution.close();
-                }
-            }
-
-            @Override
-            public Iterator<Nanopublication> iterator() {
-                if (queryExecution != null) {
-                    queryExecution.close();
-                }
-                queryExecution = queryNanopublications(ITERATE_NANOPUBLICATIONS_QUERY);
-                final ResultSet resultSet = queryExecution.execSelect();
-
-                return new Iterator<Nanopublication>() {
-                    private NanopublicationPart getNanopublicationPart(final String nanopublicationPartName) {
-                        final Uri nanopublicationPartNameUri = Uri.parse(nanopublicationPartName);
-                        final Model nanopublicationPartModel;
-                        try {
-                            nanopublicationPartModel = quadStoreTransaction.getNamedGraph(nanopublicationPartNameUri);
-                        } catch (final NoSuchNamedGraphException e) {
-                            throw new IllegalStateException(e);
-                        }
-                        return new NanopublicationPart(nanopublicationPartModel, nanopublicationPartNameUri);
-                    }
-
-                    @Override
-                    public boolean hasNext() {
-                        return resultSet.hasNext();
-                    }
-
-                    @Override
-                    public Nanopublication next() {
-                        final QuerySolution querySolution = resultSet.nextSolution();
-                        final String nanopublicationAssertionGraphName = querySolution.getResource("A").getURI();
-                        final String nanopublicationHeadGraphName = querySolution.getResource("H").getURI();
-                        final String nanopublicationProvenanceGraphName = querySolution.getResource("P").getURI();
-                        final String nanopublicationPublicationInfoGraphName = querySolution.getResource("I").getURI();
-                        final String nanopublicationUri = querySolution.getResource("np").getURI();
-
-                        try {
-                            return SpecificationNanopublicationDialect.createNanopublicationFromParts(
-                                    getNanopublicationPart(nanopublicationAssertionGraphName),
-                                    Uri.parse(nanopublicationHeadGraphName),
-                                    Uri.parse(nanopublicationUri),
-                                    getNanopublicationPart(nanopublicationProvenanceGraphName),
-                                    getNanopublicationPart(nanopublicationPublicationInfoGraphName)
-                            );
-                        } catch (final MalformedNanopublicationException e) {
-                            throw new MalformedNanopublicationRuntimeException(e);
-                        }
-                    }
-                };
-            }
-        };
     }
 
     @Override

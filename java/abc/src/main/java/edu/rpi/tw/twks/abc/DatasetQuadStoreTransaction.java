@@ -20,6 +20,7 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
         this.datasetTransaction = checkNotNull(datasetTransaction);
     }
 
+
     @Override
     public final void abort() {
         datasetTransaction.abort();
@@ -45,7 +46,7 @@ public final class DatasetQuadStoreTransaction implements QuadStoreTransaction {
         return dataset.containsNamedModel(graphName.toString());
     }
 
-    final DatasetTransaction getDatasetTransaction() {
+    public final DatasetTransaction getDatasetTransaction() {
         return datasetTransaction;
     }
 

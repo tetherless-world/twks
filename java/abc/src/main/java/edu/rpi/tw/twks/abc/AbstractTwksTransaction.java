@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> implements TwksTransaction {
     private final static String GET_NANOPUBLICATION_DATASET_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
@@ -51,30 +52,34 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
         }
 
         final Map<String, Uri> nanopublicationFileNames = new HashMap<>();
-        try {
-            try (final AutoCloseableIterable<Nanopublication> nanopublications = iterateNanopublications()) {
-                for (final Nanopublication nanopublication : nanopublications) {
-                    final String nanopublicationFileName = MoreFilenameUtils.cleanFileName(nanopublication.getUri().toString()) + ".trig";
+        getNanopublications(new NanopublicationConsumer() {
+            @Override
+            public void accept(final Nanopublication nanopublication) {
+                final String nanopublicationFileName = MoreFilenameUtils.cleanFileName(nanopublication.getUri().toString()) + ".trig";
 
-                    {
-                        @Nullable final Uri conflictNanopublicationUri = nanopublicationFileNames.get(nanopublicationFileName);
-                        if (conflictNanopublicationUri != null) {
-                            throw new IllegalStateException(String.format("duplicate nanopublication file name: %s (from URIs %s and %s)", nanopublicationFileName, nanopublication.getUri(), conflictNanopublicationUri));
-                        }
-                    }
-
-                    nanopublicationFileNames.put(nanopublicationFileName, nanopublication.getUri());
-
-                    final Path dumpFilePath = dumpDirectoryPath.resolve(nanopublicationFileName);
-                    try (final FileOutputStream fileOutputStream = new FileOutputStream(dumpFilePath.toFile())) {
-                        nanopublication.write(fileOutputStream);
-                        logger.debug("wrote {} to {}", nanopublication.getUri(), dumpFilePath);
+                {
+                    @Nullable final Uri conflictNanopublicationUri = nanopublicationFileNames.get(nanopublicationFileName);
+                    if (conflictNanopublicationUri != null) {
+                        throw new IllegalStateException(String.format("duplicate nanopublication file name: %s (from URIs %s and %s)", nanopublicationFileName, nanopublication.getUri(), conflictNanopublicationUri));
                     }
                 }
+
+                nanopublicationFileNames.put(nanopublicationFileName, nanopublication.getUri());
+
+                final Path dumpFilePath = dumpDirectoryPath.resolve(nanopublicationFileName);
+                try (final FileOutputStream fileOutputStream = new FileOutputStream(dumpFilePath.toFile())) {
+                    nanopublication.write(fileOutputStream);
+                    logger.debug("wrote {} to {}", nanopublication.getUri(), dumpFilePath);
+                } catch (final IOException e) {
+                    logger.error("error writing to {}:", dumpFilePath, e);
+                }
             }
-        } catch (final MalformedNanopublicationRuntimeException e) {
-            logger.error("malformed nanopublication: ", e);
-        }
+
+            @Override
+            public void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
+                logger.error("malformed nanopublication: ", exception);
+            }
+        });
     }
 
     @Override
@@ -83,11 +88,14 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
         if (nanopublicationDataset.isEmpty()) {
             return Optional.empty();
         }
+        final ImmutableList<Nanopublication> nanopublications;
         try {
-            return Optional.of(DatasetNanopublications.copyOne(nanopublicationDataset));
-        } catch (final MalformedNanopublicationException e) {
+            nanopublications = NanopublicationParser.DEFAULT.parseDataset(nanopublicationDataset);
+        } catch (final MalformedNanopublicationRuntimeException e) {
             throw new IllegalStateException(e);
         }
+        checkState(nanopublications.size() == 1);
+        return Optional.of(nanopublications.get(0));
     }
 
     protected final Dataset getNanopublicationDataset(final Uri uri) {
@@ -95,6 +103,8 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
             return MoreDatasetFactory.createDatasetFromResultSet(queryExecution.execSelect());
         }
     }
+
+    protected abstract void getNanopublications(NanopublicationConsumer consumer);
 
     @Override
     public final TwksT getTwks() {
@@ -113,8 +123,6 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
             return count == 0;
         }
     }
-
-    protected abstract AutoCloseableIterable<Nanopublication> iterateNanopublications();
 
     @Override
     public ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {

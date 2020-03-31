@@ -5,10 +5,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.*;
-import edu.rpi.tw.twks.nanopub.DatasetNanopublications;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.MoreDatasetFactory;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
@@ -468,7 +468,7 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
         try (final QueryExecution queryExecution = ((NanopublicationQueryApi) sut).queryNanopublications(query)) {
             actualDataset = MoreDatasetFactory.createDatasetFromResultSet(queryExecution.execSelect());
         }
-        final Nanopublication actual = DatasetNanopublications.copyOne(actualDataset);
+        final Nanopublication actual = NanopublicationParser.DEFAULT.parseDataset(actualDataset).get(0);
 
         assertTrue(actual.isIsomorphicWith(testData.specNanopublication));
     }

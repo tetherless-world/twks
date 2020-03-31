@@ -65,19 +65,19 @@ public final class ServletContextListener implements javax.servlet.ServletContex
     }
 
     private void loadInitialNanopublications(final TwksServerConfiguration configuration, final Twks twks) {
-        final InitialNanopublicationParserSink sink = new InitialNanopublicationParserSink(twks);
+        final InitialNanopublicationConsumer consumer = new InitialNanopublicationConsumer(twks);
         final NanopublicationParser nanopublicationParser = NanopublicationParser.DEFAULT;
 
         if (configuration.getInitialNanopublicationsDirectoryPath().isPresent()) {
-            new NanopublicationDirectoryParser(nanopublicationParser).parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile(), new NanopublicationDirectoryParserSink() {
+            nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile(), new NanopublicationDirectoryConsumer() {
                 @Override
                 public void accept(final Nanopublication nanopublication, final Path nanopublicationFilePath) {
-                    sink.accept(nanopublication);
+                    consumer.accept(nanopublication);
                 }
 
                 @Override
                 public void onMalformedNanopublicationException(final MalformedNanopublicationException exception, final Path nanopublicationFilePath) {
-                    sink.onMalformedNanopublicationException(exception);
+                    consumer.onMalformedNanopublicationException(exception);
                 }
             });
 //            logger.info("parsed {} initial nanopublication(s) from {}", directoryNanopublications.size(), configuration.getInitialNanopublicationsDirectoryPath().get());
@@ -85,19 +85,19 @@ public final class ServletContextListener implements javax.servlet.ServletContex
 
         if (configuration.getInitialNanopublicationFilePaths().isPresent()) {
             for (final Path nanopublicationFilePath : configuration.getInitialNanopublicationFilePaths().get()) {
-                nanopublicationParser.parseFile(nanopublicationFilePath, sink);
+                nanopublicationParser.parseFile(nanopublicationFilePath, consumer);
 //                logger.info("parsed {} initial nanopublication(s) from {}", fileNanopublications.size(), nanopublicationFilePath);
             }
         }
 
-        sink.flush();
+        consumer.flush();
     }
 
-    private final static class InitialNanopublicationParserSink implements NanopublicationParserSink {
+    private final static class InitialNanopublicationConsumer implements NanopublicationConsumer {
         private final List<Nanopublication> nanopublicationsBuffer = new ArrayList<>();
         private final Twks twks;
 
-        public InitialNanopublicationParserSink(final Twks twks) {
+        public InitialNanopublicationConsumer(final Twks twks) {
             this.twks = checkNotNull(twks);
         }
 

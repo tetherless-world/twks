@@ -1,20 +1,32 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.uri.Uri;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RiotNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
 public final class NanopublicationParserTest {
     private NanopublicationParser sut;
     private TestData testData;
+
+    private static Nanopublication parseOne(final Dataset dataset) {
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.DEFAULT.parseDataset(dataset);
+        assertEquals(1, nanopublications.size());
+        return nanopublications.get(0);
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -43,6 +55,33 @@ public final class NanopublicationParserTest {
     }
 
     @Test
+    public void testCreateNanopublicationFromDataset() throws MalformedNanopublicationException {
+        final Nanopublication nanopublication = parseOne(testData.specNanopublicationDataset);
+        assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
+        assertEquals(3, nanopublication.getProvenance().getModel().listStatements().toList().size());
+        assertEquals(2, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
+    }
+
+    @Test
+    public void testCreateNanopublicationsFromDataset() throws MalformedNanopublicationException, IOException {
+        final Dataset dataset = DatasetFactory.create();
+        NanopublicationParser.DEFAULT.parseFile(testData.assertionOnlyFilePath).get(0).toDataset(dataset);
+        parseOne(testData.specNanopublicationDataset).toDataset(dataset);
+        assertEquals(8, ImmutableList.copyOf(dataset.listNames()).size());
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.DEFAULT.parseDataset(dataset);
+        assertEquals(2, nanopublications.size());
+    }
+
+    @Test
+    public void testDuplicateNanopublications() {
+        try {
+            NanopublicationParser.DEFAULT.parseDataset(testData.duplicateNanopublicationsDataset);
+            fail();
+        } catch (final MalformedNanopublicationRuntimeException e) {
+        }
+    }
+
+    @Test
     public void testIgnoreMalformedNanopublications() {
         try {
             NanopublicationParser.DEFAULT.parseFile(testData.mixFormedNanonpublicationFilePath);
@@ -51,7 +90,7 @@ public final class NanopublicationParserTest {
         }
 
         final List<Nanopublication> nanopublications = new ArrayList<>();
-        NanopublicationParser.DEFAULT.parseFile(testData.mixFormedNanonpublicationFilePath, new NanopublicationParserSink() {
+        NanopublicationParser.DEFAULT.parseFile(testData.mixFormedNanonpublicationFilePath, new NanopublicationConsumer() {
             @Override
             public void accept(final Nanopublication nanopublication) {
                 nanopublications.add(nanopublication);
@@ -72,6 +111,24 @@ public final class NanopublicationParserTest {
             NanopublicationParser.DEFAULT.parseFile(Paths.get("nonextantfile"));
             fail();
         } catch (final RiotNotFoundException e) {
+        }
+    }
+
+    @Test
+    public void testMultipleUniqueNanopublications() {
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.DEFAULT.parseDataset(testData.uniqueNanopublicationsDataset);
+        assertEquals(2, nanopublications.size());
+        final Map<String, Nanopublication> nanopublicationsByUri = nanopublications.stream().collect(Collectors.toMap(nanopublication -> nanopublication.getUri().toString(), nanopublication -> nanopublication));
+        assertNotSame(null, nanopublicationsByUri.get("http://example.org/pub1"));
+        assertNotSame(null, nanopublicationsByUri.get("http://example.org/pub2"));
+    }
+
+    @Test
+    public void testOverlappingNanopublications() {
+        try {
+            NanopublicationParser.DEFAULT.parseDataset(testData.overlappingNanopublicationsDataset);
+            fail();
+        } catch (final MalformedNanopublicationRuntimeException e) {
         }
     }
 

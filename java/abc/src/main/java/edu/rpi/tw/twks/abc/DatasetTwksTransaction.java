@@ -1,9 +1,8 @@
 package edu.rpi.tw.twks.abc;
 
-import edu.rpi.tw.twks.nanopub.AutoCloseableIterable;
-import edu.rpi.tw.twks.nanopub.DatasetNanopublications;
 import edu.rpi.tw.twks.nanopub.DatasetTransaction;
-import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationConsumer;
+import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 
@@ -23,13 +22,13 @@ public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> exten
     }
 
     @Override
-    public final boolean isEmpty() {
-        return dataset.isEmpty();
+    protected final void getNanopublications(final NanopublicationConsumer consumer) {
+        NanopublicationParser.DEFAULT.parseDataset(((DatasetQuadStoreTransaction) getQuadStoreTransaction()).getDatasetTransaction(), consumer);
     }
 
     @Override
-    protected final AutoCloseableIterable<Nanopublication> iterateNanopublications() {
-        return new DatasetNanopublications(getDataset(), ((DatasetQuadStoreTransaction) getQuadStoreTransaction()).getDatasetTransaction());
+    public final boolean isEmpty() {
+        return dataset.isEmpty();
     }
 }
 
