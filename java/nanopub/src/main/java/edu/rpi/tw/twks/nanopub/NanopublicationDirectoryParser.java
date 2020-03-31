@@ -32,12 +32,12 @@ public final class NanopublicationDirectoryParser {
     }
 
     public final ImmutableMultimap<Path, Nanopublication> parseDirectory(final File sourceDirectoryPath) throws MalformedNanopublicationRuntimeException {
-        final CollectingNanopublicationDirectoryParserSink sink = new CollectingNanopublicationDirectoryParserSink();
-        parseDirectory(sourceDirectoryPath, sink);
-        return sink.build();
+        final CollectingNanopublicationDirectoryConsumer consumer = new CollectingNanopublicationDirectoryConsumer();
+        parseDirectory(sourceDirectoryPath, consumer);
+        return consumer.build();
     }
 
-    public final void parseDirectory(File sourceDirectoryPath, final NanopublicationDirectoryParserSink sink) {
+    public final void parseDirectory(File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
         if (nanopublicationParser.getDialect() == NanopublicationDialect.SPECIFICATION) {
             // Assume it's a directory where every .trig file is a nanopublication.
             final File[] sourceFiles = sourceDirectoryPath.listFiles();
@@ -52,7 +52,7 @@ public final class NanopublicationDirectoryParser {
                     continue;
                 }
                 final Path trigFilePath = trigFile.toPath();
-                nanopublicationParser.parseFile(trigFilePath, new FileNanopublicationParserSink(sink, trigFilePath));
+                nanopublicationParser.parseFile(trigFilePath, new FileNanopublicationConsumer(consumer, trigFilePath));
             }
         } else if (nanopublicationParser.getDialect() == NanopublicationDialect.WHYIS) {
             if (sourceDirectoryPath.getName().equals("data")) {
@@ -78,13 +78,13 @@ public final class NanopublicationDirectoryParser {
 
                     if (twksFile.isFile()) {
                         final Path twksFilePath = twksFile.toPath();
-                        nanopublicationParser.parseFile(twksFilePath, new FileNanopublicationParserSink(sink, twksFilePath));
+                        nanopublicationParser.parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
                     } else {
                         final File whyisFile = new File(nanopublicationSubdirectory, "file");
                         final Path whyisFilePath = whyisFile.toPath();
-                        // Collect the nanopublications so we can also write them out, independently of the sink.
+                        // Collect the nanopublications so we can also write them out, independently of the consumer.
                         final List<Nanopublication> twksNanopublications = new ArrayList<>();
-                        nanopublicationParser.parseFile(whyisFilePath, new FileNanopublicationParserSink(sink, whyisFilePath) {
+                        nanopublicationParser.parseFile(whyisFilePath, new FileNanopublicationConsumer(consumer, whyisFilePath) {
                             @Override
                             public void accept(final Nanopublication nanopublication) {
                                 super.accept(nanopublication);
@@ -109,12 +109,12 @@ public final class NanopublicationDirectoryParser {
                 // Assume the directory contains a single nanopublication
                 final File file = new File(sourceDirectoryPath, "file");
                 final Path filePath = file.toPath();
-                nanopublicationParser.parseFile(filePath, new FileNanopublicationParserSink(sink, filePath));
+                nanopublicationParser.parseFile(filePath, new FileNanopublicationConsumer(consumer, filePath));
             }
         }
     }
 
-    private final static class CollectingNanopublicationDirectoryParserSink implements NanopublicationDirectoryParserSink {
+    private final static class CollectingNanopublicationDirectoryConsumer implements NanopublicationDirectoryConsumer {
         private final ImmutableMultimap.Builder<Path, Nanopublication> nanopublicationsBuilder = ImmutableMultimap.builder();
 
         @Override
@@ -135,23 +135,23 @@ public final class NanopublicationDirectoryParser {
         }
     }
 
-    private static class FileNanopublicationParserSink implements NanopublicationParserSink {
-        private final NanopublicationDirectoryParserSink directorySink;
+    private static class FileNanopublicationConsumer implements NanopublicationConsumer {
+        private final NanopublicationDirectoryConsumer directoryConsumer;
         private final Path nanopublicationFilePath;
 
-        public FileNanopublicationParserSink(final NanopublicationDirectoryParserSink directorySink, final Path nanopublicationFilePath) {
-            this.directorySink = checkNotNull(directorySink);
+        public FileNanopublicationConsumer(final NanopublicationDirectoryConsumer directoryConsumer, final Path nanopublicationFilePath) {
+            this.directoryConsumer = checkNotNull(directoryConsumer);
             this.nanopublicationFilePath = checkNotNull(nanopublicationFilePath);
         }
 
         @Override
         public void accept(final Nanopublication nanopublication) {
-            directorySink.accept(nanopublication, nanopublicationFilePath);
+            directoryConsumer.accept(nanopublication, nanopublicationFilePath);
         }
 
         @Override
         public void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
-            directorySink.onMalformedNanopublicationException(exception, nanopublicationFilePath);
+            directoryConsumer.onMalformedNanopublicationException(exception, nanopublicationFilePath);
         }
     }
 }

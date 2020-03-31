@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Nanopublication parser. Parse methods are of the form:
  * <p>
- * parseX(source, sink) -> void
+ * parseX(source, consumer) -> void
  * or
  * parseX(source) -> list of nanopublications
  * <p>
@@ -56,7 +56,7 @@ public class NanopublicationParser {
         return builder;
     }
 
-    private void parse(final RDFParser rdfParser, final NanopublicationParserSink sink, final Optional<Uri> sourceUri) {
+    private void parse(final RDFParser rdfParser, final NanopublicationConsumer consumer, final Optional<Uri> sourceUri) {
         final Dataset dataset = DatasetFactory.create();
 
         try {
@@ -64,7 +64,7 @@ public class NanopublicationParser {
         } catch (final RiotNotFoundException e) {
             throw e;
         } catch (final RiotException e) {
-            sink.onMalformedNanopublicationException(new MalformedNanopublicationException(e));
+            consumer.onMalformedNanopublicationException(new MalformedNanopublicationException(e));
             return;
         }
 
@@ -75,11 +75,11 @@ public class NanopublicationParser {
         } catch (final UnsupportedOperationException e) {
             // Jena throws this exception when a graph name is a blank node
             // The latter appears to be legal TriG.
-            sink.onMalformedNanopublicationException(new MalformedNanopublicationException("blank node graph names not supported"));
+            consumer.onMalformedNanopublicationException(new MalformedNanopublicationException("blank node graph names not supported"));
             return;
         }
         if (datasetHasNamedGraphs) {
-            parseDataset(dataset, sink);
+            parseDataset(dataset, consumer);
             return;
         }
 
@@ -92,38 +92,38 @@ public class NanopublicationParser {
         try {
             nanopublication = nanopublicationBuilder.build();
         } catch (final MalformedNanopublicationException e) {
-            sink.onMalformedNanopublicationException(e);
+            consumer.onMalformedNanopublicationException(e);
             return;
         }
-        sink.accept(nanopublication);
+        consumer.accept(nanopublication);
     }
 
     public final ImmutableList<Nanopublication> parse(final String source) throws MalformedNanopublicationRuntimeException {
-        final CollectingNanopublicationParserSink sink = new CollectingNanopublicationParserSink();
-        parse(source, sink);
-        return sink.build();
+        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
+        parse(source, consumer);
+        return consumer.build();
     }
 
-    public final void parse(final String source, final NanopublicationParserSink sink) {
+    public final void parse(final String source, final NanopublicationConsumer consumer) {
         if (source.equals("-")) {
-            parseStdin(sink);
+            parseStdin(consumer);
             return;
         }
 
         final File sourceFile = new File(source);
         if (sourceFile.isFile()) {
-            parseFile(sourceFile.toPath(), sink);
+            parseFile(sourceFile.toPath(), consumer);
             return;
         } else if (sourceFile.isDirectory()) {
-            new NanopublicationDirectoryParser(this).parseDirectory(sourceFile, new NanopublicationDirectoryParserSink() {
+            new NanopublicationDirectoryParser(this).parseDirectory(sourceFile, new NanopublicationDirectoryConsumer() {
                 @Override
                 public void accept(final Nanopublication nanopublication, final Path nanopublicationFilePath) {
-                    sink.accept(nanopublication);
+                    consumer.accept(nanopublication);
                 }
 
                 @Override
                 public void onMalformedNanopublicationException(final MalformedNanopublicationException exception, final Path nanopublicationFilePath) {
-                    sink.onMalformedNanopublicationException(exception);
+                    consumer.onMalformedNanopublicationException(exception);
                 }
             });
             return;
@@ -132,7 +132,7 @@ public class NanopublicationParser {
         parseUrl(Uri.parse(source));
     }
 
-    private void parseDataset(final Dataset dataset, final NanopublicationParserSink sink) {
+    private void parseDataset(final Dataset dataset, final NanopublicationConsumer consumer) {
         try (final DatasetNanopublications datasetNanopublications = new DatasetNanopublications(dataset, dialect)) {
             final Iterator<Nanopublication> nanopublicationI = datasetNanopublications.iterator();
             while (nanopublicationI.hasNext()) {
@@ -140,31 +140,31 @@ public class NanopublicationParser {
                 try {
                     nanopublication = nanopublicationI.next();
                 } catch (final MalformedNanopublicationRuntimeException e) {
-                    sink.onMalformedNanopublicationException(e.getCause());
+                    consumer.onMalformedNanopublicationException(e.getCause());
                     continue;
                 }
-                sink.accept(nanopublication);
+                consumer.accept(nanopublication);
             }
         }
     }
 
     public final ImmutableList<Nanopublication> parseFile(final Path filePath) throws MalformedNanopublicationRuntimeException {
-        final CollectingNanopublicationParserSink sink = new CollectingNanopublicationParserSink();
-        parseFile(filePath, sink);
-        return sink.build();
+        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
+        parseFile(filePath, consumer);
+        return consumer.build();
     }
 
-    public void parseFile(final Path filePath, final NanopublicationParserSink sink) {
-        parse(newRdfParserBuilder().source(filePath).build(), sink, Optional.of(Uri.parse(checkNotNull(filePath).toUri().toString())));
+    public void parseFile(final Path filePath, final NanopublicationConsumer consumer) {
+        parse(newRdfParserBuilder().source(filePath).build(), consumer, Optional.of(Uri.parse(checkNotNull(filePath).toUri().toString())));
     }
 
     public final ImmutableList<Nanopublication> parseStdin() throws MalformedNanopublicationRuntimeException {
-        final CollectingNanopublicationParserSink sink = new CollectingNanopublicationParserSink();
-        parseStdin(sink);
-        return sink.build();
+        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
+        parseStdin(consumer);
+        return consumer.build();
     }
 
-    public final void parseStdin(final NanopublicationParserSink sink) {
+    public final void parseStdin(final NanopublicationConsumer consumer) {
         final byte[] trigBytes;
         try {
             trigBytes = ByteStreams.toByteArray(System.in);
@@ -172,38 +172,38 @@ public class NanopublicationParser {
             throw new RuntimeException(e);
         }
         final String trigString = new String(trigBytes);
-        parseString(trigString, sink);
+        parseString(trigString, consumer);
     }
 
     public final ImmutableList<Nanopublication> parseString(final String string) throws MalformedNanopublicationRuntimeException {
         return parseString(string, Optional.empty());
     }
 
-    public final void parseString(final String string, final NanopublicationParserSink sink) {
-        parseString(string, sink, Optional.empty());
+    public final void parseString(final String string, final NanopublicationConsumer consumer) {
+        parseString(string, consumer, Optional.empty());
     }
 
     public final ImmutableList<Nanopublication> parseString(final String string, final Optional<Uri> sourceUri) throws MalformedNanopublicationRuntimeException {
-        final CollectingNanopublicationParserSink sink = new CollectingNanopublicationParserSink();
-        parseString(string, sink, sourceUri);
-        return sink.build();
+        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
+        parseString(string, consumer, sourceUri);
+        return consumer.build();
     }
 
-    public final void parseString(final String string, final NanopublicationParserSink sink, final Optional<Uri> sourceUri) {
-        parse(newRdfParserBuilder().source(new StringReader(string)).build(), sink, sourceUri);
+    public final void parseString(final String string, final NanopublicationConsumer consumer, final Optional<Uri> sourceUri) {
+        parse(newRdfParserBuilder().source(new StringReader(string)).build(), consumer, sourceUri);
     }
 
     public final ImmutableList<Nanopublication> parseUrl(final Uri url) throws MalformedNanopublicationRuntimeException {
-        final CollectingNanopublicationParserSink sink = new CollectingNanopublicationParserSink();
-        parseUrl(url, sink);
-        return sink.build();
+        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
+        parseUrl(url, consumer);
+        return consumer.build();
     }
 
-    public final void parseUrl(final Uri url, final NanopublicationParserSink sink) {
-        parse(newRdfParserBuilder().source(url.toString()).build(), sink, Optional.of(url));
+    public final void parseUrl(final Uri url, final NanopublicationConsumer consumer) {
+        parse(newRdfParserBuilder().source(url.toString()).build(), consumer, Optional.of(url));
     }
 
-    private final static class CollectingNanopublicationParserSink implements NanopublicationParserSink {
+    private final static class CollectingNanopublicationConsumer implements NanopublicationConsumer {
         private final ImmutableList.Builder<Nanopublication> nanopublicationsBuilder = ImmutableList.builder();
 
         @Override

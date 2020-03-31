@@ -34,21 +34,21 @@ public final class CliNanopublicationParser extends NanopublicationParser {
 //    }
 
     @Override
-    public final void parseFile(final Path sourceFilePath, final NanopublicationParserSink sink) {
+    public final void parseFile(final Path sourceFilePath, final NanopublicationConsumer consumer) {
         final int tryMax = (retry > 0 ? retry + 1 : 1);
         for (int tryI = 0; tryI < tryMax; tryI++) {
             try {
                 final BoxedBoolean parsedNanopublication = new BoxedBoolean();
-                super.parseFile(sourceFilePath, new NanopublicationParserSink() {
+                super.parseFile(sourceFilePath, new NanopublicationConsumer() {
                     @Override
                     public void accept(final Nanopublication nanopublication) {
-                        sink.accept(nanopublication);
+                        consumer.accept(nanopublication);
                         parsedNanopublication.set(true);
                     }
 
                     @Override
                     public void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
-                        sink.onMalformedNanopublicationException(exception);
+                        consumer.onMalformedNanopublicationException(exception);
                     }
                 });
                 if (parsedNanopublication.get()) {

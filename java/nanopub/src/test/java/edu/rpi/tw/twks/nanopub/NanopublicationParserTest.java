@@ -51,7 +51,7 @@ public final class NanopublicationParserTest {
         }
 
         final List<Nanopublication> nanopublications = new ArrayList<>();
-        NanopublicationParser.DEFAULT.parseFile(testData.mixFormedNanonpublicationFilePath, new NanopublicationParserSink() {
+        NanopublicationParser.DEFAULT.parseFile(testData.mixFormedNanonpublicationFilePath, new NanopublicationConsumer() {
             @Override
             public void accept(final Nanopublication nanopublication) {
                 nanopublications.add(nanopublication);

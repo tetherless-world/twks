@@ -7,7 +7,7 @@ import edu.rpi.tw.twks.cli.CliNanopublicationParser;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationRuntimeException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
-import edu.rpi.tw.twks.nanopub.NanopublicationParserSink;
+import edu.rpi.tw.twks.nanopub.NanopublicationConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,17 +41,17 @@ public final class PostNanopublicationsCommand extends Command {
     public void run(final TwksClient client) {
         final CliNanopublicationParser parser = new CliNanopublicationParser(args);
 
-        final BufferingNanopublicationParserSink sink = new BufferingNanopublicationParserSink(client);
+        final BufferingNanopublicationConsumer consumer = new BufferingNanopublicationConsumer(client);
 
         if (args.sources.isEmpty()) {
-            parser.parseStdin(sink);
+            parser.parseStdin(consumer);
         } else {
             for (final String source : args.sources) {
-                parser.parse(source, sink);
+                parser.parse(source, consumer);
             }
         }
 
-        sink.flush();
+        consumer.flush();
     }
 
     public final static class Args extends CliNanopublicationParser.Args {
@@ -62,12 +62,12 @@ public final class PostNanopublicationsCommand extends Command {
         List<String> sources = new ArrayList<>();
     }
 
-    private final class BufferingNanopublicationParserSink implements NanopublicationParserSink {
+    private final class BufferingNanopublicationConsumer implements NanopublicationConsumer {
         private final List<Nanopublication> nanopublicationsBuffer = new ArrayList<>();
         private final TwksClient twksClient;
         private int postedNanopublicationsCount = 0;
 
-        public BufferingNanopublicationParserSink(final TwksClient twksClient) {
+        public BufferingNanopublicationConsumer(final TwksClient twksClient) {
             this.twksClient = checkNotNull(twksClient);
         }
 
