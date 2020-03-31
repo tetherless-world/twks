@@ -21,16 +21,20 @@ public final class DatasetTransaction implements AutoCloseable {
         }
     }
 
+    @Override
+    public final void close() {
+        if (dataset.supportsTransactions()) {
+            dataset.end();
+        }
+    }
+
     public final void commit() {
         if (dataset.supportsTransactions()) {
             dataset.commit();
         }
     }
 
-    @Override
-    public final void close() {
-        if (dataset.supportsTransactions()) {
-            dataset.end();
-        }
+    public final Dataset getDataset() {
+        return dataset;
     }
 }

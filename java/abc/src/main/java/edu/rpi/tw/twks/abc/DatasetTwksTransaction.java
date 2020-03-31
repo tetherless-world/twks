@@ -23,7 +23,7 @@ public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> exten
 
     @Override
     protected final void getNanopublications(final NanopublicationConsumer consumer) {
-        NanopublicationParser.DEFAULT.parseDataset(dataset, consumer);
+        NanopublicationParser.DEFAULT.parseDataset(((DatasetQuadStoreTransaction) getQuadStoreTransaction()).getDatasetTransaction(), consumer);
     }
 
     @Override

@@ -135,7 +135,13 @@ public class NanopublicationParser {
     }
 
     public final void parseDataset(final Dataset dataset, final NanopublicationConsumer consumer) {
-        try (final DatasetNanopublicationParser parser = new DatasetNanopublicationParser(dataset)) {
+        try (final DatasetNanopublicationParser parser = new DatasetNanopublicationParser(true, new DatasetTransaction(dataset, ReadWrite.READ))) {
+            parser.parse(consumer);
+        }
+    }
+
+    public final void parseDataset(final DatasetTransaction datasetTransaction, final NanopublicationConsumer consumer) {
+        try (final DatasetNanopublicationParser parser = new DatasetNanopublicationParser(false, datasetTransaction)) {
             parser.parse(consumer);
         }
     }
@@ -145,6 +151,12 @@ public class NanopublicationParser {
         parseDataset(dataset, consumer);
         return consumer.build();
     }
+
+//    public final ImmutableList<Nanopublication> parseDataset(final DatasetTransaction datasetTransaction) throws MalformedNanopublicationRuntimeException {
+//        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
+//        parseDataset(datasetTransaction, consumer);
+//        return consumer.build();
+//    }
 
     public final ImmutableMultimap<Path, Nanopublication> parseDirectory(final File sourceDirectoryPath) throws MalformedNanopublicationRuntimeException {
         final CollectingNanopublicationDirectoryConsumer consumer = new CollectingNanopublicationDirectoryConsumer();
@@ -348,16 +360,8 @@ public class NanopublicationParser {
         private final boolean ownTransaction;
         private final DatasetTransaction transaction;
 
-        public DatasetNanopublicationParser(final Dataset dataset) {
-            this(dataset, true, new DatasetTransaction(dataset, ReadWrite.READ));
-        }
-
-        public DatasetNanopublicationParser(final Dataset dataset, final DatasetTransaction transaction) {
-            this(dataset, false, transaction);
-        }
-
-        private DatasetNanopublicationParser(final Dataset dataset, final boolean ownTransaction, final DatasetTransaction transaction) {
-            this.dataset = checkNotNull(dataset);
+        public DatasetNanopublicationParser(final boolean ownTransaction, final DatasetTransaction transaction) {
+            this.dataset = transaction.getDataset();
             this.ownTransaction = ownTransaction;
             this.transaction = checkNotNull(transaction);
         }
