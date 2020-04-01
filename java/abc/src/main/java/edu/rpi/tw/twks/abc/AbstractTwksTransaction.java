@@ -90,7 +90,7 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
         }
         final ImmutableList<Nanopublication> nanopublications;
         try {
-            nanopublications = NanopublicationParser.DEFAULT.parseDataset(nanopublicationDataset);
+            nanopublications = NanopublicationParser.SPECIFICATION.parseDataset(nanopublicationDataset);
         } catch (final MalformedNanopublicationRuntimeException e) {
             throw new IllegalStateException(e);
         }

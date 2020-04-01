@@ -31,7 +31,7 @@ import static com.google.common.base.Preconditions.checkState;
  * In the latter case parser exceptions (e.g., MalformedNanopublicationException) are thrown as runtime exceptions.
  */
 public class NanopublicationParser {
-    public final static NanopublicationParser DEFAULT = new NanopublicationParser(NanopublicationDialect.SPECIFICATION, Optional.of(NanopublicationDialect.SPECIFICATION.getDefaultLang()));
+    public final static NanopublicationParser SPECIFICATION = new NanopublicationParser(NanopublicationDialect.SPECIFICATION, Optional.of(NanopublicationDialect.SPECIFICATION.getDefaultLang()));
     private final static Logger logger = LoggerFactory.getLogger(NanopublicationParser.class);
     private final NanopublicationDialect dialect;
     private final Optional<Lang> lang;
@@ -277,8 +277,8 @@ public class NanopublicationParser {
                 if (twksFile.isFile()) {
                     // We wrote the file.twks.trig in specification TRIG, regardless of the lang of the current parser.
                     final Path twksFilePath = twksFile.toPath();
-                    checkState(NanopublicationParser.DEFAULT.getLang().equals(Lang.TRIG));
-                    NanopublicationParser.DEFAULT.parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
+                    checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
+                    NanopublicationParser.SPECIFICATION.parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
                 } else {
                     final File whyisFile = new File(nanopublicationSubdirectory, "file");
                     final Path whyisFilePath = whyisFile.toPath();
@@ -299,7 +299,7 @@ public class NanopublicationParser {
                         }
                         try (final OutputStream twksFileOutputStream = new FileOutputStream(twksFile)) {
                             // See note above re: file.twks.trig.
-                            checkState(NanopublicationParser.DEFAULT.getLang().equals(Lang.TRIG));
+                            checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
                             RDFDataMgr.write(twksFileOutputStream, dataset, Lang.TRIG);
                         } catch (final IOException e) {
                             throw new RuntimeException(e);

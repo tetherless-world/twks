@@ -66,7 +66,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
 
     private void loadInitialNanopublications(final TwksServerConfiguration configuration, final Twks twks) {
         final InitialNanopublicationConsumer consumer = new InitialNanopublicationConsumer(twks);
-        final NanopublicationParser nanopublicationParser = NanopublicationParser.DEFAULT;
+        final NanopublicationParser nanopublicationParser = NanopublicationParser.SPECIFICATION;
 
         if (configuration.getInitialNanopublicationsDirectoryPath().isPresent()) {
             nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile(), new NanopublicationDirectoryConsumer() {
