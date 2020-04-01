@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Nanopublication parser. Parse methods are of the form:
@@ -48,13 +49,17 @@ public class NanopublicationParser {
         return dialect;
     }
 
+    public final Lang getLang() {
+        return lang.orElse(dialect.getDefaultLang());
+    }
+
 //    private ImmutableList<Uri> getNanopublicationUris(final ImmutableList<Nanopublication> nanopublications) {
 //        return nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
 //    }
 
     private RDFParserBuilder newRdfParserBuilder() {
         final RDFParserBuilder builder = RDFParserBuilder.create();
-        builder.lang(lang.orElse(dialect.getDefaultLang()));
+        builder.lang(getLang());
         return builder;
     }
 
@@ -270,8 +275,10 @@ public class NanopublicationParser {
                 // re-parsing it always produces the same result.
 
                 if (twksFile.isFile()) {
+                    // We wrote the file.twks.trig in specification TRIG, regardless of the lang of the current parser.
                     final Path twksFilePath = twksFile.toPath();
-                    parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
+                    checkState(NanopublicationParser.DEFAULT.getLang().equals(Lang.TRIG));
+                    NanopublicationParser.DEFAULT.parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
                 } else {
                     final File whyisFile = new File(nanopublicationSubdirectory, "file");
                     final Path whyisFilePath = whyisFile.toPath();
@@ -291,6 +298,8 @@ public class NanopublicationParser {
                             nanopublication.toDataset(dataset);
                         }
                         try (final OutputStream twksFileOutputStream = new FileOutputStream(twksFile)) {
+                            // See note above re: file.twks.trig.
+                            checkState(NanopublicationParser.DEFAULT.getLang().equals(Lang.TRIG));
                             RDFDataMgr.write(twksFileOutputStream, dataset, Lang.TRIG);
                         } catch (final IOException e) {
                             throw new RuntimeException(e);
