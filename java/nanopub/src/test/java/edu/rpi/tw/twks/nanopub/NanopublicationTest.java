@@ -31,7 +31,7 @@ public final class NanopublicationTest {
 
     @Test
     public void testToDataset() {
-        final Nanopublication nanopublication = NanopublicationParser.DEFAULT.parseDataset(testData.specNanopublicationDataset).get(0);
+        final Nanopublication nanopublication = NanopublicationParser.SPECIFICATION.parseDataset(testData.specNanopublicationDataset).get(0);
         {
             final Dataset actual = nanopublication.toDataset();
             assertTrue(actual.getUnionModel().isIsomorphicWith(testData.specNanopublicationDataset.getUnionModel()));
@@ -45,7 +45,7 @@ public final class NanopublicationTest {
 
     @Test
     public void testToDatasetDuplicateModelName() {
-        final Nanopublication nanopublication = NanopublicationParser.DEFAULT.parseDataset(testData.specNanopublicationDataset).get(0);
+        final Nanopublication nanopublication = NanopublicationParser.SPECIFICATION.parseDataset(testData.specNanopublicationDataset).get(0);
         final Dataset actual = DatasetFactory.create();
         {
             // containsModel will fail if the model is empty
@@ -62,19 +62,19 @@ public final class NanopublicationTest {
 
     @Test
     public void testWrite() throws Exception {
-        final Nanopublication expected = NanopublicationParser.DEFAULT.parseFile(testData.specNanopublicationFilePath).get(0);
+        final Nanopublication expected = NanopublicationParser.SPECIFICATION.parseFile(testData.specNanopublicationFilePath).get(0);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream();
         expected.write(bos);
         final String actualString = new String(bos.toByteArray(), Charsets.UTF_8);
-        final Nanopublication actual = NanopublicationParser.DEFAULT.parseString(actualString).get(0);
+        final Nanopublication actual = NanopublicationParser.SPECIFICATION.parseString(actualString).get(0);
         Assert.assertTrue(expected.isIsomorphicWith(actual));
     }
 
     @Test
     public void testWriteToString() throws Exception {
-        final Nanopublication expected = NanopublicationParser.DEFAULT.parseFile(testData.specNanopublicationFilePath).get(0);
+        final Nanopublication expected = NanopublicationParser.SPECIFICATION.parseFile(testData.specNanopublicationFilePath).get(0);
         final String actualString = expected.writeToString();
-        final Nanopublication actual = NanopublicationParser.DEFAULT.parseString(actualString).get(0);
+        final Nanopublication actual = NanopublicationParser.SPECIFICATION.parseString(actualString).get(0);
         Assert.assertTrue(expected.isIsomorphicWith(actual));
     }
 }

@@ -176,7 +176,7 @@ public final class RestTwksClient implements TwksClient {
             try (final InputStream inputStream = response.getContent()) {
                 final byte[] contentBytes = ByteStreams.toByteArray(inputStream);
                 try {
-                    return Optional.of(NanopublicationParser.DEFAULT.parseString(new String(contentBytes, "UTF-8")).get(0));
+                    return Optional.of(NanopublicationParser.SPECIFICATION.parseString(new String(contentBytes, "UTF-8")).get(0));
                 } catch (final MalformedNanopublicationRuntimeException e) {
                     logger.error("malformed nanopublication from server: ", e);
                     return Optional.empty();

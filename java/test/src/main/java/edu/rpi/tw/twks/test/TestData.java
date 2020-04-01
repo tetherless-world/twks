@@ -108,7 +108,7 @@ public final class TestData {
     }
 
     private Nanopublication parseNanopublicationFromString(final String trig) throws IOException, MalformedNanopublicationException {
-        return NanopublicationParser.DEFAULT.parseString(trig).get(0);
+        return NanopublicationParser.SPECIFICATION.parseString(trig).get(0);
     }
 
 //    private Nanopublication parseNanopublicationFromResource(final String fileName) throws IOException, MalformedNanopublicationException {

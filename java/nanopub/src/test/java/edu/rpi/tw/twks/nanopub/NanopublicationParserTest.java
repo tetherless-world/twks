@@ -23,7 +23,7 @@ public final class NanopublicationParserTest {
     private TestData testData;
 
     private static Nanopublication parseOne(final Dataset dataset) {
-        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.DEFAULT.parseDataset(dataset);
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.SPECIFICATION.parseDataset(dataset);
         assertEquals(1, nanopublications.size());
         return nanopublications.get(0);
     }
@@ -48,7 +48,7 @@ public final class NanopublicationParserTest {
     @Test
     public void testBrokenRdf() {
         try {
-            NanopublicationParser.DEFAULT.parseString("broken RDF");
+            NanopublicationParser.SPECIFICATION.parseString("broken RDF");
             fail();
         } catch (final MalformedNanopublicationRuntimeException e) {
         }
@@ -65,17 +65,17 @@ public final class NanopublicationParserTest {
     @Test
     public void testCreateNanopublicationsFromDataset() throws MalformedNanopublicationException, IOException {
         final Dataset dataset = DatasetFactory.create();
-        NanopublicationParser.DEFAULT.parseFile(testData.assertionOnlyFilePath).get(0).toDataset(dataset);
+        NanopublicationParser.SPECIFICATION.parseFile(testData.assertionOnlyFilePath).get(0).toDataset(dataset);
         parseOne(testData.specNanopublicationDataset).toDataset(dataset);
         assertEquals(8, ImmutableList.copyOf(dataset.listNames()).size());
-        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.DEFAULT.parseDataset(dataset);
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.SPECIFICATION.parseDataset(dataset);
         assertEquals(2, nanopublications.size());
     }
 
     @Test
     public void testDuplicateNanopublications() {
         try {
-            NanopublicationParser.DEFAULT.parseDataset(testData.duplicateNanopublicationsDataset);
+            NanopublicationParser.SPECIFICATION.parseDataset(testData.duplicateNanopublicationsDataset);
             fail();
         } catch (final MalformedNanopublicationRuntimeException e) {
         }
@@ -84,13 +84,13 @@ public final class NanopublicationParserTest {
     @Test
     public void testIgnoreMalformedNanopublications() {
         try {
-            NanopublicationParser.DEFAULT.parseFile(testData.mixFormedNanonpublicationFilePath);
+            NanopublicationParser.SPECIFICATION.parseFile(testData.mixFormedNanonpublicationFilePath);
             fail();
         } catch (final MalformedNanopublicationRuntimeException e) {
         }
 
         final List<Nanopublication> nanopublications = new ArrayList<>();
-        NanopublicationParser.DEFAULT.parseFile(testData.mixFormedNanonpublicationFilePath, new NanopublicationConsumer() {
+        NanopublicationParser.SPECIFICATION.parseFile(testData.mixFormedNanonpublicationFilePath, new NanopublicationConsumer() {
             @Override
             public void accept(final Nanopublication nanopublication) {
                 nanopublications.add(nanopublication);
@@ -108,7 +108,7 @@ public final class NanopublicationParserTest {
     @Test
     public void testMissingFile() {
         try {
-            NanopublicationParser.DEFAULT.parseFile(Paths.get("nonextantfile"));
+            NanopublicationParser.SPECIFICATION.parseFile(Paths.get("nonextantfile"));
             fail();
         } catch (final RiotNotFoundException e) {
         }
@@ -116,7 +116,7 @@ public final class NanopublicationParserTest {
 
     @Test
     public void testMultipleUniqueNanopublications() {
-        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.DEFAULT.parseDataset(testData.uniqueNanopublicationsDataset);
+        final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.SPECIFICATION.parseDataset(testData.uniqueNanopublicationsDataset);
         assertEquals(2, nanopublications.size());
         final Map<String, Nanopublication> nanopublicationsByUri = nanopublications.stream().collect(Collectors.toMap(nanopublication -> nanopublication.getUri().toString(), nanopublication -> nanopublication));
         assertNotSame(null, nanopublicationsByUri.get("http://example.org/pub1"));
@@ -126,7 +126,7 @@ public final class NanopublicationParserTest {
     @Test
     public void testOverlappingNanopublications() {
         try {
-            NanopublicationParser.DEFAULT.parseDataset(testData.overlappingNanopublicationsDataset);
+            NanopublicationParser.SPECIFICATION.parseDataset(testData.overlappingNanopublicationsDataset);
             fail();
         } catch (final MalformedNanopublicationRuntimeException e) {
         }
@@ -134,7 +134,7 @@ public final class NanopublicationParserTest {
 
     @Test
     public void testParseAssertionFile() {
-        final Nanopublication nanopublication = NanopublicationParser.DEFAULT.parseFile(testData.assertionOnlyFilePath).get(0);
+        final Nanopublication nanopublication = NanopublicationParser.SPECIFICATION.parseFile(testData.assertionOnlyFilePath).get(0);
 //        assertEquals(testData.assertionOnlyFilePath.toURI().toString(), nanopublication.getUri().toString());
         assertTrue(nanopublication.getUri().toString().startsWith("urn:uuid:"));
         assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
@@ -146,7 +146,7 @@ public final class NanopublicationParserTest {
 
     @Test
     public void testSpecParseNanopublicationFile() {
-        final Nanopublication nanopublication = NanopublicationParser.DEFAULT.parseFile(testData.specNanopublicationFilePath).get(0);
+        final Nanopublication nanopublication = NanopublicationParser.SPECIFICATION.parseFile(testData.specNanopublicationFilePath).get(0);
         assertEquals("http://example.org/pub1", nanopublication.getUri().toString());
         assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
         assertEquals(3, nanopublication.getProvenance().getModel().listStatements().toList().size());

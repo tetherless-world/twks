@@ -30,7 +30,7 @@ public final class QueryCommandTest extends AbstractCommandTest<QueryCommand> {
 
     @Before
     public void postNanopublication() throws MalformedNanopublicationException {
-        nanopublication = NanopublicationParser.DEFAULT.parseString(TestData.SPEC_NANOPUBLICATION_TRIG).get(0);
+        nanopublication = NanopublicationParser.SPECIFICATION.parseString(TestData.SPEC_NANOPUBLICATION_TRIG).get(0);
         getTwks().putNanopublication(nanopublication);
     }
 

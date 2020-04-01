@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Nanopublication parser. Parse methods are of the form:
@@ -30,7 +31,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * In the latter case parser exceptions (e.g., MalformedNanopublicationException) are thrown as runtime exceptions.
  */
 public class NanopublicationParser {
-    public final static NanopublicationParser DEFAULT = new NanopublicationParser(NanopublicationDialect.SPECIFICATION, Optional.of(NanopublicationDialect.SPECIFICATION.getDefaultLang()));
+    public final static NanopublicationParser SPECIFICATION = new NanopublicationParser(NanopublicationDialect.SPECIFICATION, Optional.of(NanopublicationDialect.SPECIFICATION.getDefaultLang()));
     private final static Logger logger = LoggerFactory.getLogger(NanopublicationParser.class);
     private final NanopublicationDialect dialect;
     private final Optional<Lang> lang;
@@ -48,13 +49,17 @@ public class NanopublicationParser {
         return dialect;
     }
 
+    public final Lang getLang() {
+        return lang.orElse(dialect.getDefaultLang());
+    }
+
 //    private ImmutableList<Uri> getNanopublicationUris(final ImmutableList<Nanopublication> nanopublications) {
 //        return nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
 //    }
 
     private RDFParserBuilder newRdfParserBuilder() {
         final RDFParserBuilder builder = RDFParserBuilder.create();
-        builder.lang(lang.orElse(dialect.getDefaultLang()));
+        builder.lang(getLang());
         return builder;
     }
 
@@ -164,80 +169,13 @@ public class NanopublicationParser {
         return consumer.build();
     }
 
-    public final void parseDirectory(File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
+    public final void parseDirectory(final File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
         if (getDialect() == NanopublicationDialect.SPECIFICATION) {
-            // Assume it's a directory where every .trig file is a nanopublication.
-            final File[] sourceFiles = sourceDirectoryPath.listFiles();
-            if (sourceFiles == null) {
-                return;
-            }
-            for (final File trigFile : sourceFiles) {
-                if (!trigFile.isFile()) {
-                    continue;
-                }
-                if (!trigFile.getName().endsWith(".trig")) {
-                    continue;
-                }
-                final Path trigFilePath = trigFile.toPath();
-                parseFile(trigFilePath, new FileNanopublicationConsumer(consumer, trigFilePath));
-            }
+            parseSpecificationNanopublicationsDirectory(sourceDirectoryPath, consumer);
         } else if (getDialect() == NanopublicationDialect.WHYIS) {
-            if (sourceDirectoryPath.getName().equals("data")) {
-                sourceDirectoryPath = new File(sourceDirectoryPath, "nanopublications");
-            }
-            if (sourceDirectoryPath.getName().equals("nanopublications")) {
-                // Trawl all of the subdirectories of /data/nanopublications
-                final File[] nanopublicationSubdirectories = sourceDirectoryPath.listFiles();
-                if (nanopublicationSubdirectories == null) {
-                    return;
-                }
-
-                for (final File nanopublicationSubdirectory : nanopublicationSubdirectories) {
-                    if (!nanopublicationSubdirectory.isDirectory()) {
-                        continue;
-                    }
-                    final File twksFile = new File(nanopublicationSubdirectory, "file.twks.trig");
-                    // #106
-                    // We've previously parsed this Whyis nanopublication and written in back as a spec-compliant nanopublication.
-                    // The conversion has to create new urn:uuid: graph URIs, which means that subsequent conversions won't
-                    // produce the same spec-compliant nanopublication. We cache the converted nanopublication on disk so
-                    // re-parsing it always produces the same result.
-
-                    if (twksFile.isFile()) {
-                        final Path twksFilePath = twksFile.toPath();
-                        parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
-                    } else {
-                        final File whyisFile = new File(nanopublicationSubdirectory, "file");
-                        final Path whyisFilePath = whyisFile.toPath();
-                        // Collect the nanopublications so we can also write them out, independently of the consumer.
-                        final List<Nanopublication> twksNanopublications = new ArrayList<>();
-                        parseFile(whyisFilePath, new FileNanopublicationConsumer(consumer, whyisFilePath) {
-                            @Override
-                            public void accept(final Nanopublication nanopublication) {
-                                super.accept(nanopublication);
-                                twksNanopublications.add(nanopublication);
-                            }
-                        });
-                        // Write the twksFile spec-compliant nanopublications for use later, in the branch above.
-                        {
-                            final Dataset dataset = DatasetFactory.create();
-                            for (final Nanopublication nanopublication : twksNanopublications) {
-                                nanopublication.toDataset(dataset);
-                            }
-                            try (final OutputStream twksFileOutputStream = new FileOutputStream(twksFile)) {
-                                RDFDataMgr.write(twksFileOutputStream, dataset, Lang.TRIG);
-                            } catch (final IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }
-                }
-            } else {
-                // Assume the directory contains a single nanopublication
-                final File file = new File(sourceDirectoryPath, "file");
-                final Path filePath = file.toPath();
-                parseFile(filePath, new FileNanopublicationConsumer(consumer, filePath));
-            }
+            parseWhyisNanopublicationsDirectory(sourceDirectoryPath, consumer);
+        } else {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -249,6 +187,24 @@ public class NanopublicationParser {
 
     public void parseFile(final Path filePath, final NanopublicationConsumer consumer) {
         parse(newRdfParserBuilder().source(filePath).build(), consumer, Optional.of(Uri.parse(checkNotNull(filePath).toUri().toString())));
+    }
+
+    private void parseSpecificationNanopublicationsDirectory(final File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
+        // Assume it's a directory where every .trig file is a nanopublication.
+        final File[] sourceFiles = sourceDirectoryPath.listFiles();
+        if (sourceFiles == null) {
+            return;
+        }
+        for (final File trigFile : sourceFiles) {
+            if (!trigFile.isFile()) {
+                continue;
+            }
+            if (!trigFile.getName().endsWith(".trig")) {
+                continue;
+            }
+            final Path trigFilePath = trigFile.toPath();
+            parseFile(trigFilePath, new FileNanopublicationConsumer(consumer, trigFilePath));
+        }
     }
 
     public final ImmutableList<Nanopublication> parseStdin() throws MalformedNanopublicationRuntimeException {
@@ -294,6 +250,69 @@ public class NanopublicationParser {
 
     public final void parseUrl(final Uri url, final NanopublicationConsumer consumer) {
         parse(newRdfParserBuilder().source(url.toString()).build(), consumer, Optional.of(url));
+    }
+
+    private void parseWhyisNanopublicationsDirectory(File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
+        if (sourceDirectoryPath.getName().equals("data")) {
+            sourceDirectoryPath = new File(sourceDirectoryPath, "nanopublications");
+        }
+        if (sourceDirectoryPath.getName().equals("nanopublications")) {
+            // Trawl all of the subdirectories of /data/nanopublications
+            final File[] nanopublicationSubdirectories = sourceDirectoryPath.listFiles();
+            if (nanopublicationSubdirectories == null) {
+                return;
+            }
+
+            for (final File nanopublicationSubdirectory : nanopublicationSubdirectories) {
+                if (!nanopublicationSubdirectory.isDirectory()) {
+                    continue;
+                }
+                final File twksFile = new File(nanopublicationSubdirectory, "file.twks.trig");
+                // #106
+                // We've previously parsed this Whyis nanopublication and written in back as a spec-compliant nanopublication.
+                // The conversion has to create new urn:uuid: graph URIs, which means that subsequent conversions won't
+                // produce the same spec-compliant nanopublication. We cache the converted nanopublication on disk so
+                // re-parsing it always produces the same result.
+
+                if (twksFile.isFile()) {
+                    // We wrote the file.twks.trig in specification TRIG, regardless of the lang of the current parser.
+                    final Path twksFilePath = twksFile.toPath();
+                    checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
+                    NanopublicationParser.SPECIFICATION.parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
+                } else {
+                    final File whyisFile = new File(nanopublicationSubdirectory, "file");
+                    final Path whyisFilePath = whyisFile.toPath();
+                    // Collect the nanopublications so we can also write them out, independently of the consumer.
+                    final List<Nanopublication> twksNanopublications = new ArrayList<>();
+                    parseFile(whyisFilePath, new FileNanopublicationConsumer(consumer, whyisFilePath) {
+                        @Override
+                        public void accept(final Nanopublication nanopublication) {
+                            super.accept(nanopublication);
+                            twksNanopublications.add(nanopublication);
+                        }
+                    });
+                    // Write the twksFile spec-compliant nanopublications for use later, in the branch above.
+                    {
+                        final Dataset dataset = DatasetFactory.create();
+                        for (final Nanopublication nanopublication : twksNanopublications) {
+                            nanopublication.toDataset(dataset);
+                        }
+                        try (final OutputStream twksFileOutputStream = new FileOutputStream(twksFile)) {
+                            // See note above re: file.twks.trig.
+                            checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
+                            RDFDataMgr.write(twksFileOutputStream, dataset, Lang.TRIG);
+                        } catch (final IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            }
+        } else {
+            // Assume the directory contains a single nanopublication
+            final File file = new File(sourceDirectoryPath, "file");
+            final Path filePath = file.toPath();
+            parseFile(filePath, new FileNanopublicationConsumer(consumer, filePath));
+        }
     }
 
     private final static class CollectingNanopublicationConsumer implements NanopublicationConsumer {
