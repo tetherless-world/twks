@@ -100,12 +100,12 @@ public final class WatchNanopublicationsCommand extends Command {
         }
 
         @Override
-        public final synchronized void onEvent(final DirectoryChangeEvent event) throws IOException {
+        public final void onEvent(final DirectoryChangeEvent event) throws IOException {
             logger.info("directory change event: {}", event);
             synchronize();
         }
 
-        private final void synchronize() {
+        private final synchronized void synchronize() {
             final Set<Path> oldNanopublicationPaths = currentNanopublicationUrisByPath.keySet();
             final ImmutableMultimap<Path, Nanopublication> nanopublicationsByPath = nanopublicationParser.parseDirectory(directoryPath.toFile());
             final ImmutableSet<Path> nanopublicationPaths = nanopublicationsByPath.keySet();
