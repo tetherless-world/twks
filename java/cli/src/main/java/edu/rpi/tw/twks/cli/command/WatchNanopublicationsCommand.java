@@ -124,7 +124,7 @@ public final class WatchNanopublicationsCommand extends Command {
                     final ImmutableList<Nanopublication> newNanopublications = newNanopublicationsBuilder.build();
                     if (logger.isInfoEnabled()) {
                         final ImmutableList<Uri> newNanopublicationUris = newNanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
-                        logger.info("posted {} nanopublications from {} files: {}", newNanopublications.size(), nanopublicationPaths.size(), newNanopublicationUris);
+                        logger.info("posted {} nanopublications from {} files: {}", newNanopublications.size(), newNanopublicationPaths.size(), newNanopublicationUris);
                     }
                     client.postNanopublications(newNanopublications);
                 } else {
