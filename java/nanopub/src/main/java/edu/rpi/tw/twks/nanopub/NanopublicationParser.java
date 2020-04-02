@@ -267,24 +267,30 @@ public class NanopublicationParser {
                 if (!nanopublicationSubdirectory.isDirectory()) {
                     continue;
                 }
-                final File twksFile = new File(nanopublicationSubdirectory, "file.twks.trig");
-                // #106
-                // We've previously parsed this Whyis nanopublication and written in back as a spec-compliant nanopublication.
-                // The conversion has to create new urn:uuid: graph URIs, which means that subsequent conversions won't
-                // produce the same spec-compliant nanopublication. We cache the converted nanopublication on disk so
-                // re-parsing it always produces the same result.
+                final File whyisFile = new File(nanopublicationSubdirectory, "file");
+                if (!whyisFile.isFile()) {
+                    // If there's no Whyis nanopublication file in the directory, the nanopublication may have been deleted. Ignore lingering TWKS files.
+                    logger.debug("no Whyis nanopublication file in {}, ignoring", nanopublicationSubdirectory);
+                    continue;
+                }
 
+                final File twksFile = new File(nanopublicationSubdirectory, "file.twks.trig");
+                final Path twksFilePath = twksFile.toPath();
                 if (twksFile.isFile()) {
+                    // #106
+                    // We've previously parsed this Whyis nanopublication and written in back as a spec-compliant nanopublication.
+                    // The conversion has to create new urn:uuid: graph URIs, which means that subsequent conversions won't
+                    // produce the same spec-compliant nanopublication. We cache the converted nanopublication on disk so
+                    // re-parsing it always produces the same result.
                     // We wrote the file.twks.trig in specification TRIG, regardless of the lang of the current parser.
-                    final Path twksFilePath = twksFile.toPath();
                     checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
                     NanopublicationParser.SPECIFICATION.parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
                 } else {
-                    final File whyisFile = new File(nanopublicationSubdirectory, "file");
                     final Path whyisFilePath = whyisFile.toPath();
                     // Collect the nanopublications so we can also write them out, independently of the consumer.
                     final List<Nanopublication> twksNanopublications = new ArrayList<>();
-                    parseFile(whyisFilePath, new FileNanopublicationConsumer(consumer, whyisFilePath) {
+                    // Track the nanopublication under the twksFilePath, since on subsequent passes it will be tracked that way in the branch above.
+                    parseFile(whyisFilePath, new FileNanopublicationConsumer(consumer, twksFilePath) {
                         @Override
                         public void accept(final Nanopublication nanopublication) {
                             super.accept(nanopublication);
