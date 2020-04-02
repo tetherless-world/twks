@@ -117,55 +117,47 @@ public final class WatchNanopublicationsCommand extends Command {
 
             final ImmutableSet<Path> nanopublicationPaths = nanopublicationsByPath.keySet();
 
-            final ImmutableSet<Path> newNanopublicationPaths = Sets.difference(nanopublicationPaths, currentNanopublicationPaths).immutableCopy();
-            logger.info("new nanopublication paths: {}", newNanopublicationPaths);
-            final ImmutableSet<Path> deletedNanopublicationPaths = Sets.difference(currentNanopublicationPaths, nanopublicationPaths).immutableCopy();
-            logger.info("deleted nanopublication paths: {}", deletedNanopublicationPaths);
+            // #130: we were ignoring new nanopublications found by scanning the file system on DELETE events.
+            // Ignore the file system change event type and scan the file system every time.
 
-            try {
-                switch (event.eventType()) {
-                    case CREATE:
-                    case MODIFY: {
-                        if (event.eventType() == DirectoryChangeEvent.EventType.CREATE && newNanopublicationPaths.isEmpty()) {
-                            logger.info("no new nanopublication paths, ignoring {}", event.eventType());
-                            return;
-                        }
-
-                        final ImmutableList.Builder<Nanopublication> newNanopublicationsBuilder = ImmutableList.builder();
-                        for (final Path newNanopublicationPath : newNanopublicationPaths) {
-                            newNanopublicationsBuilder.addAll(nanopublicationsByPath.get(newNanopublicationPath));
-                        }
-                        final ImmutableList<Nanopublication> newNanopublications = newNanopublicationsBuilder.build();
-
-                        client.postNanopublications(newNanopublications);
-                        if (logger.isInfoEnabled()) {
-                            final ImmutableList<Uri> newNanopublicationUris = newNanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
-                            logger.info("posted {} nanopublications from {} files after {}: {}", newNanopublications.size(), nanopublicationPaths.size(), event.eventType(), newNanopublicationUris);
-                        }
-                        break;
+            {
+                final ImmutableSet<Path> newNanopublicationPaths = Sets.difference(nanopublicationPaths, currentNanopublicationPaths).immutableCopy();
+                if (!newNanopublicationPaths.isEmpty()) {
+                    logger.info("new nanopublication paths: {}", newNanopublicationPaths);
+                    final ImmutableList.Builder<Nanopublication> newNanopublicationsBuilder = ImmutableList.builder();
+                    for (final Path newNanopublicationPath : newNanopublicationPaths) {
+                        newNanopublicationsBuilder.addAll(nanopublicationsByPath.get(newNanopublicationPath));
                     }
-                    case DELETE: {
-                        if (deletedNanopublicationPaths.isEmpty()) {
-                            logger.info("no deleted nanopublication paths, ignoring {}", event.eventType());
-                            return;
-                        }
-                        final ImmutableList.Builder<Uri> deletedNanopublicationUrisBuilder = ImmutableList.builder();
-                        for (final Path deletedNanopublicationPath : deletedNanopublicationPaths) {
-                            deletedNanopublicationUrisBuilder.addAll(currentNanopublicationUrisByPath.get(deletedNanopublicationPath));
-                        }
-                        final ImmutableList<Uri> deletedNanopublicationUris = deletedNanopublicationUrisBuilder.build();
-                        client.deleteNanopublications(deletedNanopublicationUris);
-                        logger.info("deleted {} nanopublications from {} files after {}: {}", deletedNanopublicationUris.size(), deletedNanopublicationPaths.size(), event.eventType(), deletedNanopublicationUris);
-                        break;
+                    final ImmutableList<Nanopublication> newNanopublications = newNanopublicationsBuilder.build();
+                    if (logger.isInfoEnabled()) {
+                        final ImmutableList<Uri> newNanopublicationUris = newNanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
+                        logger.info("posted {} nanopublications from {} files after {}: {}", newNanopublications.size(), nanopublicationPaths.size(), event.eventType(), newNanopublicationUris);
                     }
-                    default:
-                        throw new UnsupportedOperationException(event.eventType().toString());
+                    client.postNanopublications(newNanopublications);
+                } else {
+                    logger.debug("no new nanopublication paths");
                 }
-            } finally {
-                currentNanopublicationUrisByPath.clear();
-                for (final Map.Entry<Path, Nanopublication> entry : nanopublicationsByPath.entries()) {
-                    currentNanopublicationUrisByPath.put(entry.getKey(), entry.getValue().getUri());
+            }
+
+            {
+                final ImmutableSet<Path> deletedNanopublicationPaths = Sets.difference(currentNanopublicationPaths, nanopublicationPaths).immutableCopy();
+                if (!deletedNanopublicationPaths.isEmpty()) {
+                    logger.info("deleted nanopublication paths: {}", deletedNanopublicationPaths);
+                    final ImmutableList.Builder<Uri> deletedNanopublicationUrisBuilder = ImmutableList.builder();
+                    for (final Path deletedNanopublicationPath : deletedNanopublicationPaths) {
+                        deletedNanopublicationUrisBuilder.addAll(currentNanopublicationUrisByPath.get(deletedNanopublicationPath));
+                    }
+                    final ImmutableList<Uri> deletedNanopublicationUris = deletedNanopublicationUrisBuilder.build();
+                    client.deleteNanopublications(deletedNanopublicationUris);
+                    logger.info("deleted {} nanopublications from {} files after {}: {}", deletedNanopublicationUris.size(), deletedNanopublicationPaths.size(), event.eventType(), deletedNanopublicationUris);
+                } else {
+                    logger.debug("no deleted nanopublication paths");
                 }
+            }
+
+            currentNanopublicationUrisByPath.clear();
+            for (final Map.Entry<Path, Nanopublication> entry : nanopublicationsByPath.entries()) {
+                currentNanopublicationUrisByPath.put(entry.getKey(), entry.getValue().getUri());
             }
         }
 
