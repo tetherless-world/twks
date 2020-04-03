@@ -7,11 +7,39 @@ Docker prerequisites
 1. `Docker <https://docs.docker.com/v17.12/install/>`_
 2. `Docker Compose <https://docs.docker.com/compose/install/>`_
 
+Building the Docker images locally
+----------------------------------
+
+To build the Docker images after first checking out the repository, run:
+
+::
+
+    cd docker
+    script/bootstrap
+
+Or after updating the repository:
+
+::
+
+    cd docker
+    script/update
+
+Pulling stable Docker images from Dockerhub
+-------------------------------------------
+
+Alternatively, you can pull stable images from Dockerhub by running:
+
+::
+
+    cd docker
+    script/pull
 
 .. _docker-server:
 
 Running the TWKS server in Docker
 ---------------------------------
+
+After building or pulling the Docker images,
 
 ::
 
