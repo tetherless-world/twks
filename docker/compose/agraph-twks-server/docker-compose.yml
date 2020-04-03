@@ -1,5 +1,7 @@
-# docker-compose version 3 doesn't support volumes_from, which is why we're using 2
-version: '3'
+version: "3.5"
+networks:
+  twks:
+    name: twks
 services:
   #  agraph-data:
   #    command: ["tail", "-f", "/dev/null"]
@@ -14,6 +16,8 @@ services:
     #    expose:
     #      - 10000-10035
     image: tetherlessworld/twks-agraph
+    networks:
+      - twks
     ports:
       - "10000-10035:10000-10035"
     shm_size: 1g
@@ -24,3 +28,5 @@ services:
     environment:
       - JAVA_OPTIONS=-Dtwks.agraphServerUrl=http://twks-agraph:100035 -Dtwks.dump=/dump -Dtwks.extcp=/extcp -Dtwks.extfs=/extfs
     image: tetherlessworld/twks-server
+    networks:
+      - twks

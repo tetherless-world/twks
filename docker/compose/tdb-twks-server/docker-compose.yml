@@ -1,4 +1,7 @@
-version: '3'
+version: "3.5"
+networks:
+  twks:
+    name: twks
 services:
   twks-server:
     build:
@@ -6,3 +9,5 @@ services:
       dockerfile: docker/image/server/Dockerfile
     container_name: "twks-server"
     image: tetherlessworld/twks-server
+    networks:
+      - twks

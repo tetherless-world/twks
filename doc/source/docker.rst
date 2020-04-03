@@ -79,7 +79,7 @@ Run the server as above, then:
 ::
 
     cd docker
-    cat nanopublication.trig | script/cli -T twks-cli put-nanopublications --lang trig -
+    cat nanopublication.trig | script/cli put-nanopublications --lang trig -
 
 Explanation:
 
