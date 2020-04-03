@@ -7,4 +7,4 @@ cd "$(dirname "$0")/.."
 # script/update
 
 cd compose/cli
-docker-compose run --rm twks-cli $*
+docker-compose run --rm -T twks-cli -DserverBaseUrl=http://twks-server:8080 $@
