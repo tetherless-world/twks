@@ -172,30 +172,24 @@ public final class NanopublicationParserTest {
     @Test
     public void testLang() throws IOException {
         assertTrue(testData.specNanopublicationFilePath.toString().endsWith(".trig"));
-        assertEquals(NanopublicationDialect.SPECIFICATION.getDefaultLang(), Lang.TRIG);
-        assertEquals(NanopublicationDialect.WHYIS.getDefaultLang(), Lang.NQUADS);
 
         {
-            // Lang will be inferred from the file path rather than using the dialect's default language
+            // Infer lang from file
             NanopublicationParser.SPECIFICATION.parseFile(testData.specNanopublicationFilePath);
-            NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).build().parseFile(testData.specNanopublicationFilePath);
+            NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).build().parseFile(testData.specNanopublicationFilePath);
         }
 
         final String specNanopublicationString = IOUtils.toString(testData.specNanopublicationFilePath.toUri(), Charsets.UTF_8);
 
-        {
-            // Lang will not be inferred from strings, will use the dialect's default language.
-            NanopublicationParser.SPECIFICATION.parseString(specNanopublicationString); // Succeed because the dialect defaults to trig
-            try {
-                NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).build().parseString(specNanopublicationString);
-                fail(); // Fail because the dialect defaults to nquads
-            } catch (final Exception e) {
-            }
-        }
+        // Infer lang from string
+        NanopublicationParser.SPECIFICATION.parseString(specNanopublicationString);
 
-        {
-            // Set the lang explicitly to override the dialect's default lang
-            NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).setLang(Lang.TRIG).build().parseString(specNanopublicationString);
+        // Set the lang explicitly
+        NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).build().parseString(specNanopublicationString);
+        try {
+            NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.NQUADS).build().parseString(specNanopublicationString);
+            fail();
+        } catch (final Exception e) {
         }
     }
 }

@@ -30,7 +30,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * In the latter case parser exceptions (e.g., MalformedNanopublicationException) are thrown as runtime exceptions.
  */
 public class NanopublicationParser {
-    public final static NanopublicationParser SPECIFICATION = new NanopublicationParser(NanopublicationDialect.SPECIFICATION, Optional.of(NanopublicationDialect.SPECIFICATION.getDefaultLang()));
+    public final static NanopublicationParser SPECIFICATION = new NanopublicationParser(NanopublicationDialect.SPECIFICATION, Optional.empty());
     private final static Logger logger = LoggerFactory.getLogger(NanopublicationParser.class);
     private final NanopublicationDialect dialect;
     private final Optional<Lang> lang;
@@ -52,12 +52,10 @@ public class NanopublicationParser {
 //        return nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
 //    }
 
-    private RDFParserBuilder newRdfParserBuilder(final Optional<Lang> defaultLang) {
+    private RDFParserBuilder newRdfParserBuilder() {
         final RDFParserBuilder builder = RDFParserBuilder.create();
         if (lang.isPresent()) {
             builder.lang(lang.get());
-        } else if (defaultLang.isPresent()) {
-            builder.lang(defaultLang.get());
         }
         return builder;
     }
@@ -186,7 +184,7 @@ public class NanopublicationParser {
 
     public void parseFile(final Path filePath, final NanopublicationConsumer consumer) {
         // If our lang was not specified, let Jena detect the lang from the file path instead of setting the default from the dialect.
-        parse(newRdfParserBuilder(Optional.empty()).source(filePath).build(), consumer, Optional.of(Uri.parse(checkNotNull(filePath).toUri().toString())));
+        parse(newRdfParserBuilder().source(filePath).build(), consumer, Optional.of(Uri.parse(checkNotNull(filePath).toUri().toString())));
     }
 
     private void parseSpecificationNanopublicationsDirectory(final File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
@@ -239,8 +237,7 @@ public class NanopublicationParser {
     }
 
     public final void parseString(final String string, final NanopublicationConsumer consumer, final Optional<Uri> sourceUri) {
-        // Use the dialect's default lang.
-        parse(newRdfParserBuilder(Optional.of(dialect.getDefaultLang())).source(new StringReader(string)).build(), consumer, sourceUri);
+        parse(newRdfParserBuilder().source(new StringReader(string)).build(), consumer, sourceUri);
     }
 
     public final ImmutableList<Nanopublication> parseUrl(final Uri url) throws MalformedNanopublicationRuntimeException {
@@ -251,7 +248,7 @@ public class NanopublicationParser {
 
     public final void parseUrl(final Uri url, final NanopublicationConsumer consumer) {
         // If our lang was not specified, let Jena detect the lang from the URL instead of setting the default from the dialect.
-        parse(newRdfParserBuilder(Optional.empty()).source(url.toString()).build(), consumer, Optional.of(url));
+        parse(newRdfParserBuilder().source(url.toString()).build(), consumer, Optional.of(url));
     }
 
     private void parseWhyisNanopublicationsDirectory(File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
