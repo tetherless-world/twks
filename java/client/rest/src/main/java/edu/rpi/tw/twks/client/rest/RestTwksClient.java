@@ -8,13 +8,13 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.ByteStreams;
 import com.google.common.reflect.TypeToken;
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;
 import edu.rpi.tw.twks.api.TwksVersion;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationRuntimeException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +23,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RDFParserBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,9 +175,10 @@ public final class RestTwksClient implements TwksClient {
             final HttpResponse response = httpRequestFactory.buildGetRequest(newNanopublicationUrl(uri)).setHeaders(new HttpHeaders().setAccept("text/trig")).execute();
             checkState(response.getStatusCode() == 200);
             try (final InputStream inputStream = response.getContent()) {
-                final byte[] contentBytes = ByteStreams.toByteArray(inputStream);
+                final Lang lang = RDFLanguages.contentTypeToLang(response.getContentType());
+                final NanopublicationParser nanopublicationParser = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(lang).build();
                 try {
-                    return Optional.of(NanopublicationParser.SPECIFICATION.parseString(new String(contentBytes, "UTF-8")).get(0));
+                    return Optional.of(nanopublicationParser.parseInputStream(inputStream).get(0));
                 } catch (final MalformedNanopublicationRuntimeException e) {
                     logger.error("malformed nanopublication from server: ", e);
                     return Optional.empty();

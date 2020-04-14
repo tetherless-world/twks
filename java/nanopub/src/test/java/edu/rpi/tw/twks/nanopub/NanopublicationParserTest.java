@@ -14,6 +14,7 @@ import org.apache.jena.riot.RiotNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -110,6 +111,14 @@ public final class NanopublicationParserTest {
         assertEquals(1, nanopublications.size());
         final Nanopublication nanopublication = nanopublications.get(0);
         assertEquals(Uri.parse("http://example.org/pub1"), nanopublication.getUri());
+    }
+
+    @Test
+    public void testInputStream() throws IOException {
+        try (final FileInputStream inputStream = new FileInputStream(testData.specNanopublicationFilePath.toFile())) {
+            final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).build().parseInputStream(inputStream);
+            assertEquals(1, nanopublications.size());
+        }
     }
 
     @Test

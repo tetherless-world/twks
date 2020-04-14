@@ -187,6 +187,24 @@ public class NanopublicationParser {
         parse(newRdfParserBuilder().source(filePath).build(), consumer, Optional.of(Uri.parse(checkNotNull(filePath).toUri().toString())));
     }
 
+    public final ImmutableList<Nanopublication> parseInputStream(final InputStream inputStream) throws MalformedNanopublicationRuntimeException {
+        return parseInputStream(inputStream, Optional.empty());
+    }
+
+    public final void parseInputStream(final InputStream inputStream, final NanopublicationConsumer consumer) {
+        parseInputStream(inputStream, consumer, Optional.empty());
+    }
+
+    public final ImmutableList<Nanopublication> parseInputStream(final InputStream inputStream, final Optional<Uri> sourceUri) throws MalformedNanopublicationRuntimeException {
+        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
+        parseInputStream(inputStream, consumer, sourceUri);
+        return consumer.build();
+    }
+
+    public final void parseInputStream(final InputStream inputStream, final NanopublicationConsumer consumer, final Optional<Uri> sourceUri) {
+        parse(newRdfParserBuilder().source(inputStream).build(), consumer, sourceUri);
+    }
+
     private void parseSpecificationNanopublicationsDirectory(final File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
         // Assume it's a directory where every .trig file is a nanopublication.
         final File[] sourceFiles = sourceDirectoryPath.listFiles();
