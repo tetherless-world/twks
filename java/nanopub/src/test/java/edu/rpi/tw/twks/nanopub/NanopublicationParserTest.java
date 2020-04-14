@@ -1,7 +1,9 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.uri.Uri;
+import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.riot.Lang;
@@ -165,6 +167,36 @@ public final class NanopublicationParserTest {
         assertEquals(5, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
         // Test that we can decompose nanopublications we generate
 //        new NanopublicationFactory(NanopublicationDialect.WHYIS).createNanopublicationsFromDataset(nanopublication.toDataset());
+    }
+
+    @Test
+    public void testLang() throws IOException {
+        assertTrue(testData.specNanopublicationFilePath.toString().endsWith(".trig"));
+        assertEquals(NanopublicationDialect.SPECIFICATION.getDefaultLang(), Lang.TRIG);
+        assertEquals(NanopublicationDialect.WHYIS.getDefaultLang(), Lang.NQUADS);
+
+        {
+            // Lang will be inferred from the file path rather than using the dialect's default language
+            NanopublicationParser.SPECIFICATION.parseFile(testData.specNanopublicationFilePath);
+            NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).build().parseFile(testData.specNanopublicationFilePath);
+        }
+
+        final String specNanopublicationString = IOUtils.toString(testData.specNanopublicationFilePath.toUri(), Charsets.UTF_8);
+
+        {
+            // Lang will not be inferred from strings, will use the dialect's default language.
+            NanopublicationParser.SPECIFICATION.parseString(specNanopublicationString); // Succeed because the dialect defaults to trig
+            try {
+                NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).build().parseString(specNanopublicationString);
+                fail(); // Fail because the dialect defaults to nquads
+            } catch (final Exception e) {
+            }
+        }
+
+        {
+            // Set the lang explicitly to override the dialect's default lang
+            NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).setLang(Lang.TRIG).build().parseString(specNanopublicationString);
+        }
     }
 }
 
