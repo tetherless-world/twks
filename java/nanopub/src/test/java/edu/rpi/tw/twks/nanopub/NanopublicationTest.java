@@ -5,6 +5,7 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.RDF;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,10 +18,12 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 
 public final class NanopublicationTest {
+    private NanopublicationParser parser;
     private TestData testData;
 
     @Before
     public void setUp() throws Exception {
+        this.parser = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).build();
         this.testData = new TestData();
     }
 
@@ -31,7 +34,7 @@ public final class NanopublicationTest {
 
     @Test
     public void testToDataset() {
-        final Nanopublication nanopublication = NanopublicationParser.SPECIFICATION.parseDataset(testData.specNanopublicationDataset).get(0);
+        final Nanopublication nanopublication = parser.parseDataset(testData.specNanopublicationDataset).get(0);
         {
             final Dataset actual = nanopublication.toDataset();
             assertTrue(actual.getUnionModel().isIsomorphicWith(testData.specNanopublicationDataset.getUnionModel()));
@@ -45,7 +48,7 @@ public final class NanopublicationTest {
 
     @Test
     public void testToDatasetDuplicateModelName() {
-        final Nanopublication nanopublication = NanopublicationParser.SPECIFICATION.parseDataset(testData.specNanopublicationDataset).get(0);
+        final Nanopublication nanopublication = parser.parseDataset(testData.specNanopublicationDataset).get(0);
         final Dataset actual = DatasetFactory.create();
         {
             // containsModel will fail if the model is empty
@@ -62,19 +65,19 @@ public final class NanopublicationTest {
 
     @Test
     public void testWrite() throws Exception {
-        final Nanopublication expected = NanopublicationParser.SPECIFICATION.parseFile(testData.specNanopublicationFilePath).get(0);
+        final Nanopublication expected = parser.parseFile(testData.specNanopublicationFilePath).get(0);
         final ByteArrayOutputStream bos = new ByteArrayOutputStream();
         expected.write(bos);
         final String actualString = new String(bos.toByteArray(), Charsets.UTF_8);
-        final Nanopublication actual = NanopublicationParser.SPECIFICATION.parseString(actualString).get(0);
+        final Nanopublication actual = parser.parseString(actualString).get(0);
         Assert.assertTrue(expected.isIsomorphicWith(actual));
     }
 
     @Test
     public void testWriteToString() throws Exception {
-        final Nanopublication expected = NanopublicationParser.SPECIFICATION.parseFile(testData.specNanopublicationFilePath).get(0);
+        final Nanopublication expected = parser.parseFile(testData.specNanopublicationFilePath).get(0);
         final String actualString = expected.writeToString();
-        final Nanopublication actual = NanopublicationParser.SPECIFICATION.parseString(actualString).get(0);
+        final Nanopublication actual = parser.parseString(actualString).get(0);
         Assert.assertTrue(expected.isIsomorphicWith(actual));
     }
 }
