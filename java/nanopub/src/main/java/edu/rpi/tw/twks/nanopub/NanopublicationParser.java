@@ -19,7 +19,6 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Nanopublication parser. Parse methods are of the form:
@@ -31,7 +30,7 @@ import static com.google.common.base.Preconditions.checkState;
  * In the latter case parser exceptions (e.g., MalformedNanopublicationException) are thrown as runtime exceptions.
  */
 public class NanopublicationParser {
-    public final static NanopublicationParser SPECIFICATION = new NanopublicationParser(NanopublicationDialect.SPECIFICATION, Optional.of(NanopublicationDialect.SPECIFICATION.getDefaultLang()));
+    public final static NanopublicationParser SPECIFICATION = new NanopublicationParser(NanopublicationDialect.SPECIFICATION, Optional.empty());
     private final static Logger logger = LoggerFactory.getLogger(NanopublicationParser.class);
     private final NanopublicationDialect dialect;
     private final Optional<Lang> lang;
@@ -49,17 +48,15 @@ public class NanopublicationParser {
         return dialect;
     }
 
-    public final Lang getLang() {
-        return lang.orElse(dialect.getDefaultLang());
-    }
-
 //    private ImmutableList<Uri> getNanopublicationUris(final ImmutableList<Nanopublication> nanopublications) {
 //        return nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
 //    }
 
     private RDFParserBuilder newRdfParserBuilder() {
         final RDFParserBuilder builder = RDFParserBuilder.create();
-        builder.lang(getLang());
+        if (lang.isPresent()) {
+            builder.lang(lang.get());
+        }
         return builder;
     }
 
@@ -186,7 +183,26 @@ public class NanopublicationParser {
     }
 
     public void parseFile(final Path filePath, final NanopublicationConsumer consumer) {
+        // If our lang was not specified, let Jena detect the lang from the file path instead of setting the default from the dialect.
         parse(newRdfParserBuilder().source(filePath).build(), consumer, Optional.of(Uri.parse(checkNotNull(filePath).toUri().toString())));
+    }
+
+    public final ImmutableList<Nanopublication> parseInputStream(final InputStream inputStream) throws MalformedNanopublicationRuntimeException {
+        return parseInputStream(inputStream, Optional.empty());
+    }
+
+    public final void parseInputStream(final InputStream inputStream, final NanopublicationConsumer consumer) {
+        parseInputStream(inputStream, consumer, Optional.empty());
+    }
+
+    public final ImmutableList<Nanopublication> parseInputStream(final InputStream inputStream, final Optional<Uri> sourceUri) throws MalformedNanopublicationRuntimeException {
+        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
+        parseInputStream(inputStream, consumer, sourceUri);
+        return consumer.build();
+    }
+
+    public final void parseInputStream(final InputStream inputStream, final NanopublicationConsumer consumer, final Optional<Uri> sourceUri) {
+        parse(newRdfParserBuilder().source(inputStream).build(), consumer, sourceUri);
     }
 
     private void parseSpecificationNanopublicationsDirectory(final File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
@@ -249,6 +265,7 @@ public class NanopublicationParser {
     }
 
     public final void parseUrl(final Uri url, final NanopublicationConsumer consumer) {
+        // If our lang was not specified, let Jena detect the lang from the URL instead of setting the default from the dialect.
         parse(newRdfParserBuilder().source(url.toString()).build(), consumer, Optional.of(url));
     }
 
@@ -283,20 +300,21 @@ public class NanopublicationParser {
                     // produce the same spec-compliant nanopublication. We cache the converted nanopublication on disk so
                     // re-parsing it always produces the same result.
                     // We wrote the file.twks.trig in specification TRIG, regardless of the lang of the current parser.
-                    checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
-                    NanopublicationParser.SPECIFICATION.parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
+//                    checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
+                    parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
                 } else {
                     final Path whyisFilePath = whyisFile.toPath();
                     // Collect the nanopublications so we can also write them out, independently of the consumer.
                     final List<Nanopublication> twksNanopublications = new ArrayList<>();
                     // Track the nanopublication under the twksFilePath, since on subsequent passes it will be tracked that way in the branch above.
-                    parseFile(whyisFilePath, new FileNanopublicationConsumer(consumer, twksFilePath) {
+                    // Force NQUADS
+                    parse(newRdfParserBuilder().lang(Lang.NQUADS).source(whyisFilePath).build(), new FileNanopublicationConsumer(consumer, twksFilePath) {
                         @Override
                         public void accept(final Nanopublication nanopublication) {
                             super.accept(nanopublication);
                             twksNanopublications.add(nanopublication);
                         }
-                    });
+                    }, Optional.of(Uri.parse(whyisFilePath.toUri().toString())));
                     // Write the twksFile spec-compliant nanopublications for use later, in the branch above.
                     {
                         final Dataset dataset = DatasetFactory.create();
@@ -305,7 +323,7 @@ public class NanopublicationParser {
                         }
                         try (final OutputStream twksFileOutputStream = new FileOutputStream(twksFile)) {
                             // See note above re: file.twks.trig.
-                            checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
+//                            checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
                             RDFDataMgr.write(twksFileOutputStream, dataset, Lang.TRIG);
                         } catch (final IOException e) {
                             throw new RuntimeException(e);

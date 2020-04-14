@@ -3,7 +3,6 @@ package edu.rpi.tw.twks.nanopub;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.rpi.tw.twks.vocabulary.NANOPUB;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 
@@ -143,10 +142,5 @@ public final class SpecificationNanopublicationDialect extends NanopublicationDi
     @Override
     final boolean allowPartUriReuse() {
         return false;
-    }
-
-    @Override
-    public final Lang getDefaultLang() {
-        return Lang.TRIG;
     }
 }

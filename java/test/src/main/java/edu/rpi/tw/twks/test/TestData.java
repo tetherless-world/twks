@@ -2,11 +2,13 @@ package edu.rpi.tw.twks.test;
 
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 
@@ -108,7 +110,7 @@ public final class TestData {
     }
 
     private Nanopublication parseNanopublicationFromString(final String trig) throws IOException, MalformedNanopublicationException {
-        return NanopublicationParser.SPECIFICATION.parseString(trig).get(0);
+        return NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).build().parseString(trig).get(0);
     }
 
 //    private Nanopublication parseNanopublicationFromResource(final String fileName) throws IOException, MalformedNanopublicationException {

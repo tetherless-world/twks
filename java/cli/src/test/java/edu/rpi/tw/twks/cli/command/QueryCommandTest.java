@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.cli.command;
 import com.google.common.base.Charsets;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import edu.rpi.tw.twks.test.TestData;
 import org.apache.jena.rdf.model.Model;
@@ -30,7 +31,7 @@ public final class QueryCommandTest extends AbstractCommandTest<QueryCommand> {
 
     @Before
     public void postNanopublication() throws MalformedNanopublicationException {
-        nanopublication = NanopublicationParser.SPECIFICATION.parseString(TestData.SPEC_NANOPUBLICATION_TRIG).get(0);
+        nanopublication = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).build().parseString(TestData.SPEC_NANOPUBLICATION_TRIG).get(0);
         getTwks().putNanopublication(nanopublication);
     }
 

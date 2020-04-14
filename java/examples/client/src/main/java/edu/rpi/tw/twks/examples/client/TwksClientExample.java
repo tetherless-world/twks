@@ -5,6 +5,7 @@ import edu.rpi.tw.twks.client.rest.RestTwksClient;
 import edu.rpi.tw.twks.client.rest.RestTwksClientConfiguration;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.ResultSet;
@@ -54,7 +55,7 @@ public final class TwksClientExample {
         // Parse a nanopublication to use
         // The parser may return more than one, but we know there's only one.
         System.out.println("Parsing the nanopublication");
-        final Nanopublication nanopublication = NanopublicationParser.SPECIFICATION.parseString(SPEC_NANOPUBLICATION_TRIG).get(0);
+        final Nanopublication nanopublication = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).build().parseString(SPEC_NANOPUBLICATION_TRIG).get(0);
         System.out.println("Parsed the nanopublication");
 
         {

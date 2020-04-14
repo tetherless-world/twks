@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.servlet.resource;
 
 import edu.rpi.tw.twks.api.NanopublicationCrudApi;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
+import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import org.apache.jena.riot.Lang;
 import org.junit.Test;
@@ -86,7 +87,7 @@ public final class NanopublicationResourceTest extends AbstractResourceTest {
         final Nanopublication expected = getTestData().specNanopublication;
         getTwks().putNanopublication(expected);
         final String responseBody = target().path("/nanopublication/").path(URLEncoder.encode(expected.getUri().toString(), "UTF-8")).request(Lang.TRIG.getContentType().getContentType()).get(String.class);
-        final Nanopublication actual = NanopublicationParser.SPECIFICATION.parseString(responseBody).get(0);
+        final Nanopublication actual = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).build().parseString(responseBody).get(0);
         assertTrue(expected.isIsomorphicWith(actual));
     }
 

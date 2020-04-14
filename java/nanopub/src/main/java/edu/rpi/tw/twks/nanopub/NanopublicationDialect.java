@@ -1,7 +1,5 @@
 package edu.rpi.tw.twks.nanopub;
 
-import org.apache.jena.riot.Lang;
-
 public abstract class NanopublicationDialect {
     // http://nanopub.org/guidelines/working_draft/
     public final static NanopublicationDialect SPECIFICATION = new SpecificationNanopublicationDialect();
@@ -24,6 +22,4 @@ public abstract class NanopublicationDialect {
     abstract boolean allowEmptyPart();
 
     abstract boolean allowPartUriReuse();
-
-    public abstract Lang getDefaultLang();
 }
