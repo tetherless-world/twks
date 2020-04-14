@@ -32,7 +32,7 @@ public final class TestData {
         specNanopublicationFilePath = getResourceFilePath("spec_nanopublication.trig");
         specNanopublicationDataset = parseDatasetFromResource("spec_nanopublication.trig");
         uniqueNanopublicationsDataset = parseDatasetFromResource("unique_nanopublications.trig");
-        whyisNanopublicationFilePath = getResourceFilePath("whyis_nanopublication.trig");
+        whyisNanopublicationFilePath = getResourceFilePath("whyis_nanopublication.nq");
     }
 
     private Path getResourceFilePath(final String fileName) throws IOException {

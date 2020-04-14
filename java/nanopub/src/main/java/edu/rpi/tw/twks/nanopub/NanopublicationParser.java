@@ -283,19 +283,20 @@ public class NanopublicationParser {
                     // re-parsing it always produces the same result.
                     // We wrote the file.twks.trig in specification TRIG, regardless of the lang of the current parser.
 //                    checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
-                    NanopublicationParser.SPECIFICATION.parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
+                    parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
                 } else {
                     final Path whyisFilePath = whyisFile.toPath();
                     // Collect the nanopublications so we can also write them out, independently of the consumer.
                     final List<Nanopublication> twksNanopublications = new ArrayList<>();
                     // Track the nanopublication under the twksFilePath, since on subsequent passes it will be tracked that way in the branch above.
-                    parseFile(whyisFilePath, new FileNanopublicationConsumer(consumer, twksFilePath) {
+                    // Force NQUADS
+                    parse(newRdfParserBuilder().lang(Lang.NQUADS).source(whyisFilePath).build(), new FileNanopublicationConsumer(consumer, twksFilePath) {
                         @Override
                         public void accept(final Nanopublication nanopublication) {
                             super.accept(nanopublication);
                             twksNanopublications.add(nanopublication);
                         }
-                    });
+                    }, Optional.of(Uri.parse(whyisFilePath.toUri().toString())));
                     // Write the twksFile spec-compliant nanopublications for use later, in the branch above.
                     {
                         final Dataset dataset = DatasetFactory.create();

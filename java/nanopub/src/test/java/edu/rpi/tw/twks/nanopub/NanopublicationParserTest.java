@@ -2,6 +2,9 @@ package edu.rpi.tw.twks.nanopub;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.uri.Uri;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.Dataset;
@@ -12,6 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +113,34 @@ public final class NanopublicationParserTest {
     }
 
     @Test
+    public void testLang() throws IOException {
+        assertTrue(testData.specNanopublicationFilePath.toString().endsWith(".trig"));
+
+        {
+            // Infer lang from file
+            NanopublicationParser.SPECIFICATION.parseFile(testData.specNanopublicationFilePath);
+            NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).build().parseFile(testData.specNanopublicationFilePath);
+        }
+
+        final String specNanopublicationString = IOUtils.toString(testData.specNanopublicationFilePath.toUri(), Charsets.UTF_8);
+
+        // Can't infer lang from string
+        try {
+            NanopublicationParser.SPECIFICATION.parseString(specNanopublicationString);
+            fail();
+        } catch (final Exception e) {
+        }
+
+        // Set the lang explicitly
+        NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).build().parseString(specNanopublicationString);
+        try {
+            NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.NQUADS).build().parseString(specNanopublicationString);
+            fail();
+        } catch (final Exception e) {
+        }
+    }
+
+    @Test
     public void testMissingFile() {
         try {
             NanopublicationParser.SPECIFICATION.parseFile(Paths.get("nonextantfile"));
@@ -123,6 +156,17 @@ public final class NanopublicationParserTest {
         final Map<String, Nanopublication> nanopublicationsByUri = nanopublications.stream().collect(Collectors.toMap(nanopublication -> nanopublication.getUri().toString(), nanopublication -> nanopublication));
         assertNotSame(null, nanopublicationsByUri.get("http://example.org/pub1"));
         assertNotSame(null, nanopublicationsByUri.get("http://example.org/pub2"));
+    }
+
+    @Test
+    public void testNanopublicationFile() {
+        final Nanopublication nanopublication = NanopublicationParser.SPECIFICATION.parseFile(testData.specNanopublicationFilePath).get(0);
+        assertEquals("http://example.org/pub1", nanopublication.getUri().toString());
+        assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
+        assertEquals(3, nanopublication.getProvenance().getModel().listStatements().toList().size());
+        assertEquals(2, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
+        // Test that we can decompose nanopublications we generate
+//        NanopublicationFactory.DEFAULT.createNanopublicationsFromDataset(nanopublication.toDataset());
     }
 
     @Test
@@ -147,49 +191,48 @@ public final class NanopublicationParserTest {
     }
 
     @Test
-    public void testSpecParseNanopublicationFile() {
-        final Nanopublication nanopublication = NanopublicationParser.SPECIFICATION.parseFile(testData.specNanopublicationFilePath).get(0);
-        assertEquals("http://example.org/pub1", nanopublication.getUri().toString());
-        assertEquals(1, nanopublication.getAssertion().getModel().listStatements().toList().size());
-        assertEquals(3, nanopublication.getProvenance().getModel().listStatements().toList().size());
-        assertEquals(2, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
-        // Test that we can decompose nanopublications we generate
-//        NanopublicationFactory.DEFAULT.createNanopublicationsFromDataset(nanopublication.toDataset());
+    public void testSpecNanopublicationsDirectory() throws IOException {
+        final Path tempDirectoryPath = Files.createTempDirectory(null);
+        try {
+            final Path tempFilePath = tempDirectoryPath.resolve("test.trig");
+            Files.copy(testData.specNanopublicationFilePath, tempFilePath);
+            final ImmutableMultimap<Path, Nanopublication> results = NanopublicationParser.SPECIFICATION.parseDirectory(tempDirectoryPath.toFile());
+            assertEquals(1, results.size());
+            final ImmutableList<Nanopublication> nanopublications = results.get(tempFilePath).asList();
+            assertEquals(1, nanopublications.size());
+        } finally {
+            MoreFiles.deleteRecursively(tempDirectoryPath, RecursiveDeleteOption.ALLOW_INSECURE);
+        }
     }
 
     @Test
-    public void testWhyisParseNanopublicationFile() throws MalformedNanopublicationException {
-        final Nanopublication nanopublication = NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).setLang(Lang.TRIG).build().parseFile(testData.whyisNanopublicationFilePath).get(0);
+    public void testWhyisNanopublicationFile() throws MalformedNanopublicationException {
+        final Nanopublication nanopublication = NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).build().parseFile(testData.whyisNanopublicationFilePath).get(0);
         // 20191120 Parser no longer preserves part names for non-specification dialects.
 //        assertEquals("http://localhost:5000/pub/0ac4b5ae-ad66-11e9-b097-3af9d3cf1ae5", nanopublication.getUri().toString());
-        assertEquals(5, nanopublication.getAssertion().getModel().listStatements().toList().size());
+        assertEquals(1146, nanopublication.getAssertion().getModel().listStatements().toList().size());
         assertEquals(1, nanopublication.getProvenance().getModel().listStatements().toList().size());
-        assertEquals(5, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
+        assertEquals(3, nanopublication.getPublicationInfo().getModel().listStatements().toList().size());
         // Test that we can decompose nanopublications we generate
 //        new NanopublicationFactory(NanopublicationDialect.WHYIS).createNanopublicationsFromDataset(nanopublication.toDataset());
     }
 
     @Test
-    public void testLang() throws IOException {
-        assertTrue(testData.specNanopublicationFilePath.toString().endsWith(".trig"));
-
-        {
-            // Infer lang from file
-            NanopublicationParser.SPECIFICATION.parseFile(testData.specNanopublicationFilePath);
-            NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).build().parseFile(testData.specNanopublicationFilePath);
-        }
-
-        final String specNanopublicationString = IOUtils.toString(testData.specNanopublicationFilePath.toUri(), Charsets.UTF_8);
-
-        // Infer lang from string
-        NanopublicationParser.SPECIFICATION.parseString(specNanopublicationString);
-
-        // Set the lang explicitly
-        NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).build().parseString(specNanopublicationString);
+    public void testWhyisNanopublicationsDirectory() throws IOException {
+        final Path tempDirectoryPath = Files.createTempDirectory(null);
         try {
-            NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.NQUADS).build().parseString(specNanopublicationString);
-            fail();
-        } catch (final Exception e) {
+            final Path nanopublicationsDirectoryPath = tempDirectoryPath.resolve("nanopublications");
+            Files.createDirectory(nanopublicationsDirectoryPath);
+            final Path nanopublicationDirectoryPath = nanopublicationsDirectoryPath.resolve("ignored");
+            Files.createDirectory(nanopublicationDirectoryPath);
+            final Path nanopublicationFilePath = nanopublicationDirectoryPath.resolve("file"); // No file extension
+            Files.copy(testData.whyisNanopublicationFilePath, nanopublicationFilePath);
+            final ImmutableMultimap<Path, Nanopublication> results = NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).build().parseDirectory(nanopublicationsDirectoryPath.toFile());
+            assertEquals(1, results.size());
+            final ImmutableList<Nanopublication> nanopublications = results.get(nanopublicationDirectoryPath.resolve("file.twks.trig")).asList();
+            assertEquals(1, nanopublications.size());
+        } finally {
+            MoreFiles.deleteRecursively(tempDirectoryPath, RecursiveDeleteOption.ALLOW_INSECURE);
         }
     }
 }
