@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.rpi.tw.twks.vocabulary.NANOPUB;
+import org.apache.jena.atlas.RuntimeIOException;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ReadWrite;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.MalformedInputException;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -67,6 +69,12 @@ public class NanopublicationParser {
             rdfParser.parse(dataset);
         } catch (final RiotNotFoundException e) {
             throw e;
+        } catch (final RuntimeIOException e) {
+            if (e.getCause() instanceof MalformedInputException) {
+                consumer.onMalformedNanopublicationException(new MalformedNanopublicationException((MalformedInputException) e.getCause()));
+            } else {
+                throw e;
+            }
         } catch (final RiotException e) {
             consumer.onMalformedNanopublicationException(new MalformedNanopublicationException(e));
             return;

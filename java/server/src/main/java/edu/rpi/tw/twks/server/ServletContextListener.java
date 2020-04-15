@@ -65,10 +65,15 @@ public final class ServletContextListener implements javax.servlet.ServletContex
     }
 
     private void loadInitialNanopublications(final TwksServerConfiguration configuration, final Twks twks) {
-        final InitialNanopublicationConsumer consumer = new InitialNanopublicationConsumer(twks);
         final NanopublicationParser nanopublicationParser = NanopublicationParser.SPECIFICATION;
 
         if (configuration.getInitialNanopublicationsDirectoryPath().isPresent()) {
+            final InitialNanopublicationConsumer consumer = new InitialNanopublicationConsumer(twks) {
+                @Override
+                public void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
+                    // Exception will be logged below.
+                }
+            };
             nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile(), new NanopublicationDirectoryConsumer() {
                 @Override
                 public void accept(final Nanopublication nanopublication, final Path nanopublicationFilePath) {
@@ -77,23 +82,29 @@ public final class ServletContextListener implements javax.servlet.ServletContex
 
                 @Override
                 public void onMalformedNanopublicationException(final MalformedNanopublicationException exception, final Path nanopublicationFilePath) {
-                    consumer.onMalformedNanopublicationException(exception);
+                    logger.error("error parsing nanopublication at {}", nanopublicationFilePath, exception);
                 }
             });
+            consumer.flush();
 //            logger.info("parsed {} initial nanopublication(s) from {}", directoryNanopublications.size(), configuration.getInitialNanopublicationsDirectoryPath().get());
         }
 
         if (configuration.getInitialNanopublicationFilePaths().isPresent()) {
             for (final Path nanopublicationFilePath : configuration.getInitialNanopublicationFilePaths().get()) {
+                final InitialNanopublicationConsumer consumer = new InitialNanopublicationConsumer(twks) {
+                    @Override
+                    public void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
+                        logger.error("error parsing nanopublication at {}", nanopublicationFilePath, exception);
+                    }
+                };
                 nanopublicationParser.parseFile(nanopublicationFilePath, consumer);
+                consumer.flush();
 //                logger.info("parsed {} initial nanopublication(s) from {}", fileNanopublications.size(), nanopublicationFilePath);
             }
         }
-
-        consumer.flush();
     }
 
-    private final static class InitialNanopublicationConsumer implements NanopublicationConsumer {
+    private abstract static class InitialNanopublicationConsumer implements NanopublicationConsumer {
         private final List<Nanopublication> nanopublicationsBuffer = new ArrayList<>();
         private final Twks twks;
 
@@ -118,11 +129,6 @@ public final class ServletContextListener implements javax.servlet.ServletContex
             twks.postNanopublications(ImmutableList.copyOf(nanopublicationsBuffer));
             logger.info("posted {} initial nanopublication(s)", nanopublicationsBuffer.size());
             nanopublicationsBuffer.clear();
-        }
-
-        @Override
-        public final void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
-            throw new MalformedNanopublicationRuntimeException(exception);
         }
     }
 }
