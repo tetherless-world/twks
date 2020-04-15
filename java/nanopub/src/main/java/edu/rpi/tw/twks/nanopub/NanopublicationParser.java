@@ -192,7 +192,10 @@ public class NanopublicationParser {
 
     public void parseFile(final Path filePath, final NanopublicationConsumer consumer) {
         // If our lang was not specified, let Jena detect the lang from the file path instead of setting the default from the dialect.
-        parse(newRdfParserBuilder().source(filePath).build(), consumer, Optional.of(Uri.parse(checkNotNull(filePath).toUri().toString())));
+        final String fileUri = filePath.toUri().toString();
+        // Use source(file URI) instead of source (file Path object) to get around a bug in Jena, where it doesn't try to infer the
+        // language from file paths, only from URIs.
+        parse(newRdfParserBuilder().source(fileUri).build(), consumer, Optional.of(Uri.parse(fileUri)));
     }
 
     public final ImmutableList<Nanopublication> parseInputStream(final InputStream inputStream) throws MalformedNanopublicationRuntimeException {

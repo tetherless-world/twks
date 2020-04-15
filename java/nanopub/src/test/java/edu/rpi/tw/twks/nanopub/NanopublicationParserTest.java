@@ -76,7 +76,7 @@ public final class NanopublicationParserTest {
                     }
                 }
             }
-            final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.SPECIFICATION.parseFile(tempFilePath);
+            final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).build().parseFile(tempFilePath);
             assertEquals(1, nanopublications.size());
         } finally {
             MoreFiles.deleteRecursively(tempDirectoryPath, RecursiveDeleteOption.ALLOW_INSECURE);
