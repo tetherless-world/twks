@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.uri.Uri;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -15,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,6 +61,25 @@ public final class NanopublicationParserTest {
             NanopublicationParser.SPECIFICATION.parseString("broken RDF");
             fail();
         } catch (final MalformedNanopublicationRuntimeException e) {
+        }
+    }
+
+    @Test
+    public void testCompressedFile() throws Exception {
+        final Path tempDirectoryPath = Files.createTempDirectory(null);
+        try {
+            final Path tempFilePath = tempDirectoryPath.resolve("test.trig.bz2");
+            try (final FileInputStream fileInputStream = new FileInputStream(testData.specNanopublicationFilePath.toFile())) {
+                try (final FileOutputStream fileOutputStream = new FileOutputStream(tempFilePath.toFile())) {
+                    try (final BZip2CompressorOutputStream bZip2CompressorOutputStream = new BZip2CompressorOutputStream(fileOutputStream)) {
+                        IOUtils.copy(fileInputStream, bZip2CompressorOutputStream);
+                    }
+                }
+            }
+            final ImmutableList<Nanopublication> nanopublications = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).setLang(Lang.TRIG).build().parseFile(tempFilePath);
+            assertEquals(1, nanopublications.size());
+        } finally {
+            MoreFiles.deleteRecursively(tempDirectoryPath, RecursiveDeleteOption.ALLOW_INSECURE);
         }
     }
 

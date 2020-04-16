@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.io.ByteStreams;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.rpi.tw.twks.vocabulary.NANOPUB;
+import org.apache.jena.atlas.RuntimeIOException;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ReadWrite;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.MalformedInputException;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -67,6 +69,12 @@ public class NanopublicationParser {
             rdfParser.parse(dataset);
         } catch (final RiotNotFoundException e) {
             throw e;
+        } catch (final RuntimeIOException e) {
+            if (e.getCause() instanceof MalformedInputException) {
+                consumer.onMalformedNanopublicationException(new MalformedNanopublicationException((MalformedInputException) e.getCause()));
+            } else {
+                throw e;
+            }
         } catch (final RiotException e) {
             consumer.onMalformedNanopublicationException(new MalformedNanopublicationException(e));
             return;
@@ -184,7 +192,10 @@ public class NanopublicationParser {
 
     public void parseFile(final Path filePath, final NanopublicationConsumer consumer) {
         // If our lang was not specified, let Jena detect the lang from the file path instead of setting the default from the dialect.
-        parse(newRdfParserBuilder().source(filePath).build(), consumer, Optional.of(Uri.parse(checkNotNull(filePath).toUri().toString())));
+        final String fileUri = filePath.toUri().toString();
+        // Use source(file URI) instead of source (file Path object) to get around a bug in Jena, where it doesn't try to infer the
+        // language from file paths, only from URIs.
+        parse(newRdfParserBuilder().source(fileUri).build(), consumer, Optional.of(Uri.parse(fileUri)));
     }
 
     public final ImmutableList<Nanopublication> parseInputStream(final InputStream inputStream) throws MalformedNanopublicationRuntimeException {
