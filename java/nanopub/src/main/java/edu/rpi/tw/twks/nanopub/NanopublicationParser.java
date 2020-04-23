@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.nanopub;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.io.ByteStreams;
@@ -35,10 +36,12 @@ public class NanopublicationParser {
     private final static Logger logger = LoggerFactory.getLogger(NanopublicationParser.class);
     private final NanopublicationDialect dialect;
     private final Optional<Lang> lang;
+    private final Metrics metrics;
 
-    public NanopublicationParser(final NanopublicationDialect dialect, final Optional<Lang> lang) {
+    public NanopublicationParser(final NanopublicationDialect dialect, final Optional<Lang> lang, final MetricRegistry metricRegistry) {
         this.dialect = checkNotNull(dialect);
         this.lang = checkNotNull(lang);
+        this.metrics = new Metrics(metricRegistry);
     }
 
     public final static NanopublicationParserBuilder builder() {
@@ -48,10 +51,6 @@ public class NanopublicationParser {
     public final NanopublicationDialect getDialect() {
         return dialect;
     }
-
-//    private ImmutableList<Uri> getNanopublicationUris(final ImmutableList<Nanopublication> nanopublications) {
-//        return nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
-//    }
 
     private RDFParserBuilder newRdfParserBuilder() {
         final RDFParserBuilder builder = RDFParserBuilder.create();
@@ -109,6 +108,10 @@ public class NanopublicationParser {
         consumer.accept(nanopublication);
     }
 
+//    private ImmutableList<Uri> getNanopublicationUris(final ImmutableList<Nanopublication> nanopublications) {
+//        return nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
+//    }
+
     public final ImmutableList<Nanopublication> parse(final String source) throws MalformedNanopublicationRuntimeException {
         final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
         parse(source, consumer);
@@ -161,12 +164,6 @@ public class NanopublicationParser {
         return consumer.build();
     }
 
-//    public final ImmutableList<Nanopublication> parseDataset(final DatasetTransaction datasetTransaction) throws MalformedNanopublicationRuntimeException {
-//        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
-//        parseDataset(datasetTransaction, consumer);
-//        return consumer.build();
-//    }
-
     public final ImmutableMultimap<Path, Nanopublication> parseDirectory(final File sourceDirectoryPath) throws MalformedNanopublicationRuntimeException {
         final CollectingNanopublicationDirectoryConsumer consumer = new CollectingNanopublicationDirectoryConsumer();
         parseDirectory(sourceDirectoryPath, consumer);
@@ -182,6 +179,12 @@ public class NanopublicationParser {
             throw new UnsupportedOperationException();
         }
     }
+
+//    public final ImmutableList<Nanopublication> parseDataset(final DatasetTransaction datasetTransaction) throws MalformedNanopublicationRuntimeException {
+//        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
+//        parseDataset(datasetTransaction, consumer);
+//        return consumer.build();
+//    }
 
     public final ImmutableList<Nanopublication> parseFile(final Path filePath) throws MalformedNanopublicationRuntimeException {
         final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
@@ -405,6 +408,12 @@ public class NanopublicationParser {
         @Override
         public void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
             directoryConsumer.onMalformedNanopublicationException(exception, nanopublicationFilePath);
+        }
+    }
+
+    private final static class Metrics {
+        public Metrics(final MetricRegistry registry) {
+
         }
     }
 

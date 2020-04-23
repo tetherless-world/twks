@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.*;
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.cli.CliNanopublicationParser;
@@ -48,9 +49,9 @@ public final class WatchNanopublicationsCommand extends Command {
     }
 
     @Override
-    public final void run(final TwksClient client) {
+    public final void run(final TwksClient client, final MetricRegistry metricRegistry) {
         final Path directoryPath = Paths.get(args.directoryPath);
-        final NanopublicationParser nanopublicationParser = new CliNanopublicationParser(args);
+        final NanopublicationParser nanopublicationParser = new CliNanopublicationParser(args, metricRegistry);
 
         try {
             watcher = new NanopublicationsDirectoryWatcher(client, directoryPath, nanopublicationParser);

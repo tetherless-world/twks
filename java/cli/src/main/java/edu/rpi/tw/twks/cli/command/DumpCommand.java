@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.cli.command;
 
+import com.codahale.metrics.MetricRegistry;
 import edu.rpi.tw.twks.api.TwksClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public final class DumpCommand extends Command {
     }
 
     @Override
-    public void run(final TwksClient client) {
+    public void run(final TwksClient client, final MetricRegistry metricRegistry) {
         try {
             client.dump();
         } catch (final IOException e) {

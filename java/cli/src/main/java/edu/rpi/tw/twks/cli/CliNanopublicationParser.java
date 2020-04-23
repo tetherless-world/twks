@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.cli;
 
 import com.beust.jcommander.Parameter;
+import com.codahale.metrics.MetricRegistry;
 import edu.rpi.tw.twks.nanopub.*;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RiotNotFoundException;
@@ -15,10 +16,11 @@ public final class CliNanopublicationParser extends NanopublicationParser {
     private final int retry;
     private final int retryDelayS;
 
-    public CliNanopublicationParser(final Args args) {
+    public CliNanopublicationParser(final Args args, final MetricRegistry metricRegistry) {
         super(
                 args.dialect != null ? NanopublicationDialect.valueOf(args.dialect.toUpperCase()) : NanopublicationDialect.SPECIFICATION,
-                args.lang != null ? Optional.ofNullable(RDFLanguages.shortnameToLang(args.lang)) : Optional.empty()
+                args.lang != null ? Optional.ofNullable(RDFLanguages.shortnameToLang(args.lang)) : Optional.empty(),
+                metricRegistry
         );
         this.retry = args.retry >= 0 ? args.retry : 0;
         this.retryDelayS = args.retrayDelayS > 0 ? args.retrayDelayS : 1;

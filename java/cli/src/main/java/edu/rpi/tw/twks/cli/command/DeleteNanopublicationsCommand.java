@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.uri.Uri;
@@ -32,7 +33,7 @@ public final class DeleteNanopublicationsCommand extends Command {
     }
 
     @Override
-    public void run(final TwksClient client) {
+    public void run(final TwksClient client, final MetricRegistry metricRegistry) {
         final ImmutableList<Uri> nanopublicationUris = args.nanopublicationUris.stream().map(uri -> Uri.parse(uri)).collect(ImmutableList.toImmutableList());
         client.deleteNanopublications(nanopublicationUris);
         logger.info("deleted {} nanopublication(s)", nanopublicationUris.size());

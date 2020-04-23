@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.cli;
 import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.codahale.metrics.MetricRegistry;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;
@@ -68,6 +69,8 @@ public final class CliMain {
 
         final Command command = commandsByName.get(jCommander.getParsedCommand());
 
+        final MetricRegistry metricRegistry = new MetricRegistry();
+
         final PropertiesConfiguration configurationProperties = new PropertiesConfiguration();
 
         if (globalArgs.configurationFilePath != null) {
@@ -87,7 +90,7 @@ public final class CliMain {
                 final Twks twks = TwksFactory.getInstance().createTwks(configuration);
                 logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);
 
-                command.run(new DirectTwksClient(twks));
+                command.run(new DirectTwksClient(twks), metricRegistry);
                 return;
             }
         }
@@ -102,7 +105,7 @@ public final class CliMain {
             final TwksClient client = new RestTwksClient(clientConfiguration);
             logger.debug("using client with configuration {}", clientConfiguration);
 
-            command.run(client);
+            command.run(client, metricRegistry);
         }
     }
 

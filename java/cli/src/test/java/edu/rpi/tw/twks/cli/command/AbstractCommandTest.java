@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.cli.command;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.Twks;
@@ -59,7 +60,7 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
     protected abstract CommandT newCommand();
 
     protected final void runCommand() {
-        command.run(new DirectTwksClient(twks));
+        command.run(new DirectTwksClient(twks), new MetricRegistry());
     }
 
     @Before

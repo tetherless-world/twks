@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.cli.CliNanopublicationParser;
@@ -38,8 +39,8 @@ public final class PostNanopublicationsCommand extends Command {
     }
 
     @Override
-    public void run(final TwksClient client) {
-        final CliNanopublicationParser parser = new CliNanopublicationParser(args);
+    public void run(final TwksClient client, final MetricRegistry metricRegistry) {
+        final CliNanopublicationParser parser = new CliNanopublicationParser(args, metricRegistry);
 
         final BufferingNanopublicationConsumer consumer = new BufferingNanopublicationConsumer(client);
 
