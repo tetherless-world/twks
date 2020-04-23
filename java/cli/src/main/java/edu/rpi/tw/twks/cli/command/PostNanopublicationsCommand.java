@@ -75,23 +75,30 @@ public final class PostNanopublicationsCommand extends Command {
 
         @Override
         public final void accept(final Nanopublication nanopublication) {
-            nanopublicationsBuffer.add(nanopublication);
-            if (nanopublicationsBuffer.size() == args.nanopublicationsBufferSize) {
-                twksClient.postNanopublications(ImmutableList.copyOf(nanopublicationsBuffer));
-                postedNanopublicationsCount += nanopublicationsBuffer.size();
-                logger.info("posted {} new nanopublication(s) ({} total)", nanopublicationsBuffer.size(), postedNanopublicationsCount);
+            final ImmutableList<Nanopublication> nanopublicationsToPost;
+            synchronized (nanopublicationsBuffer) {
+                nanopublicationsBuffer.add(nanopublication);
+                if (nanopublicationsBuffer.size() < args.nanopublicationsBufferSize) {
+                    return;
+                }
+                // Make a copy of the buffer and then exit the synchronized block so it can continue buffering.
+                nanopublicationsToPost = ImmutableList.copyOf(nanopublicationsBuffer);
                 nanopublicationsBuffer.clear();
             }
+            postNanopublications(nanopublicationsToPost);
         }
 
         public final void flush() {
-            if (nanopublicationsBuffer.isEmpty()) {
-                return;
+            final ImmutableList<Nanopublication> nanopublicationsToPost;
+            synchronized (nanopublicationsBuffer) {
+                if (nanopublicationsBuffer.isEmpty()) {
+                    return;
+                }
+                // Make a copy of the buffer and then exit the synchronized block so it can continue buffering.
+                nanopublicationsToPost = ImmutableList.copyOf(nanopublicationsBuffer);
+                nanopublicationsBuffer.clear();
             }
-            twksClient.postNanopublications(ImmutableList.copyOf(nanopublicationsBuffer));
-            postedNanopublicationsCount += nanopublicationsBuffer.size();
-            logger.info("posted {} new nanopublication(s) ({} total)", nanopublicationsBuffer.size(), postedNanopublicationsCount);
-            nanopublicationsBuffer.clear();
+            postNanopublications(nanopublicationsToPost);
         }
 
         @Override
@@ -101,6 +108,12 @@ public final class PostNanopublicationsCommand extends Command {
             } else {
                 throw new MalformedNanopublicationRuntimeException(exception);
             }
+        }
+
+        private void postNanopublications(final ImmutableList<Nanopublication> nanopublicationsToPost) {
+            twksClient.postNanopublications(nanopublicationsToPost);
+            postedNanopublicationsCount += nanopublicationsToPost.size();
+            logger.info("posted {} new nanopublication(s) ({} total)", nanopublicationsToPost.size(), postedNanopublicationsCount);
         }
     }
 }
