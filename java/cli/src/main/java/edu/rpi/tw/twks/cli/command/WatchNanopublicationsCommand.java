@@ -15,7 +15,6 @@ import io.methvin.watcher.DirectoryWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.Path;
@@ -87,7 +86,6 @@ public final class WatchNanopublicationsCommand extends Command {
     private final class NanopublicationsDirectoryWatcher implements DirectoryChangeListener {
         private final TwksClient client;
         private final Multimap<Path, Uri> currentNanopublicationUrisByPath = ArrayListMultimap.create();
-        private final File directoryFile;
         private final Path directoryPath;
         private final DirectoryWatcher directoryWatcher;
         private final NanopublicationParser nanopublicationParser;
@@ -95,7 +93,6 @@ public final class WatchNanopublicationsCommand extends Command {
         NanopublicationsDirectoryWatcher(final TwksClient client, final Path directoryPath, final NanopublicationParser nanopublicationParser) throws IOException {
             this.client = checkNotNull(client);
             this.directoryPath = checkNotNull(directoryPath);
-            this.directoryFile = this.directoryPath.toFile();
             this.directoryWatcher = DirectoryWatcher.builder().path(this.directoryPath).listener(this).build();
             this.nanopublicationParser = checkNotNull(nanopublicationParser);
         }
@@ -112,7 +109,7 @@ public final class WatchNanopublicationsCommand extends Command {
 
         private final synchronized void synchronize() {
             final Set<Path> oldNanopublicationPaths = currentNanopublicationUrisByPath.keySet();
-            final ImmutableMultimap<Path, Nanopublication> nanopublicationsByPath = nanopublicationParser.parseDirectory(directoryPath.toFile());
+            final ImmutableMultimap<Path, Nanopublication> nanopublicationsByPath = nanopublicationParser.parseDirectory(directoryPath);
             final ImmutableSet<Path> nanopublicationPaths = nanopublicationsByPath.keySet();
 
             // #130: we were ignoring new nanopublications found by scanning the file system on DELETE events.

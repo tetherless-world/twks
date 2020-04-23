@@ -74,7 +74,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
                     // Exception will be logged below.
                 }
             };
-            nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile(), new NanopublicationDirectoryConsumer() {
+            nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get(), new NanopublicationDirectoryConsumer() {
                 @Override
                 public void accept(final Nanopublication nanopublication, final Path nanopublicationFilePath) {
                     consumer.accept(nanopublication);

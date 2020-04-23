@@ -227,7 +227,7 @@ public final class NanopublicationParserTest {
         try {
             final Path tempFilePath = tempDirectoryPath.resolve("test.trig");
             Files.copy(testData.specNanopublicationFilePath, tempFilePath);
-            final ImmutableMultimap<Path, Nanopublication> results = sut.parseDirectory(tempDirectoryPath.toFile());
+            final ImmutableMultimap<Path, Nanopublication> results = sut.parseDirectory(tempDirectoryPath);
             assertEquals(1, results.size());
             final ImmutableList<Nanopublication> nanopublications = results.get(tempFilePath).asList();
             assertEquals(1, nanopublications.size());
@@ -258,7 +258,7 @@ public final class NanopublicationParserTest {
             Files.createDirectory(nanopublicationDirectoryPath);
             final Path nanopublicationFilePath = nanopublicationDirectoryPath.resolve("file"); // No file extension
             Files.copy(testData.whyisNanopublicationFilePath, nanopublicationFilePath);
-            final ImmutableMultimap<Path, Nanopublication> results = NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).build().parseDirectory(nanopublicationsDirectoryPath.toFile());
+            final ImmutableMultimap<Path, Nanopublication> results = NanopublicationParser.builder().setDialect(NanopublicationDialect.WHYIS).build().parseDirectory(nanopublicationsDirectoryPath);
             assertEquals(1, results.size());
             final ImmutableList<Nanopublication> nanopublications = results.get(nanopublicationDirectoryPath.resolve("file.twks.trig")).asList();
             assertEquals(1, nanopublications.size());

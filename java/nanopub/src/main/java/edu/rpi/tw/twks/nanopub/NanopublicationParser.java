@@ -17,9 +17,12 @@ import org.apache.jena.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.MalformedInputException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -127,12 +130,15 @@ public class NanopublicationParser {
             return;
         }
 
-        final File sourceFile = new File(source);
-        if (sourceFile.isFile()) {
-            parseFile(sourceFile.toPath(), consumer);
+        final Path sourcePath = Paths.get(source);
+
+        if (Files.isRegularFile(sourcePath)) {
+            parseFile(sourcePath, consumer);
             return;
-        } else if (sourceFile.isDirectory()) {
-            parseDirectory(sourceFile, new NanopublicationDirectoryConsumer() {
+        }
+
+        if (Files.isDirectory(sourcePath)) {
+            parseDirectory(sourcePath, new NanopublicationDirectoryConsumer() {
                 @Override
                 public void accept(final Nanopublication nanopublication, final Path nanopublicationFilePath) {
                     consumer.accept(nanopublication);
@@ -167,13 +173,13 @@ public class NanopublicationParser {
         return consumer.build();
     }
 
-    public final ImmutableMultimap<Path, Nanopublication> parseDirectory(final File sourceDirectoryPath) throws MalformedNanopublicationRuntimeException {
+    public final ImmutableMultimap<Path, Nanopublication> parseDirectory(final Path sourceDirectoryPath) throws MalformedNanopublicationRuntimeException {
         final CollectingNanopublicationDirectoryConsumer consumer = new CollectingNanopublicationDirectoryConsumer();
         parseDirectory(sourceDirectoryPath, consumer);
         return consumer.build();
     }
 
-    public final void parseDirectory(final File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
+    public final void parseDirectory(final Path sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
         if (getDialect() == NanopublicationDialect.SPECIFICATION) {
             parseSpecificationNanopublicationsDirectory(sourceDirectoryPath, consumer);
         } else if (getDialect() == NanopublicationDialect.WHYIS) {
@@ -223,21 +229,25 @@ public class NanopublicationParser {
         parse(newRdfParserBuilder().source(inputStream).build(), consumer, sourceUri);
     }
 
-    private void parseSpecificationNanopublicationsDirectory(final File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
+    private void parseSpecificationNanopublicationsDirectory(final Path sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
         // Assume it's a directory where every .trig file is a nanopublication.
-        final File[] sourceFiles = sourceDirectoryPath.listFiles();
-        if (sourceFiles == null) {
+        final ImmutableList<Path> sourceFilePaths;
+        try {
+            sourceFilePaths = Files.list(sourceDirectoryPath).collect(ImmutableList.toImmutableList());
+        } catch (final IOException e) {
+            logger.info("error listing {}: ", sourceDirectoryPath, e);
             return;
         }
-        for (final File trigFile : sourceFiles) {
-            if (!trigFile.isFile()) {
+        for (final Path sourceFilePath : sourceFilePaths) {
+            if (!Files.isRegularFile(sourceFilePath)) {
                 continue;
             }
-            if (!trigFile.getName().endsWith(".trig")) {
+            @Nullable final Lang sourceFileLang = RDFLanguages.filenameToLang(sourceFilePath.getFileName().toString());
+            if (sourceFileLang == null) {
+                logger.info("ignoring non-RDF file {}", sourceFilePath);
                 continue;
             }
-            final Path trigFilePath = trigFile.toPath();
-            parseFile(trigFilePath, new FileNanopublicationConsumer(consumer, trigFilePath));
+            parseFile(sourceFilePath, new FileNanopublicationConsumer(consumer, sourceFilePath));
         }
     }
 
@@ -287,73 +297,76 @@ public class NanopublicationParser {
         parse(newRdfParserBuilder().source(url.toString()).build(), consumer, Optional.of(url));
     }
 
-    private void parseWhyisNanopublicationsDirectory(File sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
-        if (sourceDirectoryPath.getName().equals("data")) {
-            sourceDirectoryPath = new File(sourceDirectoryPath, "nanopublications");
+    private void parseWhyisNanopublicationsDirectory(Path sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
+        if (sourceDirectoryPath.getFileName().toString().equals("data")) {
+            sourceDirectoryPath = sourceDirectoryPath.resolve("nanopublications");
         }
-        if (sourceDirectoryPath.getName().equals("nanopublications")) {
-            // Trawl all of the subdirectories of /data/nanopublications
-            final File[] nanopublicationSubdirectories = sourceDirectoryPath.listFiles();
-            if (nanopublicationSubdirectories == null) {
-                return;
-            }
-
-            for (final File nanopublicationSubdirectory : nanopublicationSubdirectories) {
-                if (!nanopublicationSubdirectory.isDirectory()) {
-                    continue;
-                }
-                final File whyisFile = new File(nanopublicationSubdirectory, "file");
-                if (!whyisFile.isFile()) {
-                    // If there's no Whyis nanopublication file in the directory, the nanopublication may have been deleted. Ignore lingering TWKS files.
-                    logger.debug("no Whyis nanopublication file in {}, ignoring", nanopublicationSubdirectory);
-                    continue;
-                }
-
-                final File twksFile = new File(nanopublicationSubdirectory, "file.twks.trig");
-                final Path twksFilePath = twksFile.toPath();
-                if (twksFile.isFile()) {
-                    // #106
-                    // We've previously parsed this Whyis nanopublication and written in back as a spec-compliant nanopublication.
-                    // The conversion has to create new urn:uuid: graph URIs, which means that subsequent conversions won't
-                    // produce the same spec-compliant nanopublication. We cache the converted nanopublication on disk so
-                    // re-parsing it always produces the same result.
-                    // We wrote the file.twks.trig in specification TRIG, regardless of the lang of the current parser.
-//                    checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
-                    parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
-                } else {
-                    final Path whyisFilePath = whyisFile.toPath();
-                    // Collect the nanopublications so we can also write them out, independently of the consumer.
-                    final List<Nanopublication> twksNanopublications = new ArrayList<>();
-                    // Track the nanopublication under the twksFilePath, since on subsequent passes it will be tracked that way in the branch above.
-                    // Force NQUADS
-                    parse(newRdfParserBuilder().lang(Lang.NQUADS).source(whyisFilePath).build(), new FileNanopublicationConsumer(consumer, twksFilePath) {
-                        @Override
-                        public void accept(final Nanopublication nanopublication) {
-                            super.accept(nanopublication);
-                            twksNanopublications.add(nanopublication);
-                        }
-                    }, Optional.of(Uri.parse(whyisFilePath.toUri().toString())));
-                    // Write the twksFile spec-compliant nanopublications for use later, in the branch above.
-                    {
-                        final Dataset dataset = DatasetFactory.create();
-                        for (final Nanopublication nanopublication : twksNanopublications) {
-                            nanopublication.toDataset(dataset);
-                        }
-                        try (final OutputStream twksFileOutputStream = new FileOutputStream(twksFile)) {
-                            // See note above re: file.twks.trig.
-//                            checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
-                            RDFDataMgr.write(twksFileOutputStream, dataset, Lang.TRIG);
-                        } catch (final IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-            }
-        } else {
+        if (!sourceDirectoryPath.getFileName().toString().equals("nanopublications")) {
             // Assume the directory contains a single nanopublication
-            final File file = new File(sourceDirectoryPath, "file");
-            final Path filePath = file.toPath();
+            final Path filePath = sourceDirectoryPath.resolve("file");
             parseFile(filePath, new FileNanopublicationConsumer(consumer, filePath));
+            return;
+        }
+
+        // Trawl all of the subdirectories of /data/nanopublications
+        final ImmutableList<Path> nanopublicationSubdirectoryPaths;
+        try {
+            nanopublicationSubdirectoryPaths = Files.list(sourceDirectoryPath).collect(ImmutableList.toImmutableList());
+        } catch (final IOException e) {
+            logger.error("error listing {}: ", sourceDirectoryPath, e);
+            return;
+        }
+
+        for (final Path nanopublicationSubdirectoryPath : nanopublicationSubdirectoryPaths) {
+            if (!Files.isDirectory(nanopublicationSubdirectoryPath)) {
+                continue;
+            }
+
+            final Path whyisFilePath = nanopublicationSubdirectoryPath.resolve("file");
+            if (!Files.isRegularFile(whyisFilePath)) {
+                // If there's no Whyis nanopublication file in the directory, the nanopublication may have been deleted. Ignore lingering TWKS files.
+                logger.debug("no Whyis nanopublication file in {}, ignoring", nanopublicationSubdirectoryPath);
+                continue;
+            }
+
+            final Path twksFilePath = nanopublicationSubdirectoryPath.resolve("file.twks.trig");
+            if (Files.isRegularFile(twksFilePath)) {
+                // #106
+                // We've previously parsed this Whyis nanopublication and written in back as a spec-compliant nanopublication.
+                // The conversion has to create new urn:uuid: graph URIs, which means that subsequent conversions won't
+                // produce the same spec-compliant nanopublication. We cache the converted nanopublication on disk so
+                // re-parsing it always produces the same result.
+                // We wrote the file.twks.trig in specification TRIG, regardless of the lang of the current parser.
+//                    checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
+                parseFile(twksFilePath, new FileNanopublicationConsumer(consumer, twksFilePath));
+                continue;
+            }
+
+            // Collect the nanopublications so we can also write them out, independently of the consumer.
+            final List<Nanopublication> twksNanopublications = new ArrayList<>();
+            // Track the nanopublication under the twksFilePath, since on subsequent passes it will be tracked that way in the branch above.
+            // Force NQUADS
+            parse(newRdfParserBuilder().lang(Lang.NQUADS).source(whyisFilePath).build(), new FileNanopublicationConsumer(consumer, twksFilePath) {
+                @Override
+                public void accept(final Nanopublication nanopublication) {
+                    super.accept(nanopublication);
+                    twksNanopublications.add(nanopublication);
+                }
+            }, Optional.of(Uri.parse(whyisFilePath.toUri().toString())));
+            // Write the twksFile spec-compliant nanopublications for use later, in the branch above.
+            {
+                final Dataset dataset = DatasetFactory.create();
+                for (final Nanopublication nanopublication : twksNanopublications) {
+                    nanopublication.toDataset(dataset);
+                }
+                try (final OutputStream twksFileOutputStream = new FileOutputStream(twksFilePath.toFile())) {
+                    // See note above re: file.twks.trig.
+//                            checkState(NanopublicationParser.SPECIFICATION.getLang().equals(Lang.TRIG));
+                    RDFDataMgr.write(twksFileOutputStream, dataset, Lang.TRIG);
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
