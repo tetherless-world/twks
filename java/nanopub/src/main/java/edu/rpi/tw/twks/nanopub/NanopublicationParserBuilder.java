@@ -8,12 +8,18 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class NanopublicationParserBuilder {
+    private int concurrencyLevel = 1;
     private NanopublicationDialect dialect = NanopublicationDialect.SPECIFICATION;
     private Optional<Lang> lang = Optional.empty();
-    private final Optional<MetricRegistry> metricRegistry = Optional.empty();
+    private Optional<MetricRegistry> metricRegistry = Optional.empty();
 
     public final NanopublicationParser build() {
-        return new NanopublicationParser(dialect, lang, metricRegistry.isPresent() ? metricRegistry.get() : new MetricRegistry());
+        return new NanopublicationParser(concurrencyLevel, dialect, lang, metricRegistry.isPresent() ? metricRegistry.get() : new MetricRegistry());
+    }
+
+    public final NanopublicationParserBuilder setConcurrencyLevel(final int concurrencyLevel) {
+        this.concurrencyLevel = concurrencyLevel;
+        return this;
     }
 
     public final NanopublicationParserBuilder setDialect(final NanopublicationDialect dialect) {
@@ -23,6 +29,11 @@ public final class NanopublicationParserBuilder {
 
     public final NanopublicationParserBuilder setLang(final Lang lang) {
         this.lang = Optional.of(lang);
+        return this;
+    }
+
+    public final NanopublicationParserBuilder setMetricRegistry(final MetricRegistry metricRegistry) {
+        this.metricRegistry = Optional.of(metricRegistry);
         return this;
     }
 }

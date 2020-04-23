@@ -18,6 +18,7 @@ public final class CliNanopublicationParser extends NanopublicationParser {
 
     public CliNanopublicationParser(final Args args, final MetricRegistry metricRegistry) {
         super(
+                args.concurrencyLevel,
                 args.dialect != null ? NanopublicationDialect.valueOf(args.dialect.toUpperCase()) : NanopublicationDialect.SPECIFICATION,
                 args.lang != null ? Optional.ofNullable(RDFLanguages.shortnameToLang(args.lang)) : Optional.empty(),
                 metricRegistry
@@ -83,12 +84,12 @@ public final class CliNanopublicationParser extends NanopublicationParser {
     }
 
     public abstract static class Args {
+        @Parameter(names = {"--concurrency-level"}, description = "number of threads to use to parse nanopublications")
+        public int concurrencyLevel = 1;
         @Parameter(names = {"--dialect"}, description = "dialect of the nanopublication, such as SPECIFICATION or WHYIS")
         public String dialect = null;
-
         @Parameter(names = {"-l", "--lang"}, description = "language/format of the nanopublication file e.g., TRIG")
         public String lang = null;
-
         @Parameter(names = {"--retry-delay-s"}, description = "delay between retries")
         public int retrayDelayS = 1;
         @Parameter(names = {"--retry"}, description = "retry parsing a file n times after a short delay, defaults to no retries")

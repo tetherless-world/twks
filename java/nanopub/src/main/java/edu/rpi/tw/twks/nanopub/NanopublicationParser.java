@@ -24,6 +24,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -38,11 +42,24 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class NanopublicationParser {
     private final static Logger logger = LoggerFactory.getLogger(NanopublicationParser.class);
+    private final static Predicate<Path> specificationNanopublicationDirectoryFilter = (Path path) -> {
+        if (!Files.isRegularFile(path)) {
+            return false;
+        }
+        @Nullable final Lang sourceFileLang = RDFLanguages.filenameToLang(path.getFileName().toString());
+        if (sourceFileLang == null) {
+            logger.info("ignoring non-RDF file {}", path);
+            return false;
+        }
+        return true;
+    };
+    private final int concurrencyLevel;
     private final NanopublicationDialect dialect;
     private final Optional<Lang> lang;
     private final Metrics metrics;
 
-    public NanopublicationParser(final NanopublicationDialect dialect, final Optional<Lang> lang, final MetricRegistry metricRegistry) {
+    public NanopublicationParser(final int concurrencyLevel, final NanopublicationDialect dialect, final Optional<Lang> lang, final MetricRegistry metricRegistry) {
+        this.concurrencyLevel = concurrencyLevel;
         this.dialect = checkNotNull(dialect);
         this.lang = checkNotNull(lang);
         this.metrics = new Metrics(metricRegistry);
@@ -63,6 +80,10 @@ public class NanopublicationParser {
         }
         return builder;
     }
+
+//    private ImmutableList<Uri> getNanopublicationUris(final ImmutableList<Nanopublication> nanopublications) {
+//        return nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
+//    }
 
     private void parse(final RDFParser rdfParser, final NanopublicationConsumer consumer, final Optional<Uri> sourceUri) {
         final Dataset dataset = DatasetFactory.create();
@@ -113,10 +134,6 @@ public class NanopublicationParser {
         }
         consumer.accept(nanopublication);
     }
-
-//    private ImmutableList<Uri> getNanopublicationUris(final ImmutableList<Nanopublication> nanopublications) {
-//        return nanopublications.stream().map(nanopublication -> nanopublication.getUri()).collect(ImmutableList.toImmutableList());
-//    }
 
     public final ImmutableList<Nanopublication> parse(final String source) throws MalformedNanopublicationRuntimeException {
         final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
@@ -179,6 +196,12 @@ public class NanopublicationParser {
         return consumer.build();
     }
 
+//    public final ImmutableList<Nanopublication> parseDataset(final DatasetTransaction datasetTransaction) throws MalformedNanopublicationRuntimeException {
+//        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
+//        parseDataset(datasetTransaction, consumer);
+//        return consumer.build();
+//    }
+
     public final void parseDirectory(final Path sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
         if (getDialect() == NanopublicationDialect.SPECIFICATION) {
             parseSpecificationNanopublicationsDirectory(sourceDirectoryPath, consumer);
@@ -188,12 +211,6 @@ public class NanopublicationParser {
             throw new UnsupportedOperationException();
         }
     }
-
-//    public final ImmutableList<Nanopublication> parseDataset(final DatasetTransaction datasetTransaction) throws MalformedNanopublicationRuntimeException {
-//        final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
-//        parseDataset(datasetTransaction, consumer);
-//        return consumer.build();
-//    }
 
     public final ImmutableList<Nanopublication> parseFile(final Path filePath) throws MalformedNanopublicationRuntimeException {
         final CollectingNanopublicationConsumer consumer = new CollectingNanopublicationConsumer();
@@ -230,24 +247,27 @@ public class NanopublicationParser {
     }
 
     private void parseSpecificationNanopublicationsDirectory(final Path sourceDirectoryPath, final NanopublicationDirectoryConsumer consumer) {
-        // Assume it's a directory where every .trig file is a nanopublication.
-        final ImmutableList<Path> sourceFilePaths;
+        Stream<Path> sourceFilePathStream;
         try {
-            sourceFilePaths = Files.list(sourceDirectoryPath).collect(ImmutableList.toImmutableList());
+            sourceFilePathStream = Files.list(sourceDirectoryPath);
         } catch (final IOException e) {
             logger.info("error listing {}: ", sourceDirectoryPath, e);
             return;
         }
-        for (final Path sourceFilePath : sourceFilePaths) {
-            if (!Files.isRegularFile(sourceFilePath)) {
-                continue;
-            }
-            @Nullable final Lang sourceFileLang = RDFLanguages.filenameToLang(sourceFilePath.getFileName().toString());
-            if (sourceFileLang == null) {
-                logger.info("ignoring non-RDF file {}", sourceFilePath);
-                continue;
-            }
-            parseFile(sourceFilePath, new FileNanopublicationConsumer(consumer, sourceFilePath));
+
+        sourceFilePathStream = sourceFilePathStream.filter(specificationNanopublicationDirectoryFilter);
+
+        if (concurrencyLevel > 1) {
+            final ExecutorService executorService = Executors.newFixedThreadPool(concurrencyLevel);
+            sourceFilePathStream.forEach(sourceFilePath -> {
+                executorService.submit(() -> {
+                    parseFile(sourceFilePath, new FileNanopublicationConsumer(consumer, sourceFilePath));
+                });
+            });
+        } else {
+            sourceFilePathStream.forEach(sourceFilePath -> {
+                parseFile(sourceFilePath, new FileNanopublicationConsumer(consumer, sourceFilePath));
+            });
         }
     }
 
