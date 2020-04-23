@@ -23,29 +23,6 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> extends AbstractTwksTransaction<TwksT> {
-    //    private final static String GET_NANOPUBLICATION_DATASET_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
-//            "prefix : <%s>\n" +
-//            "select ?G ?S ?P ?O where {\n" +
-//            "  {graph ?G {: a np:Nanopublication}} union\n" +
-//            "  {graph ?H {: a np:Nanopublication {: np:hasAssertion ?G} union {: np:hasProvenance ?G} union {: np:hasPublicationInfo ?G}}}\n" +
-//            "  graph ?G {?S ?P ?O}\n" +
-//            "}";
-    private final static String GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
-            "prefix : <%s>\n" +
-            "select ?G where {\n" +
-            "  {graph ?G {: a np:Nanopublication}} union\n" +
-            "  {graph ?H {: a np:Nanopublication {: np:hasAssertion ?G} union {: np:hasProvenance ?G} union {: np:hasPublicationInfo ?G}}}\n" +
-            "  graph ?G {?S ?P ?O}\n" +
-            "}";
-    private final static String ITERATE_NANOPUBLICATIONS_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
-            "select ?A ?H ?I ?np ?P where {\n" +
-            "graph ?H {\n" +
-            "  ?np a np:Nanopublication .\n" +
-            "  ?np np:hasAssertion ?A .\n" +
-            "  ?np np:hasProvenance ?P .\n" +
-            "  ?np np:hasPublicationInfo ?I .\n" +
-            "}}";
-    private final static Query ITERATE_NANOPUBLICATIONS_QUERY = QueryFactory.create(ITERATE_NANOPUBLICATIONS_QUERY_STRING);
     private final static Logger logger = LoggerFactory.getLogger(QuadStoreTwksTransaction.class);
     private final QuadStoreTransaction quadStoreTransaction;
 
@@ -122,7 +99,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
 
     private ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri) {
         final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
-        try (final QueryExecution queryExecution = quadStoreTransaction.query(QueryFactory.create(String.format(GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING, nanopublicationUri)))) {
+        try (final QueryExecution queryExecution = quadStoreTransaction.query(QueryFactory.create(String.format(NanopublicationQueries.GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING_TEMPLATE, nanopublicationUri)))) {
             for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
                 final QuerySolution querySolution = resultSet.nextSolution();
                 final Resource g = querySolution.getResource("G");
@@ -145,7 +122,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
 
     @Override
     protected void getNanopublications(final NanopublicationConsumer consumer) {
-        try (final QueryExecution queryExecution = queryNanopublications(ITERATE_NANOPUBLICATIONS_QUERY)) {
+        try (final QueryExecution queryExecution = queryNanopublications(NanopublicationQueries.ITERATE_NANOPUBLICATIONS_QUERY)) {
             final ResultSet resultSet = queryExecution.execSelect();
             while (resultSet.hasNext()) {
                 final QuerySolution querySolution = resultSet.nextSolution();
