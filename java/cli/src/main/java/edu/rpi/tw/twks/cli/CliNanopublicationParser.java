@@ -37,7 +37,15 @@ public final class CliNanopublicationParser extends NanopublicationParser {
 
     @Override
     public final void parseFile(final Path sourceFilePath, final NanopublicationConsumer consumer) {
-        final int tryMax = (retry > 0 ? retry + 1 : 1);
+        if (retry == 0) {
+            super.parseFile(sourceFilePath, consumer);
+        } else {
+            parseFileWithRetry(sourceFilePath, consumer);
+        }
+    }
+
+    private void parseFileWithRetry(final Path sourceFilePath, final NanopublicationConsumer consumer) {
+        final int tryMax = retry + 1;
         for (int tryI = 0; tryI < tryMax; tryI++) {
             try {
                 final BoxedBoolean parsedNanopublication = new BoxedBoolean();

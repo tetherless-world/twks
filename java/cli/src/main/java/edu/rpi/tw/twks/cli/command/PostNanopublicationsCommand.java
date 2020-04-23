@@ -56,9 +56,10 @@ public final class PostNanopublicationsCommand extends Command {
     }
 
     public final static class Args extends CliNanopublicationParser.Args {
+        @Parameter(names = {"--continue-on-malformed-nanopublication"})
+        boolean continueOnMalformedNanopublication = false;
         @Parameter(names = {"--nanopublications-buffer-size"}, description = "nanopublications buffer size")
         int nanopublicationsBufferSize = 10;
-
         @Parameter(required = true, description = "1+ nanopublication or assertion file path(s) or URI(s), or - for stdin")
         List<String> sources = new ArrayList<>();
     }
@@ -95,7 +96,11 @@ public final class PostNanopublicationsCommand extends Command {
 
         @Override
         public final void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
-            throw new MalformedNanopublicationRuntimeException(exception);
+            if (args.continueOnMalformedNanopublication) {
+                logger.error("malformed nanopublication exception: ", exception);
+            } else {
+                throw new MalformedNanopublicationRuntimeException(exception);
+            }
         }
     }
 }

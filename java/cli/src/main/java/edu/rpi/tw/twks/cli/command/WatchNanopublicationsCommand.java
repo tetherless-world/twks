@@ -33,6 +33,10 @@ public final class WatchNanopublicationsCommand extends Command {
     private @Nullable
     NanopublicationsDirectoryWatcher watcher = null;
 
+    public WatchNanopublicationsCommand() {
+        args.retry = 5;
+    }
+
     @Override
     public final String[] getAliases() {
         return ALIASES;
