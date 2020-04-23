@@ -482,49 +482,12 @@ public class NanopublicationParser {
         }
 
         /**
-         * Get the head named graphs in the Dataset.
-         *
-         * @return a map of nanopublication URI -> head
-         * @throws MalformedNanopublicationException
-         */
-        private Map<Uri, NanopublicationPart> getHeads(final Set<String> unusedDatasetModelNames) throws MalformedNanopublicationException {
-            try (final Timer.Context timerContext = metrics.getDatasetNanopublicationHeadsTimer.time()) {
-                final Map<Uri, NanopublicationPart> headsByNanopublicationUri = new HashMap<>();
-                for (final Iterator<String> unusedDatasetModelNameI = unusedDatasetModelNames.iterator(); unusedDatasetModelNameI.hasNext(); ) {
-                    final String modelName = unusedDatasetModelNameI.next();
-                    final Model model = dataset.getNamedModel(modelName);
-                    final List<Resource> nanopublicationResources = model.listSubjectsWithProperty(RDF.type, NANOPUB.Nanopublication).toList();
-                    switch (nanopublicationResources.size()) {
-                        case 0:
-                            continue;
-                        case 1:
-                            final Resource nanopublicationResource = nanopublicationResources.get(0);
-                            if (nanopublicationResource.getURI() == null) {
-                                throw new MalformedNanopublicationException("nanopublication resource is a blank node");
-                            }
-                            final Uri nanopublicationUri = Uri.parse(nanopublicationResource.getURI());
-                            if (headsByNanopublicationUri.containsKey(nanopublicationUri)) {
-                                throw new MalformedNanopublicationException(String.format("duplicate nanopublication URI %s", nanopublicationUri));
-                            }
-                            headsByNanopublicationUri.put(nanopublicationUri, new NanopublicationPart(model, Uri.parse(modelName)));
-                            unusedDatasetModelNameI.remove();
-                            break;
-                        default:
-                            // Specification: There is exactly one quad of the form '[N] rdf:type np:Nanopublication [H]', which identifies [N] as the nanopublication URI, and [H] as the head URI
-                            throw new MalformedNanopublicationException(String.format("nanopublication head graph %s has more than one rdf:type Nanopublication", modelName));
-                    }
-                }
-                return headsByNanopublicationUri;
-            }
-        }
-
-        /**
          * Get the named model in a dataset that correspond to part of a nanopublication e.g., the named assertion graph.
          * The dataset contains
          * <nanopublication URI> nanopub:hasAssertion <assertion graph URI> .
          * The same goes for nanopub:hasProvenance and nanopub:hasPublicationInfo.
          */
-        private NanopublicationPart getNanopublicationPart(final NanopublicationPart head, final Uri nanopublicationUri, final Property partProperty, final Set<String> unusedDatasetModelNames) throws MalformedNanopublicationException {
+        private NanopublicationPart getNanopublicationPart(final NanopublicationPart head, final Uri nanopublicationUri, final Property partProperty, final Set<String> usedDatasetModelNames) throws MalformedNanopublicationException {
             final List<RDFNode> partRdfNodes = head.getModel().listObjectsOfProperty(ResourceFactory.createResource(nanopublicationUri.toString()), partProperty).toList();
 
             switch (partRdfNodes.size()) {
@@ -559,7 +522,8 @@ public class NanopublicationParser {
                 throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to an empty named graph (%s)", nanopublicationUri, partProperty, partResource));
             }
 
-            if (!unusedDatasetModelNames.remove(partModelName) && !dialect.allowPartUriReuse()) {
+            // add returns true if the added element was NOT already in the set
+            if (!usedDatasetModelNames.add(partModelName) && !dialect.allowPartUriReuse()) {
                 throw new MalformedNanopublicationException(String.format("nanopublication %s %s refers to a named graph that has already been used by another nanopublication", nanopublicationUri, partProperty, partResource));
             }
 
@@ -569,80 +533,88 @@ public class NanopublicationParser {
         }
 
         public final void parse(final NanopublicationConsumer consumer) {
-            final Set<String> unusedDatasetModelNames = new HashSet<>();
-            dataset.listNames().forEachRemaining(modelName -> {
-                if (unusedDatasetModelNames.contains(modelName)) {
-                    throw new IllegalStateException();
-                }
-                unusedDatasetModelNames.add(modelName);
-            });
-
-            final Iterator<Map.Entry<Uri, NanopublicationPart>> headEntryI;
-
             // Specification: All triples must be placed in one of [H] or [A] or [P] or [I]
-            try {
-                if (!dialect.allowDefaultModelStatements() && !dataset.getDefaultModel().isEmpty()) {
-                    throw new MalformedNanopublicationException("dataset contains statements in the default model");
-                }
-
-                headEntryI = getHeads(unusedDatasetModelNames).entrySet().iterator();
-            } catch (final MalformedNanopublicationException e) {
-                throw new MalformedNanopublicationRuntimeException(e);
+            if (!dialect.allowDefaultModelStatements() && !dataset.getDefaultModel().isEmpty()) {
+                consumer.onMalformedNanopublicationException(new MalformedNanopublicationException("dataset contains statements in the default model"));
+                return;
             }
 
-            while (headEntryI.hasNext()) {
+            final Set<String> usedDatasetModelNames = new HashSet<>();
+
+            for (final Iterator<String> datasetModelNameI = dataset.listNames(); datasetModelNameI.hasNext(); ) {
+                final String modelName = datasetModelNameI.next();
+                final Model model = dataset.getNamedModel(modelName);
+
                 final Nanopublication nanopublication;
                 try (final Timer.Context timerContext = metrics.parseDatasetNanopublicationTimer.time()) {
-                    final Map.Entry<Uri, NanopublicationPart> headEntry = headEntryI.next();
-                    final Uri nanopublicationUri = headEntry.getKey();
-                    final NanopublicationPart head = headEntry.getValue();
+                    final NanopublicationPart head;
+                    final Uri nanopublicationUri;
 
-                    try {
-                        // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasAssertion [A] [H]', which identifies [A] as the assertion URI
-                        final NanopublicationPart assertion = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasAssertion, unusedDatasetModelNames);
-                        // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasProvenance [P] [H]', which identifies [P] as the provenance URI
-                        final NanopublicationPart provenance = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasProvenance, unusedDatasetModelNames);
-                        // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
-                        final NanopublicationPart publicationInfo = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasPublicationInfo, unusedDatasetModelNames);
-
-                        if (dialect == NanopublicationDialect.SPECIFICATION) {
-                            nanopublication = SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
-                        } else {
-                            // Don't respect the part names of non-specification dialects. Causes too many problems if the dialect differs too much from the spec.
-                            // Take the part models and create a new nanopublication from scratch.
-                            // Do respect the nanopublication URI. We need it to ensure the nanopublication can be updated or deleted later.
-                            final NanopublicationBuilder nanopublicationBuilder = Nanopublication.builder(nanopublicationUri);
-
-                            // Take assertions as-is
-                            nanopublicationBuilder.getAssertionBuilder().setModel(assertion.getModel());
-
-                            // Rewrite provenance statements to refer to the new assertion part URI
-                            // Will do that below, once we've got the new assertion part URI
-                            final Model rewrittenProvenanceModel = ModelFactory.createDefaultModel();
-                            nanopublicationBuilder.getProvenanceBuilder().setModel(rewrittenProvenanceModel);
-
-                            // Don't need to rewrite publication info, since it's only
-                            nanopublicationBuilder.getPublicationInfoBuilder().setModel(publicationInfo.getModel());
-
-                            nanopublication = nanopublicationBuilder.build();
-
-                            // Rewrite statements of the provenance that referred to the assertion part
-                            final Resource newAssertionPartResource = ResourceFactory.createResource(nanopublication.getProvenance().getName().toString());
-                            final Resource oldAssertionPartResource = ResourceFactory.createResource(provenance.getName().toString());
-                            for (final StmtIterator statementI = provenance.getModel().listStatements(); statementI.hasNext(); ) {
-                                final Statement statement = statementI.next();
-                                if (statement.getSubject().equals(oldAssertionPartResource)) {
-                                    rewrittenProvenanceModel.add(newAssertionPartResource, statement.getPredicate(), statement.getObject());
-                                } else {
-                                    rewrittenProvenanceModel.add(statement);
-                                }
+                    final List<Resource> nanopublicationResources = model.listSubjectsWithProperty(RDF.type, NANOPUB.Nanopublication).toList();
+                    switch (nanopublicationResources.size()) {
+                        case 0:
+                            continue;
+                        case 1:
+                            final Resource nanopublicationResource = nanopublicationResources.get(0);
+                            if (nanopublicationResource.getURI() == null) {
+                                throw new MalformedNanopublicationException("nanopublication resource is a blank node");
                             }
-                            // rewrittenProvenanceModel is already in the nanopublication
-                        }
-                    } catch (final MalformedNanopublicationException e) {
-                        consumer.onMalformedNanopublicationException(e);
-                        continue;
+                            nanopublicationUri = Uri.parse(nanopublicationResource.getURI());
+                            //                        if (headsByNanopublicationUri.containsKey(nanopublicationUri)) {
+                            //                            throw new MalformedNanopublicationException(String.format("duplicate nanopublication URI %s", nanopublicationUri));
+                            //                        }
+                            head = new NanopublicationPart(model, Uri.parse(modelName));
+//                            usedDatasetModelNames.add(modelName);
+                            break;
+                        default:
+                            // Specification: There is exactly one quad of the form '[N] rdf:type np:Nanopublication [H]', which identifies [N] as the nanopublication URI, and [H] as the head URI
+                            throw new MalformedNanopublicationException(String.format("nanopublication head graph %s has more than one rdf:type Nanopublication", modelName));
                     }
+
+                    // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasAssertion [A] [H]', which identifies [A] as the assertion URI
+                    final NanopublicationPart assertion = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasAssertion, usedDatasetModelNames);
+                    // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasProvenance [P] [H]', which identifies [P] as the provenance URI
+                    final NanopublicationPart provenance = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasProvenance, usedDatasetModelNames);
+                    // Specification: Given the nanopublication URI [N] and its head URI [H], there is exactly one quad of the form '[N] np:hasPublicationInfo [I] [H]', which identifies [I] as the publication information URI
+                    final NanopublicationPart publicationInfo = getNanopublicationPart(head, nanopublicationUri, NANOPUB.hasPublicationInfo, usedDatasetModelNames);
+
+                    if (dialect == NanopublicationDialect.SPECIFICATION) {
+                        nanopublication = SpecificationNanopublicationDialect.createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
+                    } else {
+                        // Don't respect the part names of non-specification dialects. Causes too many problems if the dialect differs too much from the spec.
+                        // Take the part models and create a new nanopublication from scratch.
+                        // Do respect the nanopublication URI. We need it to ensure the nanopublication can be updated or deleted later.
+                        final NanopublicationBuilder nanopublicationBuilder = Nanopublication.builder(nanopublicationUri);
+
+                        // Take assertions as-is
+                        nanopublicationBuilder.getAssertionBuilder().setModel(assertion.getModel());
+
+                        // Rewrite provenance statements to refer to the new assertion part URI
+                        // Will do that below, once we've got the new assertion part URI
+                        final Model rewrittenProvenanceModel = ModelFactory.createDefaultModel();
+                        nanopublicationBuilder.getProvenanceBuilder().setModel(rewrittenProvenanceModel);
+
+                        // Don't need to rewrite publication info, since it's only
+                        nanopublicationBuilder.getPublicationInfoBuilder().setModel(publicationInfo.getModel());
+
+                        nanopublication = nanopublicationBuilder.build();
+
+                        // Rewrite statements of the provenance that referred to the assertion part
+                        final Resource newAssertionPartResource = ResourceFactory.createResource(nanopublication.getProvenance().getName().toString());
+                        final Resource oldAssertionPartResource = ResourceFactory.createResource(provenance.getName().toString());
+                        for (final StmtIterator statementI = provenance.getModel().listStatements(); statementI.hasNext(); ) {
+                            final Statement statement = statementI.next();
+                            if (statement.getSubject().equals(oldAssertionPartResource)) {
+                                rewrittenProvenanceModel.add(newAssertionPartResource, statement.getPredicate(), statement.getObject());
+                            } else {
+                                rewrittenProvenanceModel.add(statement);
+                            }
+                        }
+                        // rewrittenProvenanceModel is already in the nanopublication
+                    }
+                } catch (final MalformedNanopublicationException e) {
+                    consumer.onMalformedNanopublicationException(e);
+                    continue;
                 }
 
                 consumer.accept(nanopublication);
