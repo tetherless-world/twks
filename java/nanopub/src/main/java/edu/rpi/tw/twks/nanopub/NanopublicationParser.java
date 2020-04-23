@@ -32,7 +32,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * In the latter case parser exceptions (e.g., MalformedNanopublicationException) are thrown as runtime exceptions.
  */
 public class NanopublicationParser {
-    public final static NanopublicationParser SPECIFICATION = new NanopublicationParser(NanopublicationDialect.SPECIFICATION, Optional.empty());
     private final static Logger logger = LoggerFactory.getLogger(NanopublicationParser.class);
     private final NanopublicationDialect dialect;
     private final Optional<Lang> lang;
