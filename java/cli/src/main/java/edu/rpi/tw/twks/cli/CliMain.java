@@ -110,7 +110,7 @@ public final class CliMain {
         @Nullable ConsoleReporter reporter = null;
         if (globalArgs.reportMetrics) {
             reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).build();
-            reporter.start(1, TimeUnit.SECONDS);
+            reporter.start(30, TimeUnit.SECONDS);
         }
 
         command.run(client, metricRegistry);

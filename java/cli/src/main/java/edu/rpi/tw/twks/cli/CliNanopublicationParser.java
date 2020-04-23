@@ -62,7 +62,7 @@ public final class CliNanopublicationParser extends NanopublicationParser {
             } catch (final MalformedNanopublicationRuntimeException e) {
             }
 
-            logger.error("error parsing {}", sourceFilePath);
+            logger.error("error parsing {}, try {}", sourceFilePath, tryI);
             if (tryI + 1 < tryMax) {
                 logger.error("retrying {} parse after {} seconds", sourceFilePath, retryDelayS);
                 try {
