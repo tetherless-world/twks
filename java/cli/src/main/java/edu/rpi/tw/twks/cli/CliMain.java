@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.cli;
 import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksClient;
@@ -18,11 +19,13 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public final class CliMain {
     private final static Command[] commands = {
@@ -83,29 +86,37 @@ public final class CliMain {
 
         globalArgs.configuration.forEach((key, value) -> configurationProperties.setProperty(key, value));
 
-        {
-            final TwksFactoryConfiguration.Builder configurationBuilder = TwksFactoryConfiguration.builder().setFromEnvironment().set(configurationProperties);
-            if (configurationBuilder.isDirty()) {
-                final TwksFactoryConfiguration configuration = configurationBuilder.build();
-                final Twks twks = TwksFactory.getInstance().createTwks(configuration);
-                logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);
+        final TwksClient client;
 
-                command.run(new DirectTwksClient(twks), metricRegistry);
-                return;
-            }
-        }
-
-        {
+        final TwksFactoryConfiguration.Builder configurationBuilder = TwksFactoryConfiguration.builder().setFromEnvironment().set(configurationProperties);
+        if (configurationBuilder.isDirty()) {
+            // Write to a TWKS instance directly in the CLI process.
+            final TwksFactoryConfiguration configuration = configurationBuilder.build();
+            final Twks twks = TwksFactory.getInstance().createTwks(configuration);
+            logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);
+            client = new DirectTwksClient(twks);
+        } else {
+            // Write to a TWKS server.
             final RestTwksClientConfiguration.Builder clientConfigurationBuilder = RestTwksClientConfiguration.builder();
             clientConfigurationBuilder.setFromEnvironment();
             // Support both -Dkey=value and -Dtwks.key=value
             clientConfigurationBuilder.set(configurationProperties);
             clientConfigurationBuilder.set(configurationProperties.subset("twks"));
             final RestTwksClientConfiguration clientConfiguration = clientConfigurationBuilder.build();
-            final TwksClient client = new RestTwksClient(clientConfiguration);
             logger.debug("using client with configuration {}", clientConfiguration);
+            client = new RestTwksClient(clientConfiguration);
+        }
 
-            command.run(client, metricRegistry);
+        @Nullable ConsoleReporter reporter = null;
+        if (globalArgs.reportMetrics) {
+            reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).build();
+            reporter.start(1, TimeUnit.SECONDS);
+        }
+
+        command.run(client, metricRegistry);
+
+        if (reporter != null) {
+            reporter.report();
         }
     }
 
@@ -118,6 +129,9 @@ public final class CliMain {
 
         @Parameter(names = {"-h", "--help"})
         boolean help = false;
+
+        @Parameter(names = {"--report-metrics"})
+        boolean reportMetrics = false;
 
         @Parameter(names = {"-v", "--version"})
         boolean version = false;
