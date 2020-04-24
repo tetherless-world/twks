@@ -624,7 +624,15 @@ public class NanopublicationParser {
 
             try (final QueryExecution queryExecution = QueryExecutionFactory.create(NanopublicationQueries.ITERATE_NANOPUBLICATIONS_QUERY, dataset)) {
                 final ResultSet resultSet = queryExecution.execSelect();
-                while (resultSet.hasNext()) {
+                while (true) {
+                    try {
+                        if (!resultSet.hasNext()) {
+                            break;
+                        }
+                    } catch (final ConcurrentModificationException e) {
+                        // Seems to be a bug in Jena for malformed nanopublications
+                        break;
+                    }
                     final Nanopublication nanopublication;
                     try (final Timer.Context timerContext = metrics.parseDatasetNanopublicationTimer.time()) {
                         final QuerySolution querySolution = resultSet.nextSolution();
