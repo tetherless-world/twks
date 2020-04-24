@@ -4,8 +4,11 @@ import com.beust.jcommander.Parameter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.google.common.collect.ImmutableList;
+import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksClient;
+import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.rpi.tw.twks.cli.CliNanopublicationParser;
+import edu.rpi.tw.twks.client.direct.DirectTwksClient;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationRuntimeException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
@@ -13,6 +16,7 @@ import edu.rpi.tw.twks.nanopub.NanopublicationConsumer;
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
+import org.apache.jena.query.ReadWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,17 +54,17 @@ public final class PostNanopublicationsCommand extends Command {
                     .setInitialMax(0)
                     .setTaskName("Posted nanopublications")
                     .setConsumer(new DelegatingProgressBarConsumer(logger::info))
+                    .setUpdateIntervalMillis(5000)
                     .showSpeed()
                     .build()) {
-                run(client, metricRegistry, Optional.of(progressBar));
+                runWithProgressBar(client, metricRegistry, Optional.of(progressBar));
             }
         } else {
-            run(client, metricRegistry, Optional.empty());
+            runWithProgressBar(client, metricRegistry, Optional.empty());
         }
     }
 
-    private void run(final TwksClient client, final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar) {
-        final BufferingNanopublicationConsumer consumer = new BufferingNanopublicationConsumer(client, metricRegistry, progressBar);
+    private void runWithNanopublicationConsumer(final BufferingNanopublicationConsumer consumer, final MetricRegistry metricRegistry) {
         final CliNanopublicationParser parser = new CliNanopublicationParser(args, metricRegistry);
 
         if (args.sources.isEmpty()) {
@@ -74,6 +78,18 @@ public final class PostNanopublicationsCommand extends Command {
         consumer.flush();
     }
 
+    private void runWithProgressBar(final TwksClient client, final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar) {
+        if (client instanceof DirectTwksClient) {
+            // Performance optimization: run the entire post within a single transaction.
+            final Twks twks = ((DirectTwksClient) client).getTwks();
+            try (final TwksTransaction transaction = twks.beginTransaction(ReadWrite.WRITE)) {
+                runWithNanopublicationConsumer(new DirectBufferingNanopublicationConsumer(metricRegistry, progressBar, transaction), metricRegistry);
+            }
+        } else {
+            runWithNanopublicationConsumer(new ClientBufferingNanopublicationConsumer(client, metricRegistry, progressBar), metricRegistry);
+        }
+    }
+
     public final static class Args extends CliNanopublicationParser.Args {
         @Parameter(names = {"--continue-on-malformed-nanopublication"})
         boolean continueOnMalformedNanopublication = false;
@@ -85,16 +101,14 @@ public final class PostNanopublicationsCommand extends Command {
         List<String> sources = new ArrayList<>();
     }
 
-    private final class BufferingNanopublicationConsumer implements NanopublicationConsumer {
-        private final TwksClient client;
+    private abstract class BufferingNanopublicationConsumer implements NanopublicationConsumer {
         private final List<Nanopublication> nanopublicationsBuffer = new ArrayList<>();
         private final Timer postNanopublicationsTimer;
         private final Optional<ProgressBar> progressBar;
         private int postedNanopublicationsCount = 0;
 
-        public BufferingNanopublicationConsumer(final TwksClient client, final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar) {
+        public BufferingNanopublicationConsumer(final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar) {
             postNanopublicationsTimer = metricRegistry.timer(MetricRegistry.name(PostNanopublicationsCommand.class, "postNanopublicationsTimer"));
-            this.client = checkNotNull(client);
             this.progressBar = checkNotNull(progressBar);
         }
 
@@ -137,13 +151,44 @@ public final class PostNanopublicationsCommand extends Command {
 
         private void postNanopublications(final ImmutableList<Nanopublication> nanopublicationsToPost) {
             try (final Timer.Context timerContext = postNanopublicationsTimer.time()) {
-                client.postNanopublications(nanopublicationsToPost);
+                postNanopublicationsImpl(nanopublicationsToPost);
             }
             postedNanopublicationsCount += nanopublicationsToPost.size();
-//            logger.info("posted {} new nanopublication(s) ({} total)", nanopublicationsToPost.size(), postedNanopublicationsCount);
             if (progressBar.isPresent()) {
                 progressBar.get().stepBy(nanopublicationsToPost.size());
+            } else {
+                logger.info("posted {} new nanopublication(s) ({} total)", nanopublicationsToPost.size(), postedNanopublicationsCount);
             }
+        }
+
+        protected abstract void postNanopublicationsImpl(ImmutableList<Nanopublication> nanopublicationsToPost);
+    }
+
+    private final class ClientBufferingNanopublicationConsumer extends BufferingNanopublicationConsumer {
+        private final TwksClient client;
+
+        public ClientBufferingNanopublicationConsumer(final TwksClient client, final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar) {
+            super(metricRegistry, progressBar);
+            this.client = checkNotNull(client);
+        }
+
+        @Override
+        protected void postNanopublicationsImpl(final ImmutableList<Nanopublication> nanopublicationsToPost) {
+            client.postNanopublications(nanopublicationsToPost);
+        }
+    }
+
+    private final class DirectBufferingNanopublicationConsumer extends BufferingNanopublicationConsumer {
+        private final TwksTransaction transaction;
+
+        public DirectBufferingNanopublicationConsumer(final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar, final TwksTransaction transaction) {
+            super(metricRegistry, progressBar);
+            this.transaction = checkNotNull(transaction);
+        }
+
+        @Override
+        protected final void postNanopublicationsImpl(final ImmutableList<Nanopublication> nanopublicationsToPost) {
+            transaction.postNanopublications(nanopublicationsToPost);
         }
     }
 }

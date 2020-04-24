@@ -25,77 +25,84 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class DirectTwksClient implements TwksClient {
-    private final Twks delegate;
+    private final Twks twks;
 
     public DirectTwksClient(final Twks twks) {
-        this.delegate = checkNotNull(twks);
+        this.twks = checkNotNull(twks);
     }
 
     @Override
     public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
-        return delegate.deleteNanopublication(uri);
+        return twks.deleteNanopublication(uri);
     }
 
     @Override
     public final ImmutableList<DeleteNanopublicationResult> deleteNanopublications(final ImmutableList<Uri> uris) {
-        return delegate.deleteNanopublications(uris);
+        return twks.deleteNanopublications(uris);
     }
 
     @Override
     public final void deleteNanopublications() {
-        delegate.deleteNanopublications();
+        twks.deleteNanopublications();
     }
 
     @Override
     public final void dump() throws IOException {
-        delegate.dump();
+        twks.dump();
     }
 
     @Override
     public final Model getAssertions() {
-        return delegate.getAssertions();
+        return twks.getAssertions();
     }
 
     @Override
     public final TwksVersion getClientVersion() {
-        return delegate.getVersion();
+        return twks.getVersion();
     }
 
     @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
-        return delegate.getNanopublication(uri);
+        return twks.getNanopublication(uri);
     }
 
     @Override
     public final Model getOntologyAssertions(final ImmutableSet<Uri> ontologyUris) {
-        return delegate.getOntologyAssertions(ontologyUris);
+        return twks.getOntologyAssertions(ontologyUris);
     }
 
     @Override
     public final TwksVersion getServerVersion() {
-        return delegate.getVersion();
+        return twks.getVersion();
+    }
+
+    /**
+     * Expose the underlying TWKS so that client users (e.g., the CLI) can get at it for performance reasons.
+     */
+    public final Twks getTwks() {
+        return twks;
     }
 
     @Override
     public final ImmutableList<PutNanopublicationResult> postNanopublications(final ImmutableList<Nanopublication> nanopublications) {
-        return delegate.postNanopublications(nanopublications);
+        return twks.postNanopublications(nanopublications);
     }
 
     @Override
     public final PutNanopublicationResult putNanopublication(final Nanopublication nanopublication) {
-        return delegate.putNanopublication(nanopublication);
+        return twks.putNanopublication(nanopublication);
     }
 
     @Override
     public final QueryExecution queryAssertions(final Query query) {
-        final TwksTransaction transaction = delegate.beginTransaction(ReadWrite.READ);
+        final TwksTransaction transaction = twks.beginTransaction(ReadWrite.READ);
         final QueryExecution queryExecution = transaction.queryAssertions(query);
         return new TransactionalQueryExecution(queryExecution, transaction);
     }
 
     @Override
     public final QueryExecution queryNanopublications(final Query query) {
-        final TwksTransaction transaction = delegate.beginTransaction(ReadWrite.READ);
+        final TwksTransaction transaction = twks.beginTransaction(ReadWrite.READ);
         final QueryExecution queryExecution = transaction.queryNanopublications(query);
         return new TransactionalQueryExecution(queryExecution, transaction);
     }
