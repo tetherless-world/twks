@@ -132,17 +132,21 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
                 final String nanopublicationPublicationInfoGraphName = querySolution.getResource("I").getURI();
                 final String nanopublicationUri = querySolution.getResource("np").getURI();
 
+                final Nanopublication nanopublication;
                 try {
-                    consumer.accept(SpecificationNanopublicationDialect.createNanopublicationFromParts(
+                    nanopublication = SpecificationNanopublicationDialect.createNanopublicationFromParts(
                             getNanopublicationPart(nanopublicationAssertionGraphName),
                             Uri.parse(nanopublicationHeadGraphName),
                             Uri.parse(nanopublicationUri),
                             getNanopublicationPart(nanopublicationProvenanceGraphName),
                             getNanopublicationPart(nanopublicationPublicationInfoGraphName)
-                    ));
+                    );
                 } catch (final MalformedNanopublicationException e) {
                     consumer.onMalformedNanopublicationException(e);
+                    continue;
                 }
+
+                consumer.accept(nanopublication);
             }
         }
     }
