@@ -49,6 +49,10 @@ public final class PostNanopublicationsCommand extends Command {
 
     @Override
     public void run(final TwksClient client, final MetricRegistry metricRegistry) {
+        if (client instanceof DirectTwksClient && args.concurrencyLevel > 1) {
+            throw new IllegalArgumentException("TWKS transactions are not thread-safe, so multi-threaded parsing is not supported when writing directly to a TWKS instance.");
+        }
+
         if (args.reportProgress) {
             try (final ProgressBar progressBar = new ProgressBarBuilder()
                     .setInitialMax(0)
@@ -84,6 +88,7 @@ public final class PostNanopublicationsCommand extends Command {
             final Twks twks = ((DirectTwksClient) client).getTwks();
             try (final TwksTransaction transaction = twks.beginTransaction(ReadWrite.WRITE)) {
                 runWithNanopublicationConsumer(new DirectBufferingNanopublicationConsumer(metricRegistry, progressBar, transaction), metricRegistry);
+                transaction.commit();
             }
         } else {
             runWithNanopublicationConsumer(new ClientBufferingNanopublicationConsumer(client, metricRegistry, progressBar), metricRegistry);
