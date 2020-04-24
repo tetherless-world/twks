@@ -619,6 +619,7 @@ public class NanopublicationParser {
          * Parse nanopublications from the Dataset by querying for the respective parts with SPARQL.
          */
         private void parseByQuerying(final NanopublicationConsumer consumer) {
+            final Set<Uri> nanopublicationUris = new HashSet<>();
             final Set<String> usedDatasetModelNames = new HashSet<>();
 
             try (final QueryExecution queryExecution = QueryExecutionFactory.create(NanopublicationQueries.ITERATE_NANOPUBLICATIONS_QUERY, dataset)) {
@@ -630,6 +631,10 @@ public class NanopublicationParser {
 
                         try {
                             final Uri nanopublicationUri = Uri.parse(getNanopublicationPartResource(querySolution, "np").getURI());
+                            if (!nanopublicationUris.add(nanopublicationUri)) {
+                                throw new MalformedNanopublicationException("duplicate nanopublication URI: " + nanopublicationUri);
+                            }
+
                             final NanopublicationPart assertion = getNanopublicationPartByModelName(nanopublicationUri, getNanopublicationPartResource(querySolution, "A").getURI(), usedDatasetModelNames);
                             final NanopublicationPart head = getNanopublicationPartByModelName(nanopublicationUri, getNanopublicationPartResource(querySolution, "H").getURI(), usedDatasetModelNames);
                             final NanopublicationPart provenance = getNanopublicationPartByModelName(nanopublicationUri, getNanopublicationPartResource(querySolution, "P").getURI(), usedDatasetModelNames);
