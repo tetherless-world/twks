@@ -10,6 +10,9 @@ import edu.rpi.tw.twks.nanopub.MalformedNanopublicationException;
 import edu.rpi.tw.twks.nanopub.MalformedNanopublicationRuntimeException;
 import edu.rpi.tw.twks.nanopub.Nanopublication;
 import edu.rpi.tw.twks.nanopub.NanopublicationConsumer;
+import me.tongfei.progressbar.DelegatingProgressBarConsumer;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,17 +46,24 @@ public final class PostNanopublicationsCommand extends Command {
     public void run(final TwksClient client, final MetricRegistry metricRegistry) {
         final CliNanopublicationParser parser = new CliNanopublicationParser(args, metricRegistry);
 
-        final BufferingNanopublicationConsumer consumer = new BufferingNanopublicationConsumer(metricRegistry, client);
+        try (final ProgressBar progressBar = new ProgressBarBuilder()
+                .setInitialMax(0)
+                .setTaskName("Posted nanopublications")
+                .setConsumer(new DelegatingProgressBarConsumer(logger::info))
+                .showSpeed()
+                .build()) {
+            final BufferingNanopublicationConsumer consumer = new BufferingNanopublicationConsumer(client, metricRegistry, progressBar);
 
-        if (args.sources.isEmpty()) {
-            parser.parseStdin(consumer);
-        } else {
-            for (final String source : args.sources) {
-                parser.parse(source, consumer);
+            if (args.sources.isEmpty()) {
+                parser.parseStdin(consumer);
+            } else {
+                for (final String source : args.sources) {
+                    parser.parse(source, consumer);
+                }
             }
-        }
 
-        consumer.flush();
+            consumer.flush();
+        }
     }
 
     public final static class Args extends CliNanopublicationParser.Args {
@@ -66,14 +76,16 @@ public final class PostNanopublicationsCommand extends Command {
     }
 
     private final class BufferingNanopublicationConsumer implements NanopublicationConsumer {
+        private final TwksClient client;
         private final List<Nanopublication> nanopublicationsBuffer = new ArrayList<>();
         private final Timer postNanopublicationsTimer;
-        private final TwksClient twksClient;
+        private final ProgressBar progressBar;
         private int postedNanopublicationsCount = 0;
 
-        public BufferingNanopublicationConsumer(final MetricRegistry metricRegistry, final TwksClient twksClient) {
+        public BufferingNanopublicationConsumer(final TwksClient client, final MetricRegistry metricRegistry, final ProgressBar progressBar) {
             postNanopublicationsTimer = metricRegistry.timer(MetricRegistry.name(PostNanopublicationsCommand.class, "postNanopublicationsTimer"));
-            this.twksClient = checkNotNull(twksClient);
+            this.client = checkNotNull(client);
+            this.progressBar = checkNotNull(progressBar);
         }
 
         @Override
@@ -115,10 +127,11 @@ public final class PostNanopublicationsCommand extends Command {
 
         private void postNanopublications(final ImmutableList<Nanopublication> nanopublicationsToPost) {
             try (final Timer.Context timerContext = postNanopublicationsTimer.time()) {
-                twksClient.postNanopublications(nanopublicationsToPost);
+                client.postNanopublications(nanopublicationsToPost);
             }
             postedNanopublicationsCount += nanopublicationsToPost.size();
-            logger.info("posted {} new nanopublication(s) ({} total)", nanopublicationsToPost.size(), postedNanopublicationsCount);
+//            logger.info("posted {} new nanopublication(s) ({} total)", nanopublicationsToPost.size(), postedNanopublicationsCount);
+            progressBar.stepBy(nanopublicationsToPost.size());
         }
     }
 }
