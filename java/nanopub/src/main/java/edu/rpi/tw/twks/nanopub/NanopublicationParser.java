@@ -658,16 +658,16 @@ public class NanopublicationParser {
             // Do respect the nanopublication URI. We need it to ensure the nanopublication can be updated or deleted later.
             final NanopublicationBuilder nanopublicationBuilder = Nanopublication.builder(nanopublicationUri);
 
-            // Take assertions as-is
-            nanopublicationBuilder.getAssertionBuilder().setModel(assertion.getModel());
+            // Take assertions as-is.
+            // We have to copy out to avoid mutating the underlying Dataset while we're traversing it.
+            nanopublicationBuilder.getAssertionBuilder().getModel().add(assertion.getModel());
 
             // Rewrite provenance statements to refer to the new assertion part URI
             // Will do that below, once we've got the new assertion part URI
-            final Model rewrittenProvenanceModel = ModelFactory.createDefaultModel();
-            nanopublicationBuilder.getProvenanceBuilder().setModel(rewrittenProvenanceModel);
+            final Model rewrittenProvenanceModel = nanopublicationBuilder.getProvenanceBuilder().getModel();
 
             // Don't need to rewrite publication info, since it's only
-            nanopublicationBuilder.getPublicationInfoBuilder().setModel(publicationInfo.getModel());
+            nanopublicationBuilder.getPublicationInfoBuilder().getModel().add(publicationInfo.getModel());
 
             final Nanopublication nanopublication = nanopublicationBuilder.build();
 
