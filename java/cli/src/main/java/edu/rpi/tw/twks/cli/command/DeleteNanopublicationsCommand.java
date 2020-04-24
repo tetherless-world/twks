@@ -4,6 +4,7 @@ import com.beust.jcommander.Parameter;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.TwksClient;
+import edu.rpi.tw.twks.cli.GlobalArgs;
 import edu.rpi.tw.twks.uri.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public final class DeleteNanopublicationsCommand extends Command {
         logger.info("deleted {} nanopublication(s)", nanopublicationUris.size());
     }
 
-    public final static class Args {
+    public final static class Args extends GlobalArgs {
         @Parameter(required = true, description = "1+ nanopublication URI(s)")
         List<String> nanopublicationUris = new ArrayList<>();
     }
