@@ -83,7 +83,7 @@ public final class CliNanopublicationParser extends NanopublicationParser {
         }
     }
 
-    public abstract static class Args {
+    public abstract static class Args extends GlobalArgs {
         @Parameter(names = {"--concurrency-level"}, description = "number of threads to use to parse nanopublications")
         public int concurrencyLevel = 1;
         @Parameter(names = {"--dialect"}, description = "dialect of the nanopublication, such as SPECIFICATION or WHYIS")

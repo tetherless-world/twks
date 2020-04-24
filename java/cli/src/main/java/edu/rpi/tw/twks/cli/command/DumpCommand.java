@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.cli.command;
 
 import com.codahale.metrics.MetricRegistry;
 import edu.rpi.tw.twks.api.TwksClient;
+import edu.rpi.tw.twks.cli.GlobalArgs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,7 @@ public final class DumpCommand extends Command {
     private final static String[] ALIASES = {};
     private final static String NAME = "dump";
     private final static Logger logger = LoggerFactory.getLogger(DumpCommand.class);
-    private final Args args = new Args();
+    private final GlobalArgs args = new GlobalArgs();
 
     @Override
     public String[] getAliases() {
@@ -19,7 +20,7 @@ public final class DumpCommand extends Command {
     }
 
     @Override
-    public Args getArgs() {
+    public GlobalArgs getArgs() {
         return args;
     }
 
@@ -35,8 +36,5 @@ public final class DumpCommand extends Command {
         } catch (final IOException e) {
             logger.error("I/O exception:", e);
         }
-    }
-
-    public final static class Args {
     }
 }
