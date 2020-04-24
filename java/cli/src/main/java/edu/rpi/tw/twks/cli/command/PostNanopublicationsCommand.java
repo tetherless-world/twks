@@ -143,7 +143,7 @@ public final class PostNanopublicationsCommand extends Command {
         @Override
         public final void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
             if (args.continueOnMalformedNanopublication) {
-                logger.error("malformed nanopublication exception: ", exception);
+                logger.error("malformed nanopublication exception: {}", exception.getMessage());
             } else {
                 throw new MalformedNanopublicationRuntimeException(exception);
             }

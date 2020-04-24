@@ -540,6 +540,15 @@ public class NanopublicationParser {
             return getNanopublicationPartByModelName(nanopublicationUri, partModelName, usedDatasetModelNames);
         }
 
+        private Resource getNanopublicationPartResource(final QuerySolution querySolution, final String variableName) throws MalformedNanopublicationException {
+            final RDFNode node = querySolution.get(variableName);
+            checkNotNull(node);
+            if (!node.isURIResource()) {
+                throw new MalformedNanopublicationException(variableName + " is not a URI resource");
+            }
+            return node.asResource();
+        }
+
         public final void parse(final NanopublicationConsumer consumer) {
             // Specification: All triples must be placed in one of [H] or [A] or [P] or [I]
             if (!dialect.allowDefaultModelStatements() && !dataset.getDefaultModel().isEmpty()) {
@@ -618,13 +627,13 @@ public class NanopublicationParser {
                     final Nanopublication nanopublication;
                     try (final Timer.Context timerContext = metrics.parseDatasetNanopublicationTimer.time()) {
                         final QuerySolution querySolution = resultSet.nextSolution();
-                        final Uri nanopublicationUri = Uri.parse(querySolution.getResource("np").getURI());
 
                         try {
-                            final NanopublicationPart assertion = getNanopublicationPartByModelName(nanopublicationUri, querySolution.getResource("A").getURI(), usedDatasetModelNames);
-                            final NanopublicationPart head = getNanopublicationPartByModelName(nanopublicationUri, querySolution.getResource("H").getURI(), usedDatasetModelNames);
-                            final NanopublicationPart provenance = getNanopublicationPartByModelName(nanopublicationUri, querySolution.getResource("P").getURI(), usedDatasetModelNames);
-                            final NanopublicationPart publicationInfo = getNanopublicationPartByModelName(nanopublicationUri, querySolution.getResource("I").getURI(), usedDatasetModelNames);
+                            final Uri nanopublicationUri = Uri.parse(getNanopublicationPartResource(querySolution, "np").getURI());
+                            final NanopublicationPart assertion = getNanopublicationPartByModelName(nanopublicationUri, getNanopublicationPartResource(querySolution, "A").getURI(), usedDatasetModelNames);
+                            final NanopublicationPart head = getNanopublicationPartByModelName(nanopublicationUri, getNanopublicationPartResource(querySolution, "H").getURI(), usedDatasetModelNames);
+                            final NanopublicationPart provenance = getNanopublicationPartByModelName(nanopublicationUri, getNanopublicationPartResource(querySolution, "P").getURI(), usedDatasetModelNames);
+                            final NanopublicationPart publicationInfo = getNanopublicationPartByModelName(nanopublicationUri, getNanopublicationPartResource(querySolution, "I").getURI(), usedDatasetModelNames);
 
                             nanopublication = createNanopublicationFromParts(assertion, head, nanopublicationUri, provenance, publicationInfo);
                         } catch (final MalformedNanopublicationException e) {

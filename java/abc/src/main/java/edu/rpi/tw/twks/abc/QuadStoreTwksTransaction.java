@@ -79,7 +79,7 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
 
                 @Override
                 public void onMalformedNanopublicationException(final MalformedNanopublicationException exception) {
-                    logger.error("malformed nanopublication when rebuilding assertions union graphs:", exception);
+                    logger.error("malformed nanopublication when rebuilding assertions union graphs: {}", exception.getMessage());
                 }
             });
         }
