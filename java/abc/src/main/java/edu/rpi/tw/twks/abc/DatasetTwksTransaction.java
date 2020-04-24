@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.abc;
 
 import edu.rpi.tw.twks.nanopub.DatasetTransaction;
 import edu.rpi.tw.twks.nanopub.NanopublicationConsumer;
+import edu.rpi.tw.twks.nanopub.NanopublicationDialect;
 import edu.rpi.tw.twks.nanopub.NanopublicationParser;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
@@ -10,6 +11,7 @@ import org.apache.jena.query.ReadWrite;
  * A TwksTransaction that wraps a DatasetTransaction.
  */
 public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> extends QuadStoreTwksTransaction<TwksT> {
+    private final static NanopublicationParser nanopublicationParser = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).build();
     private final Dataset dataset;
 
     protected DatasetTwksTransaction(final ReadWrite readWrite, final TwksT twks) {
@@ -23,7 +25,7 @@ public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> exten
 
     @Override
     protected final void getNanopublications(final NanopublicationConsumer consumer) {
-        NanopublicationParser.SPECIFICATION.parseDataset(((DatasetQuadStoreTransaction) getQuadStoreTransaction()).getDatasetTransaction(), consumer);
+        nanopublicationParser.parseDataset(((DatasetQuadStoreTransaction) getQuadStoreTransaction()).getDatasetTransaction(), consumer);
     }
 
     @Override

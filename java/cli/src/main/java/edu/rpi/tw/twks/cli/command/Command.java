@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.cli.command;
 
+import com.codahale.metrics.MetricRegistry;
 import edu.rpi.tw.twks.api.TwksClient;
 
 public abstract class Command {
@@ -11,5 +12,5 @@ public abstract class Command {
 
     public abstract String getName();
 
-    public abstract void run(TwksClient client);
+    public abstract void run(TwksClient client, MetricRegistry metricRegistry);
 }

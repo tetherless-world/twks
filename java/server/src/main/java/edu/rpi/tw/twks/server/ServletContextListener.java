@@ -65,7 +65,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
     }
 
     private void loadInitialNanopublications(final TwksServerConfiguration configuration, final Twks twks) {
-        final NanopublicationParser nanopublicationParser = NanopublicationParser.SPECIFICATION;
+        final NanopublicationParser nanopublicationParser = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).build();
 
         if (configuration.getInitialNanopublicationsDirectoryPath().isPresent()) {
             final InitialNanopublicationConsumer consumer = new InitialNanopublicationConsumer(twks) {
@@ -74,7 +74,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
                     // Exception will be logged below.
                 }
             };
-            nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get().toFile(), new NanopublicationDirectoryConsumer() {
+            nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get(), new NanopublicationDirectoryConsumer() {
                 @Override
                 public void accept(final Nanopublication nanopublication, final Path nanopublicationFilePath) {
                     consumer.accept(nanopublication);

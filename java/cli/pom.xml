@@ -78,14 +78,19 @@
             <version>1.78</version>
         </dependency>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.methvin</groupId>
             <artifactId>directory-watcher</artifactId>
             <version>0.9.6</version>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
+            <groupId>me.tongfei</groupId>
+            <artifactId>progressbar</artifactId>
+            <version>0.8.1</version>
         </dependency>
     </dependencies>
 </project>

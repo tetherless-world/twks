@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
+import com.codahale.metrics.MetricRegistry;
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.cli.CliNanopublicationParser;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -37,7 +38,7 @@ public final class QueryCommand extends Command {
     }
 
     @Override
-    public void run(final TwksClient client) {
+    public void run(final TwksClient client, final MetricRegistry metricRegistry) {
         final String queryString;
         if (args.query != null) {
             queryString = args.query;

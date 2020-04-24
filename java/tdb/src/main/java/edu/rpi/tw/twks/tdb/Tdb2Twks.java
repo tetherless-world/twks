@@ -8,7 +8,12 @@ import org.apache.jena.tdb2.TDB2Factory;
 
 public final class Tdb2Twks extends DatasetTwks<Tdb2TwksConfiguration> {
     public Tdb2Twks(final Tdb2TwksConfiguration configuration) {
-        super(configuration, TDB2Factory.connectDataset(configuration.getLocation().isPresent() ? Location.create(configuration.getLocation().get()) : Location.mem()));
+        super(configuration,
+                TDB2Factory.connectDataset(
+                        configuration.getLocation().orElse("mem").equalsIgnoreCase("mem") ?
+                                Location.mem() :
+                                Location.create(configuration.getLocation().get()))
+        );
     }
 
     @Override

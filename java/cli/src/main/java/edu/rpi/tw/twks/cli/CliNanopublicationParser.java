@@ -1,6 +1,7 @@
 package edu.rpi.tw.twks.cli;
 
 import com.beust.jcommander.Parameter;
+import com.codahale.metrics.MetricRegistry;
 import edu.rpi.tw.twks.nanopub.*;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RiotNotFoundException;
@@ -15,10 +16,12 @@ public final class CliNanopublicationParser extends NanopublicationParser {
     private final int retry;
     private final int retryDelayS;
 
-    public CliNanopublicationParser(final Args args) {
+    public CliNanopublicationParser(final Args args, final MetricRegistry metricRegistry) {
         super(
+                args.concurrencyLevel,
                 args.dialect != null ? NanopublicationDialect.valueOf(args.dialect.toUpperCase()) : NanopublicationDialect.SPECIFICATION,
-                args.lang != null ? Optional.ofNullable(RDFLanguages.shortnameToLang(args.lang)) : Optional.empty()
+                args.lang != null ? Optional.ofNullable(RDFLanguages.shortnameToLang(args.lang)) : Optional.empty(),
+                metricRegistry
         );
         this.retry = args.retry >= 0 ? args.retry : 0;
         this.retryDelayS = args.retrayDelayS > 0 ? args.retrayDelayS : 1;
@@ -35,7 +38,15 @@ public final class CliNanopublicationParser extends NanopublicationParser {
 
     @Override
     public final void parseFile(final Path sourceFilePath, final NanopublicationConsumer consumer) {
-        final int tryMax = (retry > 0 ? retry + 1 : 1);
+        if (retry == 0) {
+            super.parseFile(sourceFilePath, consumer);
+        } else {
+            parseFileWithRetry(sourceFilePath, consumer);
+        }
+    }
+
+    private void parseFileWithRetry(final Path sourceFilePath, final NanopublicationConsumer consumer) {
+        final int tryMax = retry + 1;
         for (int tryI = 0; tryI < tryMax; tryI++) {
             try {
                 final BoxedBoolean parsedNanopublication = new BoxedBoolean();
@@ -60,7 +71,7 @@ public final class CliNanopublicationParser extends NanopublicationParser {
             } catch (final MalformedNanopublicationRuntimeException e) {
             }
 
-            logger.error("error parsing {}", sourceFilePath);
+            logger.error("error parsing {}, try {}", sourceFilePath, tryI);
             if (tryI + 1 < tryMax) {
                 logger.error("retrying {} parse after {} seconds", sourceFilePath, retryDelayS);
                 try {
@@ -73,12 +84,12 @@ public final class CliNanopublicationParser extends NanopublicationParser {
     }
 
     public abstract static class Args {
+        @Parameter(names = {"--concurrency-level"}, description = "number of threads to use to parse nanopublications")
+        public int concurrencyLevel = 1;
         @Parameter(names = {"--dialect"}, description = "dialect of the nanopublication, such as SPECIFICATION or WHYIS")
         public String dialect = null;
-
         @Parameter(names = {"-l", "--lang"}, description = "language/format of the nanopublication file e.g., TRIG")
         public String lang = null;
-
         @Parameter(names = {"--retry-delay-s"}, description = "delay between retries")
         public int retrayDelayS = 1;
         @Parameter(names = {"--retry"}, description = "retry parsing a file n times after a short delay, defaults to no retries")

@@ -31,6 +31,7 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
     private final static Query IS_EMPTY_QUERY = QueryFactory.create("SELECT (COUNT(?s) as ?count) WHERE { graph ?g { ?s ?p ?o } } LIMIT 1");
 
     private final static Logger logger = LoggerFactory.getLogger(AbstractTwksTransaction.class);
+    private final static NanopublicationParser nanopublicationParser = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).build();
     private final TwksT twks;
 
     protected AbstractTwksTransaction(final TwksT twks) {
@@ -90,7 +91,7 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
         }
         final ImmutableList<Nanopublication> nanopublications;
         try {
-            nanopublications = NanopublicationParser.SPECIFICATION.parseDataset(nanopublicationDataset);
+            nanopublications = nanopublicationParser.parseDataset(nanopublicationDataset);
         } catch (final MalformedNanopublicationRuntimeException e) {
             throw new IllegalStateException(e);
         }
