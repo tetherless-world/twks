@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.cli.command;
 
 import com.beust.jcommander.Parameter;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.TwksClient;
 import edu.rpi.tw.twks.cli.CliNanopublicationParser;
@@ -42,7 +43,7 @@ public final class PostNanopublicationsCommand extends Command {
     public void run(final TwksClient client, final MetricRegistry metricRegistry) {
         final CliNanopublicationParser parser = new CliNanopublicationParser(args, metricRegistry);
 
-        final BufferingNanopublicationConsumer consumer = new BufferingNanopublicationConsumer(client);
+        final BufferingNanopublicationConsumer consumer = new BufferingNanopublicationConsumer(metricRegistry, client);
 
         if (args.sources.isEmpty()) {
             parser.parseStdin(consumer);
@@ -66,10 +67,12 @@ public final class PostNanopublicationsCommand extends Command {
 
     private final class BufferingNanopublicationConsumer implements NanopublicationConsumer {
         private final List<Nanopublication> nanopublicationsBuffer = new ArrayList<>();
+        private final Timer postNanopublicationsTimer;
         private final TwksClient twksClient;
         private int postedNanopublicationsCount = 0;
 
-        public BufferingNanopublicationConsumer(final TwksClient twksClient) {
+        public BufferingNanopublicationConsumer(final MetricRegistry metricRegistry, final TwksClient twksClient) {
+            postNanopublicationsTimer = metricRegistry.timer(MetricRegistry.name(PostNanopublicationsCommand.class, "postNanopublicationsTimer"));
             this.twksClient = checkNotNull(twksClient);
         }
 
@@ -111,7 +114,9 @@ public final class PostNanopublicationsCommand extends Command {
         }
 
         private void postNanopublications(final ImmutableList<Nanopublication> nanopublicationsToPost) {
-            twksClient.postNanopublications(nanopublicationsToPost);
+            try (final Timer.Context timerContext = postNanopublicationsTimer.time()) {
+                twksClient.postNanopublications(nanopublicationsToPost);
+            }
             postedNanopublicationsCount += nanopublicationsToPost.size();
             logger.info("posted {} new nanopublication(s) ({} total)", nanopublicationsToPost.size(), postedNanopublicationsCount);
         }

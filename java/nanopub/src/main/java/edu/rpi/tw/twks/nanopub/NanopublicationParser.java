@@ -547,6 +547,8 @@ public class NanopublicationParser {
                 return;
             }
 
+            // parseByIteratingNamedGraphs was a descendant of the first implementation, but iterating over all named graphs in a Dataset has turned out to be too slow.
+            // I've left the code in for the time being in case the query approach has correctness issues.
 //            parseByIteratingNamedGraphs(consumer);
             parseByQuerying(consumer);
         }
