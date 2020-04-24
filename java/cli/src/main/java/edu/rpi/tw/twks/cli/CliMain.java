@@ -53,36 +53,40 @@ public final class CliMain {
 
         jCommander.parse(argv);
 
-        if (globalArgs.help) {
-            jCommander.usage();
-            return;
-        }
-
-        if (globalArgs.version) {
-            System.out.println(TwksLibraryVersion.getInstance());
-            return;
-        }
-
         if (jCommander.getParsedCommand() == null) {
             jCommander.usage();
             return;
         }
 
         final Command command = commandsByName.get(jCommander.getParsedCommand());
-
-        final MetricRegistry metricRegistry = new MetricRegistry();
+        final GlobalArgs commandArgs = command.getArgs();
 
         final PropertiesConfiguration configurationProperties = new PropertiesConfiguration();
 
-        if (globalArgs.configurationFilePath != null) {
-            try (final FileReader fileReader = new FileReader(new File(globalArgs.configurationFilePath))) {
-                configurationProperties.read(fileReader);
-            } catch (final ConfigurationException | IOException e) {
-                throw new RuntimeException(e);
+        boolean reportMetrics = false;
+        for (final GlobalArgs args : new GlobalArgs[]{globalArgs, commandArgs}) {
+            if (args.help) {
+                jCommander.usage();
+                return;
             }
-        }
 
-        globalArgs.configuration.forEach((key, value) -> configurationProperties.setProperty(key, value));
+            if (args.version) {
+                System.out.println(TwksLibraryVersion.getInstance());
+                return;
+            }
+
+            if (args.configurationFilePath != null) {
+                try (final FileReader fileReader = new FileReader(new File(args.configurationFilePath))) {
+                    configurationProperties.read(fileReader);
+                } catch (final ConfigurationException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            args.configuration.forEach((key, value) -> configurationProperties.setProperty(key, value));
+
+            reportMetrics |= args.reportMetrics;
+        }
 
         final TwksClient client;
 
@@ -105,8 +109,10 @@ public final class CliMain {
             client = new RestTwksClient(clientConfiguration);
         }
 
+        final MetricRegistry metricRegistry = new MetricRegistry();
+
         @Nullable ConsoleReporter reporter = null;
-        if (globalArgs.reportMetrics) {
+        if (reportMetrics) {
             reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).build();
             reporter.start(30, TimeUnit.SECONDS);
         }
