@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -44,26 +45,33 @@ public final class PostNanopublicationsCommand extends Command {
 
     @Override
     public void run(final TwksClient client, final MetricRegistry metricRegistry) {
+        if (args.reportProgress) {
+            try (final ProgressBar progressBar = new ProgressBarBuilder()
+                    .setInitialMax(0)
+                    .setTaskName("Posted nanopublications")
+                    .setConsumer(new DelegatingProgressBarConsumer(logger::info))
+                    .showSpeed()
+                    .build()) {
+                run(client, metricRegistry, Optional.of(progressBar));
+            }
+        } else {
+            run(client, metricRegistry, Optional.empty());
+        }
+    }
+
+    private void run(final TwksClient client, final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar) {
+        final BufferingNanopublicationConsumer consumer = new BufferingNanopublicationConsumer(client, metricRegistry, progressBar);
         final CliNanopublicationParser parser = new CliNanopublicationParser(args, metricRegistry);
 
-        try (final ProgressBar progressBar = new ProgressBarBuilder()
-                .setInitialMax(0)
-                .setTaskName("Posted nanopublications")
-                .setConsumer(new DelegatingProgressBarConsumer(logger::info))
-                .showSpeed()
-                .build()) {
-            final BufferingNanopublicationConsumer consumer = new BufferingNanopublicationConsumer(client, metricRegistry, progressBar);
-
-            if (args.sources.isEmpty()) {
-                parser.parseStdin(consumer);
-            } else {
-                for (final String source : args.sources) {
-                    parser.parse(source, consumer);
-                }
+        if (args.sources.isEmpty()) {
+            parser.parseStdin(consumer);
+        } else {
+            for (final String source : args.sources) {
+                parser.parse(source, consumer);
             }
-
-            consumer.flush();
         }
+
+        consumer.flush();
     }
 
     public final static class Args extends CliNanopublicationParser.Args {
@@ -71,6 +79,8 @@ public final class PostNanopublicationsCommand extends Command {
         boolean continueOnMalformedNanopublication = false;
         @Parameter(names = {"--nanopublications-buffer-size"}, description = "nanopublications buffer size")
         int nanopublicationsBufferSize = 10;
+        @Parameter(names = {"--report-progress"})
+        boolean reportProgress = false;
         @Parameter(required = true, description = "1+ nanopublication or assertion file path(s) or URI(s), or - for stdin")
         List<String> sources = new ArrayList<>();
     }
@@ -79,10 +89,10 @@ public final class PostNanopublicationsCommand extends Command {
         private final TwksClient client;
         private final List<Nanopublication> nanopublicationsBuffer = new ArrayList<>();
         private final Timer postNanopublicationsTimer;
-        private final ProgressBar progressBar;
+        private final Optional<ProgressBar> progressBar;
         private int postedNanopublicationsCount = 0;
 
-        public BufferingNanopublicationConsumer(final TwksClient client, final MetricRegistry metricRegistry, final ProgressBar progressBar) {
+        public BufferingNanopublicationConsumer(final TwksClient client, final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar) {
             postNanopublicationsTimer = metricRegistry.timer(MetricRegistry.name(PostNanopublicationsCommand.class, "postNanopublicationsTimer"));
             this.client = checkNotNull(client);
             this.progressBar = checkNotNull(progressBar);
@@ -131,7 +141,9 @@ public final class PostNanopublicationsCommand extends Command {
             }
             postedNanopublicationsCount += nanopublicationsToPost.size();
 //            logger.info("posted {} new nanopublication(s) ({} total)", nanopublicationsToPost.size(), postedNanopublicationsCount);
-            progressBar.stepBy(nanopublicationsToPost.size());
+            if (progressBar.isPresent()) {
+                progressBar.get().stepBy(nanopublicationsToPost.size());
+            }
         }
     }
 }
