@@ -1,15 +1,17 @@
 package edu.rpi.tw.twks.agraph;
 
+import com.codahale.metrics.MetricRegistry;
 import com.franz.agraph.repository.AGCatalog;
 import com.franz.agraph.repository.AGRepository;
 import com.franz.agraph.repository.AGRepositoryConnection;
 import com.franz.agraph.repository.AGServer;
 import edu.rpi.tw.twks.abc.QuadStoreTwks;
+import edu.rpi.tw.twks.abc.QuadStoreTwksMetrics;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.jena.query.ReadWrite;
 
-public final class AllegroGraphTwks extends QuadStoreTwks<AllegroGraphTwksConfiguration> {
+public final class AllegroGraphTwks extends QuadStoreTwks<AllegroGraphTwksConfiguration, QuadStoreTwksMetrics> {
     private @Nullable
     AGCatalog catalog = null;
     private @Nullable
@@ -17,8 +19,8 @@ public final class AllegroGraphTwks extends QuadStoreTwks<AllegroGraphTwksConfig
     private @Nullable
     AGServer server = null;
 
-    public AllegroGraphTwks(final AllegroGraphTwksConfiguration configuration) {
-        super(configuration);
+    public AllegroGraphTwks(final AllegroGraphTwksConfiguration configuration, final MetricRegistry metricRegistry) {
+        super(configuration, new QuadStoreTwksMetrics(metricRegistry));
     }
 
     @Override

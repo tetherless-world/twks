@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.test;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.MoreFiles;
@@ -33,6 +34,7 @@ import static org.junit.Assert.*;
 
 public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> {
     private static TestData testData;
+    private final MetricRegistry metricRegistry = new MetricRegistry();
     private SystemUnderTestT sut;
     private Path tempDirPath;
 
@@ -70,6 +72,10 @@ public abstract class ApisTest<SystemUnderTestT extends NanopublicationCrudApi> 
                 testData.secondOntologyNanopublication.getUri(),
                 testData.specNanopublication.getUri()
         ));
+    }
+
+    protected final MetricRegistry getMetricRegistry() {
+        return metricRegistry;
     }
 
     protected final SystemUnderTestT getSystemUnderTest() {

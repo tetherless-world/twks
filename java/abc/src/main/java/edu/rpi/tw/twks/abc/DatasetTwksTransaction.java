@@ -10,7 +10,7 @@ import org.apache.jena.query.ReadWrite;
 /**
  * A TwksTransaction that wraps a DatasetTransaction.
  */
-public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?>> extends QuadStoreTwksTransaction<TwksT> {
+public abstract class DatasetTwksTransaction<TwksT extends DatasetTwks<?, ?>> extends QuadStoreTwksTransaction<TwksT> {
     private final static NanopublicationParser nanopublicationParser = NanopublicationParser.builder().setDialect(NanopublicationDialect.SPECIFICATION).build();
     private final Dataset dataset;
 

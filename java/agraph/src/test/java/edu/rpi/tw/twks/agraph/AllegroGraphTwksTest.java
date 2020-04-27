@@ -10,6 +10,6 @@ public final class AllegroGraphTwksTest extends TwksTest {
 
     @Override
     protected Twks newTwks(final Path dumpDirectoryPath) {
-        return new AllegroGraphTwks(AllegroGraphTwksConfiguration.builder().setDumpDirectoryPath(dumpDirectoryPath).setServerUrl(SERVER_URL).build());
+        return new AllegroGraphTwks(AllegroGraphTwksConfiguration.builder().setDumpDirectoryPath(dumpDirectoryPath).setServerUrl(SERVER_URL).build(), getMetricRegistry());
     }
 }

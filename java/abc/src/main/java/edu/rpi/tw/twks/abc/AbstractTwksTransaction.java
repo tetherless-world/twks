@@ -20,7 +20,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> implements TwksTransaction {
+public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?, ?>> implements TwksTransaction {
     private final static String GET_NANOPUBLICATION_DATASET_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "prefix : <%s>\n" +
             "select ?G ?S ?P ?O where {\n" +

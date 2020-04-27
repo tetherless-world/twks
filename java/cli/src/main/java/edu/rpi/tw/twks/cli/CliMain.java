@@ -88,13 +88,15 @@ public final class CliMain {
             reportMetrics |= args.reportMetrics;
         }
 
+        final MetricRegistry metricRegistry = new MetricRegistry();
+
         final TwksClient client;
 
         final TwksFactoryConfiguration.Builder configurationBuilder = TwksFactoryConfiguration.builder().setFromEnvironment().set(configurationProperties);
         if (configurationBuilder.isDirty()) {
             // Write to a TWKS instance directly in the CLI process.
             final TwksFactoryConfiguration configuration = configurationBuilder.build();
-            final Twks twks = TwksFactory.getInstance().createTwks(configuration);
+            final Twks twks = TwksFactory.getInstance().createTwks(configuration, metricRegistry);
             logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);
             client = new DirectTwksClient(twks);
         } else {
@@ -108,8 +110,6 @@ public final class CliMain {
             logger.debug("using client with configuration {}", clientConfiguration);
             client = new RestTwksClient(clientConfiguration);
         }
-
-        final MetricRegistry metricRegistry = new MetricRegistry();
 
         @Nullable ConsoleReporter reporter = null;
         if (reportMetrics) {

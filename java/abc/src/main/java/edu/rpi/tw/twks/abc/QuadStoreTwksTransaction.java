@@ -22,7 +22,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> extends AbstractTwksTransaction<TwksT> {
+public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?, ?>> extends AbstractTwksTransaction<TwksT> {
     private final static Logger logger = LoggerFactory.getLogger(QuadStoreTwksTransaction.class);
     private final QuadStoreTransaction quadStoreTransaction;
 

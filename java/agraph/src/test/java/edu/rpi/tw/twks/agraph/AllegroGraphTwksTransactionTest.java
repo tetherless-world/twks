@@ -8,6 +8,6 @@ import java.nio.file.Path;
 public final class AllegroGraphTwksTransactionTest extends TwksTransactionTest {
     @Override
     protected Twks newTwks(final Path dumpDirectoryPath) {
-        return new AllegroGraphTwks(AllegroGraphTwksConfiguration.builder().setDumpDirectoryPath(dumpDirectoryPath).setServerUrl(AllegroGraphTwksTest.SERVER_URL).build());
+        return new AllegroGraphTwks(AllegroGraphTwksConfiguration.builder().setDumpDirectoryPath(dumpDirectoryPath).setServerUrl(AllegroGraphTwksTest.SERVER_URL).build(), getMetricRegistry());
     }
 }
