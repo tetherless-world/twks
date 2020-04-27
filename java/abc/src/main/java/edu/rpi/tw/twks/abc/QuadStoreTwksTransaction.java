@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.abc;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
+import edu.rpi.tw.twks.configuration.TwksConfiguration;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.rpi.tw.twks.vocabulary.SIO;
@@ -22,7 +23,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?, ?>> extends AbstractTwksTransaction<TwksT> {
+public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<TwksConfigurationT, TwksMetricsT>, TwksConfigurationT extends TwksConfiguration, TwksMetricsT extends QuadStoreTwksMetrics> extends AbstractTwksTransaction<TwksT, TwksConfigurationT, TwksMetricsT> {
     private final static Logger logger = LoggerFactory.getLogger(QuadStoreTwksTransaction.class);
     private final QuadStoreTransaction quadStoreTransaction;
 
