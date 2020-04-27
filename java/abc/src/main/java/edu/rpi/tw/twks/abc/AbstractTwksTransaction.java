@@ -84,6 +84,10 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<TwksCon
         });
     }
 
+    protected final TwksMetricsT getMetrics() {
+        return twks.getMetrics();
+    }
+
     @Override
     public final Optional<Nanopublication> getNanopublication(final Uri uri) {
         final Dataset nanopublicationDataset = getNanopublicationDataset(uri);
