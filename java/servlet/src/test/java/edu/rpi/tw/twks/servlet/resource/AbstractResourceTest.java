@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.servlet.resource;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import edu.rpi.tw.twks.api.Twks;
@@ -29,6 +30,7 @@ import static org.junit.Assert.assertSame;
 
 public abstract class AbstractResourceTest extends JerseyTest {
     private final TestData testData = new TestData();
+    private MetricRegistry metricRegistry = new MetricRegistry();
     private Path tempDirPath;
     private Twks twks;
 
@@ -65,7 +67,8 @@ public abstract class AbstractResourceTest extends JerseyTest {
             throw new RuntimeException(e);
         }
 
-        this.twks = new MemTwks(MemTwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build());
+        metricRegistry = new MetricRegistry();
+        this.twks = new MemTwks(MemTwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build(), metricRegistry);
         return new JerseyResourceConfig(twks);
     }
 

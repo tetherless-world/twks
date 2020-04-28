@@ -1,5 +1,6 @@
 package edu.rpi.tw.twks.server;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.Twks;
 import edu.rpi.tw.twks.api.TwksLibraryVersion;
@@ -43,9 +44,11 @@ public final class ServletContextListener implements javax.servlet.ServletContex
                         .setFromEnvironment()
                         .set(new ServletContextConfiguration(servletContext)).build();
 
+        final MetricRegistry metricRegistry = new MetricRegistry();
+
         logger.info("server configuration: {}", configuration);
 
-        final Twks twks = TwksFactory.getInstance().createTwks(configuration.getFactoryConfiguration());
+        final Twks twks = TwksFactory.getInstance().createTwks(configuration.getFactoryConfiguration(), metricRegistry);
 
         classpathExtensions = new ClasspathExtensions(configuration.getExtcpDirectoryPath(), twks);
         fileSystemExtensions = new FileSystemExtensions(configuration.getExtfsDirectoryPath(), Optional.of(configuration.getServerBaseUrl()), twks);

@@ -8,6 +8,6 @@ import java.nio.file.Path;
 public final class MemTwksTransactionTest extends TwksTransactionTest {
     @Override
     protected Twks newTwks(final Path dumpDirectoryPath) {
-        return new MemTwks(MemTwksConfiguration.builder().setDumpDirectoryPath(dumpDirectoryPath).build());
+        return new MemTwks(MemTwksConfiguration.builder().setDumpDirectoryPath(dumpDirectoryPath).build(), getMetricRegistry());
     }
 }

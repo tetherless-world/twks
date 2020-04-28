@@ -10,6 +10,8 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class TwksFactoryConfiguration extends AbstractConfiguration {
+    public final static TwksFactoryConfiguration DEFAULT = builder().build();
+
     private final Optional<AllegroGraphTwksConfiguration> allegroGraphConfiguration;
     private final Optional<Tdb2TwksConfiguration> tdb2Configuration;
 

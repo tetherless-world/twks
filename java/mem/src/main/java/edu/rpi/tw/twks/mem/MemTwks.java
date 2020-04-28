@@ -1,6 +1,8 @@
 package edu.rpi.tw.twks.mem;
 
+import com.codahale.metrics.MetricRegistry;
 import edu.rpi.tw.twks.abc.DatasetTwks;
+import edu.rpi.tw.twks.abc.QuadStoreTwksMetrics;
 import edu.rpi.tw.twks.api.TwksTransaction;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ReadWrite;
@@ -8,13 +10,13 @@ import org.apache.jena.query.ReadWrite;
 /**
  * A Twks implementation backed by the default in-memory Dataset.
  */
-public final class MemTwks extends DatasetTwks<MemTwksConfiguration> {
-    public MemTwks() {
-        this(MemTwksConfiguration.builder().build());
-    }
+public final class MemTwks extends DatasetTwks<MemTwksConfiguration, QuadStoreTwksMetrics> {
+//    public MemTwks() {
+//        this(MemTwksConfiguration.builder().build());
+//    }
 
-    public MemTwks(final MemTwksConfiguration configuration) {
-        super(configuration, DatasetFactory.createTxnMem());
+    public MemTwks(final MemTwksConfiguration configuration, final MetricRegistry metricRegistry) {
+        super(configuration, DatasetFactory.createTxnMem(), new QuadStoreTwksMetrics(metricRegistry));
     }
 
     @Override

@@ -25,13 +25,15 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration> implements Twks {
+public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration, TwksMetricsT extends AbstractTwksMetrics> implements Twks {
     private final static Logger logger = LoggerFactory.getLogger(AbstractTwks.class);
     private final TwksConfigurationT configuration;
+    private final TwksMetricsT metrics;
     private final TwksObservers observers = new TwksObservers(this);
 
-    protected AbstractTwks(final TwksConfigurationT configuration) {
+    protected AbstractTwks(final TwksConfigurationT configuration, final TwksMetricsT metrics) {
         this.configuration = checkNotNull(configuration);
+        this.metrics = checkNotNull(metrics);
 
         if (configuration.getGeoSparqlConfiguration().getEnable()) {
             GeoSPARQLConfig.setupMemoryIndex();
@@ -96,6 +98,10 @@ public abstract class AbstractTwks<TwksConfigurationT extends TwksConfiguration>
 
     public final TwksConfigurationT getConfiguration() {
         return configuration;
+    }
+
+    public final TwksMetricsT getMetrics() {
+        return metrics;
     }
 
     @Override

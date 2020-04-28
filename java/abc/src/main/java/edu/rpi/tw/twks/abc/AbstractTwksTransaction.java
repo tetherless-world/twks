@@ -2,6 +2,7 @@ package edu.rpi.tw.twks.abc;
 
 import com.google.common.collect.ImmutableList;
 import edu.rpi.tw.twks.api.TwksTransaction;
+import edu.rpi.tw.twks.configuration.TwksConfiguration;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -20,7 +21,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> implements TwksTransaction {
+public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<TwksConfigurationT, TwksMetricsT>, TwksConfigurationT extends TwksConfiguration, TwksMetricsT extends AbstractTwksMetrics> implements TwksTransaction {
     private final static String GET_NANOPUBLICATION_DATASET_QUERY_STRING = "prefix np: <http://www.nanopub.org/nschema#>\n" +
             "prefix : <%s>\n" +
             "select ?G ?S ?P ?O where {\n" +
@@ -81,6 +82,10 @@ public abstract class AbstractTwksTransaction<TwksT extends AbstractTwks<?>> imp
                 logger.error("malformed nanopublication: ", exception);
             }
         });
+    }
+
+    protected final TwksMetricsT getMetrics() {
+        return twks.getMetrics();
     }
 
     @Override

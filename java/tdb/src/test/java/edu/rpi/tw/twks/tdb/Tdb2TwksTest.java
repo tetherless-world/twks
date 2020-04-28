@@ -8,6 +8,6 @@ import java.nio.file.Path;
 public final class Tdb2TwksTest extends TwksTest {
     @Override
     protected Twks newTwks(final Path dumpDirectoryPath) {
-        return new Tdb2Twks(Tdb2TwksConfiguration.builder().setDumpDirectoryPath(dumpDirectoryPath).build());
+        return new Tdb2Twks(Tdb2TwksConfiguration.builder().setDumpDirectoryPath(dumpDirectoryPath).build(), getMetricRegistry());
     }
 }

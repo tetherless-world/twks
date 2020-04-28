@@ -1,7 +1,9 @@
 package edu.rpi.tw.twks.abc;
 
+import com.codahale.metrics.Timer;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
+import edu.rpi.tw.twks.configuration.TwksConfiguration;
 import edu.rpi.tw.twks.nanopub.*;
 import edu.rpi.tw.twks.uri.Uri;
 import edu.rpi.tw.twks.vocabulary.SIO;
@@ -22,7 +24,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> extends AbstractTwksTransaction<TwksT> {
+public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<TwksConfigurationT, TwksMetricsT>, TwksConfigurationT extends TwksConfiguration, TwksMetricsT extends QuadStoreTwksMetrics> extends AbstractTwksTransaction<TwksT, TwksConfigurationT, TwksMetricsT> {
     private final static Logger logger = LoggerFactory.getLogger(QuadStoreTwksTransaction.class);
     private final QuadStoreTransaction quadStoreTransaction;
 
@@ -98,15 +100,17 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
     }
 
     private ImmutableSet<Uri> getNanopublicationGraphNames(final Uri nanopublicationUri) {
-        final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
-        try (final QueryExecution queryExecution = quadStoreTransaction.query(QueryFactory.create(String.format(NanopublicationQueries.GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING_TEMPLATE, nanopublicationUri)))) {
-            for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
-                final QuerySolution querySolution = resultSet.nextSolution();
-                final Resource g = querySolution.getResource("G");
-                resultBuilder.add(Uri.parse(g.getURI()));
+        try (final Timer.Context timerContext = getMetrics().getNanopublicationGraphNamesTimer.time()) {
+            final ImmutableSet.Builder<Uri> resultBuilder = ImmutableSet.builder();
+            try (final QueryExecution queryExecution = quadStoreTransaction.query(QueryFactory.create(String.format(NanopublicationQueries.GET_NANOPUBLICATION_GRAPH_NAMES_QUERY_STRING_TEMPLATE, nanopublicationUri)))) {
+                for (final ResultSet resultSet = queryExecution.execSelect(); resultSet.hasNext(); ) {
+                    final QuerySolution querySolution = resultSet.nextSolution();
+                    final Resource g = querySolution.getResource("G");
+                    resultBuilder.add(Uri.parse(g.getURI()));
+                }
             }
+            return resultBuilder.build();
         }
-        return resultBuilder.build();
     }
 
     private NanopublicationPart getNanopublicationPart(final String nanopublicationPartName) {
@@ -184,15 +188,22 @@ public abstract class QuadStoreTwksTransaction<TwksT extends AbstractTwks<?>> ex
                 break;
         }
 
-        for (final NanopublicationPart nanopublicationPart : new NanopublicationPart[]{nanopublication.getAssertion(), nanopublication.getHead(), nanopublication.getProvenance(), nanopublication.getPublicationInfo()}) {
-            if (quadStoreTransaction.containsNamedGraph(nanopublicationPart.getName())) {
-                throw new DuplicateNanopublicationPartName(nanopublicationPart.getName().toString());
+
+        try (final Timer.Context timerContext = getMetrics().putNanopublicationAddNamedGraphsTimer.time()) {
+            for (final NanopublicationPart nanopublicationPart : new NanopublicationPart[]{nanopublication.getAssertion(), nanopublication.getHead(), nanopublication.getProvenance(), nanopublication.getPublicationInfo()}) {
+                if (quadStoreTransaction.containsNamedGraph(nanopublicationPart.getName())) {
+                    throw new DuplicateNanopublicationPartName(nanopublicationPart.getName().toString());
+                }
+                quadStoreTransaction.addNamedGraph(nanopublicationPart.getName(), nanopublicationPart.getModel());
             }
-            quadStoreTransaction.addNamedGraph(nanopublicationPart.getName(), nanopublicationPart.getModel());
         }
 
-        new AllAssertionsUnionGraph(quadStoreTransaction).putNanopublication(nanopublication);
-        new OntologyAssertionsUnionGraphs(quadStoreTransaction).putNanopublication(nanopublication);
+        try (final Timer.Context timerContext = getMetrics().putNanopublicationUpdateAllAssertionsUnionGraphTimer.time()) {
+            new AllAssertionsUnionGraph(quadStoreTransaction).putNanopublication(nanopublication);
+        }
+        try (final Timer.Context timerContext = getMetrics().putNanopublicationUpdateOntologyAssertionsUnionGraphTimer.time()) {
+            new OntologyAssertionsUnionGraphs(quadStoreTransaction).putNanopublication(nanopublication);
+        }
 
         return deleteResult == DeleteNanopublicationResult.DELETED ? PutNanopublicationResult.OVERWROTE : PutNanopublicationResult.CREATED;
     }

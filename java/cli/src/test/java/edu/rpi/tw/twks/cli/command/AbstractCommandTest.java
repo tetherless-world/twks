@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractCommandTest<CommandT extends Command> {
     protected final Logger logger;
+    private final MetricRegistry metricRegistry = new MetricRegistry();
     private final TestData testData = new TestData();
     protected CommandT command;
     private Path tempDirPath;
@@ -60,14 +61,14 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
     protected abstract CommandT newCommand();
 
     protected final void runCommand() {
-        command.run(new DirectTwksClient(twks), new MetricRegistry());
+        command.run(new DirectTwksClient(twks), metricRegistry);
     }
 
     @Before
     public final void setUp() throws IOException {
         tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
         twksConfiguration = TwksFactoryConfiguration.builder().setTdb2Configuration(Tdb2TwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build()).build();
-        twks = TwksFactory.getInstance().createTwks(twksConfiguration);
+        twks = TwksFactory.getInstance().createTwks(twksConfiguration, metricRegistry);
         // Order is important.
         command = newCommand();
     }
