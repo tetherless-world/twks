@@ -22,7 +22,7 @@ RUN rmdir /var/lib/jetty/lib/ext && ln -s /extcp /var/lib/jetty/lib/ext
 USER jetty
 
 # The way to pass through properties to the servlet
-ENV JAVA_OPTIONS -Dtwks.extcp=/extcp -Dtwks.dump=/dump -Dtwks.extfs=/extfs -Dtwks.tdbLocation=/data
+ENV JAVA_OPTIONS -Dorg.eclipse.jetty.annotations.AnnotationParser.LEVEL=OFF -Dtwks.extcp=/extcp -Dtwks.dump=/dump -Dtwks.extfs=/extfs -Dtwks.tdbLocation=/data
 
 EXPOSE 8080
 

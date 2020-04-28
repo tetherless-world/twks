@@ -26,7 +26,7 @@ services:
   twks-server:
     container_name: "twks-server"
     environment:
-      - JAVA_OPTIONS=-Dtwks.agraphServerUrl=http://twks-agraph:100035 -Dtwks.dump=/dump -Dtwks.extcp=/extcp -Dtwks.extfs=/extfs
+      - JAVA_OPTIONS=-Dtwks.agraphServerUrl=http://twks-agraph:100035 -Dorg.eclipse.jetty.annotations.AnnotationParser.LEVEL=OFF -Dtwks.dump=/dump -Dtwks.extcp=/extcp -Dtwks.extfs=/extfs
     image: tetherlessworld/twks-server
     networks:
       - twks

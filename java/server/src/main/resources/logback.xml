@@ -35,6 +35,7 @@
         </encoder>
     </appender>
     <!-- <logger name="edu.rpi.tw.twks" level="DEBUG"/> -->
+    <logger name="org.eclipse.jetty.annotations.AnnotationParser" level="OFF"/>
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="STDERR"/>
