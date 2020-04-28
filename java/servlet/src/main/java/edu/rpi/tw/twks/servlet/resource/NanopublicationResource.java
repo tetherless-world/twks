@@ -20,6 +20,7 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -34,6 +35,7 @@ import java.util.Optional;
 
 @Path("nanopublication")
 public class NanopublicationResource extends AbstractResource {
+    @Inject
     public NanopublicationResource(final Twks twks) {
         super(twks);
     }

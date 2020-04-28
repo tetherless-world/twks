@@ -15,6 +15,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -26,6 +27,7 @@ import java.util.Optional;
 
 @Path("assertions")
 public class AssertionsResource extends AbstractResource {
+    @Inject
     public AssertionsResource(final Twks twks) {
         super(twks);
     }

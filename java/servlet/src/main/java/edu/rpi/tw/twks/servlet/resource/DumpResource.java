@@ -3,6 +3,7 @@ package edu.rpi.tw.twks.servlet.resource;
 import edu.rpi.tw.twks.api.Twks;
 import io.swagger.v3.oas.annotations.Operation;
 
+import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -10,6 +11,7 @@ import java.io.IOException;
 
 @Path("dump")
 public class DumpResource extends AbstractResource {
+    @Inject
     public DumpResource(final Twks twks) {
         super(twks);
     }
