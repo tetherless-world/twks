@@ -49,10 +49,6 @@ public final class PostNanopublicationsCommand extends Command {
 
     @Override
     public void run(final TwksClient client, final MetricRegistry metricRegistry) {
-        if (client instanceof DirectTwksClient && args.concurrencyLevel > 1) {
-            throw new IllegalArgumentException("TWKS transactions are not thread-safe, so multi-threaded parsing is not supported when writing directly to a TWKS instance.");
-        }
-
         if (args.reportProgress) {
             try (final ProgressBar progressBar = new ProgressBarBuilder()
                     .setInitialMax(0)
@@ -84,11 +80,19 @@ public final class PostNanopublicationsCommand extends Command {
 
     private void runWithProgressBar(final TwksClient client, final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar) {
         if (client instanceof DirectTwksClient) {
-            // Performance optimization: run the entire post within a single transaction.
             final Twks twks = ((DirectTwksClient) client).getTwks();
-            try (final TwksTransaction transaction = twks.beginTransaction(ReadWrite.WRITE)) {
-                runWithNanopublicationConsumer(new DirectBufferingNanopublicationConsumer(metricRegistry, progressBar, transaction), metricRegistry);
-                transaction.commit();
+            if (args.concurrencyLevel <= 1 && args.singleTransaction) {
+                // Performance optimization: run the entire post within a single transaction.
+                // May not be appropriate for very large directories.
+                try (final TwksTransaction transaction = twks.beginTransaction(ReadWrite.WRITE)) {
+                    runWithNanopublicationConsumer(new SingleTransactionBufferingNanopublicationConsumer(metricRegistry, progressBar, transaction), metricRegistry);
+                    transaction.commit();
+                }
+            } else {
+                if (args.concurrencyLevel > 1 && args.singleTransaction) {
+                    throw new IllegalArgumentException("cannot have concurrency > 1 and use a single transaction");
+                }
+                runWithNanopublicationConsumer(new MultipleTransactionBufferingNanopublicationConsumer(metricRegistry, progressBar, twks), metricRegistry);
             }
         } else {
             runWithNanopublicationConsumer(new ClientBufferingNanopublicationConsumer(client, metricRegistry, progressBar), metricRegistry);
@@ -102,6 +106,8 @@ public final class PostNanopublicationsCommand extends Command {
         int nanopublicationsBufferSize = 10;
         @Parameter(names = {"--report-progress"})
         boolean reportProgress = false;
+        @Parameter(names = {"--single-transaction"})
+        boolean singleTransaction = false;
         @Parameter(required = true, description = "1+ nanopublication or assertion file path(s) or URI(s), or - for stdin")
         List<String> sources = new ArrayList<>();
     }
@@ -183,10 +189,24 @@ public final class PostNanopublicationsCommand extends Command {
         }
     }
 
-    private final class DirectBufferingNanopublicationConsumer extends BufferingNanopublicationConsumer {
+    private final class MultipleTransactionBufferingNanopublicationConsumer extends BufferingNanopublicationConsumer {
+        private final Twks twks;
+
+        public MultipleTransactionBufferingNanopublicationConsumer(final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar, final Twks twks) {
+            super(metricRegistry, progressBar);
+            this.twks = checkNotNull(twks);
+        }
+
+        @Override
+        protected final void postNanopublicationsImpl(final ImmutableList<Nanopublication> nanopublicationsToPost) {
+            twks.postNanopublications(nanopublicationsToPost);
+        }
+    }
+
+    private final class SingleTransactionBufferingNanopublicationConsumer extends BufferingNanopublicationConsumer {
         private final TwksTransaction transaction;
 
-        public DirectBufferingNanopublicationConsumer(final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar, final TwksTransaction transaction) {
+        public SingleTransactionBufferingNanopublicationConsumer(final MetricRegistry metricRegistry, final Optional<ProgressBar> progressBar, final TwksTransaction transaction) {
             super(metricRegistry, progressBar);
             this.transaction = checkNotNull(transaction);
         }
@@ -196,4 +216,5 @@ public final class PostNanopublicationsCommand extends Command {
             transaction.postNanopublications(nanopublicationsToPost);
         }
     }
+
 }
