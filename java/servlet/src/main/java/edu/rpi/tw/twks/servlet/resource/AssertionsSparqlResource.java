@@ -9,6 +9,7 @@ import org.apache.jena.atlas.web.AcceptList;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Path("/sparql/assertions")
 public final class AssertionsSparqlResource extends AbstractSparqlResource {
+    @Inject
     public AssertionsSparqlResource(final Twks twks) {
         super(twks);
     }

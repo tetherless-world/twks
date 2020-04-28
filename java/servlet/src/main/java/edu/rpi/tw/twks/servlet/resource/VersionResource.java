@@ -5,6 +5,7 @@ import edu.rpi.tw.twks.api.TwksLibraryVersion;
 import edu.rpi.tw.twks.api.TwksVersion;
 import io.swagger.v3.oas.annotations.Operation;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -12,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 
 @Path("version")
 public class VersionResource extends AbstractResource {
+    @Inject
     public VersionResource(final Twks twks) {
         super(twks);
     }
