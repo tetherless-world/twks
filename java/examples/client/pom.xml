@@ -5,7 +5,7 @@
     <groupId>edu.rpi.tw.twks</groupId>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
 
     <build>
         <plugins>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>edu.rpi.tw.twks</groupId>
             <artifactId>twks-rest-client</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
+            <version>1.0.5-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
