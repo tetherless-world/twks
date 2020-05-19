@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -89,7 +90,6 @@ public final class ServletContextListener implements javax.servlet.ServletContex
                 }
             });
             consumer.flush();
-//            logger.info("parsed {} initial nanopublication(s) from {}", directoryNanopublications.size(), configuration.getInitialNanopublicationsDirectoryPath().get());
         }
 
         if (configuration.getInitialNanopublicationFilePaths().isPresent()) {
@@ -119,6 +119,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
         public final void accept(final Nanopublication nanopublication) {
             nanopublicationsBuffer.add(nanopublication);
             if (nanopublicationsBuffer.size() == 10) {
+                logger.info("posting {} initial nanopublication(s)", nanopublicationsBuffer.size());
                 twks.postNanopublications(ImmutableList.copyOf(nanopublicationsBuffer));
                 logger.info("posted {} initial nanopublication(s)", nanopublicationsBuffer.size());
                 nanopublicationsBuffer.clear();
@@ -129,6 +130,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
             if (nanopublicationsBuffer.isEmpty()) {
                 return;
             }
+            logger.info("posting {} initial nanopublication(s)", nanopublicationsBuffer.size());
             twks.postNanopublications(ImmutableList.copyOf(nanopublicationsBuffer));
             logger.info("posted {} initial nanopublication(s)", nanopublicationsBuffer.size());
             nanopublicationsBuffer.clear();
