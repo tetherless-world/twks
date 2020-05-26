@@ -2,7 +2,7 @@
 FROM twks-java as build-java
 
 # Deployment image
-FROM jetty:9.4.18-jre11
+FROM jetty:9.4.27-jre11
 
 # Copy in the server .war
 USER jetty
