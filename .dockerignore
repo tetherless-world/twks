@@ -1,8 +1,15 @@
 .circleci/
+**/.DS_Store
 doc/build/
 doc/venv/
 docker/compose/agraph-twks-server/data/
 .git/
+.idea/
+**/*.iml
+java/dist/
+java/dump/
+java/.idea/
+java/.m2/repository/edu/rpi/tw/twks/
 java/out/
 java/site/
 **/target/
