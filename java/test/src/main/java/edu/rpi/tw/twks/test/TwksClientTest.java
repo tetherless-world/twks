@@ -8,7 +8,8 @@ import static org.junit.Assert.assertEquals;
 
 public abstract class TwksClientTest<TwksClientT extends TwksClient> extends ApisTest<TwksClientT> {
     @Override
-    protected void closeSystemUnderTest(final TwksClientT sut) {
+    protected final void closeSystemUnderTest(final TwksClientT sut) {
+        sut.close();
     }
 
     @Override

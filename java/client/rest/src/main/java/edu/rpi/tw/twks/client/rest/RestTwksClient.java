@@ -77,6 +77,15 @@ public final class RestTwksClient implements TwksClient {
         });
     }
 
+    @Override
+    public final void close() {
+        try {
+            httpTransport.shutdown();
+        } catch (final IOException e) {
+            logger.error("error shutting down HTTP transport: ", e);
+        }
+    }
+
     private static HttpContent toContent(final Nanopublication... nanopublications) {
         final StringWriter contentStringWriter = new StringWriter();
         final Dataset dataset = DatasetFactory.create();
