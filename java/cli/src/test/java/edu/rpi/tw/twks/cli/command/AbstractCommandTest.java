@@ -25,6 +25,7 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
     private final MetricRegistry metricRegistry = new MetricRegistry();
     private final TestData testData = new TestData();
     protected CommandT command;
+    private DirectTwksClient client;
     private Path tempDirPath;
     private Twks twks;
     private TwksFactoryConfiguration twksConfiguration;
@@ -35,7 +36,7 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
 
     @After
     public final void tearDown() throws Exception {
-        twks.close();
+        client.close();
 
         if (tempDirPath != null) {
             MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
@@ -63,7 +64,7 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
     protected abstract CommandT newCommand();
 
     protected final void runCommand() {
-        command.run(new DirectTwksClient(twks), metricRegistry);
+        command.run(client, metricRegistry);
     }
 
     @Before
@@ -71,6 +72,7 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
         tempDirPath = Files.createTempDirectory(getClass().getSimpleName());
         twksConfiguration = TwksFactoryConfiguration.builder().setTdb2Configuration(Tdb2TwksConfiguration.builder().setDumpDirectoryPath(tempDirPath.resolve("dump")).build()).build();
         twks = TwksFactory.getInstance().createTwks(twksConfiguration, metricRegistry);
+        client = new DirectTwksClient(twks);
         // Order is important.
         command = newCommand();
     }

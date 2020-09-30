@@ -11,6 +11,7 @@ public abstract class TwksTransactionTest extends ApisTest<TwksTransaction> {
     protected final void closeSystemUnderTest(final TwksTransaction sut) {
         sut.commit();
         sut.close();
+        sut.getTwks().close();
     }
 
     protected abstract Twks newTwks(Path dumpDirectoryPath);

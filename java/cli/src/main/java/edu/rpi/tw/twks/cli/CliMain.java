@@ -90,15 +90,29 @@ public final class CliMain {
 
         final MetricRegistry metricRegistry = new MetricRegistry();
 
-        final TwksClient client;
+        try (final TwksClient client = newTwksClient(configurationProperties, metricRegistry)) {
+            @Nullable ConsoleReporter reporter = null;
+            if (reportMetrics) {
+                reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).build();
+                reporter.start(30, TimeUnit.SECONDS);
+            }
 
+            command.run(client, metricRegistry);
+
+            if (reporter != null) {
+                reporter.report();
+            }
+        }
+    }
+
+    private static TwksClient newTwksClient(final PropertiesConfiguration configurationProperties, final MetricRegistry metricRegistry) {
         final TwksFactoryConfiguration.Builder configurationBuilder = TwksFactoryConfiguration.builder().setFromEnvironment().set(configurationProperties);
         if (configurationBuilder.isDirty()) {
             // Write to a TWKS instance directly in the CLI process.
             final TwksFactoryConfiguration configuration = configurationBuilder.build();
             final Twks twks = TwksFactory.getInstance().createTwks(configuration, metricRegistry);
             logger.info("using library implementation {} with configuration {}", twks.getClass().getCanonicalName(), configuration);
-            client = new DirectTwksClient(twks);
+            return new DirectTwksClient(twks);
         } else {
             // Write to a TWKS server.
             final RestTwksClientConfiguration.Builder clientConfigurationBuilder = RestTwksClientConfiguration.builder();
@@ -108,20 +122,7 @@ public final class CliMain {
             clientConfigurationBuilder.set(configurationProperties.subset("twks"));
             final RestTwksClientConfiguration clientConfiguration = clientConfigurationBuilder.build();
             logger.debug("using client with configuration {}", clientConfiguration);
-            client = new RestTwksClient(clientConfiguration);
-        }
-
-        @Nullable ConsoleReporter reporter = null;
-        if (reportMetrics) {
-            reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).build();
-            reporter.start(30, TimeUnit.SECONDS);
-        }
-
-        command.run(client, metricRegistry);
-
-        if (reporter != null) {
-            reporter.report();
+            return new RestTwksClient(clientConfiguration);
         }
     }
-
 }
