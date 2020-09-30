@@ -7,6 +7,7 @@ import java.nio.file.Path;
 public abstract class TwksTest extends ApisTest<Twks> {
     @Override
     protected final void closeSystemUnderTest(final Twks sut) {
+        sut.close();
     }
 
     protected abstract Twks newTwks(Path dumpDirectoryPath);

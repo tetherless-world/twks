@@ -74,6 +74,8 @@ public abstract class AbstractResourceTest extends JerseyTest {
 
     @After
     public final void deleteTempDir() throws Exception {
+        twks.close();
+
         assertNotSame(null, tempDirPath);
         MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
         tempDirPath = null;
