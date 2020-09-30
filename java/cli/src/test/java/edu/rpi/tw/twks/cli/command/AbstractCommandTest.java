@@ -34,7 +34,9 @@ public abstract class AbstractCommandTest<CommandT extends Command> {
     }
 
     @After
-    public final void deleteTempDir() throws IOException {
+    public final void tearDown() throws Exception {
+        twks.close();
+
         if (tempDirPath != null) {
             MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
             logger.info("deleted temp directory {}", tempDirPath);

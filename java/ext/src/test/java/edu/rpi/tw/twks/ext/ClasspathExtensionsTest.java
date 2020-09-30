@@ -11,15 +11,16 @@ import static org.junit.Assert.assertTrue;
 
 public final class ClasspathExtensionsTest {
     @Test
-    public void testLifecycle() {
-        final Twks twks = TwksFactory.getInstance().createTwks();
-        assertFalse(TestTwksExtension.instantiated);
-        final ClasspathExtensions sut = new ClasspathExtensions(Optional.empty(), twks);
-        assertTrue(TestTwksExtension.instantiated);
-        assertFalse(TestTwksExtension.initialized);
-        sut.initialize();
-        assertTrue(TestTwksExtension.initialized);
-        sut.destroy();
-        assertTrue(TestTwksExtension.destroyed);
+    public void testLifecycle() throws Exception {
+        try (final Twks twks = TwksFactory.getInstance().createTwks()) {
+            assertFalse(TestTwksExtension.instantiated);
+            final ClasspathExtensions sut = new ClasspathExtensions(Optional.empty(), twks);
+            assertTrue(TestTwksExtension.instantiated);
+            assertFalse(TestTwksExtension.initialized);
+            sut.initialize();
+            assertTrue(TestTwksExtension.initialized);
+            sut.destroy();
+            assertTrue(TestTwksExtension.destroyed);
+        }
     }
 }

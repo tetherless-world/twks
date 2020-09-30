@@ -21,6 +21,9 @@ public interface Twks extends AdministrationApi, AutoCloseable, ChangeObservable
      */
     TwksTransaction beginTransaction(ReadWrite readWrite);
 
+    @Override
+    void close();
+
     /**
      * Get the store version.
      */

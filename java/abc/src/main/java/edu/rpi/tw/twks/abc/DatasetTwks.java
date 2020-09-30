@@ -3,8 +3,6 @@ package edu.rpi.tw.twks.abc;
 import edu.rpi.tw.twks.configuration.TwksConfiguration;
 import org.apache.jena.query.Dataset;
 
-import java.io.IOException;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class DatasetTwks<TwksConfigurationT extends TwksConfiguration, TwksMetricsT extends QuadStoreTwksMetrics> extends QuadStoreTwks<TwksConfigurationT, TwksMetricsT> {
@@ -16,7 +14,7 @@ public abstract class DatasetTwks<TwksConfigurationT extends TwksConfiguration, 
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         dataset.close();
     }
 

@@ -20,7 +20,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -28,12 +27,13 @@ public final class ServletContextListener implements javax.servlet.ServletContex
     private final static Logger logger = LoggerFactory.getLogger(ServletContextListener.class);
     private ClasspathExtensions classpathExtensions;
     private FileSystemExtensions fileSystemExtensions;
-
+    private Twks twks;
 
     @Override
     public void contextDestroyed(final ServletContextEvent sce) {
         classpathExtensions.destroy();
         fileSystemExtensions.destroy();
+        twks.close();
     }
 
     @Override
@@ -49,7 +49,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
 
         logger.info("server configuration: {}", configuration);
 
-        final Twks twks = TwksFactory.getInstance().createTwks(configuration.getFactoryConfiguration(), metricRegistry);
+        twks = TwksFactory.getInstance().createTwks(configuration.getFactoryConfiguration(), metricRegistry);
 
         classpathExtensions = new ClasspathExtensions(configuration.getExtcpDirectoryPath(), twks);
         fileSystemExtensions = new FileSystemExtensions(configuration.getExtfsDirectoryPath(), Optional.of(configuration.getServerBaseUrl()), twks);
