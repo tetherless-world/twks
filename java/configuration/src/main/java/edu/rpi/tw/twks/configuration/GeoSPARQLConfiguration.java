@@ -2,10 +2,10 @@ package edu.rpi.tw.twks.configuration;
 
 import com.google.common.base.MoreObjects;
 
-public final class TwksGeoSPARQLConfiguration extends AbstractConfiguration {
+public final class GeoSPARQLConfiguration extends AbstractConfiguration {
     private final boolean enable;
 
-    private TwksGeoSPARQLConfiguration(final Builder builder) {
+    private GeoSPARQLConfiguration(final Builder builder) {
         this.enable = builder.getEnable();
     }
 
@@ -22,12 +22,12 @@ public final class TwksGeoSPARQLConfiguration extends AbstractConfiguration {
         return super.toStringHelper().add("enable", enable);
     }
 
-    public final static class Builder extends AbstractConfiguration.Builder<Builder, TwksGeoSPARQLConfiguration> {
+    public final static class Builder extends AbstractConfiguration.Builder<Builder, GeoSPARQLConfiguration> {
         private boolean enable = PropertyDefinitions.ENABLE.getDefault();
 
         @Override
-        public TwksGeoSPARQLConfiguration build() {
-            return new TwksGeoSPARQLConfiguration(this);
+        public GeoSPARQLConfiguration build() {
+            return new GeoSPARQLConfiguration(this);
         }
 
         public final boolean getEnable() {
