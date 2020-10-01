@@ -68,7 +68,9 @@ public final class FullTextSearchConfiguration extends AbstractConfiguration {
 
         @Override
         public final Builder set(final ConfigurationWrapper properties) {
+            properties.getBoolean(PropertyDefinitions.ENABLE).ifPresent(value -> setEnable(value));
             properties.getPath(PropertyDefinitions.LUCENE_DIRECTORY_PATH).ifPresent(value -> setLuceneDirectoryPath(Optional.of(value)));
+            return this;
         }
     }
 

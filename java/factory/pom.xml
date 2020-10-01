@@ -27,5 +27,10 @@
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>edu.rpi.tw.twks</groupId>
+            <artifactId>twks-text</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 </project>
