@@ -5,11 +5,9 @@ import com.google.common.base.MoreObjects;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public abstract class TwksConfiguration extends AbstractConfiguration {
     private final Path dumpDirectoryPath;
-    private final TwksGeoSPARQLConfiguration geoSparqlConfiguration;
+    private final GeoSPARQLConfiguration geoSparqlConfiguration;
 
     protected TwksConfiguration(final Builder<?, ?> builder) {
         this.dumpDirectoryPath = builder.getDumpDirectoryPath();
@@ -20,7 +18,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
         return dumpDirectoryPath;
     }
 
-    public final TwksGeoSPARQLConfiguration getGeoSparqlConfiguration() {
+    public final GeoSPARQLConfiguration getGeoSparqlConfiguration() {
         return geoSparqlConfiguration;
     }
 
@@ -33,7 +31,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
 
     public abstract static class Builder<BuilderT extends Builder<?, ?>, TwksConfigurationT extends TwksConfiguration> extends AbstractConfiguration.Builder<BuilderT, TwksConfigurationT> {
         private Path dumpDirectoryPath = PropertyDefinitions.DUMP_DIRECTORY_PATH.getDefault();
-        private TwksGeoSPARQLConfiguration geoSparqlConfiguration = TwksGeoSPARQLConfiguration.builder().setEnable(false).build();
+        private GeoSPARQLConfiguration geoSparqlConfiguration = GeoSPARQLConfiguration.builder().setEnable(false).build();
 
         @Override
         public abstract TwksConfigurationT build();
@@ -49,12 +47,12 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
             return (BuilderT) this;
         }
 
-        public final TwksGeoSPARQLConfiguration getGeoSparqlConfiguration() {
+        public final GeoSPARQLConfiguration getGeoSparqlConfiguration() {
             return geoSparqlConfiguration;
         }
 
         @SuppressWarnings("unchecked")
-        public final BuilderT setGeoSparqlConfiguration(final TwksGeoSPARQLConfiguration geoSparqlConfiguration) {
+        public final BuilderT setGeoSparqlConfiguration(final GeoSPARQLConfiguration geoSparqlConfiguration) {
             this.geoSparqlConfiguration = geoSparqlConfiguration;
             markDirty();
             return (BuilderT) this;
@@ -64,7 +62,7 @@ public abstract class TwksConfiguration extends AbstractConfiguration {
         @SuppressWarnings("unchecked")
         public BuilderT set(final ConfigurationWrapper properties) {
             {
-                final TwksGeoSPARQLConfiguration.Builder geoSparqlConfigurationBuilder = TwksGeoSPARQLConfiguration.builder().set(properties);
+                final GeoSPARQLConfiguration.Builder geoSparqlConfigurationBuilder = GeoSPARQLConfiguration.builder().set(properties);
                 if (geoSparqlConfigurationBuilder.isDirty()) {
                     setGeoSparqlConfiguration(geoSparqlConfigurationBuilder.build());
                 }
