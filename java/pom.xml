@@ -263,6 +263,7 @@
                 <module>servlet</module>
                 <module>tdb</module>
                 <module>test</module>
+                <module>text</module>
                 <module>uri</module>
                 <module>vocabulary</module>
             </modules>
@@ -307,6 +308,7 @@
                 <!--                <module>server</module>-->
                 <module>servlet</module>
                 <module>tdb</module>
+                <module>text</module>
                 <module>test</module>
                 <module>uri</module>
                 <module>vocabulary</module>
