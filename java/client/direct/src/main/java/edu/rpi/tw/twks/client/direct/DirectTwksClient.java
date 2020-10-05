@@ -32,6 +32,11 @@ public final class DirectTwksClient implements TwksClient {
     }
 
     @Override
+    public final void close() {
+        twks.close();
+    }
+
+    @Override
     public final DeleteNanopublicationResult deleteNanopublication(final Uri uri) {
         return twks.deleteNanopublication(uri);
     }

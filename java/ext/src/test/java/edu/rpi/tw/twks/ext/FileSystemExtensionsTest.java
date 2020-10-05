@@ -47,6 +47,7 @@ public final class FileSystemExtensionsTest {
 
     @After
     public void tearDown() throws IOException {
+        twks.close();
         System.setOut(originalSystemOut);
         MoreFiles.deleteRecursively(tempDirPath, RecursiveDeleteOption.ALLOW_INSECURE);
         tempDirPath = null;

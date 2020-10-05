@@ -13,6 +13,11 @@ public abstract class DatasetTwks<TwksConfigurationT extends TwksConfiguration, 
         this.dataset = checkNotNull(dataset);
     }
 
+    @Override
+    public void close() {
+        dataset.close();
+    }
+
     final Dataset getDataset() {
         return dataset;
     }

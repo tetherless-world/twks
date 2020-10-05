@@ -11,10 +11,6 @@ import org.apache.jena.query.ReadWrite;
  * A Twks implementation backed by the default in-memory Dataset.
  */
 public final class MemTwks extends DatasetTwks<MemTwksConfiguration, QuadStoreTwksMetrics> {
-//    public MemTwks() {
-//        this(MemTwksConfiguration.builder().build());
-//    }
-
     public MemTwks(final MemTwksConfiguration configuration, final MetricRegistry metricRegistry) {
         super(configuration, DatasetFactory.createTxnMem(), new QuadStoreTwksMetrics(metricRegistry));
     }

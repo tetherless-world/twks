@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <artifactId>twks-factory</artifactId>
-    <description>${product} implementation factory</description>
+    <artifactId>twks-text</artifactId>
+    <description>${product} fulltext search support</description>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
@@ -13,12 +13,7 @@
     <dependencies>
         <dependency>
             <groupId>edu.rpi.tw.twks</groupId>
-            <artifactId>twks-agraph</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.rpi.tw.twks</groupId>
-            <artifactId>twks-tdb</artifactId>
+            <artifactId>twks-abc</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -28,9 +23,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>edu.rpi.tw.twks</groupId>
-            <artifactId>twks-text</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-text</artifactId>
+            <version>${jena.version}</version>
         </dependency>
     </dependencies>
 </project>

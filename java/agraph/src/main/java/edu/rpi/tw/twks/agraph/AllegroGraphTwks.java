@@ -24,6 +24,13 @@ public final class AllegroGraphTwks extends QuadStoreTwks<AllegroGraphTwksConfig
     }
 
     @Override
+    public final void close() {
+        if (server != null) {
+            server.close();
+        }
+    }
+
+    @Override
     protected TwksTransaction _beginTransaction(final ReadWrite readWrite) {
         final AGRepositoryConnection connection = getRepository().getConnection();
         return new AllegroGraphTwksTransaction(connection, this);
