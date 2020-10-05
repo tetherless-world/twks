@@ -8,6 +8,15 @@ TWKS is beta-quality software. It does not (yet) adhere to [Semantic Versioning]
 
 ## [Unreleased]
 
+### Java
+
+#### Added
+- Full text search support using `jena-text`. Enable with `twks.enableFullTextSearch`.
+
+#### Changed
+- Upgraded Jena to 3.16.0.
+
+
 ## [1.0.4] - 2020-05-06
 
 ### Docker
