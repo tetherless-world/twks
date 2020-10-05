@@ -23,6 +23,7 @@ public final class FullTextSearchableDatasetFactory {
         }
 
         final EntityDefinition entityDefinition = new EntityDefinition("uri", "text");
+        entityDefinition.setGraphField("graph");
         entityDefinition.setPrimaryPredicate(RDFS.label.asNode());
         // Add additional predicates for the "text" field
 //        entityDefinition.set("text", DCTerms.title.asNode());

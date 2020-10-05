@@ -42,6 +42,34 @@ public final class TestData {
             "    ex:pub2 prov:wasAttributedTo ex:paul .\n" +
             "    ex:pub2 prov:generatedAtTime \"2012-10-26T12:45:00Z\"^^xsd:dateTime .\n" +
             "}\n";
+    public final static String SEARCHABLE_NANOPUBLICATION_TRIG = "@prefix : <http://example.org/pub1#> .\n" +
+            "@prefix ex: <http://example.org/> .\n" +
+            "@prefix np:  <http://www.nanopub.org/nschema#> .\n" +
+            "@prefix prov: <http://www.w3.org/ns/prov#> .\n" +
+            "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+            "@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .\n" +
+            "\n" +
+            ":head {\n" +
+            "    ex:pub1 a np:Nanopublication .\n" +
+            "    ex:pub1 np:hasAssertion :assertion .\n" +
+            "    ex:pub1 np:hasProvenance :provenance .\n" +
+            "    ex:pub1 np:hasPublicationInfo :pubInfo .\n" +
+            "}\n" +
+            "\n" +
+            ":assertion {\n" +
+            "    ex:trastuzumab rdfs:label \"some drug\" .\n" +
+            "}\n" +
+            "\n" +
+            ":provenance {\n" +
+            "    :assertion prov:generatedAtTime \"2012-02-03T14:38:00Z\"^^xsd:dateTime .\n" +
+            "    :assertion prov:wasDerivedFrom :experiment .\n" +
+            "    :assertion prov:wasAttributedTo :experimentScientist .\n" +
+            "}\n" +
+            "\n" +
+            ":pubInfo {\n" +
+            "    ex:pub1 prov:wasAttributedTo ex:paul .\n" +
+            "    ex:pub1 prov:generatedAtTime \"2012-10-26T12:45:00Z\"^^xsd:dateTime .\n" +
+            "}\n";
     public final static String SPEC_NANOPUBLICATION_TRIG = "@prefix : <http://example.org/pub1#> .\n" +
             "@prefix ex: <http://example.org/> .\n" +
             "@prefix np:  <http://www.nanopub.org/nschema#> .\n" +
@@ -77,6 +105,7 @@ public final class TestData {
     public final Uri ontologyUri = Uri.parse("http://example.com/ontology");
     public final Nanopublication secondNanopublication;
     public final Nanopublication secondOntologyNanopublication;
+    public final Nanopublication searchableNanopublication;
     public final Uri secondOntologyUri = Uri.parse("http://example.com/ontology2");
     //    public final File whyisNanopublicationFilePath;
     public final Nanopublication specNanopublication;
@@ -91,6 +120,7 @@ public final class TestData {
         // 20191011: pulling file resources is not working with the new -test module
         try {
             secondNanopublication = parseNanopublicationFromString(SECOND_NANOPUBLICATION_TRIG);
+            searchableNanopublication = parseNanopublicationFromString(SEARCHABLE_NANOPUBLICATION_TRIG);
             specNanopublication = parseNanopublicationFromString(SPEC_NANOPUBLICATION_TRIG);
 
             {
