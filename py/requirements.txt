@@ -16,9 +16,8 @@ py==1.8.0
 Pygments==2.4.2
 pyparsing==2.4.2
 pytest==5.2.1
-git+git://github.com/RDFLib/rdflib.git#egg=rdflib
-# rdflib==5.0.0.dev0
-rdflib-jsonld==0.4.0
+rdflib==5.0.0
+rdflib-jsonld==0.5.0
 readme-renderer==24.0
 requests==2.22.0
 requests-toolbelt==0.9.1
