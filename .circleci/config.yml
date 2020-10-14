@@ -24,7 +24,7 @@ jobs:
           command: |
             rm -fr py/.cache
             mkdir -p ~/.cache/pip
-            mv ~/.cache py/
+            rm -fr ~/.cache
             rm -fr java/.m2
             mkdir -p ~/.m2
             mv ~/.m2 java/
