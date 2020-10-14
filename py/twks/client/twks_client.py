@@ -25,8 +25,8 @@ class TwksClient:
         if not server_base_url:
             server_base_url = "http://localhost:8080"
         self.__server_base_url = server_base_url
-        self.assertions_sparql_store = SPARQLStore(endpoint=server_base_url + "/sparql/assertions")
-        self.nanopublications_sparql_store = SPARQLStore(endpoint=server_base_url + "/sparql/nanopublications")
+        self.assertions_sparql_store = SPARQLStore(query_endpoint=server_base_url + "/sparql/assertions")
+        self.nanopublications_sparql_store = SPARQLStore(query_endpoint=server_base_url + "/sparql/nanopublications")
 
     def delete_nanopublication(self, nanopublication_uri: str) -> bool:
         """
