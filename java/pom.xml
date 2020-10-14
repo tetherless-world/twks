@@ -320,7 +320,7 @@
         <guava.version>28.1-jre</guava.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <jena.version>3.16.0</jena.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <logback.version>1.2.3</logback.version>
         <product>Tetherless World Knowledge Store (TWKS)</product>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
