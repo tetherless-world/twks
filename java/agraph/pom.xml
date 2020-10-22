@@ -27,6 +27,15 @@
             <artifactId>agraph-java-client</artifactId>
             <version>3.0.0</version>
             <exclusions>
+                <!-- Ignore old versions of dependencies -->
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
