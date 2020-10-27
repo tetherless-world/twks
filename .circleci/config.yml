@@ -3,6 +3,9 @@ jobs:
   build:
     docker:
       - image: docker/compose:1.24.1
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     working_directory: ~/twks
     steps:
       - checkout
