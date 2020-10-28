@@ -78,6 +78,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
                     // Exception will be logged below.
                 }
             };
+            logger.info("loading initial nanopublications from directory {}", configuration.getInitialNanopublicationsDirectoryPath().get());
             nanopublicationParser.parseDirectory(configuration.getInitialNanopublicationsDirectoryPath().get(), new NanopublicationDirectoryConsumer() {
                 @Override
                 public void accept(final Nanopublication nanopublication, final Path nanopublicationFilePath) {
@@ -90,6 +91,7 @@ public final class ServletContextListener implements javax.servlet.ServletContex
                 }
             });
             consumer.flush();
+            logger.info("loaded initial nanopublications from directory {}", configuration.getInitialNanopublicationsDirectoryPath().get());
         }
 
         if (configuration.getInitialNanopublicationFilePaths().isPresent()) {
